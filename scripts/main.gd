@@ -1,657 +1,949 @@
 extends Control
+## Money Mercs V0.2 — rebuilt interface.
+## UI only. Game economy, expeditions and user:// saves stay in game_state.gd.
+const Art = preload("res://scripts/ui_art.gd")
 
-const BACKGROUND := Color("#0b1117")
-const SIDEBAR := Color("#101a21")
-const PANEL := Color("#17232b")
-const PANEL_2 := Color("#20313a")
-const BORDER := Color("#31434b")
-const INK := Color("#e9e8dc")
-const SUBTLE := Color("#a2b1b5")
-const GOLD := Color("#ebc578")
-const GREEN := Color("#76d0ab")
-const RED := Color("#e58b7e")
+const BG := Color("#0e1516")
+const RAIL := Color("#111d1e")
+const SURFACE := Color("#182525")
+const SURFACE_2 := Color("#20312f")
+const SURFACE_HOVER := Color("#2a3c37")
+const EDGE := Color("#33443e")
+const CREAM := Color("#f2ebd9")
+const MUTED := Color("#9caaa3")
+const FAINT := Color("#70867c")
+const BRASS := Color("#d6b47a")
+const BRASS_DARK := Color("#91764d")
+const SUCCESS := Color("#97ceaa")
+const DANGER := Color("#e3a093")
+
+const PAGES := [
+	["hq", "THE OFFICE", "01"],
+	["expeditions", "EXPEDITIONS", "02"],
+	["roster", "THE CREW", "03"],
+	["market", "THE EXCHANGE", "04"],
+	["ledger", "THE JOURNAL", "05"]
+]
 
 var game: MoneyMercsState
-var _page: String = "overview"
-var _planning_region: String = ""
-var _selected_ids: Array[String] = []
-var _tactic: String = "Balanced"
-var _reset_armed: bool = false
+var page: String = "hq"
+var selected_region: String = "lowlands"
+var selected_merc: String = ""
+var selected_item: String = "iron"
+var selected_report: int = 0
+var roster_tab: String = "employed"
+var selected_crew: Array[String] = []
+var tactic: String = "Balanced"
+var reset_armed: bool = false
 
-var _main_area: VBoxContainer
-var _body: VBoxContainer
-var _gold_display: Label
-var _wealth_display: Label
-var _notice_display: Label
-var _nav_column: VBoxContainer
-var _timer_labels: Dictionary = {}
+var content_root: VBoxContainer
+var inspector_root: VBoxContainer
+var inspector_actions: VBoxContainer
+var header_gold: Label
+var header_wealth: Label
+var header_jobs: Label
+var footer_notice: Label
+var navigation: VBoxContainer
+var mission_timers: Dictionary = {}
+var mission_bars: Dictionary = {}
 
 func _ready() -> void:
 	game = MoneyMercsState.new()
-	game.complete_due()
-	_make_shell()
-	_render_page()
+	var finished: int = game.complete_due()
+	_selected_first_merc()
+	_build_shell()
+	if finished > 0:
+		_toast("%d field team(s) returned while you were away." % finished)
+	else:
+		_toast("Operations desk is open. Your company is ready.")
+	_refresh()
 	var clock := Timer.new()
 	clock.wait_time = 1.0
 	clock.autostart = true
 	add_child(clock)
-	clock.timeout.connect(_clock_tick)
+	clock.timeout.connect(_on_clock)
 
-func _style(fill: Color, outline: Color, radius: int = 12, margin: int = 14) -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = fill
-	s.border_color = outline
-	s.border_width_left = 1
-	s.border_width_right = 1
-	s.border_width_top = 1
-	s.border_width_bottom = 1
-	s.corner_radius_top_left = radius
-	s.corner_radius_top_right = radius
-	s.corner_radius_bottom_left = radius
-	s.corner_radius_bottom_right = radius
-	s.content_margin_left = margin
-	s.content_margin_right = margin
-	s.content_margin_top = margin
-	s.content_margin_bottom = margin
-	return s
+func _style(fill: Color, border: Color = EDGE, radius: int = 9, pad: int = 0) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = fill
+	style.border_color = border
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = radius
+	style.corner_radius_top_right = radius
+	style.corner_radius_bottom_left = radius
+	style.corner_radius_bottom_right = radius
+	style.content_margin_left = pad
+	style.content_margin_right = pad
+	style.content_margin_top = pad
+	style.content_margin_bottom = pad
+	return style
 
-func _col(space: int = 10) -> VBoxContainer:
-	var c := VBoxContainer.new()
-	c.add_theme_constant_override("separation", space)
-	c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	return c
+func _h(gap: int = 10) -> HBoxContainer:
+	var node := HBoxContainer.new()
+	node.add_theme_constant_override("separation", gap)
+	node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return node
 
-func _row(space: int = 12) -> HBoxContainer:
-	var r := HBoxContainer.new()
-	r.add_theme_constant_override("separation", space)
-	r.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	return r
+func _v(gap: int = 9) -> VBoxContainer:
+	var node := VBoxContainer.new()
+	node.add_theme_constant_override("separation", gap)
+	node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return node
 
-func _text(value: String, size: int = 15, color: Color = INK) -> Label:
-	var l := Label.new()
-	l.text = value
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", color)
-	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	return l
+func _label(value: String, font_size: int = 14, ink: Color = CREAM, uppercase: bool = false) -> Label:
+	var node := Label.new()
+	node.text = value.to_upper() if uppercase else value
+	node.add_theme_font_size_override("font_size", font_size)
+	node.add_theme_color_override("font_color", ink)
+	node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	return node
 
-func _button(label: String, fn: Callable, primary: bool = false) -> Button:
-	var b := Button.new()
-	b.text = label
-	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(0, 39)
-	b.add_theme_font_size_override("font_size", 14)
-	b.add_theme_color_override("font_color", BACKGROUND if primary else INK)
-	b.add_theme_color_override("font_hover_color", BACKGROUND if primary else INK)
-	b.add_theme_color_override("font_pressed_color", BACKGROUND if primary else INK)
-	b.add_theme_stylebox_override("normal", _style(GOLD if primary else PANEL_2, GOLD if primary else BORDER, 8, 11))
-	b.add_theme_stylebox_override("hover", _style(Color("#f7d895") if primary else Color("#30434d"), GOLD, 8, 11))
-	b.add_theme_stylebox_override("pressed", _style(Color("#d5a952") if primary else Color("#3a5059"), GOLD, 8, 11))
-	b.add_theme_stylebox_override("disabled", _style(Color("#20282c"), BORDER, 8, 11))
-	b.pressed.connect(fn)
-	return b
+func _line(parent: Node, color: Color = EDGE) -> void:
+	var rule := ColorRect.new()
+	rule.color = color
+	rule.custom_minimum_size.y = 1
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(rule)
 
-func _card(parent: Node, padding: int = 16) -> VBoxContainer:
+func _spacer(parent: Node, pixels: int = 10) -> void:
+	var s := Control.new()
+	s.custom_minimum_size.y = pixels
+	parent.add_child(s)
+
+func _button(title: String, action: Callable, emph: bool = false, small: bool = false) -> Button:
+	var node := Button.new()
+	node.text = title
+	node.focus_mode = Control.FOCUS_ALL
+	node.custom_minimum_size.y = 34 if small else 44
+	node.add_theme_font_size_override("font_size", 12 if small else 13)
+	node.add_theme_color_override("font_color", BG if emph else CREAM)
+	node.add_theme_color_override("font_hover_color", BG if emph else CREAM)
+	node.add_theme_color_override("font_pressed_color", BG if emph else CREAM)
+	node.add_theme_color_override("font_focus_color", BG if emph else CREAM)
+	node.add_theme_stylebox_override("normal", _style(BRASS if emph else SURFACE_2, BRASS_DARK if emph else EDGE, 6, 10))
+	node.add_theme_stylebox_override("hover", _style(Color("#eccd97") if emph else SURFACE_HOVER, BRASS, 6, 10))
+	node.add_theme_stylebox_override("pressed", _style(Color("#caa267") if emph else Color("#30493e"), BRASS_DARK, 6, 10))
+	node.add_theme_stylebox_override("focus", _style(Color.TRANSPARENT, BRASS, 6, 10))
+	node.add_theme_stylebox_override("disabled", _style(SURFACE, EDGE, 6, 10))
+	node.add_theme_color_override("font_disabled_color", FAINT)
+	node.pressed.connect(action)
+	return node
+
+func _frame(parent: Node, selected: bool = false, pad: int = 17) -> VBoxContainer:
 	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _style(PANEL, BORDER, 12, padding))
+	panel.add_theme_stylebox_override("panel", _style(SURFACE_2 if selected else SURFACE, BRASS_DARK if selected else EDGE, 9, pad))
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(panel)
-	var inside := _col(9)
+	var inside := _v(10)
 	panel.add_child(inside)
 	return inside
 
-func _rule(parent: Node) -> void:
-	var sep := HSeparator.new()
-	sep.add_theme_stylebox_override("separator", _style(BORDER, BORDER, 0, 0))
-	parent.add_child(sep)
+func _tag(title: String, tone: Color = MUTED) -> Label:
+	var tag := _label(title, 10, tone, true)
+	tag.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	tag.add_theme_stylebox_override("normal", _style(SURFACE_2, EDGE, 4, 5))
+	return tag
 
-func _space(parent: Node, amount: float = 10.0) -> void:
-	var sp := Control.new()
-	sp.custom_minimum_size = Vector2(0, amount)
-	parent.add_child(sp)
+func _portrait(parent: Node, name: String, scale: int = 64) -> void:
+	var art: Control = Art.new()
+	art.kind = "portrait"
+	art.variant = int(name.hash())
+	art.custom_minimum_size = Vector2(scale, scale)
+	art.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	parent.add_child(art)
 
-func _pill(text_value: String, shade: Color = GOLD) -> Label:
-	var p := Label.new()
-	p.text = text_value.to_upper()
-	p.add_theme_font_size_override("font_size", 11)
-	p.add_theme_color_override("font_color", shade)
-	p.add_theme_stylebox_override("normal", _style(PANEL_2, BORDER, 6, 6))
-	return p
+func _illustration(parent: Node, id: String, height: int = 130) -> void:
+	var art: Control = Art.new()
+	art.kind = id
+	art.custom_minimum_size.y = height
+	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	parent.add_child(art)
 
-func _make_shell() -> void:
-	var backdrop := ColorRect.new()
-	backdrop.color = BACKGROUND
-	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(backdrop)
+func _field(parent: Node, heading: String, value: String, tint: Color = CREAM) -> void:
+	var wrapper := _v(3)
+	wrapper.add_child(_label(heading, 10, FAINT, true))
+	wrapper.add_child(_label(value, 17, tint))
+	parent.add_child(wrapper)
 
-	var frame := VBoxContainer.new()
-	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	frame.add_theme_constant_override("separation", 0)
-	add_child(frame)
+func _clear(parent: Node) -> void:
+	for child in parent.get_children():
+		parent.remove_child(child)
+		child.queue_free()
 
-	var upper := PanelContainer.new()
-	upper.add_theme_stylebox_override("panel", _style(SIDEBAR, BORDER, 0, 15))
-	frame.add_child(upper)
-	var header := _row(24)
-	upper.add_child(header)
-	var identity := _col(0)
-	identity.custom_minimum_size.x = 230
-	identity.add_child(_text("MONEY / MERCS", 22, GOLD))
-	identity.add_child(_text("YOUR FORTUNE. THEIR RISK.", 10, SUBTLE))
-	header.add_child(identity)
-	var stretch := Control.new()
-	stretch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(stretch)
-	var gold_box := _col(1)
-	gold_box.custom_minimum_size.x = 145
-	gold_box.add_child(_text("AVAILABLE GOLD", 10, SUBTLE))
-	_gold_display = _text("", 23, GOLD)
-	gold_box.add_child(_gold_display)
-	header.add_child(gold_box)
-	var wealth_box := _col(1)
-	wealth_box.custom_minimum_size.x = 160
-	wealth_box.add_child(_text("COMPANY VALUE", 10, SUBTLE))
-	_wealth_display = _text("", 23, INK)
-	wealth_box.add_child(_wealth_display)
-	header.add_child(wealth_box)
-	header.add_child(_button("SAVE COMPANY", func() -> void:
-		game.save_game()
-		_notify("Company records saved.")
-	))
+func _build_shell() -> void:
+	var base := ColorRect.new()
+	base.color = BG
+	base.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(base)
+	var shell := _v(0)
+	shell.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(shell)
 
-	var layout := _row(0)
+	# Minimal, persistent treasury strip.
+	var top := PanelContainer.new()
+	top.add_theme_stylebox_override("panel", _style(RAIL, RAIL, 0, 0))
+	shell.add_child(top)
+	var top_pad := MarginContainer.new()
+	top_pad.add_theme_constant_override("margin_left", 24)
+	top_pad.add_theme_constant_override("margin_right", 27)
+	top_pad.add_theme_constant_override("margin_top", 16)
+	top_pad.add_theme_constant_override("margin_bottom", 16)
+	top.add_child(top_pad)
+	var top_row := _h(24)
+	top_pad.add_child(top_row)
+	var mark := _v(0)
+	mark.custom_minimum_size.x = 198
+	mark.add_child(_label("M / M", 26, BRASS))
+	mark.add_child(_label("THE CONTRACTOR'S GUILD", 9, FAINT, true))
+	top_row.add_child(mark)
+	var intro := _v(1)
+	intro.add_child(_label("MONEY MERCS", 18, CREAM, true))
+	intro.add_child(_label("Build a fortune. Leave the danger to others.", 12, MUTED))
+	top_row.add_child(intro)
+	var flex := Control.new()
+	flex.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_row.add_child(flex)
+	var money := _v(2)
+	money.custom_minimum_size.x = 137
+	money.add_child(_label("CASH ON HAND", 10, FAINT, true))
+	header_gold = _label("—", 21, BRASS)
+	money.add_child(header_gold)
+	top_row.add_child(money)
+	var worth := _v(2)
+	worth.custom_minimum_size.x = 147
+	worth.add_child(_label("COMPANY VALUE", 10, FAINT, true))
+	header_wealth = _label("—", 21)
+	worth.add_child(header_wealth)
+	top_row.add_child(worth)
+	var jobs := _v(2)
+	jobs.custom_minimum_size.x = 110
+	jobs.add_child(_label("IN THE FIELD", 10, FAINT, true))
+	header_jobs = _label("—", 21, SUCCESS)
+	jobs.add_child(header_jobs)
+	top_row.add_child(jobs)
+
+	var top_rule := ColorRect.new()
+	top_rule.color = BRASS_DARK
+	top_rule.custom_minimum_size.y = 2
+	shell.add_child(top_rule)
+
+	var layout := _h(0)
 	layout.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	frame.add_child(layout)
-	var side_panel := PanelContainer.new()
-	side_panel.custom_minimum_size.x = 230
-	side_panel.add_theme_stylebox_override("panel", _style(SIDEBAR, BORDER, 0, 16))
-	layout.add_child(side_panel)
-	_nav_column = _col(10)
-	side_panel.add_child(_nav_column)
-	
-	var content_margin := MarginContainer.new()
-	content_margin.add_theme_constant_override("margin_left", 27)
-	content_margin.add_theme_constant_override("margin_right", 27)
-	content_margin.add_theme_constant_override("margin_top", 21)
-	content_margin.add_theme_constant_override("margin_bottom", 18)
-	content_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	content_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	layout.add_child(content_margin)
+	shell.add_child(layout)
+	# Navigation rail
+	var nav_panel := PanelContainer.new()
+	nav_panel.custom_minimum_size.x = 205
+	nav_panel.add_theme_stylebox_override("panel", _style(RAIL, RAIL, 0, 0))
+	layout.add_child(nav_panel)
+	var nav_pad := MarginContainer.new()
+	nav_pad.add_theme_constant_override("margin_left", 14)
+	nav_pad.add_theme_constant_override("margin_right", 14)
+	nav_pad.add_theme_constant_override("margin_top", 28)
+	nav_pad.add_theme_constant_override("margin_bottom", 18)
+	nav_panel.add_child(nav_pad)
+	navigation = _v(11)
+	nav_pad.add_child(navigation)
 
-	_main_area = _col(12)
-	content_margin.add_child(_main_area)
-	_notice_display = _text("Welcome to Money Mercs. Hire a crew to begin.", 13, GOLD)
-	_notice_display.custom_minimum_size.y = 22
-	frame.add_child(_notice_display)
-	_notice_display.add_theme_stylebox_override("normal", _style(SIDEBAR, SIDEBAR, 0, 9))
+	# Work area. Content is scrollable, inspector stays in place.
+	var center_margin := MarginContainer.new()
+	center_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	center_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	center_margin.add_theme_constant_override("margin_left", 31)
+	center_margin.add_theme_constant_override("margin_right", 31)
+	center_margin.add_theme_constant_override("margin_top", 25)
+	center_margin.add_theme_constant_override("margin_bottom", 17)
+	layout.add_child(center_margin)
+	var center_column := _v(18)
+	center_margin.add_child(center_column)
+	content_root = _v(14)
+	var content_scroll := ScrollContainer.new()
+	content_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	content_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	center_column.add_child(content_scroll)
+	content_scroll.add_child(content_root)
 
-func _update_nav() -> void:
-	for child in _nav_column.get_children():
-		_nav_column.remove_child(child)
-		child.queue_free()
-	_nav_column.add_child(_text("OPERATIONS", 11, SUBTLE))
-	var pages := [
-		["overview", "01   Headquarters"],
-		["expeditions", "02   Expeditions"],
-		["roster", "03   Mercenaries"],
-		["market", "04   Marketplace"],
-		["vault", "05   Resource Vault"],
-		["ledger", "06   Company Ledger"]
-	]
-	for page in pages:
-		var key: String = page[0]
-		var label_value: String = page[1]
-		var active := _page == key or (_page == "prepare" and key == "expeditions")
-		var b := _button(label_value, _navigate.bind(key))
-		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		if active:
-			b.add_theme_stylebox_override("normal", _style(PANEL_2, GOLD, 8, 11))
-			b.add_theme_color_override("font_color", GOLD)
-		_nav_column.add_child(b)
-	_space(_nav_column, 10)
-	_nav_column.add_child(_text("FIELD STATUS", 11, SUBTLE))
-	var alive: int = game.crew.size()
-	var active: int = game.missions.size()
-	_nav_column.add_child(_text("%d / %d expeditions deployed" % [active, game.expedition_slots], 13, INK))
-	_nav_column.add_child(_text("%d mercenaries on payroll" % alive, 13, SUBTLE))
-	_space(_nav_column, 16)
-	_nav_column.add_child(_text("LOCAL PROTOTYPE  •  V0.1", 10, SUBTLE))
+	# Right-hand contextual workbench.
+	var inspect_panel := PanelContainer.new()
+	inspect_panel.custom_minimum_size.x = 326
+	inspect_panel.add_theme_stylebox_override("panel", _style(Color("#142220"), EDGE, 0, 0))
+	layout.add_child(inspect_panel)
+	var inspect_pad := MarginContainer.new()
+	inspect_pad.add_theme_constant_override("margin_left", 21)
+	inspect_pad.add_theme_constant_override("margin_right", 21)
+	inspect_pad.add_theme_constant_override("margin_top", 27)
+	inspect_pad.add_theme_constant_override("margin_bottom", 24)
+	inspect_panel.add_child(inspect_pad)
+	var inspect_column := _v(13)
+	inspect_pad.add_child(inspect_column)
+	inspect_column.add_child(_label("THE DESK / DETAILS", 11, BRASS, true))
+	_line(inspect_column)
+	var inspect_scroller := ScrollContainer.new()
+	inspect_scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	inspect_scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inspect_column.add_child(inspect_scroller)
+	inspector_root = _v(14)
+	inspect_scroller.add_child(inspector_root)
+	_line(inspect_column)
+	inspector_actions = _v(9)
+	inspect_column.add_child(inspector_actions)
 
-func _navigate(page: String) -> void:
-	_page = page
-	_reset_armed = false
-	_render_page()
+	# Action feedback always stays visible.
+	var bottom := PanelContainer.new()
+	bottom.add_theme_stylebox_override("panel", _style(RAIL, RAIL, 0, 0))
+	shell.add_child(bottom)
+	var bottom_pad := MarginContainer.new()
+	bottom_pad.add_theme_constant_override("margin_left", 22)
+	bottom_pad.add_theme_constant_override("margin_right", 22)
+	bottom_pad.add_theme_constant_override("margin_top", 8)
+	bottom_pad.add_theme_constant_override("margin_bottom", 8)
+	bottom.add_child(bottom_pad)
+	var bottom_row := _h(10)
+	bottom_pad.add_child(bottom_row)
+	footer_notice = _label("Records ready.", 12, SUCCESS)
+	bottom_row.add_child(footer_notice)
+	var footer_tag := _label("LOCAL COMPANY  •  AUTOSAVE  •  V0.2", 10, FAINT, true)
+	footer_tag.size_flags_horizontal = Control.SIZE_SHRINK_END
+	bottom_row.add_child(footer_tag)
 
-func _render_page() -> void:
-	_update_nav()
-	_gold_display.text = _money(game.gold)
-	_wealth_display.text = _money(game.wealth())
-	for child in _main_area.get_children():
-		_main_area.remove_child(child)
-		child.queue_free()
-	_timer_labels.clear()
-	var head := _col(3)
-	_main_area.add_child(head)
-	var description: Dictionary = {
-		"overview": ["HEADQUARTERS", "Build a company worth more than the mercenaries who risk their lives for it."],
-		"expeditions": ["EXPEDITIONS", "Fund a crew, set standing orders, and bring the haul home."],
-		"prepare": ["EXPEDITION BRIEFING", "A profitable mission is won before anybody leaves the gates."],
-		"roster": ["MERCENARY ROSTER", "Experienced labor is expensive. Inexperienced labor is risky."],
-		"market": ["TRADE EXCHANGE", "Buy low, sell high, and keep enough capital for tomorrow's wages."],
-		"vault": ["RESOURCE VAULT", "Every handful of ore is one step closer to extraordinary wealth."],
-		"ledger": ["COMPANY LEDGER", "Know exactly where every coin came from—and where it went."]
-	}
-	var title_data: Array = description.get(_page, description["overview"])
-	head.add_child(_text(str(title_data[0]), 28, INK))
-	head.add_child(_text(str(title_data[1]), 14, SUBTLE))
-	var scroller := ScrollContainer.new()
-	scroller.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroller.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroller.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_main_area.add_child(scroller)
-	_body = _col(17)
-	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroller.add_child(_body)
-	match _page:
-		"overview": _overview()
+func _nav_to(next_page: String) -> void:
+	page = next_page
+	reset_armed = false
+	_refresh()
+
+func _update_navigation() -> void:
+	_clear(navigation)
+	navigation.add_child(_label("COMPANY RECORDS", 10, FAINT, true))
+	_spacer(navigation, 7)
+	for entry in PAGES:
+		var key: String = str(entry[0])
+		var title: String = str(entry[1])
+		var index: String = str(entry[2])
+		var btn := _button("%s   %s" % [index, title], _nav_to.bind(key), false, false)
+		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		if page == key:
+			btn.add_theme_stylebox_override("normal", _style(SURFACE_2, BRASS_DARK, 7, 10))
+			btn.add_theme_color_override("font_color", BRASS)
+		else:
+			btn.add_theme_stylebox_override("normal", _style(RAIL, RAIL, 7, 10))
+		navigation.add_child(btn)
+	_spacer(navigation, 25)
+	_line(navigation)
+	_spacer(navigation, 9)
+	navigation.add_child(_label("YOUR CONTRACTORS", 10, FAINT, true))
+	navigation.add_child(_label("%d employed  /  %d ready" % [game.crew.size(), game.free_crew()], 13))
+	navigation.add_child(_label("%d reputation" % game.reputation, 12, MUTED))
+	navigation.add_child(_label("%d / %d expedition slots" % [game.missions.size(), game.expedition_slots], 12, MUTED))
+
+func _refresh() -> void:
+	header_gold.text = _money(game.gold)
+	header_gold.add_theme_color_override("font_color", DANGER if game.gold < 0 else BRASS)
+	header_wealth.text = _money(game.wealth())
+	header_jobs.text = "%d / %d" % [game.missions.size(), game.expedition_slots]
+	_update_navigation()
+	_clear(content_root)
+	_clear(inspector_root)
+	_clear(inspector_actions)
+	mission_timers.clear()
+	mission_bars.clear()
+	match page:
+		"hq": _home()
 		"expeditions": _expeditions()
-		"prepare": _prepare()
 		"roster": _roster()
 		"market": _market()
-		"vault": _vault()
-		"ledger": _ledger()
+		"ledger": _journal()
 
-func _notify(message: String) -> void:
-	_notice_display.text = "  ◈   " + message
+func _toast(message: String) -> void:
+	if footer_notice != null:
+		footer_notice.text = "●  " + message
 
-func _take_action(message: String) -> void:
-	_notify(message)
-	_render_page()
+func _action(message: String) -> void:
+	_refresh()
+	_toast(message)
 
-func _money(amount: int) -> String:
-	return "%s g" % _commas(amount)
+func _title(overline: String, heading: String, caption: String) -> void:
+	var block := _v(6)
+	content_root.add_child(block)
+	block.add_child(_label(overline, 11, BRASS, true))
+	block.add_child(_label(heading, 31, CREAM))
+	block.add_child(_label(caption, 14, MUTED))
+	_spacer(content_root, 4)
 
-func _commas(amount: int) -> String:
-	var negative := amount < 0
-	var raw := str(absi(amount))
-	var result := ""
-	for i in range(raw.length()):
-		if i > 0 and (raw.length() - i) % 3 == 0:
-			result += ","
-		result += raw[i]
-	return ("-" if negative else "") + result
+func _inspector_title(overline: String, title: String, explanation: String = "") -> void:
+	inspector_root.add_child(_label(overline, 10, BRASS, true))
+	inspector_root.add_child(_label(title, 23, CREAM))
+	if not explanation.is_empty():
+		inspector_root.add_child(_label(explanation, 13, MUTED))
 
-func _stat_card(parent: Node, title_value: String, value: String, helper: String, hue: Color = INK) -> void:
-	var card := _card(parent)
-	card.add_child(_text(title_value.to_upper(), 11, SUBTLE))
-	card.add_child(_text(value, 24, hue))
-	card.add_child(_text(helper, 12, SUBTLE))
+func _inspector_note(label_text: String, content: String, tone: Color = CREAM) -> void:
+	var field := _v(3)
+	field.add_child(_label(label_text, 10, FAINT, true))
+	field.add_child(_label(content, 15, tone))
+	inspector_root.add_child(field)
 
-func _overview() -> void:
-	var hero := _card(_body, 22)
-	hero.add_child(_pill("A COMPANY BUILT FROM NOTHING", GOLD))
-	hero.add_child(_text("Fortune favors the prepared.", 26, INK))
-	hero.add_child(_text("Recruit mercenaries, finance dangerous journeys, collect valuable materials, and grow your contracting business. Expeditions keep running when the game is closed.", 15, SUBTLE))
-	var commands := _row()
-	commands.add_child(_button("VIEW EXPEDITIONS  →", _navigate.bind("expeditions"), true))
-	commands.add_child(_button("MANAGE MERCENARIES", _navigate.bind("roster")))
-	hero.add_child(commands)
-	var stats := _row()
-	_body.add_child(stats)
-	_stat_card(stats, "Available capital", _money(game.gold), "Cash pays wages and supplies.", GOLD)
-	_stat_card(stats, "Reputation", str(game.reputation), "Unlocks harder contracts.")
-	_stat_card(stats, "Mercenaries", str(game.crew.size()), "%d available for deployment" % game.free_crew())
-	_stat_card(stats, "Vault valuation", _money(game.wealth() - game.gold), "Liquidation estimate + outfitting.")
-	var columns := _row(16)
-	_body.add_child(columns)
-	var left := _col(15)
-	var right := _col(15)
-	columns.add_child(left)
-	columns.add_child(right)
-	var dispatch_card := _card(left)
-	dispatch_card.add_child(_text("OPERATIONS BOARD", 17, GOLD))
-	dispatch_card.add_child(_text("%d of %d expedition slots occupied" % [game.missions.size(), game.expedition_slots], 14))
+func _section(label_text: String) -> void:
+	var line := _h(9)
+	content_root.add_child(line)
+	line.add_child(_label(label_text, 11, BRASS, true))
+	_spacer(content_root, 1)
+
+func _home() -> void:
+	_title("THE OFFICE  /  YOUR COMPANY", "Every fortune starts somewhere.", "A guild is built on good contracts—and the judgment to know when to walk away.")
+	# This illustrated title piece is intentionally not a dashboard card.
+	var banner := _frame(content_root, false, 0)
+	_illustration(banner, "banner", 176)
+	var banner_info := _v(8)
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 19)
+	margin.add_theme_constant_override("margin_right", 19)
+	margin.add_theme_constant_override("margin_bottom", 17)
+	banner.add_child(margin)
+	margin.add_child(banner_info)
+	banner_info.add_child(_label("THE NEXT CONTRACT IS WAITING", 11, BRASS, true))
+	var sentence: String = "Your crew is idle. Time to send them to work." if game.missions.is_empty() else "%d expedition(s) are under way. Your standing orders are in effect." % game.missions.size()
+	banner_info.add_child(_label(sentence, 17))
+	var banner_buttons := _h(10)
+	banner_info.add_child(banner_buttons)
+	banner_buttons.add_child(_button("OPEN EXPEDITION BOARD  →", _nav_to.bind("expeditions"), true))
+	banner_buttons.add_child(_button("RECRUIT", _open_recruitment, false))
+	_section("ACTIVE CONTRACTS")
 	if game.missions.is_empty():
-		dispatch_card.add_child(_text("No teams deployed. Hire someone, then send them to the Mossward Lowlands.", 13, SUBTLE))
+		var empty := _frame(content_root)
+		empty.add_child(_label("NO TEAMS IN THE FIELD", 15))
+		empty.add_child(_label("Dispatch a mercenary team to start earning. Time passes even while the game is closed.", 13, MUTED))
 	else:
 		for mission in game.missions:
-			var region := game.region_by_id(str(mission["region"]))
-			dispatch_card.add_child(_text("• %s" % str(region.get("name", "Unknown region")), 13, INK))
-	dispatch_card.add_child(_button("OPEN EXPEDITION BOARD", _navigate.bind("expeditions")))
-	var company_card := _card(left)
-	company_card.add_child(_text("CAPACITY EXPANSION", 17, GOLD))
-	company_card.add_child(_text("A second expedition team means more opportunities, but also more up-front expenses.", 13, SUBTLE))
-	var expansion_cost: int = 900 if game.expedition_slots == 1 else 4200
-	if game.expedition_slots >= 3:
-		company_card.add_child(_pill("MAXIMUM CAPACITY", GREEN))
+			_mission_strip(content_root, mission)
+	_section("YOUR BUSINESS AT A GLANCE")
+	var overview := _h(12)
+	content_root.add_child(overview)
+	var cash_frame := _frame(overview)
+	_field(cash_frame, "READY TO WORK", "%d mercenaries" % game.free_crew(), SUCCESS)
+	_field(cash_frame, "COMPANY STANDING", "%d reputation" % game.reputation)
+	var vault_frame := _frame(overview)
+	_field(vault_frame, "UNSOLD INVENTORY", _money(_inventory_value()), BRASS)
+	_field(vault_frame, "OPERATING CAPACITY", "%d team(s)" % game.expedition_slots)
+	# Inspector: status and decisive quick actions.
+	_inspector_title("YOUR DAY", "Contractor's desk", "Your next move should be obvious.")
+	_line(inspector_root)
+	if game.crew.is_empty():
+		_inspector_note("FIRST PRIORITY", "Hire your first mercenary.", BRASS)
+		_inspector_note("STARTING CAPITAL", _money(game.gold))
+		inspector_actions.add_child(_button("VIEW RECRUITS  →", _open_recruitment, true))
+	elif game.free_crew() > 0 and game.missions.size() < game.expedition_slots:
+		_inspector_note("AVAILABLE CREW", "%d mercenary(s) ready" % game.free_crew(), SUCCESS)
+		_inspector_note("READY TO DISPATCH", "Mossward Lowlands and unlocked expeditions are available.")
+		inspector_actions.add_child(_button("PLAN AN EXPEDITION  →", _nav_to.bind("expeditions"), true))
 	else:
-		company_card.add_child(_button("PURCHASE SLOT  •  %s" % _money(expansion_cost), func() -> void:
-			_take_action(game.expand_operations())
+		_inspector_note("FIELD ACTIVITY", "%d expedition(s) running" % game.missions.size(), BRASS)
+		_inspector_note("DURING THE WAIT", "Review recent returns or turn your stash into working capital.")
+		inspector_actions.add_child(_button("OPEN THE EXCHANGE  →", _nav_to.bind("market"), true))
+	_line(inspector_root)
+	_inspector_note("EXPEDITION SLOTS", "%d of 3 purchased" % game.expedition_slots)
+	if game.expedition_slots < 3:
+		var price: int = 900 if game.expedition_slots == 1 else 4200
+		inspector_root.add_child(_label("Next slot: %s" % _money(price), 12, MUTED))
+		inspector_actions.add_child(_button("BUY ADDITIONAL SLOT", func() -> void:
+			_action(game.expand_operations())
 		))
-	var company_note := _card(right)
-	company_note.add_child(_text("LATEST DISPATCH REPORT", 17, GOLD))
-	if game.reports.is_empty():
-		company_note.add_child(_text("Your company's story has yet to be written. The first completed expedition will appear here.", 14, SUBTLE))
-	else:
-		var latest: Dictionary = game.reports[0]
-		company_note.add_child(_pill("SUCCESS" if bool(latest["won"]) else "COSTLY RETURN", GREEN if bool(latest["won"]) else RED))
-		company_note.add_child(_text(str(latest["region"]), 17))
-		company_note.add_child(_text(_loot_text(latest["loot"]), 13, SUBTLE))
-		company_note.add_child(_text("Commission: %s" % _money(int(latest["commission"])), 13, SUBTLE))
-		company_note.add_child(_button("OPEN THE LEDGER", _navigate.bind("ledger")))
-	var advice := _card(right)
-	advice.add_child(_text("CONTRACTOR'S NOTES", 17, GOLD))
-	advice.add_child(_text("Mercenary wages and supplies are paid before deployment. Each crew's negotiated share of the recovered value is settled when they return.", 13, SUBTLE))
-	advice.add_child(_text("If a rare discovery creates a commission debt, sell part of your vault to fund the next job. A valuable haul isn't always liquid cash.", 13, SUBTLE))
-	advice.add_child(_text("Your game saves after every transaction and automatically resolves overdue expeditions when reopened.", 12, GREEN))
+
+func _open_recruitment() -> void:
+	roster_tab = "recruits"
+	for candidate in MoneyMercsState.RECRUITS:
+		if game.merc_by_id(str(candidate["id"])).is_empty():
+			selected_merc = str(candidate["id"])
+			break
+	_nav_to("roster")
+
+func _mission_strip(parent: Node, mission: Dictionary) -> void:
+	var container := _frame(parent)
+	var top := _h(12)
+	container.add_child(top)
+	var description := _v(3)
+	var region: Dictionary = game.region_by_id(str(mission["region"]))
+	description.add_child(_label(str(region.get("name", "Unknown site")), 17))
+	description.add_child(_label("%d crew  ·  %s tactics" % [mission["ids"].size(), str(mission["tactic"])], 12, MUTED))
+	top.add_child(description)
+	var eta := _label("—", 15, BRASS)
+	eta.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	top.add_child(eta)
+	mission_timers[str(mission["id"])] = eta
+	var progress := ProgressBar.new()
+	progress.custom_minimum_size.y = 7
+	progress.show_percentage = false
+	progress.add_theme_stylebox_override("background", _style(BG, BG, 3, 0))
+	progress.add_theme_stylebox_override("fill", _style(BRASS, BRASS, 3, 0))
+	container.add_child(progress)
+	mission_bars[str(mission["id"])] = progress
+	_update_timers()
 
 func _expeditions() -> void:
-	_body.add_child(_text("IN THE FIELD", 16, GOLD))
+	_title("FIELD OPERATIONS  /  CONTRACT BOARD", "Where will you send them?", "Select a destination. Set the team and orders at the desk on the right.")
+	_section("CONTRACTS AVAILABLE")
+	for region in MoneyMercsState.REGIONS:
+		var id: String = str(region["id"])
+		var unlocked: bool = game.reputation >= int(region["rep"])
+		var card := _frame(content_root, selected_region == id, 12)
+		var row := _h(16)
+		card.add_child(row)
+		var artwork := Art.new()
+		artwork.kind = id
+		artwork.custom_minimum_size = Vector2(158, 118)
+		artwork.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		row.add_child(artwork)
+		var col := _v(6)
+		row.add_child(col)
+		col.add_child(_label(str(region["name"]), 19, CREAM if unlocked else MUTED))
+		col.add_child(_label("Threat %d   /   %s   /   supplies %s" % [int(region["threat"]), _duration(int(region["time"])), _money(int(region["supplies"]))], 12, MUTED))
+		col.add_child(_label(_region_yield(region), 12, SUCCESS if unlocked else FAINT))
+		var button_label := "SELECT CONTRACT   →" if unlocked else "REQUIRES %d REPUTATION" % int(region["rep"])
+		var action_button := _button(button_label, _select_region.bind(id))
+		action_button.disabled = not unlocked
+		col.add_child(action_button)
+	_section("OUT ON CONTRACT")
 	if game.missions.is_empty():
-		var empty := _card(_body)
-		empty.add_child(_text("All crews are currently home.", 16))
-		empty.add_child(_text("Assign one to a region below. You can safely close the game while they're away.", 13, SUBTLE))
+		var info := _frame(content_root)
+		info.add_child(_label("No deployed teams.", 14, MUTED))
 	else:
 		for mission in game.missions:
-			var region := game.region_by_id(str(mission["region"]))
-			var c := _card(_body)
-			var r := _row()
-			var info := _col(3)
-			info.add_child(_text(str(region.get("name", "Unknown")), 18))
-			info.add_child(_text("%d mercenaries  •  %s  •  %s funded" % [mission["ids"].size(), str(mission["tactic"]), _money(int(mission["cost"]))], 13, SUBTLE))
-			r.add_child(info)
-			var time_label := _text("", 17, GOLD)
-			r.add_child(time_label)
-			_timer_labels[str(mission["id"])] = time_label
-			c.add_child(r)
-			var bar := ProgressBar.new()
-			bar.show_percentage = false
-			bar.custom_minimum_size.y = 9
-			var duration: float = maxf(1.0, float(int(mission["finish"]) - int(mission["started"])))
-			bar.value = clampf(100.0 * float(Time.get_unix_time_from_system() - float(mission["started"])) / duration, 0.0, 100.0)
-			c.add_child(bar)
-		_update_countdowns()
-	_body.add_child(_text("AVAILABLE REGIONS", 16, GOLD))
-	for region in MoneyMercsState.REGIONS:
-		var c := _card(_body, 19)
-		var upper := _row(14)
-		var descriptor := _col(4)
-		descriptor.add_child(_text(str(region["name"]), 19))
-		descriptor.add_child(_text(str(region["tagline"]), 14, SUBTLE))
-		var meta := _row(7)
-		meta.add_child(_pill("THREAT %d" % int(region["threat"])))
-		meta.add_child(_pill("SUPPLIES %d G" % int(region["supplies"]), GREEN))
-		meta.add_child(_pill("MIN. REP %d" % int(region["rep"])))
-		descriptor.add_child(meta)
-		upper.add_child(descriptor)
-		var details := _col(5)
-		details.custom_minimum_size.x = 240
-		details.add_child(_text("MISSION TIME  •  %s" % _time_string(int(region["time"])), 13, GOLD))
-		details.add_child(_text("Typical materials: %s" % _drop_text(region["loot"]), 12, SUBTLE))
-		upper.add_child(details)
-		c.add_child(upper)
-		var can_go: bool = game.reputation >= int(region["rep"])
-		var enter := _button("PLAN EXPEDITION  →" if can_go else "LOCKED  •  REPUTATION %d" % int(region["rep"]), _open_briefing.bind(str(region["id"])), can_go)
-		enter.disabled = not can_go
-		c.add_child(enter)
+			_mission_strip(content_root, mission)
+	_expedition_desk()
 
-func _open_briefing(id: String) -> void:
-	_planning_region = id
-	_selected_ids.clear()
-	for merc in game.crew:
-		if game.is_available(merc) and _selected_ids.size() < 2:
-			_selected_ids.append(str(merc["id"]))
-	_tactic = "Balanced"
-	_navigate("prepare")
+func _select_region(id: String) -> void:
+	selected_region = id
+	_refresh()
 
-func _on_crew_changed(pressed: bool, id: String) -> void:
-	if pressed:
-		if not _selected_ids.has(id):
-			_selected_ids.append(id)
-	else:
-		_selected_ids.erase(id)
-	call_deferred("_render_page")
-
-func _on_tactic_changed(index: int) -> void:
-	_tactic = MoneyMercsState.TACTICS[index]
-	call_deferred("_render_page")
-
-func _prepare() -> void:
-	var region: Dictionary = game.region_by_id(_planning_region)
+func _expedition_desk() -> void:
+	var region: Dictionary = game.region_by_id(selected_region)
 	if region.is_empty():
-		_body.add_child(_text("Select a region from the expedition board.", 15, SUBTLE))
 		return
-	var title_card := _card(_body)
-	title_card.add_child(_text(str(region["name"]), 23, GOLD))
-	title_card.add_child(_text(str(region["tagline"]), 14, SUBTLE))
-	title_card.add_child(_text("Threat %d   •   Recommended specialist: %s   •   Supplies: %s" % [int(region["threat"]), str(region["focus"]), _money(int(region["supplies"]))], 13))
-	var c := _card(_body)
-	c.add_child(_text("ASSIGN CREW (1 TO 3)", 16, GOLD))
-	if game.free_crew() == 0:
-		c.add_child(_text("Nobody is available. Recruit someone or await a returning crew.", 13, RED))
+	_inspector_title("EXPEDITION BRIEF", str(region["name"]), str(region["tagline"]))
+	_illustration(inspector_root, str(region["id"]), 120)
+	_inspector_note("RECOMMENDED", "%s specialist · threat %d" % [str(region["focus"]), int(region["threat"])])
+	_line(inspector_root)
+	inspector_root.add_child(_label("ASSIGN A CREW  /  UP TO THREE", 11, BRASS, true))
+	var available: int = 0
 	for merc in game.crew:
 		if not game.is_available(merc):
 			continue
-		var box := CheckBox.new()
-		box.text = "%s   •   %s   •   Power %d   •   Health %d%%" % [str(merc["name"]), str(merc["role"]), game.merc_power(merc, region), int(merc["health"])]
-		box.button_pressed = _selected_ids.has(str(merc["id"]))
-		box.add_theme_font_size_override("font_size", 14)
-		box.toggled.connect(_on_crew_changed.bind(str(merc["id"])))
-		c.add_child(box)
-	var tactics := _card(_body)
-	tactics.add_child(_text("STANDING ORDERS", 16, GOLD))
-	var pick := OptionButton.new()
-	for tactic in MoneyMercsState.TACTICS:
-		pick.add_item(tactic)
-	pick.select(MoneyMercsState.TACTICS.find(_tactic))
-	pick.item_selected.connect(_on_tactic_changed)
-	tactics.add_child(pick)
-	tactics.add_child(_text("Cautious: safer, slower, lower yield. Balanced: standard. Deep Push: faster with greater yield and casualty risk. Standing orders resolve the same way online or offline.", 13, SUBTLE))
-	var summary := _card(_body)
-	summary.add_child(_text("FINANCIAL & RISK FORECAST", 16, GOLD))
-	var total_cost: int = game.expedition_cost(region, _selected_ids)
-	var combined_share: float = 0.0
-	for id in _selected_ids:
-		var merc := game.merc_by_id(id)
-		if not merc.is_empty():
-			combined_share += float(game.terms(merc)["cut"])
-	var rows := _row()
-	_stat_card(rows, "Success estimate", "%d%%" % int(round(game.success_chance(region, _selected_ids, _tactic) * 100.0)), "Not a guaranteed outcome", GREEN)
-	_stat_card(rows, "Upfront expense", _money(total_cost), "Wages plus supplies", GOLD)
-	_stat_card(rows, "Crew's loot share", "%d%%" % int(round(minf(combined_share, 0.85) * 100.0)), "Settled on return")
-	summary.add_child(rows)
-	summary.add_child(_text("Estimated duration: %s  •  Slots in use: %d/%d" % [_time_string(game.expedition_seconds(region, _tactic)), game.missions.size(), game.expedition_slots], 13, SUBTLE))
-	if _selected_ids.size() > 3:
-		summary.add_child(_text("Maximum of three mercenaries per expedition.", 13, RED))
-	var actions := _row()
-	summary.add_child(actions)
-	actions.add_child(_button("←  BACK TO BOARD", _navigate.bind("expeditions")))
-	actions.add_child(_button("FUND & DISPATCH EXPEDITION", _send_expedition, true))
+		available += 1
+		var id: String = str(merc["id"])
+		var toggle := CheckBox.new()
+		toggle.text = "%s  ·  %s" % [str(merc["name"]), str(merc["role"])]
+		toggle.add_theme_font_size_override("font_size", 13)
+		toggle.add_theme_color_override("font_color", CREAM)
+		toggle.add_theme_color_override("font_hover_color", CREAM)
+		toggle.set_pressed_no_signal(selected_crew.has(id))
+		toggle.toggled.connect(_toggle_crew.bind(id))
+		inspector_root.add_child(toggle)
+	if available == 0:
+		inspector_root.add_child(_label("No crew available. Hire or await their return.", 13, DANGER))
+	inspector_root.add_child(_label("ORDERS", 11, BRASS, true))
+	var order := OptionButton.new()
+	for mode in MoneyMercsState.TACTICS:
+		order.add_item(str(mode))
+	order.select(maxi(0, MoneyMercsState.TACTICS.find(tactic)))
+	order.add_theme_font_size_override("font_size", 13)
+	order.add_theme_color_override("font_color", CREAM)
+	order.add_theme_stylebox_override("normal", _style(SURFACE_2, EDGE, 6, 7))
+	order.custom_minimum_size.y = 36
+	order.item_selected.connect(_change_tactic)
+	inspector_root.add_child(order)
+	var selected: Array[String] = _valid_selected_crew()
+	var chance: float = game.success_chance(region, selected, tactic)
+	var cost: int = game.expedition_cost(region, selected)
+	var share: float = 0.0
+	for id in selected:
+		var employee: Dictionary = game.merc_by_id(id)
+		share += float(game.terms(employee)["cut"])
+	_line(inspector_root)
+	_inspector_note("ESTIMATED CHANCE", "%d%%" % int(round(chance * 100.0)), SUCCESS if chance >= 0.67 else DANGER)
+	_inspector_note("UPFRONT COST", _money(cost), BRASS)
+	_inspector_note("CREW SHARE OF HAUL", "%d%%" % int(round(minf(share, 0.85) * 100.0)))
+	_inspector_note("DURATION", _duration(game.expedition_seconds(region, tactic)))
+	var can_dispatch: bool = not selected.is_empty() and selected.size() <= 3 and game.gold >= cost and game.missions.size() < game.expedition_slots and game.reputation >= int(region["rep"])
+	var submit := _button("FUND & DISPATCH   →", _dispatch, true)
+	submit.disabled = not can_dispatch
+	inspector_actions.add_child(submit)
+	if selected.is_empty():
+		inspector_actions.add_child(_label("Select at least one available mercenary.", 12, MUTED))
+	elif selected.size() > 3:
+		inspector_actions.add_child(_label("Maximum three mercenaries per job.", 12, DANGER))
+	elif game.missions.size() >= game.expedition_slots:
+		inspector_actions.add_child(_label("No operation slots available.", 12, DANGER))
+	elif game.gold < cost:
+		inspector_actions.add_child(_label("Insufficient gold to fund this mission.", 12, DANGER))
 
-func _send_expedition() -> void:
-	var result: String = game.dispatch(_planning_region, _selected_ids, _tactic)
-	if result.begins_with("Expedition funded"):
-		_page = "expeditions"
-		_selected_ids.clear()
-	_take_action(result)
+func _valid_selected_crew() -> Array[String]:
+	var result: Array[String] = []
+	for id in selected_crew:
+		var merc: Dictionary = game.merc_by_id(id)
+		if not merc.is_empty() and game.is_available(merc):
+			result.append(id)
+	return result
+
+func _toggle_crew(on: bool, id: String) -> void:
+	if on and not selected_crew.has(id):
+		selected_crew.append(id)
+	elif not on:
+		selected_crew.erase(id)
+	call_deferred("_refresh")
+
+func _change_tactic(index: int) -> void:
+	tactic = str(MoneyMercsState.TACTICS[index])
+	call_deferred("_refresh")
+
+func _dispatch() -> void:
+	var selected: Array[String] = _valid_selected_crew()
+	var message: String = game.dispatch(selected_region, selected, tactic)
+	if message.begins_with("Expedition funded"):
+		selected_crew.clear()
+	_action(message)
+
+func _selected_first_merc() -> void:
+	for merc in game.crew:
+		selected_merc = str(merc["id"])
+		return
+	selected_merc = "garrick"
 
 func _roster() -> void:
-	_body.add_child(_text("SIGNED CONTRACTORS  •  %d EMPLOYEES" % game.crew.size(), 16, GOLD))
-	if game.crew.is_empty():
-		var tip := _card(_body)
-		tip.add_child(_text("Your company's roster is empty.", 17))
-		tip.add_child(_text("Hiring is the first expense in the road to wealth. Garrick is an affordable starting recruit.", 13, SUBTLE))
-	for merc in game.crew:
-		var card := _card(_body)
-		var upper := _row()
-		var identity := _col(3)
-		identity.add_child(_text("%s  /  %s" % [str(merc["name"]), str(merc["role"])], 19, INK))
-		identity.add_child(_text(str(merc["title"]), 13, SUBTLE))
-		upper.add_child(identity)
-		var status: String = "AVAILABLE" if game.is_available(merc) else "ON EXPEDITION"
-		upper.add_child(_pill(status, GREEN if game.is_available(merc) else GOLD))
-		card.add_child(upper)
-		var t: Dictionary = game.terms(merc)
-		card.add_child(_text("Base power %d  •  Gear tier %d  •  Health %d%%  •  Experience %d" % [int(merc["skill"]), int(merc["gear"]), int(merc["health"]), int(merc["xp"])], 13, SUBTLE))
-		card.add_child(_text("Contract: %s   |   %d gold per mission + %d%% of recovered value" % [str(merc["contract"]), int(t["wage"]), int(round(float(t["cut"]) * 100.0))], 13))
-		var actions := _row()
-		var merc_id: String = str(merc["id"])
-		actions.add_child(_button("RENEGOTIATE", func() -> void:
-			_take_action(game.switch_contract(merc_id))
+	_title("PERSONNEL  /  CONTRACTS", "Good hands. Expensive promises.", "Build reliable crews without spending all your working capital.")
+	var tabs := _h(10)
+	content_root.add_child(tabs)
+	var active_button := _button("ON PAYROLL  (%d)" % game.crew.size(), _roster_mode.bind("employed"), roster_tab == "employed")
+	var recruit_button := _button("RECRUITMENT BOARD", _roster_mode.bind("recruits"), roster_tab == "recruits")
+	tabs.add_child(active_button)
+	tabs.add_child(recruit_button)
+	if roster_tab == "employed":
+		if game.crew.is_empty():
+			var welcome := _frame(content_root)
+			welcome.add_child(_label("YOUR ROSTER IS EMPTY", 18))
+			welcome.add_child(_label("Hire a contractor. The cheapest hands make the first journeys possible.", 13, MUTED))
+			welcome.add_child(_button("GO TO RECRUITMENT  →", _open_recruitment, true))
+		for merc in game.crew:
+			_merc_strip(merc, true)
+	else:
+		var found := false
+		for merc in MoneyMercsState.RECRUITS:
+			if not game.merc_by_id(str(merc["id"])).is_empty():
+				continue
+			found = true
+			_merc_strip(merc, false)
+		if not found:
+			var done := _frame(content_root)
+			done.add_child(_label("No remaining applicants.", 14, MUTED))
+	_merc_desk()
+
+func _roster_mode(tab: String) -> void:
+	roster_tab = tab
+	if tab == "employed":
+		_selected_first_merc()
+	else:
+		for candidate in MoneyMercsState.RECRUITS:
+			if game.merc_by_id(str(candidate["id"])).is_empty():
+				selected_merc = str(candidate["id"])
+				break
+	_refresh()
+
+func _merc_strip(merc: Dictionary, hired: bool) -> void:
+	var id: String = str(merc["id"])
+	var card := _frame(content_root, selected_merc == id, 12)
+	var line := _h(12)
+	card.add_child(line)
+	_portrait(line, id, 72)
+	var info := _v(5)
+	line.add_child(info)
+	info.add_child(_label(str(merc["name"]), 19, CREAM))
+	info.add_child(_label("%s  ·  %s" % [str(merc["title"]), str(merc["role"])], 12, MUTED))
+	var detail := "%d skill    /    %d gold hiring fee" % [int(merc["skill"]), int(merc["hire"])]
+	if hired:
+		detail = "%d health    /    gear tier %d    /    %s" % [int(merc.get("health", 100)), int(merc.get("gear", 0)), "AVAILABLE" if game.is_available(merc) else "IN FIELD"]
+	info.add_child(_label(detail, 12, SUCCESS if hired and game.is_available(merc) else MUTED))
+	var select_btn := _button("DETAILS  →", _select_merc.bind(id))
+	select_btn.custom_minimum_size.x = 112
+	line.add_child(select_btn)
+
+func _select_merc(id: String) -> void:
+	selected_merc = id
+	_refresh()
+
+func _merc_desk() -> void:
+	var merc: Dictionary = game.merc_by_id(selected_merc) if roster_tab == "employed" else game.recruit_by_id(selected_merc)
+	if merc.is_empty():
+		_inspector_title("PERSONNEL FILE", "No selection", "Select a contractor to see the details.")
+		return
+	var hired: bool = roster_tab == "employed"
+	_inspector_title("SIGNED CONTRACTOR" if hired else "AVAILABLE FOR HIRE", str(merc["name"]), str(merc["title"]))
+	var portrait_line := _h(12)
+	_portrait(portrait_line, str(merc["id"]), 96)
+	var details := _v(5)
+	details.add_child(_tag(str(merc["role"]), BRASS))
+	details.add_child(_label("Base skill %d" % int(merc["skill"]), 15))
+	details.add_child(_label("Hiring fee %s" % _money(int(merc["hire"])), 13, MUTED))
+	portrait_line.add_child(details)
+	inspector_root.add_child(portrait_line)
+	_line(inspector_root)
+	if hired:
+		_inspector_note("STATUS", "In the field" if not game.is_available(merc) else "Available", BRASS if not game.is_available(merc) else SUCCESS)
+		_inspector_note("HEALTH", "%d / 100" % int(merc["health"]), SUCCESS if int(merc["health"]) >= 70 else DANGER)
+		_inspector_note("EXPERIENCE", str(int(merc["xp"])))
+		_inspector_note("EQUIPMENT TIER", "%d / 4" % int(merc["gear"]))
+		var terms: Dictionary = game.terms(merc)
+		_line(inspector_root)
+		_inspector_note("PAY AGREEMENT", str(merc["contract"]), BRASS)
+		_inspector_note("WAGE PER MISSION", _money(int(terms["wage"])))
+		_inspector_note("SHARE OF RECOVERED VALUE", "%d%%" % int(round(float(terms["cut"]) * 100.0)))
+		inspector_actions.add_child(_button("CYCLE CONTRACT TERMS", func() -> void:
+			_action(game.switch_contract(str(merc["id"])))
 		))
 		var tier: int = int(merc["gear"])
 		if tier < 4:
-			actions.add_child(_button("UPGRADE GEAR  •  " + game.cost_text(game.gear_cost(tier)), func() -> void:
-				_take_action(game.improve_gear(merc_id))
-			))
+			var cost: Dictionary = game.gear_cost(tier)
+			inspector_actions.add_child(_button("IMPROVE GEAR", func() -> void:
+				_action(game.improve_gear(str(merc["id"])))
+			, true))
+			inspector_actions.add_child(_label(game.cost_text(cost), 12, MUTED))
 		else:
-			actions.add_child(_pill("MYTHICAL GEAR", GOLD))
+			inspector_actions.add_child(_tag("MYTHICAL EQUIPMENT", BRASS))
 		if int(merc["health"]) < 100:
-			actions.add_child(_button("TREAT INJURY", func() -> void:
-				_take_action(game.treat(merc_id))
+			inspector_actions.add_child(_button("TREAT WOUNDS", func() -> void:
+				_action(game.treat(str(merc["id"])))
 			))
-		card.add_child(actions)
-	_body.add_child(_text("RECRUITMENT OFFICE", 16, GOLD))
-	for candidate in MoneyMercsState.RECRUITS:
-		if not game.merc_by_id(str(candidate["id"])).is_empty():
-			continue
-		var card := _card(_body)
-		var row := _row()
-		var info := _col(4)
-		info.add_child(_text("%s   •   %s" % [str(candidate["name"]), str(candidate["role"])], 18))
-		info.add_child(_text("%s  |  Base power %d  |  Wage %d gold  |  Standard share %d%%" % [str(candidate["title"]), int(candidate["skill"]), int(candidate["wage"]), int(round(float(candidate["share"]) * 100.0))], 13, SUBTLE))
-		row.add_child(info)
-		var price_button := _button("HIRE  •  %s" % _money(int(candidate["hire"])), func() -> void:
-			_take_action(game.hire(str(candidate["id"])))
-		, true)
-		row.add_child(price_button)
-		card.add_child(row)
+	else:
+		_inspector_note("ROLE", str(merc["role"]))
+		_inspector_note("ASKING PRICE", _money(int(merc["hire"])), BRASS)
+		_inspector_note("WAGE PER JOB", _money(int(merc["wage"])))
+		_inspector_note("INITIAL LOOT SHARE", "%d%%" % int(round(float(merc["share"]) * 100.0)))
+		inspector_root.add_child(_label("Contract type may be renegotiated after signing. Higher guaranteed wages reduce a contractor's share.", 12, MUTED))
+		var hire_button := _button("SIGN CONTRACT  •  %s" % _money(int(merc["hire"])), _hire.bind(str(merc["id"])), true)
+		hire_button.disabled = game.gold < int(merc["hire"])
+		inspector_actions.add_child(hire_button)
+
+func _hire(id: String) -> void:
+	var result: String = game.hire(id)
+	if result.contains("joined"):
+		roster_tab = "employed"
+		selected_merc = id
+	_action(result)
 
 func _market() -> void:
-	var intro := _card(_body)
-	intro.add_child(_text("MERCHANT EXCHANGE", 18, GOLD))
-	intro.add_child(_text("NPC merchants provide baseline liquidity. Buying costs 12% above current valuation; selling returns 90%. Prices drift every six hours. Exceptional artifacts are expedition-only in this prototype.", 13, SUBTLE))
-	for item in MoneyMercsState.RESOURCE_ORDER:
-		var card := _card(_body, 14)
-		var row := _row()
-		var info := _col(3)
-		info.add_child(_text(str(MoneyMercsState.RESOURCE_NAMES[item]), 17))
-		info.add_child(_text("Held: %d   |   Merchant buys: %s   |   Merchant sells: %s" % [int(game.resources.get(item, 0)), _money(game.sell_price(item)), _money(game.buy_price(item))], 13, SUBTLE))
-		row.add_child(info)
-		row.add_child(_button("SELL 1", _trade.bind(item, false, 1)))
-		row.add_child(_button("SELL ALL", _trade_all.bind(item)))
-		if item != "sovereign" and item != "relic":
-			row.add_child(_button("BUY 1", _trade.bind(item, true, 1)))
-		card.add_child(row)
+	_title("TRADE DESK  /  COMPANY STORES", "The exchange.", "Liquid gold keeps the company moving. Decide what deserves a place in your vault.")
+	var intro := _frame(content_root)
+	var top := _h(12)
+	intro.add_child(top)
+	_field(top, "UNSOLD RESOURCES", _money(_inventory_value()), BRASS)
+	_field(top, "AVAILABLE CASH", _money(game.gold), SUCCESS if game.gold >= 0 else DANGER)
+	_line(intro)
+	intro.add_child(_label("MERCHANTS BUY AT 90% OF MARKET VALUE AND SELL AT 112%. PRICES SHIFT EVERY SIX HOURS.", 10, FAINT))
+	_section("RESOURCE INVENTORY")
+	var headings := _h(10)
+	content_root.add_child(headings)
+	var nm := _label("COMMODITY", 10, FAINT, true)
+	headings.add_child(nm)
+	var qty := _label("OWNED", 10, FAINT, true)
+	qty.custom_minimum_size.x = 68
+	qty.size_flags_horizontal = Control.SIZE_SHRINK_END
+	headings.add_child(qty)
+	var sell := _label("SELL / UNIT", 10, FAINT, true)
+	sell.custom_minimum_size.x = 86
+	sell.size_flags_horizontal = Control.SIZE_SHRINK_END
+	headings.add_child(sell)
+	for id in MoneyMercsState.RESOURCE_ORDER:
+		var row := _frame(content_root, selected_item == id, 8)
+		var cells := _h(10)
+		row.add_child(cells)
+		var title := _v(3)
+		title.add_child(_label(str(MoneyMercsState.RESOURCE_NAMES[id]), 16, BRASS if id == "sovereign" else CREAM))
+		title.add_child(_label("Exceptional" if id == "sovereign" else ("Rare" if id == "relic" else "Trade material"), 11, MUTED))
+		cells.add_child(title)
+		var count := _label(str(int(game.resources.get(id, 0))), 16)
+		count.custom_minimum_size.x = 70
+		count.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		count.size_flags_horizontal = Control.SIZE_SHRINK_END
+		cells.add_child(count)
+		var value := _label(_money(game.sell_price(id)), 15, SUCCESS)
+		value.custom_minimum_size.x = 86
+		value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		value.size_flags_horizontal = Control.SIZE_SHRINK_END
+		cells.add_child(value)
+		cells.add_child(_button("VIEW", _select_item.bind(id), false, true))
+	_market_desk()
 
-func _trade(item: String, buy: bool, amount: int) -> void:
-	_take_action(game.trade(item, buy, amount))
+func _select_item(id: String) -> void:
+	selected_item = id
+	_refresh()
 
-func _trade_all(item: String) -> void:
-	_take_action(game.trade(item, false, int(game.resources.get(item, 0))))
+func _market_desk() -> void:
+	var id: String = selected_item
+	_inspector_title("COMMODITY FILE", str(MoneyMercsState.RESOURCE_NAMES.get(id, id)), str(MoneyMercsState.RESOURCE_DESC.get(id, "")))
+	var tint: Color = BRASS if id == "sovereign" else SUCCESS
+	var orb := PanelContainer.new()
+	orb.custom_minimum_size.y = 102
+	orb.add_theme_stylebox_override("panel", _style(SURFACE, EDGE, 9, 0))
+	inspector_root.add_child(orb)
+	var glyph := _label("◆", 54, tint)
+	glyph.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	glyph.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	orb.add_child(glyph)
+	_inspector_note("IN YOUR VAULT", "%d units" % int(game.resources.get(id, 0)))
+	_inspector_note("MERCHANT BUYS AT", _money(game.sell_price(id)), SUCCESS)
+	_inspector_note("MERCHANT SELLS AT", "Unavailable" if id == "sovereign" or id == "relic" else _money(game.buy_price(id)))
+	_line(inspector_root)
+	_inspector_note("TOTAL LIQUIDATION VALUE", _money(game.sell_price(id) * int(game.resources.get(id, 0))), BRASS)
+	var amount: int = int(game.resources.get(id, 0))
+	var sell_one := _button("SELL 1", _trade.bind(id, false, 1))
+	sell_one.disabled = amount < 1
+	inspector_actions.add_child(sell_one)
+	var sell_all := _button("SELL ALL  •  %s" % _money(game.sell_price(id) * amount), _trade.bind(id, false, amount), true)
+	sell_all.disabled = amount < 1
+	inspector_actions.add_child(sell_all)
+	if id != "sovereign" and id != "relic":
+		var buy_one := _button("BUY 1  •  %s" % _money(game.buy_price(id)), _trade.bind(id, true, 1))
+		buy_one.disabled = game.gold < game.buy_price(id)
+		inspector_actions.add_child(buy_one)
+	else:
+		inspector_actions.add_child(_label("This commodity is unavailable from NPC merchants.", 12, FAINT))
 
-func _vault() -> void:
-	var vault_total: int = 0
-	for item in MoneyMercsState.RESOURCE_ORDER:
-		vault_total += int(game.resources.get(item, 0)) * game.sell_price(item)
-	var total_card := _card(_body)
-	total_card.add_child(_text("ESTIMATED LIQUIDATION VALUE", 12, SUBTLE))
-	total_card.add_child(_text(_money(vault_total), 28, GOLD))
-	total_card.add_child(_text("A stash full of materials isn't the same thing as cash. Expedition commissions must still be settled in gold.", 13, SUBTLE))
-	for item in MoneyMercsState.RESOURCE_ORDER:
-		var amount: int = int(game.resources.get(item, 0))
-		var card := _card(_body, 14)
-		var row := _row()
-		var info := _col(2)
-		info.add_child(_text(str(MoneyMercsState.RESOURCE_NAMES[item]), 18, GOLD if item == "sovereign" else INK))
-		info.add_child(_text(str(MoneyMercsState.RESOURCE_DESC[item]), 12, SUBTLE))
-		row.add_child(info)
-		var count := _col(2)
-		count.custom_minimum_size.x = 135
-		count.add_child(_text("IN VAULT", 10, SUBTLE))
-		count.add_child(_text("%s units" % _commas(amount), 17))
-		row.add_child(count)
-		var worth := _col(2)
-		worth.custom_minimum_size.x = 140
-		worth.add_child(_text("SELL VALUE", 10, SUBTLE))
-		worth.add_child(_text(_money(amount * game.sell_price(item)), 17, GREEN))
-		row.add_child(worth)
-		card.add_child(row)
+func _trade(item: String, buying: bool, count: int) -> void:
+	_action(game.trade(item, buying, count))
 
-func _ledger() -> void:
-	var instructions := _card(_body)
-	instructions.add_child(_text("EXPEDITION REPORTS", 18, GOLD))
-	instructions.add_child(_text("Crew wages and supplies are paid upfront. Recovered gold is deposited on return, while commission is assessed against the entire recovered haul at its prevailing market value.", 13, SUBTLE))
+func _journal() -> void:
+	_title("THE JOURNAL  /  COMPANY RECORDS", "Every job leaves a story.", "A running record of what the crew brought back, and what it really cost.")
+	_section("RECENT EXPEDITION REPORTS")
 	if game.reports.is_empty():
-		var none := _card(_body)
-		none.add_child(_text("Nothing to report yet.", 16, SUBTLE))
-	for report in game.reports:
-		var card := _card(_body)
-		var heading := _row()
-		var left := _col(3)
-		left.add_child(_text(str(report["region"]), 18, INK))
-		left.add_child(_text("Approach: %s  •  Initial cost: %s" % [str(report["tactic"]), _money(int(report["cost"]))], 12, SUBTLE))
-		heading.add_child(left)
-		heading.add_child(_pill("SUCCESS" if bool(report["won"]) else "FAILED", GREEN if bool(report["won"]) else RED))
-		card.add_child(heading)
-		card.add_child(_text("RECEIVED: " + _loot_text(report["loot"]), 13))
-		card.add_child(_text("Found gold: %s   |   Gross haul value: %s   |   Crew commission: %s" % [_money(int(report["cash"])), _money(int(report["gross"])), _money(int(report["commission"]))], 13, SUBTLE))
-	_space(_body, 8)
-	if OS.is_debug_build():
-		var debug := _card(_body)
-		debug.add_child(_text("DEVELOPER TEST TOOLS", 17, GOLD))
-		debug.add_child(_text("Only visible in debug builds. Simulates elapsed expedition time to verify offline settlement.", 12, SUBTLE))
-		debug.add_child(_button("ADVANCE EXPEDITIONS BY 15 MIN", func() -> void:
-			_take_action(game.debug_skip(900))
-		))
-		if _reset_armed:
-			debug.add_child(_button("CONFIRM FULL COMPANY RESET", func() -> void:
-				game.reset_company()
-				_reset_armed = false
-				_take_action("Company reset. A new contractor begins with 350 gold.")
-			))
-		else:
-			debug.add_child(_button("RESET TEST COMPANY", func() -> void:
-				_reset_armed = true
-				_render_page()
-			))
+		var blank := _frame(content_root)
+		blank.add_child(_label("THE JOURNAL IS EMPTY", 16, CREAM))
+		blank.add_child(_label("When a mission finishes, its full result is filed here.", 13, MUTED))
+	for index in range(game.reports.size()):
+		var report: Dictionary = game.reports[index]
+		var card := _frame(content_root, selected_report == index, 13)
+		var row := _h(10)
+		card.add_child(row)
+		var info := _v(5)
+		info.add_child(_label(str(report["region"]), 17))
+		info.add_child(_label("SUCCESSFUL RETURN" if bool(report["won"]) else "FAILED EXPEDITION", 10, SUCCESS if bool(report["won"]) else DANGER, true))
+		info.add_child(_label(_loot_text(report["loot"]), 12, MUTED))
+		row.add_child(info)
+		row.add_child(_button("READ REPORT", _select_report.bind(index), false, true))
+	_journal_desk()
 
-func _drop_text(table: Dictionary) -> String:
+func _select_report(index: int) -> void:
+	selected_report = index
+	_refresh()
+
+func _journal_desk() -> void:
+	if game.reports.is_empty():
+		_inspector_title("FIELD REPORT", "Awaiting news", "Your first return will be recorded here.")
+	else:
+		var index: int = clampi(selected_report, 0, game.reports.size() - 1)
+		var r: Dictionary = game.reports[index]
+		_inspector_title("AFTER-ACTION REPORT", str(r["region"]), "Successful expedition" if bool(r["won"]) else "Expedition ended in failure")
+		_line(inspector_root)
+		_inspector_note("RECOVERED MATERIALS", _loot_text(r["loot"]))
+		_inspector_note("GOLD DISCOVERED", _money(int(r["cash"])), SUCCESS)
+		_inspector_note("APPRAISED HAUL", _money(int(r["gross"])), BRASS)
+		_inspector_note("PAID UPFRONT", _money(int(r["cost"])), DANGER)
+		_inspector_note("CREW COMMISSION", _money(int(r["commission"])), DANGER)
+		_line(inspector_root)
+		_inspector_note("PROVISIONAL NET VALUE", _money(int(r["gross"]) - int(r["cost"]) - int(r["commission"])), SUCCESS if int(r["gross"]) >= int(r["cost"]) + int(r["commission"]) else DANGER)
+		inspector_root.add_child(_label("Net value includes materials retained in the vault. It is not spendable cash.", 12, MUTED))
+	if OS.is_debug_build():
+		_spacer(inspector_root, 8)
+		_line(inspector_root)
+		inspector_root.add_child(_label("DEVELOPER TOOLS", 11, FAINT, true))
+		inspector_root.add_child(_label("Test offline returns without waiting. These options are hidden in release builds.", 12, MUTED))
+		inspector_actions.add_child(_button("ADVANCE TIME 15 MIN", func() -> void:
+			_action(game.debug_skip(900))
+		))
+		if reset_armed:
+			inspector_actions.add_child(_button("CONFIRM COMPANY RESET", _reset_company))
+		else:
+			inspector_actions.add_child(_button("RESET TEST SAVE...", _arm_reset))
+
+func _arm_reset() -> void:
+	reset_armed = true
+	_refresh()
+	_toast("Reset requires a second confirmation.")
+
+func _reset_company() -> void:
+	game.reset_company()
+	selected_crew.clear()
+	selected_report = 0
+	roster_tab = "employed"
+	_selected_first_merc()
+	reset_armed = false
+	_nav_to("hq")
+	_toast("Company reset. New start: 350 gold.")
+
+func _inventory_value() -> int:
+	var value: int = 0
+	for id in MoneyMercsState.RESOURCE_ORDER:
+		value += int(game.resources.get(id, 0)) * game.sell_price(id)
+	return value
+
+func _region_yield(region: Dictionary) -> String:
 	var names: Array[String] = []
-	for id in table:
-		names.append(str(MoneyMercsState.RESOURCE_NAMES.get(id, id)))
-	return ", ".join(names)
+	for item in region["loot"]:
+		names.append(str(MoneyMercsState.RESOURCE_NAMES.get(item, item)))
+	return "Yields: " + ", ".join(names)
 
 func _loot_text(loot: Dictionary) -> String:
-	if loot.is_empty():
-		return "No materials recovered."
-	var parts: Array[String] = []
-	for item in loot:
-		parts.append("%d %s" % [int(loot[item]), str(MoneyMercsState.RESOURCE_NAMES.get(item, item))])
-	return ", ".join(parts)
+	var finds: Array[String] = []
+	for id in loot:
+		finds.append("%d %s" % [int(loot[id]), str(MoneyMercsState.RESOURCE_NAMES.get(id, id))])
+	return ", ".join(finds) if not finds.is_empty() else "Nothing recovered."
 
-func _time_string(seconds: int) -> String:
+func _money(value: int) -> String:
+	var digits: String = str(absi(value))
+	var result := ""
+	for index in range(digits.length()):
+		if index > 0 and (digits.length() - index) % 3 == 0:
+			result += ","
+		result += digits[index]
+	return ("−" if value < 0 else "") + result + " G"
+
+func _duration(seconds: int) -> String:
 	if seconds <= 0:
-		return "RETURNED"
+		return "Returned"
 	if seconds >= 3600:
 		return "%dh %02dm" % [int(seconds / 3600), int(seconds / 60) % 60]
 	if seconds >= 60:
 		return "%dm %02ds" % [int(seconds / 60), seconds % 60]
 	return "%ds" % seconds
 
-func _update_countdowns() -> void:
+func _update_timers() -> void:
 	var now: int = int(Time.get_unix_time_from_system())
 	for mission in game.missions:
-		var id: String = str(mission["id"])
-		if _timer_labels.has(id) and is_instance_valid(_timer_labels[id]):
-			var remaining: int = maxi(0, int(mission["finish"]) - now)
-			(_timer_labels[id] as Label).text = "RETURN IN " + _time_string(remaining)
+		var key: String = str(mission["id"])
+		var remaining: int = maxi(0, int(mission["finish"]) - now)
+		if mission_timers.has(key):
+			var node: Label = mission_timers[key]
+			if is_instance_valid(node):
+				node.text = "RETURN IN " + _duration(remaining)
+		if mission_bars.has(key):
+			var bar: ProgressBar = mission_bars[key]
+			if is_instance_valid(bar):
+				var length: int = maxi(1, int(mission["finish"]) - int(mission["started"]))
+				bar.value = clampf(100.0 * float(now - int(mission["started"])) / float(length), 0.0, 100.0)
 
-func _clock_tick() -> void:
+func _on_clock() -> void:
 	var finished: int = game.complete_due()
 	if finished > 0:
-		_notify("%d expedition(s) returned. Open the ledger to inspect the haul." % finished)
-		_render_page()
+		_refresh()
+		_toast("%d team(s) returned. Their findings are in the journal." % finished)
 	else:
-		_update_countdowns()
+		_update_timers()
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		match event.keycode:
+			KEY_1: _nav_to("hq")
+			KEY_2: _nav_to("expeditions")
+			KEY_3: _nav_to("roster")
+			KEY_4: _nav_to("market")
+			KEY_5: _nav_to("ledger")
