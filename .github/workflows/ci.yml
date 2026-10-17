@@ -17,3 +17,5 @@ jobs:
         run: godot --headless --path . --quit-after 5
       - name: Test core gameplay
         run: godot --headless --path . --script res://tests/smoke_test.gd
+      - name: Exercise UI screens and actions
+        run: godot --headless --path . --script res://tests/ui_smoke_test.gd

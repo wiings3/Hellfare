@@ -1,53 +1,48 @@
-# MONEY / MERCS
-*A contractor gets rich. Mercenaries take the risks.*
+# Money Mercs
 
-A **Godot 4.5.1** UI-first prototype for a hybrid management/resource game. Hire mercenaries, negotiate their contract type, send them on timed expeditions, sell or stockpile the proceeds, and expand the company.
+A dark-fantasy mercenary contractor / resource economy management game built with **Godot 4.5.1**.
 
-## Open and play
+**Version 0.2** rebuilds the entire presentation layer. The economic model and save data stay intact.
 
-1. Clone this repository via **GitHub Desktop** (or `git clone https://github.com/wiings3/Money-Mercs.git`).
-2. In **Godot 4.5.1**, import `project.godot`.
-3. Run the project with **F6** while viewing the main scene, or **F5** for the project.
+## Starting out
 
-**First profitable expedition:** Start with 350 gold. Visit Mercenaries, hire Garrick (70 gold) and optionally Mara (110 gold), then open Expeditions, select Mossward Lowlands, assign the crew, and choose standing orders. Wages and supplies are charged upfront. The operation will return after its timer expires. Check your vault, ledger, and the marketplace for earnings; you'll often need to sell resources to turn them into spendable gold.
+1. Clone with [GitHub Desktop](https://desktop.github.com/) or `git clone https://github.com/wiings3/Money-Mercs.git`.
+2. Import `project.godot` in **Godot 4.5.1** and run **F5**.
+3. In **The Office**, open **The Crew** and select **Recruitment Board**.
+4. Hire Garrick (70 gold), then open **Expeditions**.
+5. Select **Mossward Lowlands**; choose Garrick in the fixed right-side briefing panel and dispatch him.
+6. The expedition continues when you close the game. Read the return in **The Journal** and sell loot through **The Exchange**.
 
-### Implemented in v0.1
+## Navigation
 
-- Headquarters dashboard showing liquid cash, estimated total company value, reputation and operations capacity.
-- Six authored mercenary candidates; hiring, distinct roles, experience, injury/treatment and four equipment upgrades.
-- Three contract structures: balanced, guaranteed wages, and higher profit share.
-- Three regions, each with its own resource yield, length, threat, gates, and rare-drop table.
-- One-to-three-person dispatch planning, risk strategy, payout forecast and standing orders.
-- Resolves stored missions on return to the game using wall-clock finish times. Expired missions are settled once and generate a durable report.
-- Inventory vault with seven distinct resources; basic NPC merchant prices that vary every six hours, with a buy/sell spread.
-- Resource and gold sinks: hiring, operations slots, expedition funding, medical treatment, gear upgrades.
-- A very rare Sovereign Orb that has actual endgame use: mythical-tier equipment requires one.
-- Automatic JSON save under `user://money_mercs_save.json` after each meaningful action.
-- Developer debug-build menu in Company Ledger: advance missions by 15 minutes for testing; optional two-click reset.
+| Screen | Use |
+|---|---|
+| 01 The Office | Your company at a glance, active work, expansion and next steps |
+| 02 Expeditions | Illustrated region cards, active timers, contextual crew planner |
+| 03 The Crew | Current roster, recruitment, equipment, injuries and negotiated agreements |
+| 04 The Exchange | One resource list with your vault, unit prices and trade actions |
+| 05 The Journal | After-action reports and the cost of each expedition |
 
-### Design notes / caveats
+Press **1–5** for the associated screen. The main work area scrolls; the detail/decision panel stays beside it.
 
-This is a playable **economy test**, not a finished game. No multiplayer, art production, or fully simulated competing contractors yet.
+The illustrations are procedural and drawn in Godot; there are no placeholder stock assets or external image dependencies. `scripts/main.gd` is the entirely new presentation layer, with `scripts/ui_art.gd` providing region scenery and mercenary portraits.
 
-- Real time is respected even with the window closed. Expeditions must be explicitly dispatched: idle time alone never prints money.
-- The mercenaries are paid **cash wages upfront** and a **percentage of the appraised entire haul** when returning. Rare whole-item finds are kept by the company, but the crew's commission is charged in gold. Your balance may temporarily go negative; sell resources to cover it.
-- Mission length (75 seconds to 12 minutes) and reputation gates are intentionally compressed for the first feedback sessions. Long-term progression should be tuned only after testing.
-- Offline simulation is **local and client-trusting** for the prototype. Before adding online trade/leaderboards, migrate accounts, expedition rolls, clocks and all monetary transactions to a server-authoritative backend.
-- NPC merchants always buy resources at a discount; crafting consumes materials and can be more profitable than immediately selling. Rare relics and Sovereign Orbs cannot be purchased from NPCs in this prototype.
-- Wealth figures are **estimates**, not an exploitable bank balance or score.
+## Mechanical systems preserved
 
-## File structure
+- 350 gold starting capital and six authored hires.
+- Negotiable wage-vs-share contract structures and mercenary experience, wounds, and equipment upgrades.
+- Three regions with risk, specialist bonuses, reputation gates, different drop tables, and varying lengths.
+- Cautious / Balanced / Deep Push orders; 1–3 crew; prepaid mission wages and provisions.
+- Offline progress calculated from saved timestamps and recorded exactly once when you reopen.
+- Seven collectible resources, evolving NPC prices, merchant spread, and rare expedition-only finds.
+- Three expedition slots at most, unlocked through investment.
+- Auto-saved company file `user://money_mercs_save.json`.
+- In debug builds only, tools to skip 15 minutes and reset the save in two steps from The Journal.
 
-```
-project.godot              Godot 4.5.1 project configuration
-scenes/main.tscn          Root game scene
-scripts/main.gd           Responsive UI and player interactions
-scripts/game_state.gd     Economy rules, RNG, persistence, expeditions
-assets/icon.svg           Project icon
-tests/smoke_test.gd       Non-destructive-on-local-machine smoke test (CI only)
-.github/workflows/ci.yml  Godot headless parser and smoke test
-```
+**Prototype economy caveat:** Mercenary commissions are settled in gold against the assessed gross haul, including materials retained in the stash. Gold can be negative until you've sold enough materials to cover commissions. Timers and progression are deliberately compressed for testing.
 
-## What's next
+## Testing and changes
 
-First we playtest whether the expedition decisions and profits feel fair. Next: meaningful item crafting, market supply/demand, automated rival contractors, better tooltips, and an authored 2D visual identity. Online competition comes **after** the offline game is compelling.
+GitHub Actions verifies script import, scene boot, economy smoke tests and interactive navigation through all five main screens. The CI-only UI test also recruits and dispatches a mercenary, simulates a return, and opens market and report views.
+
+This remains a **single-player prototype**. Online marketplaces and competition should be server-authoritative before any actual trading between players, and can only follow playtesting the local economy.
