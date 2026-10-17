@@ -1,0 +1,19 @@
+name: Godot verification
+on:
+  push:
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.5.1
+          use-dotnet: false
+      - name: Import and parse project
+        run: godot --headless --path . --editor --quit
+      - name: Load main scene
+        run: godot --headless --path . --quit-after 5
+      - name: Test core gameplay
+        run: godot --headless --path . --script res://tests/smoke_test.gd
