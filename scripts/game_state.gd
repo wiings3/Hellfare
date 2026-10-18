@@ -592,6 +592,9 @@ func harlow_sync(now: int = -1) -> bool:
 	var rotation: int = int(now / HARLOW_ROTATION_SECONDS)
 	var changed := false
 	if int(harlow.get("rotation", -1)) != rotation:
+		var archives: Dictionary = harlow.get("archives", {})
+		if harlow.has("rotation"):
+			archives[str(int(harlow["rotation"]))] = (harlow.get("deposits", {}) as Dictionary).duplicate(true)
 		var randomizer := RandomNumberGenerator.new()
 		randomizer.seed = int(rotation * 15427 + 28483)
 		var ore: Dictionary = {
@@ -611,7 +614,8 @@ func harlow_sync(now: int = -1) -> bool:
 			"scout_level": clampi(old_scout_level, 1, 3),
 			"scout_finish": 0,
 			"report": {},
-			"fallen": harlow.get("fallen", [])
+			"fallen": harlow.get("fallen", []),
+			"archives": archives
 		}
 		changed = true
 	var finish: int = int(harlow.get("scout_finish", 0))
@@ -627,8 +631,12 @@ func harlow_sync(now: int = -1) -> bool:
 		var findings: Dictionary = {"primary": lead, "minimum": min_seen, "creature": str(harlow["enemy"]["name"]), "exact": scout_level == 3}
 		if scout_level >= 2:
 			findings["all_ore"] = ores.duplicate(true) if scout_level == 3 else {"copper": maxi(0, int(ores.get("copper", 0)) - 1), "iron": maxi(0, int(ores.get("iron", 0)) - 1)}
+		if scout_level >= 2:
+			findings["threat_note"] = str(harlow["enemy"]["note"])
+			findings["danger_band"] = "Severe" if int(harlow["enemy"]["danger"]) >= 3 else "Moderate"
 		if scout_level == 3:
 			findings["danger"] = int(harlow["enemy"]["danger"])
+			findings["all_ore"] = ores.duplicate(true)
 		harlow["report"] = findings
 		harlow["scout_finish"] = 0
 		changed = true
@@ -674,43 +682,13 @@ func harlow_upgrade_scout() -> String:
 
 func harlow_crew_stats(ids: Array[String], approach: String) -> Dictionary:
 	harlow_sync()
-	var miners := 0
-	var guards := 0
-	var power := 0
-	var avg_gear := 0
+	var workers: Array[Dictionary] = []
 	for id in ids:
 		var merc: Dictionary = merc_by_id(id)
-		if merc.is_empty():
-			continue
-		var role: String = str(merc.get("role", ""))
-		if role == "Miner":
-			miners += 1
-		elif role == "Guard":
-			guards += 1
-		power += int(merc.get("skill", 0))
-		avg_gear += int(merc.get("gear", 0))
-	var danger: int = int((harlow.get("enemy", {}) as Dictionary).get("danger", 2))
-	var odds: float = 0.55 - 0.09 * float(danger - 1) + guards * 0.25 + (power - 25.0) * 0.003 + avg_gear * 0.018
-	if approach == "Cautious":
-		odds += 0.10
-	elif approach == "Deep Push":
-		odds -= 0.13
-	odds = clampf(odds, 0.08, 0.97)
-	var death_risk: float = 0.07 + danger * 0.065 - guards * 0.048 - avg_gear * 0.015
-	if approach == "Cautious":
-		death_risk -= 0.038
-	elif approach == "Deep Push":
-		death_risk += 0.095
-	death_risk = clampf(death_risk, 0.005, 0.75)
-	return {
-		"miners": miners,
-		"guards": guards,
-		"capacity": miners * 3,
-		"success": odds,
-		"death": death_risk,
-		"wage": _harlow_cost(ids),
-		"duration": 100 if approach == "Cautious" else (65 if approach == "Deep Push" else 80)
-	}
+		if not merc.is_empty() and is_available(merc):
+			workers.append(merc)
+	var threat: int = int((harlow.get("enemy", {}) as Dictionary).get("danger", 2))
+	return V05.assess_party(workers, approach, threat, 18)
 
 func _harlow_cost(ids: Array[String]) -> int:
 	var total := 18
@@ -761,7 +739,9 @@ func harlow_dispatch(ids: Array[String], approach: String) -> String:
 	missions.append({
 		"id": key, "region": "harlow", "ids": ids.duplicate(),
 		"tactic": approach, "cost": int(stats["wage"]), "chance": float(stats["success"]),
-		"death": float(stats["death"]), "capacity": int(stats["capacity"]),
+		"death": stats["death"], "capacity": int(stats["capacity"]),
+		"threat": (harlow.get("enemy", {}) as Dictionary).duplicate(true),
+		"equipped": _snapshot_equipment(ids), "v05": true,
 		"share": minf(share, 0.85), "seed": randi(),
 		"rotation": int(harlow["rotation"]), "snapshot": available.duplicate(true),
 		"started": now, "finish": now + int(stats["duration"])
@@ -769,7 +749,21 @@ func harlow_dispatch(ids: Array[String], approach: String) -> String:
 	save_game()
 	return "Harlow expedition funded. Your crew is heading underground."
 
+func _snapshot_equipment(ids: Array[String]) -> Dictionary:
+	var result: Dictionary = {}
+	for id in ids:
+		var merc: Dictionary = merc_by_id(id)
+		if not merc.is_empty():
+			result[id] = (merc.get("equipment", {}) as Dictionary).duplicate(true)
+	return result
+
 func _harlow_finish(mission: Dictionary) -> void:
+	if bool(mission.get("v05", false)):
+		_harlow_finish_v05(mission)
+	else:
+		_harlow_finish_legacy(mission)
+
+func _harlow_finish_legacy(mission: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(mission["seed"])
 	var succeeded := rng.randf() < float(mission["chance"])
