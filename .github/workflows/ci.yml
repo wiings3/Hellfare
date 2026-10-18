@@ -20,4 +20,9 @@ jobs:
       - name: Exercise UI screens and actions
         run: godot --headless --path . --script res://tests/ui_smoke_test.gd
       - name: Exercise Harlow scouting and dispatch
-        run: godot --headless --path . --script res://tests/harlow_smoke_test.gd
+        run: |
+          set -o pipefail
+          timeout 45s godot --headless --path . --script res://tests/harlow_smoke_test.gd 2>&1 | tee /tmp/harlow_test.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/harlow_test.log; then
+            exit 1
+          fi
