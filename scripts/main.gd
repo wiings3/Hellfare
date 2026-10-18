@@ -2,6 +2,7 @@ extends Control
 ## Money Mercs V0.2 — rebuilt interface.
 ## UI only. Game economy, expeditions and user:// saves stay in game_state.gd.
 const Art = preload("res://scripts/ui_art.gd")
+const HarlowView = preload("res://scripts/harlow_ui.gd")
 
 const BG := Color("#0e1516")
 const RAIL := Color("#111d1e")
@@ -19,12 +20,14 @@ const DANGER := Color("#e3a093")
 
 const PAGES := [
 	["hq", "THE OFFICE", "01"],
-	["expeditions", "EXPEDITIONS", "02"],
-	["roster", "THE CREW", "03"],
-	["market", "THE EXCHANGE", "04"],
-	["ledger", "THE JOURNAL", "05"]
+	["harlow", "HARLOW MINES", "02"],
+	["expeditions", "OTHER SITES", "03"],
+	["roster", "THE CREW", "04"],
+	["market", "THE EXCHANGE", "05"],
+	["ledger", "THE JOURNAL", "06"]
 ]
 
+var harlow_view
 var game: MoneyMercsState
 var page: String = "hq"
 var selected_region: String = "lowlands"
@@ -52,6 +55,7 @@ func _ready() -> void:
 	var finished: int = game.complete_due()
 	_selected_first_merc()
 	_build_shell()
+	harlow_view = HarlowView.new(self)
 	if finished > 0:
 		_toast("%d field team(s) returned while you were away." % finished)
 	else:
@@ -353,6 +357,7 @@ func _refresh() -> void:
 	mission_bars.clear()
 	match page:
 		"hq": _home()
+		"harlow": harlow_view.build()
 		"expeditions": _expeditions()
 		"roster": _roster()
 		"market": _market()
@@ -409,7 +414,7 @@ func _home() -> void:
 	banner_info.add_child(_label(sentence, 17))
 	var banner_buttons := _h(10)
 	banner_info.add_child(banner_buttons)
-	banner_buttons.add_child(_button("OPEN EXPEDITION BOARD  →", _nav_to.bind("expeditions"), true))
+	banner_buttons.add_child(_button("PLAN HARLOW MINES  →", _nav_to.bind("harlow"), true))
 	banner_buttons.add_child(_button("RECRUIT", _open_recruitment, false))
 	_section("ACTIVE CONTRACTS")
 	if game.missions.is_empty():
@@ -438,7 +443,7 @@ func _home() -> void:
 	elif game.free_crew() > 0 and game.missions.size() < game.expedition_slots:
 		_inspector_note("AVAILABLE CREW", "%d mercenary(s) ready" % game.free_crew(), SUCCESS)
 		_inspector_note("READY TO DISPATCH", "Mossward Lowlands and unlocked expeditions are available.")
-		inspector_actions.add_child(_button("PLAN AN EXPEDITION  →", _nav_to.bind("expeditions"), true))
+		inspector_actions.add_child(_button("PLAN HARLOW MINES  →", _nav_to.bind("harlow"), true))
 	else:
 		_inspector_note("FIELD ACTIVITY", "%d expedition(s) running" % game.missions.size(), BRASS)
 		_inspector_note("DURING THE WAIT", "Review recent returns or turn your stash into working capital.")
@@ -466,7 +471,7 @@ func _mission_strip(parent: Node, mission: Dictionary) -> void:
 	container.add_child(top)
 	var description := _v(3)
 	var region: Dictionary = game.region_by_id(str(mission["region"]))
-	description.add_child(_label(str(region.get("name", "Unknown site")), 17))
+	description.add_child(_label("Harlow Mines" if str(mission.get("region", "")) == "harlow" else str(region.get("name", "Unknown site")), 17))
 	description.add_child(_label("%d crew  ·  %s tactics" % [mission["ids"].size(), str(mission["tactic"])], 12, MUTED))
 	top.add_child(description)
 	var eta := _label("—", 15, BRASS)
@@ -483,7 +488,7 @@ func _mission_strip(parent: Node, mission: Dictionary) -> void:
 	_update_timers()
 
 func _expeditions() -> void:
-	_title("FIELD OPERATIONS  /  CONTRACT BOARD", "Where will you send them?", "Select a destination. Set the team and orders at the desk on the right.")
+	_title("OTHER SITES  /  EARLY PROTOTYPE", "Additional contracts", "These sites use the old expedition rules while Harlow Mines tests the new scouting and casualty system.")
 	_section("CONTRACTS AVAILABLE")
 	for region in MoneyMercsState.REGIONS:
 		var id: String = str(region["id"])
@@ -851,6 +856,13 @@ func _journal_desk() -> void:
 		_inspector_note("CREW COMMISSION", _money(int(r["commission"])), DANGER)
 		_line(inspector_root)
 		_inspector_note("PROVISIONAL NET VALUE", _money(int(r["gross"]) - int(r["cost"]) - int(r["commission"])), SUCCESS if int(r["gross"]) >= int(r["cost"]) + int(r["commission"]) else DANGER)
+		var dead: Array = r.get("casualties", [])
+		var hurt: Array = r.get("injured", [])
+		if not dead.is_empty():
+			_line(inspector_root)
+			_inspector_note("PERMANENT CASUALTIES / LOST GEAR", ", ".join(dead), DANGER)
+		if not hurt.is_empty():
+			_inspector_note("WOUNDED CONTRACTORS", ", ".join(hurt), DANGER)
 		inspector_root.add_child(_label("Net value includes materials retained in the vault. It is not spendable cash.", 12, MUTED))
 	if OS.is_debug_build():
 		_spacer(inspector_root, 8)
@@ -932,18 +944,24 @@ func _update_timers() -> void:
 				bar.value = clampf(100.0 * float(now - int(mission["started"])) / float(length), 0.0, 100.0)
 
 func _on_clock() -> void:
+	var changed: bool = game.harlow_sync()
 	var finished: int = game.complete_due()
 	if finished > 0:
 		_refresh()
 		_toast("%d team(s) returned. Their findings are in the journal." % finished)
+	elif changed and page == "harlow":
+		_refresh()
 	else:
 		_update_timers()
+		if page == "harlow" and harlow_view != null:
+			harlow_view.update_clock()
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		match event.keycode:
 			KEY_1: _nav_to("hq")
-			KEY_2: _nav_to("expeditions")
-			KEY_3: _nav_to("roster")
-			KEY_4: _nav_to("market")
-			KEY_5: _nav_to("ledger")
+			KEY_2: _nav_to("harlow")
+			KEY_3: _nav_to("expeditions")
+			KEY_4: _nav_to("roster")
+			KEY_5: _nav_to("market")
+			KEY_6: _nav_to("ledger")
