@@ -758,6 +758,7 @@ func _draw_office() -> void:
 	work_panel.add_child(_lab("WHEN THE MINES ARE TOO DANGEROUS", 20, C_INK))
 	work_panel.add_child(_lab("Earn a modest, guaranteed wage without gambling your remaining crew. No entry fee, equipment requirement, injury, or death. Jobs continue offline.", 13, C_PAPER_DIM, true))
 	var occupied: bool = game.missions.size() >= game.expedition_slots
+	var eligible: bool = game.can_accept_guild_work()
 	var active_work := false
 	for job in game.missions:
 		if str(job.get("region", "")) == "guild_work":
@@ -777,17 +778,19 @@ func _draw_office() -> void:
 		orders.add_theme_constant_override("v_separation", 8)
 		work_panel.add_child(orders)
 		var paper_btn := _button("OFFICE PAPERWORK  /  +9 G  /  3 MIN", _guild_work.bind(""), false, true, true)
-		paper_btn.disabled = occupied
+		paper_btn.disabled = occupied or not eligible
 		orders.add_child(paper_btn)
 		for worker in game.available_guild_workers():
 			var name: String = str(worker.get("name", "Worker"))
 			var offer := _button("%s: +18 G  /  2M 30S" % name.to_upper(), _guild_work.bind(str(worker["id"])), true, true)
-			offer.disabled = occupied
+			offer.disabled = occupied or not eligible
 			orders.add_child(offer)
 		if occupied:
-			work_panel.add_child(_lab("Finish an active operation before starting a work order.", 12, C_PAPER_DIM))
+			work_panel.add_child(_lab("Finish an active operation before starting another work order.", 12, C_PAPER_DIM))
+		elif not eligible:
+			work_panel.add_child(_lab("These guaranteed contracts are reserved for struggling companies below 120 G liquid and 250 G estimated net worth. Regular expeditions remain the route to wealth.", 12, C_PAPER_DIM, true))
 		else:
-			work_panel.add_child(_lab("Use this to rebuild your payroll. Harlow Mines pays better when things go right.", 12, C_PAPER_DIM, true))
+			work_panel.add_child(_lab("Available while your company is struggling. Earn enough to rebuild, then return to more lucrative expeditions.", 12, C_PAPER_DIM, true))
 	_section(body, "III", "THE NEXT OPPORTUNITY")
 	var actions := _h(12)
 	body.add_child(actions)
