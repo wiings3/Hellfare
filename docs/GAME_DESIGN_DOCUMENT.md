@@ -1,6 +1,6 @@
 # MONEY MERCS — Living Game Design Document
 
-**Version:** 1.1 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
+**Version:** 1.2 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
 **Genre:** 2D, UI-first dark-fantasy mercenary management and economic simulation  
 **Repository:** https://github.com/wiings3/Money-Mercs
 
@@ -20,6 +20,8 @@
 ---
 
 ## 1. Game identity and design pillars
+
+**DECIDED — UI/UX is a primary gameplay system, not a finishing step.** Because virtually every meaningful action happens through an interface, visual clarity, interaction quality, readable item comparisons, tactile trade feedback, and the presentation of risk and rewards are core to whether the game is fun. We will design and validate UI alongside every major mechanic, not postpone serious polish until the final milestone.
 
 **DECIDED — Money Mercs is NOT an ARPG.** We are building a resource and fantasy-economy management game, not controllable dungeon combat. Adventures take place through mercenary planning, scouting, real-time expeditions, and reports. The game must stay realistic for a solo developer working in Godot.
 
@@ -293,7 +295,33 @@ Core intended areas:
 6. **Trading Post / Vault / Treasury** — inspect unique equipment and modifiers; trade-feed, haggle and settle in gold; store physical coin stacks, money bags, chests and other inventory in limited space; show spendable gold versus estimated net worth.
 7. **Journal** — after-action reports, casualties, economic results, and history.
 
-**DECIDED DESIGN STANDARD:** Clear hierarchy, no walls of text, no inscrutable giant panels, no confetti of equally weighted buttons. The original UI was rejected and rebuilt once in v0.2; this is still a work in progress, not a finished art target.
+### UI excellence is a product requirement — DECIDED
+
+The interface should aim for an exceptional, cohesive experience from the first interactive build. No one can guarantee a universally "perfect" interface in advance; the standard is to **keep iterating based on real use until both appearance and usability are excellent**. A feature is not finished if it works internally but feels clumsy to operate.
+
+**Experience principles:**
+
+1. **Information at the point of decision:** Scouting reports show confirmed findings and uncertainty; expedition planning shows mining capacity, guard coverage, expected yield, survival risk, gold at risk and consequences together. No hunting across unrelated screens.
+2. **Immediate visual comprehension:** Make status, rarity, risk, profit, loss, affordances and resource capacity scannable at a glance. Layer advanced details behind deliberate inspection, not walls of explanatory copy.
+3. **Feel matters:** A rare item discovery, a winning flip, an arriving money bag, a returning scout and a fatality should have different, high-quality interaction feedback (visual state changes, animation, appropriate sound and clear reports). Tactile feedback should be restrained, not distracting.
+4. **The market is a first-class interface:** Fast linked-item inspection, side-by-side modifier comparisons, readable live advertisements, negotiation and secure confirmation should be satisfying for someone who spends hours trading.
+5. **A real treasury:** Distinctive coins, bags, chests, stash arrangement and capacity visualization make gold feel physically owned. Keep routine payment automatic; avoid tedious manual micromanagement.
+6. **Professional visual system:** Consistent typography, spacing, color semantics, iconography, item art, layouts, hover/focus/disabled states, transitions and tooltips. A strong dark-fantasy aesthetic must never compromise legibility.
+7. **Accessible and robust:** No clipped menus, tiny click targets, unreadable text, ambiguous color-only status or accidental destructive actions. Test different supported window sizes and scales, and keyboard/mouse workflows.
+8. **Consistency across screens:** Keep navigation, back paths, notifications, selection state and money figures trustworthy. Changing tabs should not silently discard plans or obscure critical context.
+
+**Development standard for each gameplay slice:** First define the player's goals and the information needed; sketch/wireframe the interaction; establish the visual states; build the interface *with* the mechanic; test real tasks in Godot at target sizes; revise until it feels good. Treat visual and usability review as a requirement for acceptance, not an optional art pass. Do not do endless speculative redesigns detached from actual playtesting.
+
+**Quality gates for the initial Harlow Mines interface:**
+
+- A first-time player can locate the scout action, recognize a current versus stale report, and understand what information is unknown.
+- The 2-miner/1-guard versus 1-miner/2-guard tradeoff is legible **without opening several screens**; percentages are clearly labeled (objective success is not mercenary survival).
+- The player knows the exact upfront gold cost, equipment exposed to loss, remaining deposit capacity, order selection and dispatch confirmation.
+- Returning reports distinguish collected resources, casualties, lost items, remaining veins, cash flow and appraised net results.
+- Loading, empty, busy, unaffordable, locked, expired and error states are deliberately designed; no dead buttons, broken scroll, clipping or layout collisions.
+- Screens are visually inspected at the intended desktop window size and at a smaller supported size. Automated headless tests alone do not prove visual quality.
+
+**IMPLEMENTED v0.2:** A first replacement management interface exists, but its presentation is **not approved as final**. Future UI work should be evaluated against the principles above. We do not have to freeze the current interface to make progress on mechanics.
 
 ---
 
@@ -320,13 +348,14 @@ Core intended areas:
 
 | Milestone | Features | Proof of success |
 |---|---|---|
-| **A. Harlow vertical slice** | Rotations, finite ore, separate upgradeable scouts, miners, guards, dangerous encounters, permadeath, gear loss, offline reports | Interesting crew composition and comprehensible risk decisions |
+| **A0. Harlow UI foundation** | Visual direction, component styles and interaction prototype for scout reports, expedition planning, crew selection, loss warnings and results | Information is beautiful, legible and immediately actionable; tested in a real Godot window |
+| **A1. Harlow vertical slice** | Implement rotations, finite ore, upgradeable scouts, miners, guards, dangerous encounters, permadeath, gear loss and offline reports through that interface | Interesting crew composition, comprehensible risk decisions and excellent interaction flow |
 | **B. Real item economy + tangible gold** | Unique equipment, modifiers, crafting and sinks; coin stacks, money bags, treasury slots and gold-only pricing | Valuable goods have buyers and wealth feels physical, measurable and limited by storage |
 | **C. Simulated trading world** | NPC firms with budgets and inventory, production/consumption, bargaining feed and profitable flipping | Market-only play is fun with one human player |
 | **D. Online shared market** | Server-authoritative items and transactions, real players, safe P2P settlement | Economy functions at small and large populations |
-| **E. Depth & longevity** | More regions, firms, roles, currency sinks, specialized contracts, polish | Days/weeks of meaningful earned progression |
+| **E. Depth & longevity** | More regions, firms, roles, gold/resource sinks and specialized contracts; continued UI refinement | Days/weeks of meaningful earned progression without sacrificing presentation quality |
 
-Keep the build small enough for one developer. Expanding content before validating the earlier loop is explicitly **not** the plan.
+**UI/UX quality is a cross-cutting requirement for every milestone above, not a phase reserved for the end.** Keep the build small enough for one developer. Expanding content before validating the earlier loop is explicitly **not** the plan.
 
 ---
 
