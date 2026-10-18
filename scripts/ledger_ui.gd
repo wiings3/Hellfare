@@ -57,6 +57,7 @@ var selected_crew: Array[String] = []
 var tactic: String = "Balanced"
 var selected_region: String = "lowlands"
 var selected_item: String = "copper"
+var selected_merc: String = ""
 var selected_report: int = 0
 var _reset_confirm: bool = false
 
@@ -767,6 +768,10 @@ func _draw_roster() -> void:
 	body.add_child(tabs)
 	tabs.add_child(_button("UNDER CONTRACT  /  %d" % game.crew.size(), _set_roster_tab.bind("employed"), roster_tab == "employed"))
 	tabs.add_child(_button("RECRUITMENT BOARD", _set_roster_tab.bind("recruits"), roster_tab == "recruits"))
+	tabs.add_child(_button("THE ARMORY", _set_roster_tab.bind("armory"), roster_tab == "armory"))
+	if roster_tab == "armory":
+		_draw_armory(body)
+		return
 	var roster := GridContainer.new()
 	roster.columns = 2
 	roster.add_theme_constant_override("h_separation", 14)
@@ -774,7 +779,7 @@ func _draw_roster() -> void:
 	roster.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_child(roster)
 	if roster_tab == "recruits":
-		for candidate in MoneyMercsState.RECRUITS:
+		for candidate in game.recruitment_board():
 			if game.merc_by_id(str(candidate["id"])).is_empty():
 				_person_card(roster, candidate, false)
 	else:
@@ -804,7 +809,7 @@ func _person_card(parent: Node, merc: Dictionary, employed: bool) -> void:
 	p.add_child(numbers)
 	if employed:
 		_metric(numbers, "HEALTH", "%d%%" % int(merc.get("health",100)), C_SAFE)
-		_metric(numbers, "GEAR TIER", str(int(merc.get("gear",0))), C_GOLD)
+		_metric(numbers, "EQUIPMENT", "%d / 2" % _equipped_count(merc), C_GOLD)
 		_metric(numbers, "EXPERIENCE", str(int(merc.get("xp",0))), C_IVORY)
 	else:
 		_metric(numbers, "HIRE COST", _money(int(merc["hire"])), C_GOLD)
@@ -815,10 +820,12 @@ func _person_card(parent: Node, merc: Dictionary, employed: bool) -> void:
 		var actions := _h(7)
 		p.add_child(actions)
 		actions.add_child(_button("TERMS", _terms.bind(str(merc["id"])), false, true))
-		actions.add_child(_button("EQUIPMENT", _upgrade_gear.bind(str(merc["id"])), false, true))
+		actions.add_child(_button("OUTFIT", _outfit.bind(str(merc["id"])), false, true))
 		if int(merc.get("health",100)) < 100:
 			actions.add_child(_button("HEAL", _heal.bind(str(merc["id"])), false, true))
-		p.add_child(_lab("Gear upgrade: %s" % game.cost_text(game.gear_cost(int(merc.get("gear",0)))) if int(merc.get("gear",0)) < 4 else "Mythical gear equipped", 11, C_DIM, true))
+		var equipped: Dictionary = merc.get("equipment", {})
+		p.add_child(_lab("Tool: %s   ·   Armor: %s" % [
+			_equipment_name(equipped.get("tool", {})), _equipment_name(equipped.get("armor", {}))], 11, C_DIM, true))
 	else:
 		var recruit := _button("SIGN CONTRACT  /  %s" % _money(int(merc["hire"])), _hire.bind(str(merc["id"])), true)
 		recruit.disabled = game.gold < int(merc["hire"])
@@ -829,6 +836,106 @@ func _hire(id: String) -> void:
 	if text.contains("joined"):
 		roster_tab = "employed"
 	_action(text)
+
+func _equipped_count(merc: Dictionary) -> int:
+	var worn: Dictionary = merc.get("equipment", {})
+	var result: int = 0
+	for slot in ["tool", "armor"]:
+		if not (worn.get(slot, {}) as Dictionary).is_empty():
+			result += 1
+	return result
+
+func _equipment_name(item: Dictionary) -> String:
+	if item.is_empty():
+		return "Empty"
+	return str(game.item_definition(str(item.get("key", ""))).get("name", "Unknown"))
+
+func _outfit(id: String) -> void:
+	selected_merc = id
+	roster_tab = "armory"
+	_refresh()
+
+func _draw_armory(body: VBoxContainer) -> void:
+	_section(body, "I", "QUARTERMASTER'S STORES", "%d UNASSIGNED ITEMS" % game.equipment_inventory.size())
+	var chooser := _panel(body, true, 15)
+	chooser.add_child(_lab("OUTFITTING ORDER / CHOOSE A MERCENARY", 16, C_INK))
+	var employees := _h(7)
+	chooser.add_child(employees)
+	var picked: Dictionary = game.merc_by_id(selected_merc)
+	if picked.is_empty() and not game.crew.is_empty():
+		selected_merc = str(game.crew[0]["id"])
+		picked = game.crew[0]
+	for member in game.crew:
+		var id: String = str(member["id"])
+		var choose := _button(str(member["name"]), _choose_worker.bind(id), id == selected_merc, true, true)
+		employees.add_child(choose)
+	if not picked.is_empty():
+		chooser.add_child(_lab("OUTFITTING: %s   /   %s" % [str(picked["name"]), str(picked["role"])], 16, C_INK))
+		var worn: Dictionary = picked.get("equipment", {})
+		for slot in ["tool", "armor"]:
+			var line := _h(9)
+			chooser.add_child(line)
+			line.add_child(_lab("%s: %s" % [slot.capitalize(), _equipment_name(worn.get(slot, {}))], 13, C_INK))
+			var spacer := Control.new()
+			spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			line.add_child(spacer)
+			if not (worn.get(slot, {}) as Dictionary).is_empty():
+				var remove := _button("UNEQUIP", _unequip.bind(selected_merc, slot), false, true, true)
+				remove.disabled = not game.is_available(picked)
+				line.add_child(remove)
+	else:
+		chooser.add_child(_lab("Hire a mercenary before equipping your gear.", 14, C_PAPER_DIM))
+	_section(body, "II", "AVAILABLE EQUIPMENT")
+	if game.equipment_inventory.is_empty():
+		var vacant := _panel(body)
+		vacant.add_child(_lab("No loose equipment in your armory.", 13, C_DIM))
+	for item in game.equipment_inventory:
+		var uid: String = str(item.get("uid", ""))
+		var key: String = str(item.get("key", ""))
+		var definition: Dictionary = game.item_definition(key)
+		var store := _panel(body, false, 12)
+		var row := _h(10)
+		store.add_child(row)
+		row.add_child(_lab(str(definition.get("name", "Unknown")), 16, C_IVORY))
+		var expand := Control.new()
+		expand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(expand)
+		row.add_child(_chip(str(definition.get("slot", "tool"))))
+		var assign := _button("EQUIP  →", _equip.bind(selected_merc, uid), true, true)
+		assign.disabled = picked.is_empty() or not game.is_available(picked) or not MercsV05.validate_role(key, picked)
+		row.add_child(assign)
+	_section(body, "III", "QUARTERMASTER'S CATALOGUE", "PRICES IN GOLD")
+	for key in MercsV05.ITEMS:
+		var definition: Dictionary = MercsV05.ITEMS[key]
+		var offer := _panel(body, false, 10)
+		var row := _h(9)
+		offer.add_child(row)
+		var name: String = str(definition["name"])
+		var text_line := _lab("%s   •   %s / %s" % [name, str(definition["role"]), str(definition["slot"])], 14, C_IVORY)
+		row.add_child(text_line)
+		var grow := Control.new()
+		grow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(grow)
+		var cost: int = int(definition["cost"])
+		var buy := _button("BUY   %s" % _money(cost), _buy_equipment.bind(str(key)), true, true)
+		buy.disabled = game.gold < cost
+		row.add_child(buy)
+		offer.add_child(_lab("Mining +%d   Guard +%d   Protection +%d" % [
+			int(definition["mining"]), int(definition["guard"]), int(definition["protection"])], 11, C_DIM))
+	_gap(body, 16)
+
+func _choose_worker(id: String) -> void:
+	selected_merc = id
+	_refresh()
+
+func _buy_equipment(key: String) -> void:
+	_action(game.buy_equipment(key))
+
+func _equip(id: String, uid: String) -> void:
+	_action(game.equip_item(id, uid))
+
+func _unequip(id: String, slot: String) -> void:
+	_action(game.unequip_item(id, slot))
 
 func _terms(id: String) -> void:
 	_action(game.switch_contract(id))
