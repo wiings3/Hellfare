@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="360" viewBox="0 0 560 360">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#4b3a35"/><stop offset="1" stop-color="#171820"/></linearGradient></defs>
+<rect width="560" height="360" fill="url(#bg)"/>
+<path d="M0 230 103 160 212 218 310 121 455 211 560 130V360H0Z" fill="#2c3035"/>
+<path d="M0 324 102 282 214 330 341 268 450 321 560 267V360H0Z" fill="#17191e"/>
+<path d="M94 360 105 186 170 161 234 225 267 362Z M470 360 450 180 384 145 310 238 281 360Z" fill="#61605e" stroke="#97918a" stroke-width="8"/>
+<path d="M176 359q-30-175 95-236 137 51 125 236Z" fill="#515c5a" stroke="#929a91" stroke-width="11"/>
+<path d="M192 202 185 93 240 109 273 49 311 103 379 93 365 203Z" fill="#67716b" stroke="#9caaa2" stroke-width="9"/>
+<path d="M210 193q61-39 134 0l-19 32H231Z" fill="#313a39"/>
+<path d="M225 208 253 196 268 218l-32 6 M302 214l30-17 16 22-36 6" fill="#e3b676"/>
+<path d="M248 252q32-32 66 0l-27 24Z" fill="#2c2a2c"/>
+<path d="M239 288 324 287l-18 29H252Z" fill="#23282a"/>
+<path d="M245 288 257 305 267 287 278 307 290 288 306 304 314 287" fill="#c1b9a5"/>
+<path d="M0 354h560" stroke="#bb8257" stroke-width="4"/>
+</svg>
