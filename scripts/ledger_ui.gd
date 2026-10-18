@@ -645,9 +645,9 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 	_mini_stat(grid, "OBJECTIVE SUCCESS", "%d%%" % int(round(float(stats["success"])*100.0)) if has_report else "Unscouted", Color("#3e7958") if has_report else C_CRIMSON)
 	_mini_stat(grid, "DEATH RISK / WORKER", "%d%%" % int(round(float(stats["death"])*100.0)) if has_report else "Unknown", C_CRIMSON)
 	_rule(column, Color("#ad916c"))
-	var caution := _lab("PERMADEATH   /   Dead mercenaries and their equipped gear are lost forever.", 12, Color("#a44039"), true)
+	var caution := _lab("PERMADEATH   /   Dead mercenaries and equipped gear are lost forever.", 12, Color("#a44039"), true)
 	_grow(caution)
-	column.add_child(caution)
+	sidebar.add_child(caution)
 	var total_deposits := 0
 	var deposits: Dictionary = game.harlow.get("deposits", {})
 	for id in deposits:
