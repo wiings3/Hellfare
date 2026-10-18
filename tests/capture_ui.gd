@@ -7,7 +7,15 @@ func _capture() -> void:
 	var packed: PackedScene = load("res://scenes/main.tscn")
 	var instance: Control = packed.instantiate()
 	root.add_child(instance)
+	instance.game.reset_company()
+	instance.game.hire("garrick")
+	instance.game.hire("oswin")
+	instance.game.harlow_send_scout()
+	instance.game.harlow["scout_finish"] = int(Time.get_unix_time_from_system()) - 1
+	instance.game.harlow_sync()
 	instance._nav_to("harlow")
+	instance._toggle_crew(true, "garrick")
+	instance._toggle_crew(true, "oswin")
 	await process_frame
 	await process_frame
 	await RenderingServer.frame_post_draw
