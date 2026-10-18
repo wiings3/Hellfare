@@ -106,6 +106,16 @@ func _test() -> void:
 	restored.reset_company()
 	assert(restored.equipment_inventory.is_empty())
 	assert(restored.relief_debt == 0)
+	# A scout dispatched before rotation should return with information
+	# about the new rotation, rather than vanish into the clock change.
+	restored.harlow_sync()
+	var old_rotation: int = int(restored.harlow["rotation"])
+	assert(restored.harlow_send_scout().begins_with("Scout dispatched"))
+	restored.harlow_sync(int(Time.get_unix_time_from_system()) + MoneyMercsState.HARLOW_ROTATION_SECONDS)
+	assert(int(restored.harlow["rotation"]) > old_rotation)
+	assert(int(restored.harlow["scout_finish"]) == 0)
+	assert(not (restored.harlow["report"] as Dictionary).is_empty())
+	restored.reset_company()
 	# Migration from a v0.4 state (no equipment fields, unchanged version 1).
 	var legacy_file := FileAccess.open(MoneyMercsState.SAVE_PATH, FileAccess.WRITE)
 	legacy_file.store_string(JSON.stringify({
