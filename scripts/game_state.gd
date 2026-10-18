@@ -2,12 +2,13 @@ extends RefCounted
 class_name MoneyMercsState
 
 const SAVE_PATH := "user://money_mercs_save.json"
-const RESOURCE_ORDER := ["iron", "timber", "herbs", "silver", "crystal", "relic", "sovereign"]
+const RESOURCE_ORDER := ["copper", "iron", "timber", "herbs", "silver", "crystal", "relic", "sovereign"]
 const RESOURCE_NAMES := {
-	"iron": "Iron Ore", "timber": "Oldgrowth Timber", "herbs": "Moonleaf", "silver": "Silver", 
+	"copper": "Copper Ore", "iron": "Iron Ore", "timber": "Oldgrowth Timber", "herbs": "Moonleaf", "silver": "Silver", 
 	"crystal": "Azure Crystal", "relic": "Ancient Relic", "sovereign": "Sovereign Orb"
 }
 const RESOURCE_DESC := {
+	"copper": "A reliable metal harvested from Harlow Mines.",
 	"iron": "Basic tools, repairs, and early equipment.",
 	"timber": "A staple material for trade and construction.",
 	"herbs": "Medicinal plants gathered on safer routes.",
@@ -16,7 +17,7 @@ const RESOURCE_DESC := {
 	"relic": "Recovered from forgotten sites. Used by master craftsmen.",
 	"sovereign": "The rarest currency. Required for a mythical-tier equipment upgrade."
 }
-const BASE_PRICE := {"iron": 6, "timber": 4, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
+const BASE_PRICE := {"copper": 7, "iron": 6, "timber": 4, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
 
 const RECRUITS := [
 	{"id": "garrick", "name": "Garrick", "role": "Miner", "title": "The Quarry Hand", "skill": 11, "hire": 70, "wage": 9, "share": 0.09},
@@ -37,6 +38,7 @@ const REGIONS := [
 const TACTICS := ["Cautious", "Balanced", "Deep Push"]
 const CONTRACTS := ["Balanced", "Guaranteed Wage", "Profit Share"]
 
+var harlow: Dictionary = {}
 var gold: int = 350
 var reputation: int = 0
 var expedition_slots: int = 1
@@ -82,6 +84,7 @@ func load_game() -> void:
 	for r in state.get("reports", []):
 		if typeof(r) == TYPE_DICTIONARY:
 			reports.append(r)
+	harlow = state.get("harlow", {})
 	last_notice = "Company records restored."
 
 func save_game() -> void:
@@ -92,7 +95,8 @@ func save_game() -> void:
 	var data := {
 		"version": 1, "gold": gold, "reputation": reputation,
 		"expedition_slots": expedition_slots, "next_mission_id": next_mission_id,
-		"resources": resources, "crew": crew, "missions": missions, "reports": reports
+		"resources": resources, "crew": crew, "missions": missions, "reports": reports,
+		"harlow": harlow
 	}
 	file.store_string(JSON.stringify(data, "\t"))
 
@@ -315,7 +319,10 @@ func complete_due(now: int = -1) -> int:
 		var mission: Dictionary = missions[i]
 		if int(mission["finish"]) > now:
 			continue
-		_finish(mission)
+		if str(mission.get("region", "")) == "harlow":
+			_harlow_finish(mission)
+		else:
+			_finish(mission)
 		missions.remove_at(i)
 		completed += 1
 	if completed > 0:
@@ -434,6 +441,262 @@ func reset_company() -> void:
 	crew.clear()
 	missions.clear()
 	reports.clear()
+	harlow.clear()
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
 	save_game()
+
+
+# Harlow Mines: separate persistent rotation state, scouting, and role-based work.
+# This is the first vertical slice. Existing jobs remain backward compatible.
+const HARLOW_ROTATION_SECONDS := 14400
+const HARLOW_ENEMIES := [
+	{"name": "Sleeping Dire Wolf", "danger": 3, "note": "Territorial predator near the lower shafts"},
+	{"name": "Goblin Prospectors", "danger": 2, "note": "A band of armed scavengers"},
+	{"name": "Cave Spiders", "danger": 1, "note": "Nest signs around the old supports"},
+	{"name": "Ancient Cave Troll", "danger": 4, "note": "Huge tracks vanish into the rock"}
+]
+
+func harlow_sync(now: int = -1) -> bool:
+	if now < 0:
+		now = int(Time.get_unix_time_from_system())
+	var rotation: int = int(now / HARLOW_ROTATION_SECONDS)
+	var changed := false
+	if int(harlow.get("rotation", -1)) != rotation:
+		var randomizer := RandomNumberGenerator.new()
+		randomizer.seed = int(rotation * 15427 + 28483)
+		var ore: Dictionary = {
+			"copper": randomizer.randi_range(5, 9),
+			"iron": randomizer.randi_range(0, 5),
+			"silver": 1 if randomizer.randf() < 0.28 else 0
+		}
+		if randomizer.randf() < 0.06:
+			ore["crystal"] = 1
+		var creature: Dictionary = HARLOW_ENEMIES[randomizer.randi_range(0, HARLOW_ENEMIES.size() - 1)]
+		var old_scout_level: int = int(harlow.get("scout_level", 1))
+		harlow = {
+			"rotation": rotation,
+			"deposits": ore,
+			"original": ore.duplicate(true),
+			"enemy": creature.duplicate(true),
+			"scout_level": clampi(old_scout_level, 1, 3),
+			"scout_finish": 0,
+			"report": {},
+			"fallen": harlow.get("fallen", [])
+		}
+		changed = true
+	var finish: int = int(harlow.get("scout_finish", 0))
+	if finish > 0 and now >= finish:
+		var ores: Dictionary = harlow.get("deposits", {})
+		var lead: String = "copper"
+		for key in ["copper", "iron", "silver", "crystal"]:
+			if int(ores.get(key, 0)) > int(ores.get(lead, 0)):
+				lead = key
+		var available: int = int(ores.get(lead, 0))
+		var scout_level: int = int(harlow.get("scout_level", 1))
+		var min_seen: int = maxi(0, available - maxi(0, 3 - scout_level))
+		var findings: Dictionary = {"primary": lead, "minimum": min_seen, "creature": str(harlow["enemy"]["name"]), "exact": scout_level == 3}
+		if scout_level >= 2:
+			findings["all_ore"] = ores.duplicate(true) if scout_level == 3 else {"copper": maxi(0, int(ores.get("copper", 0)) - 1), "iron": maxi(0, int(ores.get("iron", 0)) - 1)}
+		if scout_level == 3:
+			findings["danger"] = int(harlow["enemy"]["danger"])
+		harlow["report"] = findings
+		harlow["scout_finish"] = 0
+		changed = true
+	if changed:
+		save_game()
+	return changed
+
+func harlow_rotation_remaining(now: int = -1) -> int:
+	if now < 0:
+		now = int(Time.get_unix_time_from_system())
+	return HARLOW_ROTATION_SECONDS - (now % HARLOW_ROTATION_SECONDS)
+
+func harlow_scout_seconds() -> int:
+	match int(harlow.get("scout_level", 1)):
+		2: return 40
+		3: return 25
+	return 60
+
+func harlow_send_scout() -> String:
+	harlow_sync()
+	if int(harlow.get("scout_finish", 0)) > 0:
+		return "Your scout is already surveying Harlow Mines."
+	if not (harlow.get("report", {}) as Dictionary).is_empty():
+		return "Your scout already reported on this rotation."
+	harlow["scout_finish"] = int(Time.get_unix_time_from_system()) + harlow_scout_seconds()
+	save_game()
+	return "Scout dispatched. The report will arrive even if you close the game."
+
+func harlow_upgrade_scout() -> String:
+	harlow_sync()
+	var level: int = int(harlow.get("scout_level", 1))
+	if level >= 3:
+		return "Your scout has reached maximum proficiency."
+	if int(harlow.get("scout_finish", 0)) > 0:
+		return "Wait until your scout returns before upgrading."
+	var cost: int = 200 if level == 1 else 650
+	if gold < cost:
+		return "Scout training requires %d gold." % cost
+	gold -= cost
+	harlow["scout_level"] = level + 1
+	save_game()
+	return "Scout promoted to level %d. Future surveys will be faster and more detailed." % (level + 1)
+
+func harlow_crew_stats(ids: Array[String], approach: String) -> Dictionary:
+	harlow_sync()
+	var miners := 0
+	var guards := 0
+	var power := 0
+	var avg_gear := 0
+	for id in ids:
+		var merc: Dictionary = merc_by_id(id)
+		if merc.is_empty():
+			continue
+		var role: String = str(merc.get("role", ""))
+		if role == "Miner":
+			miners += 1
+		elif role == "Guard":
+			guards += 1
+		power += int(merc.get("skill", 0))
+		avg_gear += int(merc.get("gear", 0))
+	var danger: int = int((harlow.get("enemy", {}) as Dictionary).get("danger", 2))
+	var odds: float = 0.55 - 0.09 * float(danger - 1) + guards * 0.25 + (power - 25.0) * 0.003 + avg_gear * 0.018
+	if approach == "Cautious":
+		odds += 0.10
+	elif approach == "Deep Push":
+		odds -= 0.13
+	odds = clampf(odds, 0.08, 0.97)
+	var death_risk: float = 0.07 + danger * 0.065 - guards * 0.048 - avg_gear * 0.015
+	if approach == "Cautious":
+		death_risk -= 0.038
+	elif approach == "Deep Push":
+		death_risk += 0.095
+	death_risk = clampf(death_risk, 0.005, 0.75)
+	return {
+		"miners": miners,
+		"guards": guards,
+		"capacity": miners * 3,
+		"success": odds,
+		"death": death_risk,
+		"wage": _harlow_cost(ids),
+		"duration": 100 if approach == "Cautious" else (65 if approach == "Deep Push" else 80)
+	}
+
+func _harlow_cost(ids: Array[String]) -> int:
+	var total := 18
+	for id in ids:
+		var merc: Dictionary = merc_by_id(id)
+		if not merc.is_empty():
+			total += int(terms(merc)["wage"])
+	return total
+
+func harlow_dispatch(ids: Array[String], approach: String) -> String:
+	harlow_sync()
+	if not TACTICS.has(approach):
+		return "Unrecognized standing orders."
+	if ids.is_empty() or ids.size() > 3:
+		return "Choose between one and three workers."
+	if missions.size() >= expedition_slots:
+		return "No expedition slots are free."
+	var seen: Dictionary = {}
+	for id in ids:
+		var merc := merc_by_id(id)
+		if merc.is_empty() or not is_available(merc) or seen.has(id):
+			return "A selected mercenary is unavailable."
+		if str(merc.get("role")) != "Miner" and str(merc.get("role")) != "Guard":
+			return "Harlow Mines requires miners and guards; guild scouts operate separately."
+		if int(merc.get("health", 100)) < 25:
+			return "%s is too injured for deployment." % str(merc["name"])
+		seen[id] = true
+	var stats: Dictionary = harlow_crew_stats(ids, approach)
+	if int(stats["miners"]) == 0:
+		return "At least one miner is needed to collect ore."
+	if gold < int(stats["wage"]):
+		return "Insufficient gold for wages and provisions."
+	var available: Dictionary = harlow.get("deposits", {})
+	var remaining: int = 0
+	for ore_id in available:
+		remaining += int(available[ore_id])
+	if remaining <= 0:
+		return "Harlow Mines have been exhausted this rotation."
+	gold -= int(stats["wage"])
+	var now := int(Time.get_unix_time_from_system())
+	var key := "job_%d" % next_mission_id
+	next_mission_id += 1
+	var share := 0.0
+	for id in ids:
+		var merc: Dictionary = merc_by_id(id)
+		merc["mission_id"] = key
+		share += float(terms(merc)["cut"])
+	missions.append({
+		"id": key, "region": "harlow", "ids": ids.duplicate(),
+		"tactic": approach, "cost": int(stats["wage"]), "chance": float(stats["success"]),
+		"death": float(stats["death"]), "capacity": int(stats["capacity"]),
+		"share": minf(share, 0.85), "seed": randi(),
+		"rotation": int(harlow["rotation"]), "snapshot": available.duplicate(true),
+		"started": now, "finish": now + int(stats["duration"])
+	})
+	save_game()
+	return "Harlow expedition funded. Your crew is heading underground."
+
+func _harlow_finish(mission: Dictionary) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(mission["seed"])
+	var succeeded := rng.randf() < float(mission["chance"])
+	var dead_names: Array[String] = []
+	var injured_names: Array[String] = []
+	var alive: int = 0
+	for merc_id in mission["ids"]:
+		var merc: Dictionary = merc_by_id(str(merc_id))
+		if merc.is_empty():
+			continue
+		var risk: float = float(mission["death"])
+		# Risk shown at dispatch is unconditional; outcomes modulate it.
+		var outcome_risk: float = risk * (0.35 if succeeded else 1.7)
+		if rng.randf() < outcome_risk:
+			dead_names.append(str(merc["name"]))
+			var list: Array = harlow.get("fallen", [])
+			list.push_front({"name": str(merc["name"]), "gear": int(merc.get("gear", 0)), "xp": int(merc.get("xp", 0)), "region": "Harlow Mines", "time": int(mission["finish"])})
+			harlow["fallen"] = list
+			crew.erase(merc)
+		else:
+			alive += 1
+			merc["mission_id"] = ""
+			merc["xp"] = int(merc.get("xp", 0)) + (2 if succeeded else 1)
+			if not succeeded and rng.randf() < 0.70:
+				merc["health"] = maxi(20, int(merc.get("health", 100)) - rng.randi_range(12, 35))
+				injured_names.append(str(merc["name"]))
+	var loot: Dictionary = {}
+	var cap: int = int(mission["capacity"]) if succeeded else maxi(0, int(mission["capacity"]) / 3)
+	if alive == 0:
+		cap = 0
+	# A rotated site does not deplete the NEW rotation. Concurrent jobs never clone veins.
+	var current_rotation: bool = int(mission["rotation"]) == int(harlow.get("rotation", -1))
+	var from: Dictionary = harlow["deposits"] if current_rotation else mission.get("snapshot", {})
+	for key in ["copper", "iron", "silver", "crystal"]:
+		var extraction: int = mini(cap, int(from.get(key, 0)))
+		if extraction <= 0:
+			continue
+		cap -= extraction
+		loot[key] = extraction
+		if current_rotation:
+			harlow["deposits"][key] = int(harlow["deposits"][key]) - extraction
+	var coins: int = rng.randi_range(7, 18) if succeeded and alive > 0 else 0
+	var gross: int = coins
+	for key in loot:
+		resources[key] = int(resources.get(key, 0)) + int(loot[key])
+		gross += int(loot[key]) * price(str(key))
+	var commission := int(ceil(float(gross) * float(mission["share"])))
+	gold += coins - commission
+	reputation += 2 if succeeded else 1
+	reports.push_front({
+		"region": "Harlow Mines", "won": succeeded, "loot": loot,
+		"cash": coins, "commission": commission, "cost": int(mission["cost"]),
+		"gross": gross, "tactic": str(mission["tactic"]), "crew": mission["ids"],
+		"time": int(mission["finish"]), "casualties": dead_names,
+		"injured": injured_names, "rotation": int(mission["rotation"]),
+		"extracted": loot.duplicate(true)
+	})
+	if reports.size() > 35:
+		reports.resize(35)
