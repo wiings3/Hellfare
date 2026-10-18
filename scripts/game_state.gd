@@ -19,7 +19,7 @@ const RESOURCE_DESC := {
 	"relic": "Recovered from forgotten sites. Used by master craftsmen.",
 	"sovereign": "The rarest currency. Required for a mythical-tier equipment upgrade."
 }
-const BASE_PRICE := {"copper": 12, "iron": 14, "timber": 4, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
+const BASE_PRICE := {"copper": 20, "iron": 17, "timber": 4, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
 
 const RECRUITS := [
 	{"id": "garrick", "name": "Garrick", "role": "Miner", "title": "The Quarry Hand", "skill": 11, "hire": 70, "wage": 9, "share": 0.09},
@@ -367,6 +367,8 @@ func complete_due(now: int = -1) -> int:
 			continue
 		if str(mission.get("region", "")) == "harlow":
 			_harlow_finish(mission)
+		elif str(mission.get("region", "")) == "guild_work":
+			_finish_guild_work(mission)
 		else:
 			_finish(mission)
 		missions.remove_at(i)
@@ -374,6 +376,71 @@ func complete_due(now: int = -1) -> int:
 	if completed > 0:
 		save_game()
 	return completed
+
+# Guild-supported recovery work: pays modest guaranteed fees, never kills workers,
+# requires no capital, and uses the ordinary expedition timer/save system.
+# A clerk can always do basic paperwork even after every mercenary is gone.
+const GUILD_WORK_SECONDS := 150
+const OFFICE_WORK_SECONDS := 180
+const GUILD_WORK_PAY := 18
+const OFFICE_WORK_PAY := 9
+
+func available_guild_workers() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for merc in crew:
+		if is_available(merc):
+			result.append(merc)
+	return result
+
+func start_guild_work(worker_id: String = "") -> String:
+	if missions.size() >= expedition_slots:
+		return "All operation slots are occupied."
+	var worker: Dictionary = {}
+	if not worker_id.is_empty():
+		worker = merc_by_id(worker_id)
+		if worker.is_empty() or not is_available(worker):
+			return "This contractor cannot accept a guild work order."
+	var office: bool = worker_id.is_empty()
+	var now: int = int(Time.get_unix_time_from_system())
+	var task_id: String = "job_%d" % next_mission_id
+	next_mission_id += 1
+	if not office:
+		worker["mission_id"] = task_id
+	missions.append({
+		"id": task_id, "region": "guild_work", "ids": [] if office else [worker_id],
+		"worker": worker_id, "office": office, "cost": 0,
+		"cash": OFFICE_WORK_PAY if office else GUILD_WORK_PAY,
+		"started": now, "finish": now + (OFFICE_WORK_SECONDS if office else GUILD_WORK_SECONDS)
+	})
+	save_game()
+	if office:
+		return "Guild paperwork accepted: 9 G after 3 minutes. No danger or fees."
+	return "%s assigned a safe guild work order: 18 G after 2m 30s." % str(worker["name"])
+
+func _finish_guild_work(mission: Dictionary) -> void:
+	var worker_id: String = str(mission.get("worker", ""))
+	var worker_name: String = "The guild office"
+	if not worker_id.is_empty():
+		var worker: Dictionary = merc_by_id(worker_id)
+		if not worker.is_empty():
+			worker_name = str(worker.get("name", "Contractor"))
+			worker["mission_id"] = ""
+			worker["xp"] = int(worker.get("xp", 0)) + 1
+	var payout: int = int(mission.get("cash", OFFICE_WORK_PAY))
+	gold += payout
+	# Debt repayment only touches funds above the existing 120 G safety reserve.
+	_apply_relief_payment()
+	reports.push_front({
+		"region": "Guild Work Order", "won": true, "loot": {},
+		"cash": payout, "commission": 0, "cost": 0, "gross": payout,
+		"time": int(mission["finish"]), "tactic": "Safe Work",
+		"crew": mission.get("ids", []), "events": [
+			"%s completed routine contract work for the guild." % worker_name,
+			"Guaranteed fee: %d gold. No combat, injuries or equipment exposure." % payout
+		], "casualties": [], "injured": [], "lost_items": [], "found_items": []
+	})
+	if reports.size() > 35:
+		reports.resize(35)
 
 func _finish(mission: Dictionary) -> void:
 	var region := region_by_id(str(mission["region"]))
