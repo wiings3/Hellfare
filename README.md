@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.5 — The Price of Profit**
+**Version 0.5.1 — Recovery & Early-Game Balance**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,23 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## What's fixed in 0.5.1
+
+### Bad-luck protection without reversing death
+
+Players who lose their opening guard or miner need a repeatable, **risk-free path back into the expedition economy**. The Guild Office now offers **Guild Work Orders**:
+
+| Assignment | Requirements | Duration | Guaranteed gold |
+| --- | --- | --- | --- |
+| Routine contract labor | Any available mercenary; no equipment or deposit | 2m 30s | 18 G |
+| Office paperwork | No workers, entry fee, or gear required | 3m | 9 G |
+
+Work orders do not kill or injure anyone, require no fee, save as missions, use an operation slot, and finish even while the game is closed. **They are recovery jobs, not a superior money farm:** only companies with less than 120 spendable gold **and** less than 250 estimated net worth can start new ones. An active job still pays if the company crosses those thresholds during its timer.
+
+The Harlow dispatch warrant provides a link back to the Guild for companies without a guard or enough wages. Copper and iron merchant values were also raised slightly so successful guarded expeditions can more consistently cover wages. Real permadeath remains unchanged.
+
+An automated regression test now forces the starter guard to die, reduces company cash to zero, and demonstrates that the lone miner can work safely until another guard can be recruited. A second test verifies recovery from **zero gold, zero mercenaries, and maximum outstanding loan debt**.
 
 ## What's new in 0.5
 

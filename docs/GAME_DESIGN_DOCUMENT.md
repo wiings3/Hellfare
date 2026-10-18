@@ -1,6 +1,6 @@
 # MONEY MERCS — Living Game Design Document
 
-**Version:** 1.4 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
+**Version:** 1.5 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
 **Genre:** 2D, UI-first dark-fantasy mercenary management and economic simulation  
 **Repository:** https://github.com/wiings3/Money-Mercs
 
@@ -358,6 +358,14 @@ The interface should aim for an exceptional, cohesive experience from the first 
 **UI/UX quality is a cross-cutting requirement for every milestone above, not a phase reserved for the end.** Keep the build small enough for one developer. Expanding content before validating the earlier loop is explicitly **not** the plan.
 
 ---
+
+## V0.5.1 economic safety net — DECIDED
+
+The first poor expedition may kill a guard, destroy gear and yield insufficient ore. This must remain meaningful, but players should never be required to gamble their last miner just to recover a minimum operational crew.
+
+**Guild Work Orders** provide deterministic, low-paid, risk-free income. Any available mercenary can perform routine contract labor (18 gold / 150 seconds). If every worker is dead, the guild owner can complete office paperwork (9 gold / 180 seconds). Work uses the ordinary asynchronous operation slot, carries through saves and offline completion, requires no supplies, and provides no meaningful rare loot. Only companies below both 120 gold spendable cash and 250 gold appraised net worth can initiate new recovery jobs. These thresholds and payments are initial balance values for playtesting, not permanent design absolutes.
+
+**Guardrails:** A death remains permanent, equipment is still lost, and crews still need replacement. No arbitrary invincibility, free replacement or automatic windfall. A company cannot turn low-risk office jobs into its primary path to riches. A zero-crew, zero-cash company can still rebuild regardless of depleted guild credit. Profitable guarded mining must meaningfully out-earn this baseline.
 
 ## 14. Current implementation versus intended systems
 
