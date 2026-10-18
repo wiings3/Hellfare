@@ -1,6 +1,6 @@
 # MONEY MERCS — Living Game Design Document
 
-**Version:** 1.0 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
+**Version:** 1.1 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
 **Genre:** 2D, UI-first dark-fantasy mercenary management and economic simulation  
 **Repository:** https://github.com/wiings3/Money-Mercs
 
@@ -23,11 +23,12 @@
 
 **DECIDED — Money Mercs is NOT an ARPG.** We are building a resource and fantasy-economy management game, not controllable dungeon combat. Adventures take place through mercenary planning, scouting, real-time expeditions, and reports. The game must stay realistic for a solo developer working in Godot.
 
-The central objective is **accumulating wealth**. A brand-new player should not be able to install the game and become wealthy or fully powerful in two hours. Becoming rich should require sustained grinding, clever decisions, risk management, economic knowledge, and long-term investment.
+The central objective is **accumulating wealth, measured in gold**. A brand-new player should not be able to install the game and become wealthy or fully powerful in two hours. Becoming rich should require sustained grinding, clever decisions, risk management, economic knowledge, and long-term investment.
 
 Two core inspirations shape the design:
 
-- **Path of Exile 2:** gold is useful, but dramatically scarcer and more useful currencies or items become the real store of top-end wealth; a huge drop is memorable.
+- **Path of Exile 2:** extremely rare and genuinely useful discoveries deliver jackpot moments and long-term aspirational loot, **without** adopting a multi-currency economy. Money Mercs' primary and universal denomination remains gold.
+- **Dark and Darker's physical gold storage:** coins, filled money bags and chests make an abstract number feel like a growing hoard that actually consumes storage space.
 - **Dark and Darker's ORIGINAL player Trading Post:** live classified advertisements, inspectable items, bargaining, mispriced equipment, and profitable flipping can be a complete game for someone who enjoys economics more than dungeons.
 
 The game has three overlapping player identities, **not exclusive classes**:
@@ -40,7 +41,7 @@ The game has three overlapping player identities, **not exclusive classes**:
 
 **DECIDED:** A player who rarely or never sends an expedition must still be able to become wealthy through trading. Those who love expedition management must also have an entire satisfying playstyle.
 
-**Design guardrails:** no effortless idle riches, no random meaningless currencies, no universal price label that gives away every bargain, no action-game scope explosion, no online economy dependent on thousands of active users.
+**Design guardrails:** no effortless idle riches, no random meaningless currencies, no replacing gold with an elite currency as the primary pricing standard, no universal price label that gives away every bargain, no action-game scope explosion, no online economy dependent on thousands of active users.
 
 ---
 
@@ -171,11 +172,38 @@ After each dispatch, report: rotation, discovered resources and enemies, vein de
 
 ---
 
-## 7. Wealth, rarity, itemization & crafting
+## 7. Gold, physical wealth, rarity, itemization & crafting
 
-**DECIDED:** Gold pays ordinary expenses but is not the most valuable resource. Ultra-rare and useful items/currencies become a high-end wealth standard, conceptually similar to PoE Divine Orbs.
+### Gold is the economy's primary measure — DECIDED (revised v1.1)
 
-**Sovereign Orb** is the prototype's **working name** for a top-tier currency. In v0.2, mythical equipment upgrades use one. Final name, rarity and endgame applications remain open. A rare currency needs **true consumption and sustained demand**, not rarity for its own sake.
+**Gold is the primary, universal money of Money Mercs.** Hire mercenaries with gold, pay expedition expenses in gold, negotiate prices in gold, and measure company fortunes in gold. We are **not** designing a Path of Exile-style alternative high-tier currency standard. We want to look at a treasury or ledger and immediately understand how rich someone is.
+
+**Very rare equipment, relics, and crafting materials still exist** and can be obscenely valuable, but they are **goods priced in gold**, not an obligatory alternative denomination. Their excitement comes from scarce supply and real use. The prototype's **Sovereign Orb** is a placeholder rare crafting ingredient; its current “top-tier currency” label is superseded by this decision, and we may rename or repurpose it during itemization work.
+
+A player can be asset-rich but short on spendable gold: an extraordinary sword worth an estimated 30,000 gold is not the same thing as actually having 30,000 gold to pay wages. Keep this distinction visible.
+
+### Gold physically occupies storage — DECIDED
+
+**Gold is a tangible item resource, not merely a weightless on-screen number.** Coins are grouped into stacks, money bags and eventually chests, with **finite storage space**. The fantasy is opening your treasury and seeing money bags pile up, as in Dark and Darker. Wealth growth should have a visual and logistical footprint.
+
+The core intended experience:
+
+- Starting companies have a small stash and limited space for gold, equipment and materials.
+- Gold accumulates in **physical stacks/bags** occupying inventory or treasury slots; a larger bag may hold more coins per slot.
+- **Money bags and treasury chests** are valuable infrastructure upgrades, not just decorative icons. Storage-efficient containers become meaningful expenditures.
+- Players can open the treasury, inspect actual stored cash, move/organize money bags, and visually appreciate growing wealth.
+- Trading, wages and other payouts consume **actual available gold** and must not duplicate it; the UI displays gold totals as a convenience **derived from the real stored stacks/containers**.
+- UI should separately show **spendable gold**, **estimated value of other assets**, **total estimated net worth**, and **vault capacity/usage**. Net worth is a gold-denominated estimate rather than guaranteed liquidation proceeds.
+
+**Critical usability principle:** physical gold should feel satisfying to manage, **not** force a tedious coin-by-coin process. Automatically stack incoming coins and make ordinary payments convenient; reserve intentional packing, expansion, inventory organization and large-value transport for meaningful decisions.
+
+**PLANNED / VALIDATE:** Multiple sizes of coin stack, bags and storage chests; treasury upgrade paths; a clear money-bag/chest visualization; potential trading or transportation consequences of bulky sums.
+
+**OPEN:** exact stack capacities, bag/chest sizes, whether bags can be bought or crafted, if money and equipment share all storage, how the player handles overflow, and whether remote trade settlement uses a secure treasury/escrow system. Rewards must never be silently deleted just because storage is full; consider a claim queue or arrivals depot while testing. The player should not be able to bypass storage through an unrestricted invisible wallet.
+
+### Rare loot, itemization and crafting
+
+The overriding loot rule is unchanged: rare gear should still create jackpot moments, and rare consumables should still be demanded by players. **All normal trade prices are denominated in gold.**
 
 **DECIDED:** Equipment matters because of the work it enables. Different buyers value different stat combinations. A mining specialist might prize a tool with ore yield, mining speed, rare-find chance and expedition-duration bonuses; a ruins company may value it far less. This imperfect price discovery makes underpriced items possible.
 
@@ -197,12 +225,12 @@ Experience goals:
 2. Inspect a seller's individual gear and all meaningful modifiers.
 3. Recognize a valuable combination or an underpriced listing.
 4. Initiate a direct offer or bargain with the seller.
-5. Exchange money/items with explicit, secure confirmation.
+5. Exchange **physically owned gold** and items with explicit, secure confirmation; the UI can draw payment from the treasury without tedious manual coin dragging.
 6. Resell, supply the correct buyer, or keep the item for company use.
 
 A trader can make a fortune without personally going on expeditions. **Large flips are especially important** to the desired feeling, while repeated smaller trades remain a viable approach.
 
-**DECIDED:** Do not show a perfect authoritative valuation on every listing. Appraisal knowledge is the skill: someone's low ask can be a great opportunity because the true buyer value depends on use cases and demand.
+**DECIDED:** Negotiated prices and asking prices use **gold**. Do not show a perfect authoritative valuation on every listing. Appraisal knowledge is the skill: someone's low ask can be a great opportunity because the true buyer value depends on use cases and demand.
 
 **PLANNED / VALIDATE:** Trade channels, linking items in messages, offers, fees, basic sorting/filtering, saved searches, market trends and price research. Avoid automation, perfect price estimates or instant execution tools that remove human price discovery.
 
@@ -262,7 +290,7 @@ Core intended areas:
 3. **Scout desk** — scout upgrades, send scout, compare reports and rotation freshness.
 4. **Mercenaries** — recruit, equip, treat, negotiate, assign, memorialize losses.
 5. **Expedition planner** — miner capacity versus guard protection, cost, timing, distinct success and survival estimates, standing orders, gear at risk.
-6. **Trading Post / Vault** — visually distinguish ordinary commodities from unique equipment, inspect modifiers, compare items, trade-feed, negotiate, settle and store.
+6. **Trading Post / Vault / Treasury** — inspect unique equipment and modifiers; trade-feed, haggle and settle in gold; store physical coin stacks, money bags, chests and other inventory in limited space; show spendable gold versus estimated net worth.
 7. **Journal** — after-action reports, casualties, economic results, and history.
 
 **DECIDED DESIGN STANDARD:** Clear hierarchy, no walls of text, no inscrutable giant panels, no confetti of equally weighted buttons. The original UI was rejected and rebuilt once in v0.2; this is still a work in progress, not a finished art target.
@@ -293,7 +321,7 @@ Core intended areas:
 | Milestone | Features | Proof of success |
 |---|---|---|
 | **A. Harlow vertical slice** | Rotations, finite ore, separate upgradeable scouts, miners, guards, dangerous encounters, permadeath, gear loss, offline reports | Interesting crew composition and comprehensible risk decisions |
-| **B. Real item economy** | Unique equipment, differentiated modifiers, crafting and real sinks | Buyers legitimately disagree about item value |
+| **B. Real item economy + tangible gold** | Unique equipment, modifiers, crafting and sinks; coin stacks, money bags, treasury slots and gold-only pricing | Valuable goods have buyers and wealth feels physical, measurable and limited by storage |
 | **C. Simulated trading world** | NPC firms with budgets and inventory, production/consumption, bargaining feed and profitable flipping | Market-only play is fun with one human player |
 | **D. Online shared market** | Server-authoritative items and transactions, real players, safe P2P settlement | Economy functions at small and large populations |
 | **E. Depth & longevity** | More regions, firms, roles, currency sinks, specialized contracts, polish | Days/weeks of meaningful earned progression |
@@ -306,9 +334,9 @@ Keep the build small enough for one developer. Expanding content before validati
 
 **Already implemented in v0.2:** Godot project and redesigned management UI, six recruit options, basic role labels, contract modes, simple equipment tiers, timed expeditions with single success rolls, three static regions, resources, NPC buy/sell prices, reports, local saves and offline completion.
 
-**NOT yet built:** rotating regions, finite mineral veins, scouting, scout upgrades, specialized mining versus guard safety calculations, **permanent mercenary death and gear loss**, meaningful unique item stats, crafting as a real supply-demand engine, simulated economic competitors, original-style trading and any real player marketplace.
+**NOT yet built:** rotating regions, finite mineral veins, scouting, scout upgrades, specialized mining versus guard safety calculations, **permanent mercenary death and gear loss**, physical gold stacks/bags/chests, limited-capacity treasury, meaningful unique item stats, crafting as a real supply-demand engine, simulated economic competitors, original-style trading and any real player marketplace.
 
-Treat existing prototype timers, currencies, and fixed success calculations as **scaffolding**, not established balance rules.
+**The v0.2 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
 
 ---
 
@@ -319,16 +347,17 @@ Treat existing prototype timers, currencies, and fixed success calculations as *
 3. **Expeditions:** precise capacity and encounter formula, partial success, individual death rates, injury, retreats, loot protection.
 4. **Contracts:** fair wage/share negotiation and commissions on very rare indivisible finds.
 5. **Items:** equipment slots, prefixes/suffixes, crafting breadth, modifier synergies, identification, durability and any recovery.
-6. **Economy:** currency names, drop rates, consumptive demand, item sinks, market fees, valuation and trading UX.
+6. **Economy:** gold sinks and money supply, drop rates, consumptive demand, item sinks, market fees, valuations and trading UX; **gold remains the primary money**.
 7. **NPC firms:** budgets, business objectives, urgency, imperfect knowledge, liquidity and anti-exploit design.
 8. **Online:** back-end provider, trade/chat rules, bot protections and population scaling.
 9. **Active versus offline:** sufficient on-demand decisions without mandatory login cadence.
-10. **Scope:** exact number of regions, professions, recipes and firms for first public release.
+10. **Gold storage:** stack/bag/chest capacities, upgrades, overflow handling, whether shared stash space is used, and how to keep high-volume market trades convenient and safe.
+11. **Scope:** exact number of regions, professions, recipes and firms for first public release.
 
 ### Final product test
 
 > **Can one person love running expeditions, another love crafting useful equipment, and a third become incredibly wealthy by spotting an underpriced item—because all three are operating inside the same believable economy?**
 
-**That is Money Mercs.**
+**That is Money Mercs — with every hard-earned fortune counted in gold and visible in a real, space-limited treasury.**
 
 *This is a living design reference. Commit and update it as the game changes; do not promote example numbers to final decisions without playtesting.*
