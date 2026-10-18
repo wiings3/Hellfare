@@ -1,6 +1,8 @@
 extends RefCounted
 class_name MoneyMercsState
 
+const V05 = preload("res://scripts/v05_rules.gd")
+
 const SAVE_PATH := "user://money_mercs_save.json"
 const RESOURCE_ORDER := ["copper", "iron", "timber", "herbs", "silver", "crystal", "relic", "sovereign"]
 const RESOURCE_NAMES := {
@@ -38,6 +40,10 @@ const REGIONS := [
 const TACTICS := ["Cautious", "Balanced", "Deep Push"]
 const CONTRACTS := ["Balanced", "Guaranteed Wage", "Profit Share"]
 
+var equipment_inventory: Array[Dictionary] = []
+var next_item_id: int = 1
+var relief_debt: int = 0
+var relief_count: int = 0
 var harlow: Dictionary = {}
 var gold: int = 350
 var reputation: int = 0
@@ -85,6 +91,15 @@ func load_game() -> void:
 		if typeof(r) == TYPE_DICTIONARY:
 			reports.append(r)
 	harlow = state.get("harlow", {})
+	next_item_id = maxi(1, int(state.get("next_item_id", 1)))
+	relief_debt = maxi(0, int(state.get("relief_debt", 0)))
+	relief_count = maxi(0, int(state.get("relief_count", 0)))
+	for item in state.get("equipment_inventory", []):
+		if typeof(item) == TYPE_DICTIONARY and V05.ITEMS.has(str(item.get("key", ""))):
+			equipment_inventory.append(item)
+	for merc in crew:
+		if not merc.has("equipment"):
+			merc["equipment"] = {"tool": {}, "armor": {}}
 	last_notice = "Company records restored."
 
 func save_game() -> void:
@@ -96,7 +111,9 @@ func save_game() -> void:
 		"version": 1, "gold": gold, "reputation": reputation,
 		"expedition_slots": expedition_slots, "next_mission_id": next_mission_id,
 		"resources": resources, "crew": crew, "missions": missions, "reports": reports,
-		"harlow": harlow
+		"harlow": harlow, "equipment_inventory": equipment_inventory,
+		"next_item_id": next_item_id, "relief_debt": relief_debt,
+		"relief_count": relief_count
 	}
 	file.store_string(JSON.stringify(data, "\t"))
 
@@ -121,16 +138,34 @@ func merc_by_id(id: String) -> Dictionary:
 func is_available(merc: Dictionary) -> bool:
 	return str(merc.get("mission_id", "")) == ""
 
+func recruitment_board() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for candidate in RECRUITS:
+		if str(candidate["role"]) != "Scout" and merc_by_id(str(candidate["id"])).is_empty():
+			result.append(candidate.duplicate(true))
+	var epoch: int = int(Time.get_unix_time_from_system() / 1800.0)
+	for candidate in V05.generate_board(epoch):
+		if merc_by_id(str(candidate["id"])).is_empty():
+			result.append(candidate)
+	return result
+
+func _available_candidate(id: String) -> Dictionary:
+	for candidate in recruitment_board():
+		if str(candidate["id"]) == id:
+			return candidate
+	return {}
+
 func hire(id: String) -> String:
 	if not merc_by_id(id).is_empty():
 		return "Already on your payroll."
-	var candidate := recruit_by_id(id)
+	var candidate: Dictionary = _available_candidate(id)
 	if candidate.is_empty():
 		return "Recruit not found."
 	if gold < int(candidate["hire"]):
 		return "Not enough gold to hire this mercenary."
 	var merc: Dictionary = candidate.duplicate(true)
 	merc["gear"] = 0
+	merc["equipment"] = {"tool": {}, "armor": {}}
 	merc["health"] = 100
 	merc["xp"] = 0
 	merc["contract"] = "Balanced"
@@ -442,6 +477,10 @@ func reset_company() -> void:
 	missions.clear()
 	reports.clear()
 	harlow.clear()
+	equipment_inventory.clear()
+	next_item_id = 1
+	relief_debt = 0
+	relief_count = 0
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
 	save_game()
