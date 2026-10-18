@@ -361,11 +361,11 @@ The interface should aim for an exceptional, cohesive experience from the first 
 
 ## 14. Current implementation versus intended systems
 
-**Already implemented in v0.2:** Godot project and redesigned management UI, six recruit options, basic role labels, contract modes, simple equipment tiers, timed expeditions with single success rolls, three static regions, resources, NPC buy/sell prices, reports, local saves and offline completion.
+**Already implemented in v0.3:** Godot management UI and an interactive **Harlow Mines dossier**: rotation-specific copper/iron/silver/occasional crystal deposits, a separate persistent guild scout with three upgrade levels, scout reports that expire on rotation, miner/guard team selection, role-based ore capacity and success forecasts, dangerous encounters, individual injuries/permanent deaths with gear loss, stored expedition reports and offline resolution. The original three static regions still use v0.2's older simple expedition system. Recruitment, itemless equipment tiers, basic contracts, NPC trading, local saves and journal remain in place.
 
-**NOT yet built:** rotating regions, finite mineral veins, scouting, scout upgrades, specialized mining versus guard safety calculations, **permanent mercenary death and gear loss**, physical gold stacks/bags/chests, limited-capacity treasury, meaningful unique item stats, crafting as a real supply-demand engine, simulated economic competitors, original-style trading and any real player marketplace.
+**NOT yet built / still immature:** full-scale multi-region rotation, multi-resource targeting, deeper scout-report ambiguity, polished itemized equipment, physical gold stacks/bags/chests, a limited-capacity treasury, crafting as a true economy, simulated economic competitors, original-style trading, any real player marketplace, and approved finished visual/interaction quality. Harlow's **first** scouting, finite-mining, composition, and casualty implementation is playable but requires rigorous balancing and UX refinement.
 
-**The v0.2 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
+**The v0.3 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
 
 ---
 

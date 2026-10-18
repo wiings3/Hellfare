@@ -4,7 +4,9 @@
 
 A dark-fantasy mercenary contractor / resource economy management game built with **Godot 4.5.1**.
 
-**Version 0.2** rebuilds the entire presentation layer. The economic model and save data stay intact.
+**Version 0.3 (Harlow Mines foundation):** A new interactive expedition dossier is available from the navigation rail. It integrates rotating ore deposits, permanent guild scouts, role-specific mining and guarding, live risk forecasts, individual casualties and persistent expedition records. Existing sites remain available under **Other Sites** using older prototype rules.
+
+**The visual design is a work in progress.** This release is a usability/playtest baseline—not final art, an approved UI, or a complete Trading Post.
 
 **Design update (GDD v1.1):** Gold is now the intended **primary trading currency and wealth measure**, with physical coin stacks, money bags and limited-capacity treasury chests. Rare items remain exceptionally valuable *in gold*. These storage mechanics are **planned, not yet implemented** in the v0.2 prototype; its existing gold balance is still numeric.
 
@@ -14,20 +16,21 @@ A dark-fantasy mercenary contractor / resource economy management game built wit
 2. Import `project.godot` in **Godot 4.5.1** and run **F5**.
 3. In **The Office**, open **The Crew** and select **Recruitment Board**.
 4. Hire Garrick (70 gold), then open **Expeditions**.
-5. Select **Mossward Lowlands**; choose Garrick in the fixed right-side briefing panel and dispatch him.
-6. The expedition continues when you close the game. Read the return in **The Journal** and sell loot through **The Exchange**.
+5. Open **Harlow Mines**, send your separate invulnerable guild scout (60 seconds at tier 1), read the report, then select a miner and optionally a guard on the roster. Garrick (miner) and Oswin (guard) are affordable for the starting company.
+6. Set Cautious, Balanced, or Deep Push orders and dispatch. A successful party extracts a finite number of ore veins; underprepared workers may die and lose their gear. The expedition continues when you close the game. Read the return in **The Journal** and sell loot through **The Exchange**.
 
 ## Navigation
 
 | Screen | Use |
 |---|---|
 | 01 The Office | Your company at a glance, active work, expansion and next steps |
-| 02 Expeditions | Illustrated region cards, active timers, contextual crew planner |
-| 03 The Crew | Current roster, recruitment, equipment, injuries and negotiated agreements |
-| 04 The Exchange | One resource list with your vault, unit prices and trade actions |
-| 05 The Journal | After-action reports and the cost of each expedition |
+| 02 Harlow Mines | Rotation-specific scouting, ore intel, crew assignments and expedition risk planning |
+| 03 Other Sites | Legacy expedition destinations (temporary prototype rules) |
+| 04 The Crew | Current roster, recruitment, equipment, injuries and negotiated agreements |
+| 05 The Exchange | One resource list with your vault, unit prices and trade actions |
+| 06 The Journal | After-action reports and the cost of each expedition |
 
-Press **1–5** for the associated screen. The main work area scrolls; the detail/decision panel stays beside it.
+Press **1–6** for the associated screen. The main work area scrolls; the detail/decision panel stays beside it.
 
 The illustrations are procedural and drawn in Godot; there are no placeholder stock assets or external image dependencies. `scripts/main.gd` is the entirely new presentation layer, with `scripts/ui_art.gd` providing region scenery and mercenary portraits.
 
@@ -35,7 +38,9 @@ The illustrations are procedural and drawn in Godot; there are no placeholder st
 
 - 350 gold starting capital and six authored hires.
 - Negotiable wage-vs-share contract structures and mercenary experience, wounds, and equipment upgrades.
-- Three regions with risk, specialist bonuses, reputation gates, different drop tables, and varying lengths.
+- Three legacy regions with risk, specialist bonuses, reputation gates, different drop tables, and varying lengths.
+- Harlow Mines with four-hour test rotations, copper/iron/silver/occasional crystal deposits, scouting, and miner/guard role composition.
+- Real permadeath at Harlow: deceased mercenaries and equipped upgrade tiers are removed; reports include casualties.
 - Cautious / Balanced / Deep Push orders; 1–3 crew; prepaid mission wages and provisions.
 - Offline progress calculated from saved timestamps and recorded exactly once when you reopen.
 - Seven collectible resources, evolving NPC prices, merchant spread, and rare expedition-only finds.
@@ -50,3 +55,16 @@ The illustrations are procedural and drawn in Godot; there are no placeholder st
 GitHub Actions verifies script import, scene boot, economy smoke tests and interactive navigation through all five main screens. The CI-only UI test also recruits and dispatches a mercenary, simulates a return, and opens market and report views.
 
 This remains a **single-player prototype**. Online marketplaces and competition should be server-authoritative before any actual trading between players, and can only follow playtesting the local economy.
+
+
+## Harlow UI playtest goals
+
+Judge the information hierarchy and decision-making flow, not just the calculations:
+
+- Can you immediately find the scout action and see when its report will return?
+- Once scouted, can you identify the confirmed ore and threat at a glance?
+- Can you compare one miner + two guards against two miners + one guard with clearly separate extraction capacity, mission success, and per-worker casualty risk?
+- Are the cost, standing orders, permanent-loss warning, and dispatch action all apparent?
+- Do injury, death, resources recovered, gold earned and gear lost make sense in the post-expedition journal?
+
+**Known limitations:** The appraised casualty risk is an estimate, not a guarantee; the simple current mining resolver favors copper before rarer ore when splitting capacity. Harlow currently uses the existing numeric gold balance; the physical coin stacks and treasury from the v1.2 design remain planned. Real desktop visual review is still required to reach the intended UI quality bar.
