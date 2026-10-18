@@ -1,6 +1,6 @@
 # MONEY MERCS — Living Game Design Document
 
-**Version:** 1.3 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
+**Version:** 1.4 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
 **Genre:** 2D, UI-first dark-fantasy mercenary management and economic simulation  
 **Repository:** https://github.com/wiings3/Money-Mercs
 
@@ -361,11 +361,11 @@ The interface should aim for an exceptional, cohesive experience from the first 
 
 ## 14. Current implementation versus intended systems
 
-**Already implemented in v0.4:** Godot management UI and an interactive **Harlow Mines dossier**: rotation-specific copper/iron/silver/occasional crystal deposits, a separate persistent guild scout with three upgrade levels, scout reports that expire on rotation, miner/guard team selection, role-based ore capacity and success forecasts, dangerous encounters, individual injuries/permanent deaths with gear loss, stored expedition reports and offline resolution. The original three static regions still use v0.2's older simple expedition system. Recruitment, itemless equipment tiers, basic contracts, NPC trading, local saves and journal remain in place.
+**Already implemented in v0.5:** The Guild Ledger UI, rotating Harlow Mines, safe three-tier scouts, finite ore, specialized miners and guards, individual success/death forecasts, staged encounters, partial returns, permanent casualties, real tool and armor items, and equipment loss. Mercenaries can be outfitted from a six-item armory; the hiring board generates replacement miners and guards over time, while original named recruits and older save data remain supported. Dispatch reports include simulated events, lost gear and recovered equipment. Guild advances support financially stranded companies. Legacy expeditions in the three older regions still use their simpler v0.2 rules.
 
-**NOT yet built / still immature:** full-scale multi-region rotation, multi-resource targeting, deeper scout-report ambiguity, polished itemized equipment, physical gold stacks/bags/chests, a limited-capacity treasury, crafting as a true economy, simulated economic competitors, original-style trading, any real player marketplace, and approved finished visual/interaction quality. Harlow's **first** scouting, finite-mining, composition, and casualty implementation is playable but requires rigorous balancing and UX refinement.
+**NOT yet built / still immature:** full-scale multi-region rotation, destination-specific gathering tactics, randomized modifiers and rich itemization, physical gold stacks/bags/chests, a limited-capacity treasury, crafting as a true economy, simulated economic competitors, original-style trading, any real player marketplace, and final UI polish. The V0.5 equipment catalog is deliberately only six items; the risk/profit model needs real playtesting. Harlow's **first** scouting, finite-mining, composition, and casualty implementation is playable but requires rigorous balancing and UX refinement.
 
-**The v0.4 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
+**The v0.5 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
 
 ---
 
