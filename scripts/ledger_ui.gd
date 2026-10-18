@@ -775,7 +775,7 @@ func _draw_office() -> void:
 	expand.add_child(_lab("%d of 3 expedition slots available. Expansion costs increase as your guild grows." % game.expedition_slots, 12, C_DIM, true))
 	if game.relief_debt > 0:
 		expand.add_child(_lab("Guild recovery debt: %s. Trade proceeds above a protected 120 gold repay it." % _money(game.relief_debt), 12, C_COPPER, true))
-	if game.crew.is_empty() and game.missions.is_empty() and game.gold < 60:
+	if game.missions.is_empty() and game.gold < 28 and game.relief_debt < 440:
 		expand.add_child(_button("REQUEST EMERGENCY GUILD ADVANCE  /  90 G", func() -> void:
 			_action(game.guild_relief())
 		, true))
@@ -928,6 +928,7 @@ func _draw_armory(body: VBoxContainer) -> void:
 		var assign := _button("EQUIP  →", _equip.bind(selected_merc, uid), true, true)
 		assign.disabled = picked.is_empty() or not game.is_available(picked) or not MercsV05.validate_role(key, picked)
 		row.add_child(assign)
+		row.add_child(_button("SELL", _sell_equipment.bind(uid), false, true))
 	_section(body, "III", "QUARTERMASTER'S CATALOGUE", "PRICES IN GOLD")
 	for key in MercsV05.ITEMS:
 		var definition: Dictionary = MercsV05.ITEMS[key]
@@ -957,6 +958,9 @@ func _buy_equipment(key: String) -> void:
 
 func _equip(id: String, uid: String) -> void:
 	_action(game.equip_item(id, uid))
+
+func _sell_equipment(uid: String) -> void:
+	_action(game.sell_equipment(uid))
 
 func _unequip(id: String, slot: String) -> void:
 	_action(game.unequip_item(id, slot))
