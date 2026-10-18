@@ -19,7 +19,7 @@ const RESOURCE_DESC := {
 	"relic": "Recovered from forgotten sites. Used by master craftsmen.",
 	"sovereign": "The rarest currency. Required for a mythical-tier equipment upgrade."
 }
-const BASE_PRICE := {"copper": 7, "iron": 6, "timber": 4, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
+const BASE_PRICE := {"copper": 12, "iron": 14, "timber": 4, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
 
 const RECRUITS := [
 	{"id": "garrick", "name": "Garrick", "role": "Miner", "title": "The Quarry Hand", "skill": 11, "hire": 70, "wage": 9, "share": 0.09},
@@ -477,6 +477,20 @@ func buy_equipment(key: String) -> String:
 	save_game()
 	return "Purchased %s for %d gold." % [str(definition["name"]), cost]
 
+func sell_equipment(uid: String) -> String:
+	for i in range(equipment_inventory.size()):
+		var item: Dictionary = equipment_inventory[i]
+		if str(item.get("uid", "")) != uid:
+			continue
+		var name: String = V05.item_name(item)
+		var value: int = maxi(1, int(floor(float(item_definition(str(item["key"]))["cost"]) * 0.65)))
+		equipment_inventory.remove_at(i)
+		gold += value
+		_apply_relief_payment()
+		save_game()
+		return "Sold %s for %d gold." % [name, value]
+	return "Only loose equipment in the armory may be sold."
+
 func equip_item(merc_id: String, uid: String) -> String:
 	var merc: Dictionary = merc_by_id(merc_id)
 	if merc.is_empty() or not is_available(merc):
@@ -518,8 +532,10 @@ func unequip_item(merc_id: String, slot: String) -> String:
 	return "%s placed %s into the armory." % [str(merc["name"]), V05.item_name(item)]
 
 func guild_relief() -> String:
-	if not crew.is_empty() or not missions.is_empty() or gold >= 60:
-		return "Relief is reserved for companies without a crew or enough capital."
+	if not missions.is_empty() or gold >= 28:
+		return "The guild issues advances only when you cannot afford a basic expedition."
+	if relief_debt >= 440:
+		return "The guild will not extend more credit until you repay some debt."
 	gold += 90
 	relief_debt += 110
 	relief_count += 1
