@@ -53,6 +53,9 @@ func _test() -> void:
 	var finished: int = g.complete_due(int(Time.get_unix_time_from_system()) + 1000)
 	assert(finished == 1)
 	assert(g.merc_by_id("garrick").is_empty())
+	assert(not g.retired_ids.is_empty())
+	assert(g._available_candidate("garrick").is_empty())
+	assert(not g.hire("garrick").contains("joined"))
 	assert(g.owned_equipment_value() == 0)
 	assert(g.equipment_inventory.is_empty())
 	assert(g.reports[0]["casualties"].size() == 1)
@@ -84,6 +87,7 @@ func _test() -> void:
 	g.save_game()
 	var restored := MoneyMercsState.new()
 	assert(restored.reports.size() == 2)
+	assert(restored.retired_ids.has("garrick"))
 	assert(restored.next_item_id >= 3)
 	assert(restored.merc_by_id(next_miner).size() > 0)
 	# Companies can sell owned gear without creating duplicates.
