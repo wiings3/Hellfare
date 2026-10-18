@@ -1,5 +1,7 @@
 # Money Mercs
 
+> **Design reference:** [Living Game Design Document](docs/GAME_DESIGN_DOCUMENT.md) — the agreed long-term vision, decisions, open questions, and implementation roadmap. This is the reference for upcoming features; the prototype described below is only v0.2.
+
 A dark-fantasy mercenary contractor / resource economy management game built with **Godot 4.5.1**.
 
 **Version 0.2** rebuilds the entire presentation layer. The economic model and save data stay intact.
