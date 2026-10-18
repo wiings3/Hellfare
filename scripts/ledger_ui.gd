@@ -692,6 +692,10 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 	var help := _lab(reason, 12, C_PAPER_DIM, true)
 	_grow(help)
 	sidebar.add_child(help)
+	if int(stats["guards"]) == 0 and not _selected_available().is_empty():
+		sidebar.add_child(_lab("NO GUARD / Your workers are especially vulnerable.", 12, Color("#a44039"), true))
+	if game.crew.size() <= 1 or game.gold < int(stats["wage"]):
+		sidebar.add_child(_button("NEED CAPITAL? GUILD WORK ORDERS  →", _nav_to.bind("hq"), false, true, true))
 
 func _mini_stat(parent: Node, name: String, value: String, color: Color) -> void:
 	var card := _v(3)
@@ -749,7 +753,38 @@ func _draw_office() -> void:
 		var p := _panel(row)
 		p.add_child(_lab(str(item[0]), 11, C_DIM))
 		p.add_child(_lab(str(item[1]), 25, C_GOLD))
-	_section(body, "II", "THE NEXT OPPORTUNITY")
+	_section(body, "II", "GUILD WORK ORDERS", "SAFE WORK  /  MODEST PAY")
+	var work_panel := _panel(body, true, 15)
+	work_panel.add_child(_lab("WHEN THE MINES ARE TOO DANGEROUS", 20, C_INK))
+	work_panel.add_child(_lab("Earn a modest, guaranteed wage without gambling your remaining crew. No entry fee, equipment requirement, injury, or death. Jobs continue offline.", 13, C_PAPER_DIM, true))
+	var occupied: bool = game.missions.size() >= game.expedition_slots
+	var active_work := false
+	for job in game.missions:
+		if str(job.get("region", "")) == "guild_work":
+			active_work = true
+			var worker_name: String = "Guild paperwork"
+			var job_id: String = str(job.get("worker", ""))
+			if not job_id.is_empty():
+				var employee: Dictionary = game.merc_by_id(job_id)
+				worker_name = str(employee.get("name", "Contractor"))
+			work_panel.add_child(_lab("%s in progress  ·  %s until payment" % [
+				worker_name, _duration(maxi(0, int(job["finish"]) - int(Time.get_unix_time_from_system())))], 14, Color("#775332")))
+	if not active_work:
+		var orders := _h(8)
+		work_panel.add_child(orders)
+		var paper_btn := _button("OFFICE PAPERWORK  /  +9 G  /  3 MIN", _guild_work.bind(""), false, true, true)
+		paper_btn.disabled = occupied
+		orders.add_child(paper_btn)
+		for worker in game.available_guild_workers():
+			var name: String = str(worker.get("name", "Worker"))
+			var offer := _button("%s: +18 G  /  2M 30S" % name.to_upper(), _guild_work.bind(str(worker["id"])), true, true)
+			offer.disabled = occupied
+			orders.add_child(offer)
+		if occupied:
+			work_panel.add_child(_lab("Finish an active operation before starting a work order.", 12, C_PAPER_DIM))
+		else:
+			work_panel.add_child(_lab("Use this to rebuild your payroll. Harlow Mines pays better when things go right.", 12, C_PAPER_DIM, true))
+	_section(body, "III", "THE NEXT OPPORTUNITY")
 	var actions := _h(12)
 	body.add_child(actions)
 	var left := _panel(actions, true, 20)
@@ -760,7 +795,7 @@ func _draw_office() -> void:
 	right.add_child(_lab("CONTRACTOR RECRUITMENT", 25, C_IVORY))
 	right.add_child(_lab("A miner earns your gold. A guard keeps your miner alive. Neither is cheap to replace.", 14, C_DIM, true))
 	right.add_child(_button("RECRUIT A MERCENARY  →", _open_recruitment, true))
-	_section(body, "III", "RECENT FIELD REPORTS")
+	_section(body, "IV", "RECENT FIELD REPORTS")
 	if game.reports.is_empty():
 		var blank := _panel(body)
 		blank.add_child(_lab("No expeditions have returned yet.", 15, C_DIM))
@@ -784,6 +819,9 @@ func _draw_office() -> void:
 			_action(game.expand_operations())
 		, true))
 	_gap(body, 18)
+
+func _guild_work(worker_id: String) -> void:
+	_action(game.start_guild_work(worker_id))
 
 func _draw_roster() -> void:
 	var body := _scroller(content_host)
@@ -1138,7 +1176,7 @@ func _on_clock() -> void:
 	elif changed and page == "harlow":
 		_refresh()
 	# Refresh time text periodically when on Harlow without disturbing selection.
-	elif page == "harlow" and (int(Time.get_unix_time_from_system()) % 5 == 0):
+	elif (page == "harlow" or page == "hq") and (int(Time.get_unix_time_from_system()) % 5 == 0):
 		_refresh()
 
 func _unhandled_key_input(event: InputEvent) -> void:
