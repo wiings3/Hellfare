@@ -823,3 +823,136 @@ func _harlow_finish_legacy(mission: Dictionary) -> void:
 	})
 	if reports.size() > 35:
 		reports.resize(35)
+
+
+func _harlow_finish_v05(mission: Dictionary) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(mission["seed"])
+	var enemy: Dictionary = mission.get("threat", {"name": "Unknown creature", "danger": 2})
+	var orders: String = str(mission["tactic"])
+	var events: Array[String] = []
+	var casualties: Array[String] = []
+	var wounded: Array[String] = []
+	var lost_items: Array[String] = []
+	var success: bool = rng.randf() < float(mission["chance"])
+	events.append("The crew entered the shafts with %s standing orders." % orders.to_lower())
+	events.append("%s was encountered in the tunnels." % str(enemy.get("name", "An unknown threat")))
+	var survivors: Array[Dictionary] = []
+	var effective_capacity: int = 0
+	var living_miners: int = 0
+	var risks: Dictionary = mission.get("death", {})
+	# Death is resolved per worker. The odds were locked at dispatch time.
+	for merc_id in mission["ids"]:
+		var id: String = str(merc_id)
+		var worker: Dictionary = merc_by_id(id)
+		if worker.is_empty():
+			continue
+		var risk: float = float(risks.get(id, 0.15))
+		if rng.randf() < risk:
+			casualties.append(str(worker["name"]))
+			var equipped: Dictionary = worker.get("equipment", {})
+			for slot in ["tool", "armor"]:
+				var item: Dictionary = equipped.get(slot, {})
+				if not item.is_empty():
+					lost_items.append("%s — %s" % [str(worker["name"]), V05.item_name(item)])
+			var legacy_tier: int = int(worker.get("gear", 0))
+			if legacy_tier > 0:
+				lost_items.append("%s — tier %d legacy outfitting" % [str(worker["name"]), legacy_tier])
+			var memorial: Array = harlow.get("fallen", [])
+			memorial.push_front({"name": str(worker["name"]), "equipment": equipped.duplicate(true),
+				"gear": legacy_tier, "xp": int(worker.get("xp", 0)),
+				"region": "Harlow Mines", "time": int(mission["finish"])})
+			harlow["fallen"] = memorial
+			crew.erase(worker)
+		else:
+			survivors.append(worker)
+			worker["mission_id"] = ""
+			worker["xp"] = int(worker.get("xp", 0)) + (2 if success else 1)
+			if rng.randf() < (0.12 if success else 0.48):
+				worker["health"] = maxi(20, int(worker.get("health", 100)) - rng.randi_range(8, 31))
+				wounded.append(str(worker["name"]))
+			if str(worker.get("role", "")) == "Miner":
+				living_miners += 1
+				var gear_stats: Dictionary = V05.equipment_stats(worker)
+				effective_capacity += 3 + int(gear_stats["mining"])
+	if not casualties.is_empty():
+		events.append("%s fell. Their personal equipment was lost." % ", ".join(casualties))
+	if not wounded.is_empty():
+		events.append("%s returned injured." % ", ".join(wounded))
+	var extractable: int = 0
+	if living_miners > 0:
+		if success:
+			extractable = effective_capacity
+			events.append("The crew secured the seam and worked the ore veins.")
+		else:
+			var fraction: float = rng.randf_range(0.3, 0.68)
+			if orders == "Cautious":
+				fraction = maxf(fraction, 0.48)
+			extractable = maxi(1, int(round(float(effective_capacity) * fraction)))
+			events.append("The team retreated after recovering part of the deposit.")
+	else:
+		events.append("No miner escaped with recoverable ore.")
+	var key: String = str(mission["rotation"])
+	var current: bool = int(mission["rotation"]) == int(harlow.get("rotation", -1))
+	var source: Dictionary = {}
+	if current:
+		source = harlow.get("deposits", {})
+	else:
+		var archives: Dictionary = harlow.get("archives", {})
+		if not archives.has(key):
+			archives[key] = (mission.get("snapshot", {}) as Dictionary).duplicate(true)
+			harlow["archives"] = archives
+		source = archives[key]
+	var loot: Dictionary = {}
+	var order: Array[String] = ["copper", "iron", "silver", "crystal"]
+	if rng.randf() < 0.3:
+		order = ["iron", "copper", "silver", "crystal"]
+	for ore in order:
+		var count: int = mini(extractable, int(source.get(ore, 0)))
+		if count <= 0:
+			continue
+		loot[ore] = count
+		source[ore] = int(source[ore]) - count
+		extractable -= count
+		if extractable <= 0:
+			break
+	if current:
+		harlow["deposits"] = source
+	else:
+		harlow["archives"][key] = source
+	var gathered: Array[String] = []
+	for ore in loot:
+		resources[ore] = int(resources.get(ore, 0)) + int(loot[ore])
+		gathered.append("%d %s" % [int(loot[ore]), str(RESOURCE_NAMES.get(ore, ore))])
+	if not gathered.is_empty():
+		events.append("Survivors delivered %s." % ", ".join(gathered))
+	var finds: Array[String] = []
+	var find_value: int = 0
+	if success and not survivors.is_empty() and rng.randf() < 0.15:
+		var gear_key: String = "reinforced_pick" if rng.randf() < 0.5 else "steel_sword"
+		var recovered_item: Dictionary = make_item(gear_key)
+		equipment_inventory.append(recovered_item)
+		finds.append(V05.item_name(recovered_item))
+		find_value = int(item_definition(gear_key)["cost"])
+		events.append("An abandoned %s was found in the shafts." % finds[0].to_lower())
+	var coins: int = rng.randi_range(5, 15) if not survivors.is_empty() else 0
+	var gross: int = coins + find_value
+	for ore in loot:
+		gross += int(loot[ore]) * price(str(ore))
+	# Short-term v0.5 arrangement: percentage of found coins, NOT
+	# entire unsold haul. Prevents negative balances on lucky item drops.
+	var commission: int = mini(coins, int(ceil(float(coins) * float(mission["share"]))))
+	gold += coins - commission
+	_apply_relief_payment()
+	reputation += 3 if success else 1
+	reports.push_front({
+		"region": "Harlow Mines", "won": success, "loot": loot,
+		"cash": coins, "commission": commission, "cost": int(mission["cost"]),
+		"gross": gross, "tactic": orders, "crew": mission["ids"],
+		"time": int(mission["finish"]), "casualties": casualties,
+		"injured": wounded, "lost_items": lost_items, "found_items": finds,
+		"events": events, "partial": not success and not loot.is_empty(),
+		"rotation": int(mission["rotation"]), "extracted": loot.duplicate(true)
+	})
+	if reports.size() > 35:
+		reports.resize(35)
