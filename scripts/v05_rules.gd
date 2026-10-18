@@ -1,0 +1,140 @@
+extends RefCounted
+class_name MercsV05
+
+# Data-only item catalogue: each entry represents a real inventory object.
+# The legacy "gear" tier is read as a temporary bonus for older saves.
+const ITEMS := {
+	"basic_pick": {"name": "Iron Pickaxe", "slot": "tool", "role": "Miner", "cost": 28, "mining": 1, "guard": 0, "protection": 0},
+	"reinforced_pick": {"name": "Reinforced Pickaxe", "slot": "tool", "role": "Miner", "cost": 105, "mining": 2, "guard": 0, "protection": 0},
+	"rusted_sword": {"name": "Rusted Sword", "slot": "tool", "role": "Guard", "cost": 30, "mining": 0, "guard": 1, "protection": 0},
+	"steel_sword": {"name": "Steel Sword", "slot": "tool", "role": "Guard", "cost": 125, "mining": 0, "guard": 3, "protection": 0},
+	"leather": {"name": "Leather Armor", "slot": "armor", "role": "Any", "cost": 38, "mining": 0, "guard": 0, "protection": 1},
+	"chainmail": {"name": "Chainmail", "slot": "armor", "role": "Any", "cost": 138, "mining": 0, "guard": 0, "protection": 3}
+}
+
+const FIRST_NAMES := [
+	"Edric", "Nessa", "Tobin", "Cora", "Lukas", "Yara", "Fenna", "Rurik",
+	"Daria", "Merrin", "Alric", "Bryn", "Hale", "Perrin", "Vera", "Otto",
+	"Anja", "Torren", "Celia", "Bastian"
+]
+const LAST_NAMES := [
+	"Blackstone", "Moor", "Fell", "Ash", "Holt", "Voss", "Wick",
+	"Vale", "Fallow", "Dunn", "Marsh", "Rook"
+]
+
+static func generate_board(epoch: int) -> Array[Dictionary]:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(77933 + epoch * 99437)
+	var board: Array[Dictionary] = []
+	for i in range(6):
+		# At least two affordable entry-level replacements, always available.
+		var role: String = "Miner" if i % 2 == 0 else "Guard"
+		var tier: int = 0 if i < 2 else (1 if i < 4 else 2)
+		var skill: int = 10 + tier * 7 + rng.randi_range(0, 5)
+		var hire_price: int = 48 + tier * 92 + rng.randi_range(0, 22) + (10 if role == "Guard" else 0)
+		var name: String = str(FIRST_NAMES[rng.randi_range(0, FIRST_NAMES.size() - 1)]) + " " + str(LAST_NAMES[rng.randi_range(0, LAST_NAMES.size() - 1)])
+		board.append({
+			"id": "candidate_%d_%d" % [epoch, i], "name": name,
+			"title": "Independent Contractor", "role": role,
+			"skill": skill, "hire": hire_price,
+			"wage": 7 + tier * 6 + rng.randi_range(0, 3),
+			"share": 0.08 + tier * 0.025
+		})
+	return board
+
+static func equipment_stats(merc: Dictionary) -> Dictionary:
+	var mining := 0
+	var guard := 0
+	var protection := 0
+	var equipment: Dictionary = merc.get("equipment", {})
+	for slot in ["tool", "armor"]:
+		var item: Dictionary = equipment.get(slot, {})
+		var key: String = str(item.get("key", ""))
+		if not ITEMS.has(key):
+			continue
+		var definition: Dictionary = ITEMS[key]
+		mining += int(definition.get("mining", 0))
+		guard += int(definition.get("guard", 0))
+		protection += int(definition.get("protection", 0))
+	# Legacy tier still has value, without creating a phantom physical item.
+	var legacy: int = int(merc.get("gear", 0))
+	return {"mining": mining, "guard": guard, "protection": protection + legacy}
+
+static func item_name(item: Dictionary) -> String:
+	return str(ITEMS.get(str(item.get("key", "")), {}).get("name", "Unknown item"))
+
+static func validate_role(key: String, merc: Dictionary) -> bool:
+	if not ITEMS.has(key):
+		return false
+	var role: String = str(ITEMS[key]["role"])
+	return role == "Any" or role == str(merc.get("role", ""))
+
+static func assess_party(mercs: Array[Dictionary], approach: String, danger: int, supplies: int) -> Dictionary:
+	var miners := 0
+	var guards := 0
+	var capacity := 0
+	var guard_points := 0
+	var protection := 0
+	var average_skill := 0
+	var wages := supplies
+	var gear_value := 0
+	var deaths: Dictionary = {}
+	for merc in mercs:
+		average_skill += int(merc.get("skill", 10)) + int(merc.get("xp", 0)) / 4
+		var stats: Dictionary = equipment_stats(merc)
+		var role: String = str(merc.get("role", ""))
+		if role == "Miner":
+			miners += 1
+			capacity += 3 + int(stats["mining"])
+		elif role == "Guard":
+			guards += 1
+			guard_points += 1 + int(stats["guard"])
+		protection += int(stats["protection"])
+		for slot in ["tool", "armor"]:
+			var equipped: Dictionary = (merc.get("equipment", {}) as Dictionary).get(slot, {})
+			var id: String = str(equipped.get("key", ""))
+			if ITEMS.has(id):
+				gear_value += int(ITEMS[id]["cost"])
+		gear_value += int(merc.get("gear", 0)) * 60
+		# Use the same staged casualty odds that the resolver will roll.
+		var risk: float = 0.10 + danger * 0.065 - guard_points * 0.028
+		# Recalculated below once every party member is known.
+		deaths[str(merc["id"])] = risk
+	if not mercs.is_empty():
+		average_skill = int(average_skill / mercs.size())
+	var protection_score: float = float(guards) * 0.16 + float(guard_points) * 0.055
+	var preparation: float = (float(average_skill) - 12.0) * 0.006 + float(protection) * 0.012
+	var success: float = 0.64 - 0.085 * float(danger) + protection_score + preparation
+	if approach == "Cautious":
+		success += 0.10
+	elif approach == "Deep Push":
+		success -= 0.13
+	success = clampf(success, 0.10, 0.96)
+	var general_risk: float = 0.06 + float(danger) * 0.065 - protection_score * 0.30
+	for merc in mercs:
+		var defense: Dictionary = equipment_stats(merc)
+		var difference: float = float(int(merc.get("skill", 10)) - 12) * 0.003
+		var personal_risk: float = general_risk - float(defense["protection"]) * 0.026 - difference
+		if approach == "Cautious":
+			personal_risk *= 0.60
+		elif approach == "Deep Push":
+			personal_risk *= 1.35
+		if str(merc.get("role", "")) == "Guard":
+			personal_risk *= 1.12
+		deaths[str(merc["id"])] = clampf(personal_risk, 0.005, 0.70)
+	for merc in mercs:
+		var base_wage: int = int(merc.get("wage", 9))
+		var cut: float = float(merc.get("share", 0.09))
+		match str(merc.get("contract", "Balanced")):
+			"Guaranteed Wage":
+				base_wage = int(ceil(float(base_wage) * 1.8))
+			"Profit Share":
+				base_wage = maxi(1, int(round(float(base_wage) * 0.45)))
+		wages += base_wage
+	var duration := 100 if approach == "Cautious" else (65 if approach == "Deep Push" else 80)
+	return {
+		"miners": miners, "guards": guards, "capacity": capacity,
+		"success": success, "death": deaths, "wage": wages,
+		"duration": duration, "gear_value": gear_value,
+		"protection": guard_points
+	}
