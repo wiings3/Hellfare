@@ -1,5 +1,5 @@
 extends SceneTree
-## Visual QA capture — run only under a virtual display.
+## Visual QA captures — actual 1440x900 Godot rendering under an X virtual display.
 func _initialize() -> void:
 	call_deferred("_capture")
 
@@ -13,22 +13,28 @@ func _capture() -> void:
 	instance.game.harlow_send_scout()
 	instance.game.harlow["scout_finish"] = int(Time.get_unix_time_from_system()) - 1
 	instance.game.harlow_sync()
-	instance._nav_to("harlow")
 	instance._toggle_crew(true, "garrick")
 	instance._toggle_crew(true, "oswin")
-	await process_frame
-	await process_frame
-	await RenderingServer.frame_post_draw
-	var img: Image = root.get_texture().get_image()
-	if img == null or img.is_empty():
-		push_error("Could not capture Harlow frame.")
-		quit(1)
-		return
-	var target := "res://docs/ui_harlow_preview.png"
-	var error: Error = img.save_png(target)
-	if error != OK:
-		push_error("Could not save screenshot: %d" % error)
-		quit(1)
-		return
-	print("Captured Harlow UI at %dx%d" % [img.get_width(),img.get_height()])
+	var destinations: Array = [
+		["harlow", "res://docs/ui_harlow_preview.png"],
+		["roster", "res://docs/ui_mercenaries_preview.png"],
+		["market", "res://docs/ui_trading_preview.png"],
+		["hq", "res://docs/ui_office_preview.png"]
+	]
+	for destination in destinations:
+		instance._nav_to(str(destination[0]))
+		await process_frame
+		await process_frame
+		await RenderingServer.frame_post_draw
+		var screenshot: Image = root.get_texture().get_image()
+		if screenshot == null or screenshot.is_empty():
+			push_error("Could not capture %s." % str(destination[0]))
+			quit(1)
+			return
+		var error: Error = screenshot.save_png(str(destination[1]))
+		if error != OK:
+			push_error("Could not save image (%d)." % error)
+			quit(1)
+			return
+		print("Visual QA saved: %s" % str(destination[1]))
 	quit(0)
