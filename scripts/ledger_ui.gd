@@ -119,7 +119,7 @@ func _lab(s: String, size: int = 14, ink: Color = C_IVORY, wrap_text: bool = fal
 	node.add_theme_font_size_override("font_size", size)
 	node.add_theme_color_override("font_color", ink)
 	node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap_text else TextServer.AUTOWRAP_OFF
-	node.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	node.size_flags_horizontal = Control.SIZE_EXPAND_FILL if wrap_text else Control.SIZE_SHRINK_BEGIN
 	return node
 
 func _grow(node: Control) -> void:
@@ -194,7 +194,11 @@ func _image(path_texture: Texture2D, height: int) -> TextureRect:
 	tx.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	tx.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tx.custom_minimum_size.y = height
-	tx.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if height <= 100:
+		tx.custom_minimum_size.x = height
+		tx.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	else:
+		tx.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return tx
 
 func _clear(node: Node) -> void:
