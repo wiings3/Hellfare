@@ -29,6 +29,17 @@ const TAB_DATA := [
 	["ledger","THE CHRONICLE"]
 ]
 const HERO := preload("res://assets/ui/harlow_landscape.svg")
+const GUILDHALL := preload("res://assets/ui/guildhall.svg")
+const RESOURCE_ICONS := {
+	"copper": preload("res://assets/ui/resource_copper.svg"),
+	"iron": preload("res://assets/ui/resource_iron.svg"),
+	"timber": preload("res://assets/ui/resource_timber.svg"),
+	"herbs": preload("res://assets/ui/resource_herbs.svg"),
+	"silver": preload("res://assets/ui/resource_silver.svg"),
+	"crystal": preload("res://assets/ui/resource_crystal.svg"),
+	"relic": preload("res://assets/ui/resource_relic.svg"),
+	"sovereign": preload("res://assets/ui/resource_sovereign.svg")
+}
 const CREST := preload("res://assets/ui/guild_crest.svg")
 const GOLD_ICON := preload("res://assets/ui/gold_coin.svg")
 const MINER := preload("res://assets/ui/portrait_miner.svg")
@@ -41,7 +52,7 @@ const TROLL := preload("res://assets/ui/cave_troll.svg")
 
 var game: MoneyMercsState
 var page: String = "harlow"
-var roster_tab: String = "recruits"
+var roster_tab: String = "employed"
 var selected_crew: Array[String] = []
 var tactic: String = "Balanced"
 var selected_region: String = "lowlands"
@@ -395,13 +406,13 @@ func _duration(seconds: int) -> String:
 		return "%dm %02ds" % [int(seconds / 60), seconds % 60]
 	return "%ds" % maxi(0, seconds)
 
-func _texture_hero(parent: Node) -> void:
+func _texture_hero(parent: Node, office: bool = false) -> void:
 	var hero := Control.new()
 	hero.clip_contents = true
 	hero.custom_minimum_size.y = 216
 	hero.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(hero)
-	var scene := _image(HERO, 216)
+	var scene := _image(GUILDHALL if office else HERO, 216)
 	_cover(scene)
 	hero.add_child(scene)
 	var veil := ColorRect.new()
@@ -426,13 +437,13 @@ func _texture_hero(parent: Node) -> void:
 	var stack := _v(6)
 	stack.alignment = BoxContainer.ALIGNMENT_END
 	overlay.add_child(stack)
-	stack.add_child(_chip("REGION 01  /  THE NORTHERN CLAIMS", C_GOLD))
-	stack.add_child(_lab("HARLOW MINES", 38, C_IVORY))
-	stack.add_child(_lab("The deeper the seam, the greater the danger.", 14, C_IVORY))
+	stack.add_child(_chip("HEAD OFFICE  /  THE CONTRACTORS GUILD" if office else "REGION 01  /  THE NORTHERN CLAIMS", C_GOLD))
+	stack.add_child(_lab("THE GUILDHALL" if office else "HARLOW MINES", 38, C_IVORY))
+	stack.add_child(_lab("Every fortune begins here." if office else "The deeper the seam, the greater the danger.", 14, C_IVORY))
 	var tier := _h(7)
 	stack.add_child(tier)
-	tier.add_child(_chip("MINING CONTRACT", C_COPPER))
-	tier.add_child(_chip("ROTATION ACTIVE", C_SAFE))
+	tier.add_child(_chip("OPERATIONS OPEN" if office else "MINING CONTRACT", C_COPPER))
+	tier.add_child(_chip("ACCOUNTS IN ORDER" if office else "ROTATION ACTIVE", C_SAFE))
 
 func _draw_harlow() -> void:
 	game.harlow_sync()
@@ -711,7 +722,7 @@ func _open_recruitment() -> void:
 func _draw_office() -> void:
 	var body := _scroller(content_host)
 	_heading(body, "THE GUILD OFFICE  /  COMPANY AFFAIRS", "An empire begins with a single contract.", "Your fortune is not made in one night. Study the job, hire wisely, and survive long enough to grow.")
-	_texture_hero(body)
+	_texture_hero(body, true)
 	_section(body, "I", "COMPANY LEDGER", "YOUR NUMBERS")
 	var row := _h(12)
 	body.add_child(row)
@@ -844,7 +855,8 @@ func _draw_market() -> void:
 		var p := _panel(body, id == selected_item, 12, id == selected_item)
 		var r := _h(12)
 		p.add_child(r)
-		var icon := _image(GOLD_ICON if id == "sovereign" else CREST, 44)
+		var icon_texture: Texture2D = RESOURCE_ICONS.get(id, CREST)
+		var icon := _image(icon_texture, 44)
 		icon.custom_minimum_size.x = 44
 		icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		r.add_child(icon)
