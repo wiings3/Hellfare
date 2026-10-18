@@ -6,6 +6,8 @@ A dark-fantasy mercenary contractor / resource economy management game built wit
 
 **Version 0.2** rebuilds the entire presentation layer. The economic model and save data stay intact.
 
+**Design update (GDD v1.1):** Gold is now the intended **primary trading currency and wealth measure**, with physical coin stacks, money bags and limited-capacity treasury chests. Rare items remain exceptionally valuable *in gold*. These storage mechanics are **planned, not yet implemented** in the v0.2 prototype; its existing gold balance is still numeric.
+
 ## Starting out
 
 1. Clone with [GitHub Desktop](https://desktop.github.com/) or `git clone https://github.com/wiings3/Money-Mercs.git`.
