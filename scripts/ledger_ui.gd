@@ -770,7 +770,11 @@ func _draw_office() -> void:
 			work_panel.add_child(_lab("%s in progress  ·  %s until payment" % [
 				worker_name, _duration(maxi(0, int(job["finish"]) - int(Time.get_unix_time_from_system())))], 14, Color("#775332")))
 	if not active_work:
-		var orders := _h(8)
+		var orders := GridContainer.new()
+		orders.columns = 3
+		orders.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		orders.add_theme_constant_override("h_separation", 8)
+		orders.add_theme_constant_override("v_separation", 8)
 		work_panel.add_child(orders)
 		var paper_btn := _button("OFFICE PAPERWORK  /  +9 G  /  3 MIN", _guild_work.bind(""), false, true, true)
 		paper_btn.disabled = occupied
