@@ -116,6 +116,56 @@ func _test() -> void:
 	assert(int(restored.harlow["scout_finish"]) == 0)
 	assert(not (restored.harlow["report"] as Dictionary).is_empty())
 	restored.reset_company()
+	# A disastrous first expedition must not strand a solo, broke miner.
+	restored.reset_company()
+	assert(restored.hire("garrick").contains("joined"))
+	assert(restored.hire("oswin").contains("joined"))
+	var starter_party: Array[String] = ["garrick", "oswin"]
+	assert(restored.harlow_dispatch(starter_party, "Balanced").begins_with("Harlow expedition funded"))
+	restored.missions[0]["chance"] = 0.0
+	restored.missions[0]["death"] = {"garrick": 0.0, "oswin": 1.0}
+	assert(restored.complete_due(int(Time.get_unix_time_from_system()) + 1000) == 1)
+	assert(restored.merc_by_id("oswin").is_empty())
+	assert(not restored.merc_by_id("garrick").is_empty())
+	restored.gold = 0  # Extreme starting setback with no emergency advance.
+	var replacement_guard: Dictionary = {}
+	for applicant in restored.recruitment_board():
+		if str(applicant["role"]) == "Guard" and (replacement_guard.is_empty() or int(applicant["hire"]) < int(replacement_guard["hire"])):
+			replacement_guard = applicant
+	assert(not replacement_guard.is_empty())
+	var saved_xp: int = int(restored.merc_by_id("garrick").get("xp", 0))
+	var work_count := 0
+	while restored.gold < int(replacement_guard["hire"]) and work_count < 10:
+		assert(restored.start_guild_work("garrick").contains("safe guild work order"))
+		assert(restored.missions.size() == 1)
+		assert(restored.start_guild_work("garrick").contains("slots"))
+		var cash_before: int = restored.gold
+		assert(restored.complete_due(int(Time.get_unix_time_from_system()) + 1000) == 1)
+		assert(restored.gold == cash_before + MoneyMercsState.GUILD_WORK_PAY)
+		assert(not restored.merc_by_id("garrick").is_empty())
+		assert((restored.reports[0]["casualties"] as Array).is_empty())
+		assert(restored.complete_due(int(Time.get_unix_time_from_system()) + 1000) == 0)
+		work_count += 1
+	assert(restored.gold >= int(replacement_guard["hire"]))
+	assert(work_count > 0)
+	assert(restored.hire(str(replacement_guard["id"])).contains("joined"))
+	assert(restored.crew.size() == 2)
+	assert(int(restored.merc_by_id("garrick").get("xp", 0)) > saved_xp)
+	# Recovery is possible even with no mercenaries, gold or remaining credit.
+	restored.reset_company()
+	restored.gold = 0
+	restored.relief_debt = 440
+	assert(restored.start_guild_work().contains("paperwork accepted"))
+	restored.save_game()
+	var overnight := MoneyMercsState.new()
+	assert(overnight.missions.size() == 1)
+	assert(overnight.complete_due(int(Time.get_unix_time_from_system()) + 1000) == 1)
+	assert(overnight.gold == MoneyMercsState.OFFICE_WORK_PAY)
+	assert(overnight.crew.is_empty())
+	assert(overnight.start_guild_work().contains("paperwork accepted"))
+	assert(overnight.complete_due(int(Time.get_unix_time_from_system()) + 1000) == 1)
+	assert(overnight.gold == 2 * MoneyMercsState.OFFICE_WORK_PAY)
+	overnight.reset_company()
 	# Migration from a v0.4 state (no equipment fields, unchanged version 1).
 	var legacy_file := FileAccess.open(MoneyMercsState.SAVE_PATH, FileAccess.WRITE)
 	legacy_file.store_string(JSON.stringify({
