@@ -19,3 +19,5 @@ jobs:
         run: godot --headless --path . --script res://tests/smoke_test.gd
       - name: Exercise UI screens and actions
         run: godot --headless --path . --script res://tests/ui_smoke_test.gd
+      - name: Exercise Harlow scouting and dispatch
+        run: godot --headless --path . --script res://tests/harlow_smoke_test.gd
