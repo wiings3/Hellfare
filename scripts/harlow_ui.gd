@@ -2,6 +2,15 @@ extends RefCounted
 ## Harlow Mines: a focused vertical-slice UI, built on the shared Money Mercs design system.
 ## All information here is derived from persistent game state; no mock decisions.
 
+const CREAM := Color("#f2ebd9")
+const MUTED := Color("#9caaa3")
+const FAINT := Color("#70867c")
+const BRASS := Color("#d6b47a")
+const SUCCESS := Color("#97ceaa")
+const DANGER := Color("#e3a093")
+const SURFACE_2 := Color("#20312f")
+const EDGE := Color("#33443e")
+
 var ui: Control
 var selected: Array[String] = []
 var stance: String = "Balanced"
@@ -21,7 +30,7 @@ func _headline(parent: Node, title: String, extra: String, tint: Color) -> void:
 	var headline := ui._h(10)
 	parent.add_child(headline)
 	headline.add_child(ui._label(title, 15, tint, true))
-	var right := ui._label(extra, 11, ui.FAINT)
+	var right := ui._label(extra, 11, FAINT)
 	right.size_flags_horizontal = Control.SIZE_SHRINK_END
 	headline.add_child(right)
 
@@ -45,62 +54,62 @@ func build() -> void:
 	inset.add_child(below)
 	var status := ui._h(12)
 	below.add_child(status)
-	status.add_child(_tag("SURVEY COMPLETE" if has_intel else ("SCOUT IN THE FIELD" if int(state["scout_finish"]) > 0 else "UNSURVEYED"), ui.SUCCESS if has_intel else ui.BRASS))
-	status.add_child(_tag("REGION 01  /  MINING DISTRICT", ui.MUTED))
+	status.add_child(_tag("SURVEY COMPLETE" if has_intel else ("SCOUT IN THE FIELD" if int(state["scout_finish"]) > 0 else "UNSURVEYED"), SUCCESS if has_intel else BRASS))
+	status.add_child(_tag("REGION 01  /  MINING DISTRICT", MUTED))
 	var meta := ui._h(12)
 	below.add_child(meta)
-	_item_metric(meta, "NEXT ROTATION", _remaining(game.harlow_rotation_remaining()), ui.BRASS)
-	_item_metric(meta, "OPERATIONS RUNNING", "%d" % _harlow_jobs(), ui.CREAM)
-	_item_metric(meta, "SCOUT TIER", "%d / 3" % int(state.get("scout_level", 1)), ui.SUCCESS)
+	_item_metric(meta, "NEXT ROTATION", _remaining(game.harlow_rotation_remaining()), BRASS)
+	_item_metric(meta, "OPERATIONS RUNNING", "%d" % _harlow_jobs(), CREAM)
+	_item_metric(meta, "SCOUT TIER", "%d / 3" % int(state.get("scout_level", 1)), SUCCESS)
 	clock_label = meta.get_child(0).get_child(1) as Label
 
 	ui._spacer(ui.content_root, 4)
 	# Scouting represents the source of the expedition's knowledge.
 	var report := ui._frame(ui.content_root, false, 19)
-	_headline(report, "01  /  SCOUT'S REPORT", "INTELLIGENCE", ui.BRASS)
+	_headline(report, "01  /  SCOUT'S REPORT", "INTELLIGENCE", BRASS)
 	ui._line(report)
 	if has_intel:
 		_render_intelligence(report, state, intel)
 	elif int(state["scout_finish"]) > 0:
-		report.add_child(_text("A guild scout is surveying the lower shafts.", 17, ui.CREAM))
-		scout_clock = _text("", 13, ui.SUCCESS)
+		report.add_child(_text("A guild scout is surveying the lower shafts.", 17, CREAM))
+		scout_clock = _text("", 13, SUCCESS)
 		report.add_child(scout_clock)
-		report.add_child(_text("The scout cannot die. Intelligence will be delivered even if you close the game.", 12, ui.MUTED))
+		report.add_child(_text("The scout cannot die. Intelligence will be delivered even if you close the game.", 12, MUTED))
 	else:
-		report.add_child(_text("No current intelligence.", 18, ui.CREAM))
-		report.add_child(_text("You may send a crew blindly, but an upgraded scout will reveal valuable deposits and threats before you commit equipment.", 13, ui.MUTED))
+		report.add_child(_text("No current intelligence.", 18, CREAM))
+		report.add_child(_text("You may send a crew blindly, but an upgraded scout will reveal valuable deposits and threats before you commit equipment.", 13, MUTED))
 		var scout_button := ui._button("DISPATCH GUILD SCOUT   /   %s" % _remaining(game.harlow_scout_seconds()), _scout, true)
 		report.add_child(scout_button)
 	var upgrade_row := ui._h(8)
 	report.add_child(upgrade_row)
 	var upgrade_info := ui._v(3)
 	upgrade_row.add_child(upgrade_info)
-	upgrade_info.add_child(_text("SURVEY TRAINING", 11, ui.FAINT))
+	upgrade_info.add_child(_text("SURVEY TRAINING", 11, FAINT))
 	var tier: int = int(state.get("scout_level", 1))
 	var cost: int = 200 if tier == 1 else 650
-	upgrade_info.add_child(_text("Faster return, more accurate intel" if tier < 3 else "Master scout fully trained", 12, ui.MUTED))
+	upgrade_info.add_child(_text("Faster return, more accurate intel" if tier < 3 else "Master scout fully trained", 12, MUTED))
 	if tier < 3:
 		var upgrade := ui._button("TRAIN  •  %s" % ui._money(cost), _upgrade, false, true)
 		upgrade.disabled = game.gold < cost or int(state["scout_finish"]) > 0
 		upgrade_row.add_child(upgrade)
 	else:
-		upgrade_row.add_child(_tag("MAX LEVEL", ui.SUCCESS))
+		upgrade_row.add_child(_tag("MAX LEVEL", SUCCESS))
 
 	ui._spacer(ui.content_root, 5)
 	# Role cards and predictable choices.
 	var crew_box := ui._frame(ui.content_root, false, 18)
-	_headline(crew_box, "02  /  DEPLOY YOUR CREW", "UP TO THREE", ui.BRASS)
+	_headline(crew_box, "02  /  DEPLOY YOUR CREW", "UP TO THREE", BRASS)
 	ui._line(crew_box)
 	var choices := ui._h(12)
 	crew_box.add_child(choices)
 	var guard_summary := ui._frame(choices, false, 12)
-	guard_summary.add_child(_text("SHIELD   /   GUARD", 10, ui.MUTED))
-	guard_summary.add_child(_text("Protection", 18, ui.CREAM))
-	guard_summary.add_child(_text("Reduces the chance of fatal encounters.", 12, ui.MUTED))
+	guard_summary.add_child(_text("SHIELD   /   GUARD", 10, MUTED))
+	guard_summary.add_child(_text("Protection", 18, CREAM))
+	guard_summary.add_child(_text("Reduces the chance of fatal encounters.", 12, MUTED))
 	var miner_summary := ui._frame(choices, false, 12)
-	miner_summary.add_child(_text("PICKAXE   /   MINER", 10, ui.MUTED))
-	miner_summary.add_child(_text("Extraction", 18, ui.CREAM))
-	miner_summary.add_child(_text("Up to three ore veins per miner.", 12, ui.MUTED))
+	miner_summary.add_child(_text("PICKAXE   /   MINER", 10, MUTED))
+	miner_summary.add_child(_text("Extraction", 18, CREAM))
+	miner_summary.add_child(_text("Up to three ore veins per miner.", 12, MUTED))
 	var available := 0
 	for merc in game.crew:
 		if not game.is_available(merc):
@@ -110,23 +119,23 @@ func build() -> void:
 		available += 1
 		_worker_entry(crew_box, merc)
 	if available == 0:
-		crew_box.add_child(_text("You have no miners or guards available. Recruit a miner and a guard to prepare Harlow Mines.", 13, ui.DANGER))
+		crew_box.add_child(_text("You have no miners or guards available. Recruit a miner and a guard to prepare Harlow Mines.", 13, DANGER))
 		crew_box.add_child(ui._button("OPEN RECRUITMENT BOARD  →", _recruit, true))
 	elif _selected_available().is_empty():
-		crew_box.add_child(_text("Select at least one miner to start planning. Guards are strongly recommended.", 12, ui.MUTED))
+		crew_box.add_child(_text("Select at least one miner to start planning. Guards are strongly recommended.", 12, MUTED))
 	ui._line(crew_box)
 	var status_row := ui._h(7)
 	crew_box.add_child(status_row)
 	var selected_stats: Dictionary = game.harlow_crew_stats(_selected_available(), stance)
-	status_row.add_child(_tag("%d MINERS" % int(selected_stats["miners"]), ui.SUCCESS))
-	status_row.add_child(_tag("%d GUARDS" % int(selected_stats["guards"]), ui.BRASS))
-	status_row.add_child(_tag("%d VEIN CAPACITY" % int(selected_stats["capacity"]), ui.CREAM))
+	status_row.add_child(_tag("%d MINERS" % int(selected_stats["miners"]), SUCCESS))
+	status_row.add_child(_tag("%d GUARDS" % int(selected_stats["guards"]), BRASS))
+	status_row.add_child(_tag("%d VEIN CAPACITY" % int(selected_stats["capacity"]), CREAM))
 
 	ui._spacer(ui.content_root, 5)
 	ui._section("IN PROGRESS")
 	if _harlow_jobs() == 0:
 		var empty := ui._frame(ui.content_root)
-		empty.add_child(_text("No crews underground right now.", 13, ui.MUTED))
+		empty.add_child(_text("No crews underground right now.", 13, MUTED))
 	else:
 		for mission in game.missions:
 			if str(mission.get("region", "")) == "harlow":
@@ -138,7 +147,7 @@ func build() -> void:
 func _item_metric(row: Node, label_text: String, value: String, shade: Color) -> void:
 	var content := ui._v(4)
 	row.add_child(content)
-	content.add_child(ui._label(label_text, 10, ui.FAINT, true))
+	content.add_child(ui._label(label_text, 10, FAINT, true))
 	content.add_child(ui._label(value, 18, shade))
 
 func _render_intelligence(parent: Node, state: Dictionary, intel: Dictionary) -> void:
@@ -146,14 +155,14 @@ func _render_intelligence(parent: Node, state: Dictionary, intel: Dictionary) ->
 	parent.add_child(headline)
 	var primary := ui._v(5)
 	headline.add_child(primary)
-	primary.add_child(_text("KNOWN ORE", 10, ui.FAINT))
-	primary.add_child(_text("At least %d %s veins" % [int(intel.get("minimum", 0)), str(MoneyMercsState.RESOURCE_NAMES.get(str(intel["primary"]), "ore"))], 19, ui.SUCCESS))
-	primary.add_child(_text("Measured this rotation  ·  available deposits decline after extraction", 12, ui.MUTED))
+	primary.add_child(_text("KNOWN ORE", 10, FAINT))
+	primary.add_child(_text("At least %d %s veins" % [int(intel.get("minimum", 0)), str(MoneyMercsState.RESOURCE_NAMES.get(str(intel["primary"]), "ore"))], 19, SUCCESS))
+	primary.add_child(_text("Measured this rotation  ·  available deposits decline after extraction", 12, MUTED))
 	var creature := ui._v(5)
 	headline.add_child(creature)
-	creature.add_child(_text("CONFIRMED THREAT", 10, ui.FAINT))
-	creature.add_child(_text(str(intel.get("creature", "Unknown")), 18, ui.DANGER))
-	creature.add_child(_text(str((state.get("enemy", {}) as Dictionary).get("note", "Threat detected")), 12, ui.MUTED))
+	creature.add_child(_text("CONFIRMED THREAT", 10, FAINT))
+	creature.add_child(_text(str(intel.get("creature", "Unknown")), 18, DANGER))
+	creature.add_child(_text(str((state.get("enemy", {}) as Dictionary).get("note", "Threat detected")), 12, MUTED))
 	if intel.has("all_ore"):
 		ui._line(parent)
 		var deposits: Dictionary = intel["all_ore"]
@@ -164,8 +173,8 @@ func _render_intelligence(parent: Node, state: Dictionary, intel: Dictionary) ->
 				if not bool(intel.get("exact", false)):
 					quantity += "+"
 				names.append("%s %s" % [quantity, str(MoneyMercsState.RESOURCE_NAMES.get(id,id))])
-		parent.add_child(_text("ADDITIONAL INTEL  •  " + ", ".join(names), 12, ui.CREAM))
-	parent.add_child(_text("Your report is a lower bound, not a full guarantee of safety or total resources." if not bool(intel.get("exact", false)) else "Master scout: resource counts are exact at report time; other expeditions can still deplete them.", 12, ui.MUTED))
+		parent.add_child(_text("ADDITIONAL INTEL  •  " + ", ".join(names), 12, CREAM))
+	parent.add_child(_text("Your report is a lower bound, not a full guarantee of safety or total resources." if not bool(intel.get("exact", false)) else "Master scout: resource counts are exact at report time; other expeditions can still deplete them.", 12, MUTED))
 
 func _worker_entry(parent: Node, merc: Dictionary) -> void:
 	var id: String = str(merc["id"])
@@ -176,12 +185,12 @@ func _worker_entry(parent: Node, merc: Dictionary) -> void:
 	checkbox.custom_minimum_size.x = 250
 	checkbox.set_pressed_no_signal(selected.has(id))
 	checkbox.add_theme_font_size_override("font_size", 13)
-	checkbox.add_theme_color_override("font_color", ui.CREAM)
-	checkbox.add_theme_color_override("font_hover_color", ui.CREAM)
-	checkbox.add_theme_color_override("font_pressed_color", ui.CREAM)
+	checkbox.add_theme_color_override("font_color", CREAM)
+	checkbox.add_theme_color_override("font_hover_color", CREAM)
+	checkbox.add_theme_color_override("font_pressed_color", CREAM)
 	checkbox.toggled.connect(_toggle.bind(id))
 	row.add_child(checkbox)
-	var details: Label = _text("LVL %d GEAR   /   %d%% HEALTH" % [int(merc.get("gear", 0)), int(merc.get("health", 100))], 11, ui.MUTED)
+	var details: Label = _text("LVL %d GEAR   /   %d%% HEALTH" % [int(merc.get("gear", 0)), int(merc.get("health", 100))], 11, MUTED)
 	details.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(details)
 
@@ -205,27 +214,27 @@ func _render_inspector(state: Dictionary, has_intel: bool, stats: Dictionary) ->
 	var game: MoneyMercsState = ui.game
 	ui._inspector_title("THE QUARTERMASTER   /   LIVE FORECAST", "Dispatch plan", "Compare yield against risk before you send anyone into danger.")
 	ui._line(ui.inspector_root)
-	ui._inspector_note("STANDING ORDERS", "How hard should the crew push?", ui.BRASS)
+	ui._inspector_note("STANDING ORDERS", "How hard should the crew push?", BRASS)
 	var picker := OptionButton.new()
 	for option in MoneyMercsState.TACTICS:
 		picker.add_item(str(option))
 	picker.select(maxi(0, MoneyMercsState.TACTICS.find(stance)))
 	picker.add_theme_font_size_override("font_size", 13)
-	picker.add_theme_color_override("font_color", ui.CREAM)
-	picker.add_theme_stylebox_override("normal", ui._style(ui.SURFACE_2, ui.EDGE, 6, 8))
+	picker.add_theme_color_override("font_color", CREAM)
+	picker.add_theme_stylebox_override("normal", ui._style(SURFACE_2, EDGE, 6, 8))
 	picker.custom_minimum_size.y = 38
 	picker.item_selected.connect(_stance_change)
 	ui.inspector_root.add_child(picker)
 	ui._line(ui.inspector_root)
-	ui._inspector_note("MAXIMUM ORE VEINS", str(int(stats["capacity"])), ui.SUCCESS)
+	ui._inspector_note("MAXIMUM ORE VEINS", str(int(stats["capacity"])), SUCCESS)
 	if has_intel:
-		ui._inspector_note("FULL OBJECTIVE SUCCESS", "%d%% estimated" % int(round(float(stats["success"]) * 100.0)), ui.SUCCESS if float(stats["success"]) >= 0.70 else ui.DANGER)
-		ui._inspector_note("PER-WORKER DEATH RISK", "~%d%% estimated" % int(round(float(stats["death"]) * 100.0)), ui.DANGER)
+		ui._inspector_note("FULL OBJECTIVE SUCCESS", "%d%% estimated" % int(round(float(stats["success"]) * 100.0)), SUCCESS if float(stats["success"]) >= 0.70 else DANGER)
+		ui._inspector_note("PER-WORKER DEATH RISK", "~%d%% estimated" % int(round(float(stats["death"]) * 100.0)), DANGER)
 	else:
-		ui._inspector_note("SUCCESS / FATALITY RISK", "Unknown · survey required", ui.DANGER)
-		ui.inspector_root.add_child(_text("You may deploy without a report, but no estimated odds are shown until you scout.", 12, ui.MUTED))
-	ui._inspector_note("COST TO DISPATCH", ui._money(int(stats["wage"])), ui.BRASS)
-	ui._inspector_note("EXPECTED DURATION", _remaining(int(stats["duration"])), ui.CREAM)
+		ui._inspector_note("SUCCESS / FATALITY RISK", "Unknown · survey required", DANGER)
+		ui.inspector_root.add_child(_text("You may deploy without a report, but no estimated odds are shown until you scout.", 12, MUTED))
+	ui._inspector_note("COST TO DISPATCH", ui._money(int(stats["wage"])), BRASS)
+	ui._inspector_note("EXPECTED DURATION", _remaining(int(stats["duration"])), CREAM)
 	var gear_at_risk := 0
 	var commission := 0.0
 	for merc_id in _selected_available():
@@ -236,8 +245,8 @@ func _render_inspector(state: Dictionary, has_intel: bool, stats: Dictionary) ->
 	ui._inspector_note("CREW SHARE OF FINDINGS", "%d%%" % int(round(minf(commission, 0.85) * 100.0)))
 	ui._line(ui.inspector_root)
 	var warning := ui._frame(ui.inspector_root)
-	warning.add_child(_text("PERMANENT CASUALTIES", 11, ui.DANGER))
-	warning.add_child(_text("Mercenaries can die. Their experience and equipped gear will be lost permanently.", 12, ui.MUTED))
+	warning.add_child(_text("PERMANENT CASUALTIES", 11, DANGER))
+	warning.add_child(_text("Mercenaries can die. Their experience and equipped gear will be lost permanently.", 12, MUTED))
 	var valid: Array[String] = _selected_available()
 	var veins := 0
 	for key in (state.get("deposits", {}) as Dictionary):
@@ -247,17 +256,17 @@ func _render_inspector(state: Dictionary, has_intel: bool, stats: Dictionary) ->
 	go.disabled = not can_send
 	ui.inspector_actions.add_child(go)
 	if valid.size() > 3:
-		ui.inspector_actions.add_child(_text("Only three mercenaries can deploy together.", 12, ui.DANGER))
+		ui.inspector_actions.add_child(_text("Only three mercenaries can deploy together.", 12, DANGER))
 	elif int(stats["miners"]) == 0:
-		ui.inspector_actions.add_child(_text("At least one miner must be assigned.", 12, ui.MUTED))
+		ui.inspector_actions.add_child(_text("At least one miner must be assigned.", 12, MUTED))
 	elif game.gold < int(stats["wage"]):
-		ui.inspector_actions.add_child(_text("Insufficient gold. Sell a resource or reduce crew cost.", 12, ui.DANGER))
+		ui.inspector_actions.add_child(_text("Insufficient gold. Sell a resource or reduce crew cost.", 12, DANGER))
 	elif veins <= 0:
-		ui.inspector_actions.add_child(_text("All ore deposits are exhausted until rotation.", 12, ui.MUTED))
+		ui.inspector_actions.add_child(_text("All ore deposits are exhausted until rotation.", 12, MUTED))
 	elif game.missions.size() >= game.expedition_slots:
-		ui.inspector_actions.add_child(_text("All operation slots are occupied.", 12, ui.MUTED))
+		ui.inspector_actions.add_child(_text("All operation slots are occupied.", 12, MUTED))
 	else:
-		ui.inspector_actions.add_child(_text("Standing orders execute the same way while you are offline.", 12, ui.MUTED))
+		ui.inspector_actions.add_child(_text("Standing orders execute the same way while you are offline.", 12, MUTED))
 
 func _remaining(seconds: int) -> String:
 	if seconds >= 3600:
