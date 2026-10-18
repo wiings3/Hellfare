@@ -443,8 +443,96 @@ func trade(item: String, buy: bool, quantity: int) -> String:
 	var revenue: int = sell_price(item) * quantity
 	resources[item] = int(resources[item]) - quantity
 	gold += revenue
+	_apply_relief_payment()
 	save_game()
 	return "Sold %d %s for %d gold." % [quantity, str(RESOURCE_NAMES[item]), revenue]
+
+func item_definition(key: String) -> Dictionary:
+	return V05.ITEMS.get(key, {})
+
+func owned_equipment_value() -> int:
+	var amount: int = 0
+	for item in equipment_inventory:
+		amount += int(item_definition(str(item.get("key", ""))).get("cost", 0))
+	for merc in crew:
+		var worn: Dictionary = merc.get("equipment", {})
+		for slot in ["tool", "armor"]:
+			amount += int(item_definition(str((worn.get(slot, {}) as Dictionary).get("key", ""))).get("cost", 0))
+	return amount
+
+func make_item(key: String) -> Dictionary:
+	var item: Dictionary = {"uid": "gear_%d" % next_item_id, "key": key}
+	next_item_id += 1
+	return item
+
+func buy_equipment(key: String) -> String:
+	var definition: Dictionary = item_definition(key)
+	if definition.is_empty():
+		return "That equipment does not exist."
+	var cost: int = int(definition["cost"])
+	if gold < cost:
+		return "You need %d gold." % cost
+	gold -= cost
+	equipment_inventory.append(make_item(key))
+	save_game()
+	return "Purchased %s for %d gold." % [str(definition["name"]), cost]
+
+func equip_item(merc_id: String, uid: String) -> String:
+	var merc: Dictionary = merc_by_id(merc_id)
+	if merc.is_empty() or not is_available(merc):
+		return "Select an available mercenary."
+	var index: int = -1
+	for i in range(equipment_inventory.size()):
+		if str(equipment_inventory[i].get("uid", "")) == uid:
+			index = i
+			break
+	if index < 0:
+		return "Equipment not found in the armory."
+	var item: Dictionary = equipment_inventory[index]
+	var key: String = str(item.get("key", ""))
+	if not V05.validate_role(key, merc):
+		return "This item cannot be equipped by that role."
+	var slot: String = str(item_definition(key)["slot"])
+	var worn: Dictionary = merc.get("equipment", {"tool": {}, "armor": {}})
+	var previous: Dictionary = worn.get(slot, {})
+	equipment_inventory.remove_at(index)
+	if not previous.is_empty():
+		equipment_inventory.append(previous)
+	worn[slot] = item
+	merc["equipment"] = worn
+	save_game()
+	return "%s equipped %s." % [str(merc["name"]), str(item_definition(key)["name"])]
+
+func unequip_item(merc_id: String, slot: String) -> String:
+	var merc: Dictionary = merc_by_id(merc_id)
+	if merc.is_empty() or not is_available(merc) or not ["tool", "armor"].has(slot):
+		return "Worker unavailable for outfitting."
+	var worn: Dictionary = merc.get("equipment", {})
+	var item: Dictionary = worn.get(slot, {})
+	if item.is_empty():
+		return "Nothing equipped in that slot."
+	equipment_inventory.append(item)
+	worn[slot] = {}
+	merc["equipment"] = worn
+	save_game()
+	return "%s placed %s into the armory." % [str(merc["name"]), V05.item_name(item)]
+
+func guild_relief() -> String:
+	if not crew.is_empty() or not missions.is_empty() or gold >= 60:
+		return "Relief is reserved for companies without a crew or enough capital."
+	gold += 90
+	relief_debt += 110
+	relief_count += 1
+	reputation = maxi(0, reputation - 3)
+	save_game()
+	return "The guild advanced 90 gold. You owe 110 gold from future trade proceeds."
+
+func _apply_relief_payment() -> void:
+	if relief_debt <= 0 or gold <= 120:
+		return
+	var paid: int = mini(relief_debt, gold - 120)
+	gold -= paid
+	relief_debt -= paid
 
 func wealth() -> int:
 	var total: int = gold
@@ -452,6 +540,8 @@ func wealth() -> int:
 		total += int(resources.get(item, 0)) * sell_price(item)
 	for merc in crew:
 		total += int(merc.get("gear", 0)) * 60
+	total += owned_equipment_value()
+	total -= relief_debt
 	return total
 
 func free_crew() -> int:
