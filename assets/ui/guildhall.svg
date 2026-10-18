@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="460" viewBox="0 0 1600 460">
+<defs><linearGradient id="wall" x2="0" y2="1"><stop stop-color="#211d25"/><stop offset="1" stop-color="#43302c"/></linearGradient>
+<linearGradient id="veil" x2="1" y2="0"><stop stop-color="#0f1117" stop-opacity=".9"/><stop offset=".56" stop-color="#171316" stop-opacity=".36"/><stop offset="1" stop-color="#110f13" stop-opacity=".12"/></linearGradient>
+<radialGradient id="candle"><stop stop-color="#f9cb77" stop-opacity=".6"/><stop offset=".19" stop-color="#be7839" stop-opacity=".2"/><stop offset="1" stop-color="#d06b30" stop-opacity="0"/></radialGradient></defs>
+<rect width="1600" height="460" fill="url(#wall)"/>
+<path d="M0 0H1600v450H0Z" fill="#241f22"/>
+<path d="M0 0h1600v82H0Z" fill="#15171d"/>
+<path d="M0 66H1600M0 99H1600" stroke="#78563c" stroke-width="20"/>
+<!-- timber beams -->
+<path d="M66 0V460 M540 0V460 M1002 0V460 M1508 0V460" stroke="#563c2e" stroke-width="35"/>
+<path d="M74 0V460 M546 0V460 M1009 0V460 M1514 0V460" stroke="#8a5738" stroke-width="4" opacity=".65"/>
+<!-- board map -->
+<rect x="682" y="111" width="348" height="230" rx="8" fill="#2a231f" stroke="#ad804d" stroke-width="17"/>
+<rect x="710" y="134" width="295" height="185" fill="#b5a078"/>
+<path d="M740 154 779 190 766 225 819 256 869 220 921 276 981 247M760 287 807 242 850 258 887 175 955 150" stroke="#76684e" stroke-width="5" fill="none"/>
+<circle cx="811" cy="235" r="9" fill="#a14732"/><circle cx="942" cy="194" r="9" fill="#a14732"/><path d="M812 235 943 194" stroke="#a14732" stroke-width="4" stroke-dasharray="12 8"/>
+<path d="M734 138h35m130 0h40m-100 154h25" stroke="#ded2ad" stroke-width="5"/>
+<!-- shelves with helmets and books -->
+<path d="M1054 115h391 M1054 246h391 M1054 371h391" stroke="#8d5938" stroke-width="19"/>
+<path d="M1090 118V233m56-115v115m44-115v115m44-115v115M1300 117v116" stroke="#54403a" stroke-width="16"/>
+<path d="M1109 215q-20-93 46-95 70 13 49 95Z" fill="#535960" stroke="#b99a65" stroke-width="7"/>
+<path d="M1091 207h131" stroke="#c9b786" stroke-width="10"/>
+<path d="M1261 121h26v107h-26Z M1293 131h27v97h-27Z M1328 120h19v108h-19Z M1358 131h21v97h-21Z" fill="#7e4841" stroke="#bd8761" stroke-width="5"/>
+<!-- treasure and bags -->
+<path d="M1180 317q14-83 69-80 61-4 75 80l-20 65h-109Z" fill="#8c694b" stroke="#b7a06c" stroke-width="8"/>
+<path d="m1204 249 89 1" stroke="#d8bc82" stroke-width="13"/>
+<circle cx="1254" cy="314" r="33" fill="#cfa662" stroke="#8a623a" stroke-width="8"/>
+<path d="m1254 295v41m-18-28q30-18 36 5-3 14-33 8" stroke="#6b492a" stroke-width="6" fill="none"/>
+<rect x="1327" y="291" width="169" height="105" fill="#50362a" stroke="#b48a57" stroke-width="9"/>
+<path d="M1328 321h169m-84-28v104" stroke="#9b754a" stroke-width="9"/>
+<path d="M1394 317h42v30h-42Z" fill="#c39a54" stroke="#6e4d30" stroke-width="5"/>
+<!-- desk and large open parchment ledger -->
+<path d="M499 352 1573 337 1600 419 462 435Z" fill="#332622" stroke="#986742" stroke-width="17"/>
+<path d="m681 353 174-33 226 17-191 52Z" fill="#d2bb91" stroke="#6a4a35" stroke-width="8"/>
+<path d="m856 321-11 58m-131-14 110-21m72 17 148-22" stroke="#807258" stroke-width="5"/>
+<!-- candle -->
+<path d="M594 321h24v44h-24Z" fill="#ddcbac" stroke="#8a7354" stroke-width="5"/>
+<path d="M606 314q-19-27 0-47 24 17 0 47Z" fill="#e6ae64"/>
+<circle cx="606" cy="304" r="127" fill="url(#candle)"/>
+<!-- quill -->
+<path d="M1089 295q67-102 117-131-16 83-111 155" fill="#998b83" stroke="#e4cbae" stroke-width="5"/>
+<!-- lower shelf -->
+<path d="M0 406h1600v54H0Z" fill="#171519"/>
+<rect width="1600" height="460" fill="url(#veil)"/>
+<path d="M0 455h1600M0 6h1600" stroke="#c69d5e" stroke-width="4" opacity=".7"/>
+</svg>
