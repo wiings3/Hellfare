@@ -584,8 +584,14 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 	side.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	side.add_theme_stylebox_override("panel", _style(C_PAPER, Color("#c5a577"), 4, 15))
 	parent.add_child(side)
+	var sidebar := _v(9)
+	side.add_child(sidebar)
+	var briefing_scroll := ScrollContainer.new()
+	briefing_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	briefing_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	sidebar.add_child(briefing_scroll)
 	var column := _v(11)
-	side.add_child(column)
+	briefing_scroll.add_child(column)
 	var emblem_line := _h(9)
 	column.add_child(emblem_line)
 	emblem_line.add_child(_image(CREST, 45))
@@ -632,9 +638,6 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 	var caution := _lab("PERMADEATH   /   Dead mercenaries and their equipped gear are lost forever.", 12, Color("#a44039"), true)
 	_grow(caution)
 	column.add_child(caution)
-	var spare := Control.new()
-	spare.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.add_child(spare)
 	var total_deposits := 0
 	var deposits: Dictionary = game.harlow.get("deposits", {})
 	for id in deposits:
@@ -644,11 +647,11 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 	var go := _button("SIGN & FUND EXPEDITION   →", _dispatch_harlow, true)
 	go.custom_minimum_size.y = 54
 	go.disabled = not can_dispatch
-	column.add_child(go)
+	sidebar.add_child(go)
 	var reason := "Select a miner to begin." if int(stats["miners"]) == 0 else ("Too many workers (maximum 3)." if available.size() > 3 else ("Insufficient gold to fund wages." if game.gold < int(stats["wage"]) else ("Current rotation depleted." if total_deposits == 0 else ("All operation slots occupied." if game.missions.size() >= game.expedition_slots else "Orders hold even while you are offline."))))
 	var help := _lab(reason, 12, C_PAPER_DIM, true)
 	_grow(help)
-	column.add_child(help)
+	sidebar.add_child(help)
 
 func _mini_stat(parent: Node, name: String, value: String, color: Color) -> void:
 	var card := _v(3)
