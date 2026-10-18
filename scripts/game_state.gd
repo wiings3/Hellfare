@@ -623,6 +623,7 @@ func harlow_sync(now: int = -1) -> bool:
 	var changed := false
 	if int(harlow.get("rotation", -1)) != rotation:
 		var archives: Dictionary = harlow.get("archives", {})
+		var ongoing_scout: int = int(harlow.get("scout_finish", 0))
 		if harlow.has("rotation"):
 			archives[str(int(harlow["rotation"]))] = (harlow.get("deposits", {}) as Dictionary).duplicate(true)
 		var randomizer := RandomNumberGenerator.new()
@@ -642,7 +643,7 @@ func harlow_sync(now: int = -1) -> bool:
 			"original": ore.duplicate(true),
 			"enemy": creature.duplicate(true),
 			"scout_level": clampi(old_scout_level, 1, 3),
-			"scout_finish": 0,
+			"scout_finish": ongoing_scout,
 			"report": {},
 			"fallen": harlow.get("fallen", []),
 			"archives": archives
