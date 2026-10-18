@@ -19,10 +19,26 @@ func _capture() -> void:
 		["harlow", "res://docs/ui_harlow_preview.png"],
 		["roster", "res://docs/ui_mercenaries_preview.png"],
 		["market", "res://docs/ui_trading_preview.png"],
-		["hq", "res://docs/ui_office_preview.png"]
+		["hq", "res://docs/ui_office_preview.png"],
+		["armory", "res://docs/ui_armory_preview.png"],
+		["ledger", "res://docs/ui_journal_preview.png"]
 	]
 	for destination in destinations:
-		instance._nav_to(str(destination[0]))
+		var name: String = str(destination[0])
+		if name == "armory":
+			instance.game.gold = 1200
+			instance.game.buy_equipment("basic_pick")
+			instance.game.buy_equipment("steel_sword")
+			instance.game.buy_equipment("leather")
+			instance._outfit("garrick")
+		elif name == "ledger":
+			instance._nav_to("harlow")
+			instance._dispatch_harlow()
+			if not instance.game.missions.is_empty():
+				instance.game.complete_due(int(Time.get_unix_time_from_system()) + 500)
+			instance._nav_to("ledger")
+		else:
+			instance._nav_to(name)
 		await process_frame
 		await process_frame
 		await RenderingServer.frame_post_draw
