@@ -1,70 +1,65 @@
 # Money Mercs
 
-> **Design reference:** [Living Game Design Document](docs/GAME_DESIGN_DOCUMENT.md) — the agreed long-term vision, decisions, open questions, and implementation roadmap. This is the reference for upcoming features; the prototype described below is v0.3.
+**Version 0.4 — Guild Ledger UI**
 
-A dark-fantasy mercenary contractor / resource economy management game built with **Godot 4.5.1**.
+Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
-**Version 0.3 (Harlow Mines foundation):** A new interactive expedition dossier is available from the navigation rail. It integrates rotating ore deposits, permanent guild scouts, role-specific mining and guarding, live risk forecasts, individual casualties and persistent expedition records. Existing sites remain available under **Other Sites** using older prototype rules.
+> *Build a fortune. Let someone else risk their life.*
 
-**The visual design is a work in progress.** This release is a usability/playtest baseline—not final art, an approved UI, or a complete Trading Post.
+## Play
 
-**Design update (GDD v1.2):** Gold is now the intended **primary trading currency and wealth measure**, with physical coin stacks, money bags and limited-capacity treasury chests. Rare items remain exceptionally valuable *in gold*. These storage mechanics are **planned, not yet implemented** in the v0.3 prototype; its existing gold balance is still numeric.
+1. Pull `main` or clone https://github.com/wiings3/Money-Mercs
+2. Import `project.godot` in Godot **4.5.1**. Run with **F5**.
+3. Visit **Mercenaries** and hire Garrick (Miner) and ideally Oswin (Guard).
+4. Open **Harlow Mines**. Send the guild scout, who returns in about 60 seconds.
+5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
+6. Gathered ore enters inventory, while mercenaries can be injured or permanently die and lose their gear. View outcomes in **The Chronicle**; sell resources on the **Trading Post** prototype page.
 
-## Starting out
+## What's new in 0.4
 
-1. Clone with [GitHub Desktop](https://desktop.github.com/) or `git clone https://github.com/wiings3/Money-Mercs.git`.
-2. Import `project.godot` in **Godot 4.5.1** and run **F5**.
-3. In **The Office**, open **The Crew** and select **Recruitment Board**.
-4. Hire Garrick (70 gold, Miner) and ideally Oswin (185 gold, Guard), then open **Harlow Mines**.
-5. Dispatch your separate invulnerable guild scout (60 seconds at tier 1), read the report, then assign your miner and guard.
-6. Set Cautious, Balanced, or Deep Push orders and dispatch. A successful party extracts a finite number of ore veins; underprepared workers may die and lose their gear. The expedition continues when you close the game. Read the return in **The Journal** and sell loot through **The Exchange**.
+**All on-screen UI was rebuilt**, replacing the previous dark-green admin-style interface. The native Godot layout uses a warm copper, charcoal, leather and parchment guild theme with original SVG illustrations.
 
-## Navigation
+- **Harlow dossier:** panoramic mine art, survey report, enemy portrait and readable recruitment/selection cards.
+- **Dispatch warrant:** selected crew, risk estimates, extraction capacity, mission cost and standing orders on a persistent action panel.
+- **Scouting:** a separate immortal scout; training speeds surveys and improves intelligence.
+- **Rotations:** Harlow ore, threats and hazards change every four hours in this testing build; ore is finite within each rotation.
+- **Mining and guarding:** miners establish extraction capacity, guards improve odds and reduce casualties.
+- **Consequences:** role-dependent success, injuries and permanent death with gear loss.
+- **Reworked screens:** Guild office, Mercenaries, Trading Post (NPC exchange), Other Contracts (legacy systems), and Chronicle.
+- **Offline results and existing saves:** the underlying `scripts/game_state.gd` economy remains the source of truth.
 
-| Screen | Use |
-|---|---|
-| 01 The Office | Your company at a glance, active work, expansion and next steps |
-| 02 Harlow Mines | Rotation-specific scouting, ore intel, crew assignments and expedition risk planning |
-| 03 Other Sites | Legacy expedition destinations (temporary prototype rules) |
-| 04 The Crew | Current roster, recruitment, equipment, injuries and negotiated agreements |
-| 05 The Exchange | One resource list with your vault, unit prices and trade actions |
-| 06 The Journal | After-action reports and the cost of each expedition |
+![Harlow Mines GUI QA preview](docs/ui_harlow_preview.png)
 
-Press **1–6** for the associated screen. The main work area scrolls; the detail/decision panel stays beside it.
+**Note:** That preview is automatically rendered from the actual Godot scene during graphical CI. The interface is still intended to evolve through real playtesting; visual automated checks do not prove flawless interaction.
 
-The illustrations are procedural and drawn in Godot; there are no placeholder stock assets or external image dependencies. `scripts/main.gd` is the entirely new presentation layer, with `scripts/ui_art.gd` providing region scenery and mercenary portraits.
+## Controls
 
-## Mechanical systems preserved
+Use the top tab bar or keyboard shortcuts **1–6** for Guild, Harlow, Mercenaries, Trading Post, Other Contracts and Chronicle.
 
-- 350 gold starting capital and six authored hires.
-- Negotiable wage-vs-share contract structures and mercenary experience, wounds, and equipment upgrades.
-- Three legacy regions with risk, specialist bonuses, reputation gates, different drop tables, and varying lengths.
-- Harlow Mines with four-hour test rotations, copper/iron/silver/occasional crystal deposits, scouting, and miner/guard role composition.
-- Real permadeath at Harlow: deceased mercenaries and equipped upgrade tiers are removed; reports include casualties.
-- Cautious / Balanced / Deep Push orders; 1–3 crew; prepaid mission wages and provisions.
-- Offline progress calculated from saved timestamps and recorded exactly once when you reopen.
-- Eight collectible resources (including Copper), evolving NPC prices, merchant spread, and rare expedition-only finds.
-- Three expedition slots at most, unlocked through investment.
-- Auto-saved company file `user://money_mercs_save.json`.
-- In debug builds only, tools to skip 15 minutes and reset the save in two steps from The Journal.
+Actions save automatically to `user://money_mercs_save.json`. Developer builds expose time skipping and a two-step company reset through The Chronicle.
 
-**Prototype economy caveat:** Mercenary commissions are settled in gold against the assessed gross haul, including materials retained in the stash. Gold can be negative until you've sold enough materials to cover commissions. Timers and progression are deliberately compressed for testing.
+## Design and roadmap
 
-## Testing and changes
+The full agreed design is in [docs/GAME_DESIGN_DOCUMENT.md](docs/GAME_DESIGN_DOCUMENT.md).
 
-GitHub Actions verifies script import, scene boot, economy smoke tests and interactive navigation through the legacy screens, plus a dedicated Harlow Mines scouting-and-dispatch integration test. The CI-only UI test also recruits and dispatches a mercenary, simulates a return, and opens market and report views.
+**Long-term goal:** gold remains the principal currency. Physical coin bags and treasury chests, distinctive item modifiers, crafting, realistic simulated company economies and eventually a server-authoritative player trading post are planned but **not implemented in v0.4**.
 
-This remains a **single-player prototype**. Online marketplaces and competition should be server-authoritative before any actual trading between players, and can only follow playtesting the local economy.
+Other Contracts still use the original simplified expedition simulation. Harlow Mines is the testbed for the new mechanics, and exact risk and progression values are placeholders awaiting playtesting.
 
+## Quality gates
 
-## Harlow UI playtest goals
+GitHub Actions validates Godot import, boot, core economic simulation, navigation and interactions, Harlow scouting and dispatch. A separate graphical Xvfb workflow renders `docs/ui_harlow_preview.png` whenever the new UI or artwork changes. Layout should be inspected again at different resolutions and during longer play sessions.
 
-Judge the information hierarchy and decision-making flow, not just the calculations:
+**Supported target:** Desktop, 1440×900 initial window, resizable. The old UI scripts have been retired; the root scene now loads `scripts/ledger_ui.gd`.
 
-- Can you immediately find the scout action and see when its report will return?
-- Once scouted, can you identify the confirmed ore and threat at a glance?
-- Can you compare one miner + two guards against two miners + one guard with clearly separate extraction capacity, mission success, and per-worker casualty risk?
-- Are the cost, standing orders, permanent-loss warning, and dispatch action all apparent?
-- Do injury, death, resources recovered, gold earned and gear lost make sense in the post-expedition journal?
+## Files
 
-**Known limitations:** The appraised casualty risk is an estimate, not a guarantee; the simple current mining resolver favors copper before rarer ore when splitting capacity. Harlow currently uses the existing numeric gold balance; the physical coin stacks and treasury from the v1.2 design remain planned. Real desktop visual review is still required to reach the intended UI quality bar.
+```text
+scenes/main.tscn
+scripts/ledger_ui.gd         Guild Ledger screens + presentation
+scripts/game_state.gd        Current gameplay, economy, persistence
+assets/ui/                   Original SVG illustrations and portraits
+docs/GAME_DESIGN_DOCUMENT.md Living design reference
+docs/ui_harlow_preview.png   Visual regression reference
+tests/                       CI smoke and visual capture
+```

@@ -1,6 +1,6 @@
 # MONEY MERCS — Living Game Design Document
 
-**Version:** 1.2 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
+**Version:** 1.3 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
 **Genre:** 2D, UI-first dark-fantasy mercenary management and economic simulation  
 **Repository:** https://github.com/wiings3/Money-Mercs
 
@@ -321,7 +321,7 @@ The interface should aim for an exceptional, cohesive experience from the first 
 - Loading, empty, busy, unaffordable, locked, expired and error states are deliberately designed; no dead buttons, broken scroll, clipping or layout collisions.
 - Screens are visually inspected at the intended desktop window size and at a smaller supported size. Automated headless tests alone do not prove visual quality.
 
-**IMPLEMENTED v0.2:** A first replacement management interface exists, but its presentation is **not approved as final**. Future UI work should be evaluated against the principles above. We do not have to freeze the current interface to make progress on mechanics.
+**IMPLEMENTED v0.4:** The initial generic dashboard and Harlow v0.3 layout were superseded by the **Guild Ledger** native-Godot interface. It uses full-width horizontal guild navigation, an illustrated Harlow mine dossier, parchment scouting notices, visual personnel cards, a fixed dispatch warrant, and themed Company, Mercenary, Exchange and Chronicle screens. The Harlow screen is rendered and visually checked in a virtual graphical Godot display and its screenshot is stored in `docs/ui_harlow_preview.png`. This is a substantially stronger art-direction baseline—not a claim of final perfection. Keep improving it through real playtests.
 
 ---
 
@@ -361,11 +361,11 @@ The interface should aim for an exceptional, cohesive experience from the first 
 
 ## 14. Current implementation versus intended systems
 
-**Already implemented in v0.3:** Godot management UI and an interactive **Harlow Mines dossier**: rotation-specific copper/iron/silver/occasional crystal deposits, a separate persistent guild scout with three upgrade levels, scout reports that expire on rotation, miner/guard team selection, role-based ore capacity and success forecasts, dangerous encounters, individual injuries/permanent deaths with gear loss, stored expedition reports and offline resolution. The original three static regions still use v0.2's older simple expedition system. Recruitment, itemless equipment tiers, basic contracts, NPC trading, local saves and journal remain in place.
+**Already implemented in v0.4:** Godot management UI and an interactive **Harlow Mines dossier**: rotation-specific copper/iron/silver/occasional crystal deposits, a separate persistent guild scout with three upgrade levels, scout reports that expire on rotation, miner/guard team selection, role-based ore capacity and success forecasts, dangerous encounters, individual injuries/permanent deaths with gear loss, stored expedition reports and offline resolution. The original three static regions still use v0.2's older simple expedition system. Recruitment, itemless equipment tiers, basic contracts, NPC trading, local saves and journal remain in place.
 
 **NOT yet built / still immature:** full-scale multi-region rotation, multi-resource targeting, deeper scout-report ambiguity, polished itemized equipment, physical gold stacks/bags/chests, a limited-capacity treasury, crafting as a true economy, simulated economic competitors, original-style trading, any real player marketplace, and approved finished visual/interaction quality. Harlow's **first** scouting, finite-mining, composition, and casualty implementation is playable but requires rigorous balancing and UX refinement.
 
-**The v0.3 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
+**The v0.4 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
 
 ---
 
