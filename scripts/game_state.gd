@@ -44,6 +44,7 @@ var equipment_inventory: Array[Dictionary] = []
 var next_item_id: int = 1
 var relief_debt: int = 0
 var relief_count: int = 0
+var retired_ids: Array[String] = []
 var harlow: Dictionary = {}
 var gold: int = 350
 var reputation: int = 0
@@ -94,6 +95,8 @@ func load_game() -> void:
 	next_item_id = maxi(1, int(state.get("next_item_id", 1)))
 	relief_debt = maxi(0, int(state.get("relief_debt", 0)))
 	relief_count = maxi(0, int(state.get("relief_count", 0)))
+	for value in state.get("retired_ids", []):
+		retired_ids.append(str(value))
 	for item in state.get("equipment_inventory", []):
 		if typeof(item) == TYPE_DICTIONARY and V05.ITEMS.has(str(item.get("key", ""))):
 			equipment_inventory.append(item)
@@ -113,7 +116,7 @@ func save_game() -> void:
 		"resources": resources, "crew": crew, "missions": missions, "reports": reports,
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt,
-		"relief_count": relief_count
+		"relief_count": relief_count, "retired_ids": retired_ids
 	}
 	file.store_string(JSON.stringify(data, "\t"))
 
@@ -141,13 +144,21 @@ func is_available(merc: Dictionary) -> bool:
 func recruitment_board() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for candidate in RECRUITS:
-		if str(candidate["role"]) != "Scout" and merc_by_id(str(candidate["id"])).is_empty():
+		if str(candidate["role"]) != "Scout" and merc_by_id(str(candidate["id"])).is_empty() and not _is_retired(candidate):
 			result.append(candidate.duplicate(true))
 	var epoch: int = int(Time.get_unix_time_from_system() / 1800.0)
 	for candidate in V05.generate_board(epoch):
-		if merc_by_id(str(candidate["id"])).is_empty():
+		if merc_by_id(str(candidate["id"])).is_empty() and not _is_retired(candidate):
 			result.append(candidate)
 	return result
+
+func _is_retired(candidate: Dictionary) -> bool:
+	if retired_ids.has(str(candidate["id"])):
+		return true
+	for record in harlow.get("fallen", []):
+		if str(record.get("name", "")) == str(candidate["name"]):
+			return true
+	return false
 
 func _available_candidate(id: String) -> Dictionary:
 	for candidate in recruitment_board():
@@ -536,6 +547,8 @@ func guild_relief() -> String:
 		return "The guild issues advances only when you cannot afford a basic expedition."
 	if relief_debt >= 440:
 		return "The guild will not extend more credit until you repay some debt."
+	if wealth() > 250:
+		return "Sell some of your remaining assets before requesting guild support."
 	gold += 90
 	relief_debt += 110
 	relief_count += 1
@@ -587,6 +600,7 @@ func reset_company() -> void:
 	next_item_id = 1
 	relief_debt = 0
 	relief_count = 0
+	retired_ids.clear()
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
 	save_game()
@@ -866,6 +880,7 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 		var risk: float = float(risks.get(id, 0.15))
 		if rng.randf() < risk:
 			casualties.append(str(worker["name"]))
+			retired_ids.append(id)
 			var equipped: Dictionary = worker.get("equipment", {})
 			for slot in ["tool", "armor"]:
 				var item: Dictionary = equipped.get(slot, {})
