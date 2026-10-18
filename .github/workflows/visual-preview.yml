@@ -1,0 +1,34 @@
+name: Visual UI snapshot
+on:
+  push:
+    paths:
+      - "tests/capture_ui.gd"
+      - ".github/workflows/visual-preview.yml"
+      - "scripts/ledger_ui.gd"
+      - "assets/ui/**"
+permissions:
+  contents: write
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.5.1
+          use-dotnet: false
+      - name: Import SVG assets
+        run: godot --headless --path . --editor --quit
+      - name: Render Harlow screenshot with Xvfb
+        run: |
+          set -o pipefail
+          timeout 50s xvfb-run -a -s "-screen 0 1440x900x24" godot --path . --rendering-method gl_compatibility --resolution 1440x900 --script res://tests/capture_ui.gd
+      - name: Store visual QA snapshot
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/ui_harlow_preview.png
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: Harlow visual QA snapshot [skip ci]"
+            git push
+          fi
