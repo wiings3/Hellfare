@@ -1,6 +1,6 @@
 # Money Mercs
 
-> **Design reference:** [Living Game Design Document](docs/GAME_DESIGN_DOCUMENT.md) — the agreed long-term vision, decisions, open questions, and implementation roadmap. This is the reference for upcoming features; the prototype described below is only v0.2.
+> **Design reference:** [Living Game Design Document](docs/GAME_DESIGN_DOCUMENT.md) — the agreed long-term vision, decisions, open questions, and implementation roadmap. This is the reference for upcoming features; the prototype described below is v0.3.
 
 A dark-fantasy mercenary contractor / resource economy management game built with **Godot 4.5.1**.
 
@@ -8,15 +8,15 @@ A dark-fantasy mercenary contractor / resource economy management game built wit
 
 **The visual design is a work in progress.** This release is a usability/playtest baseline—not final art, an approved UI, or a complete Trading Post.
 
-**Design update (GDD v1.1):** Gold is now the intended **primary trading currency and wealth measure**, with physical coin stacks, money bags and limited-capacity treasury chests. Rare items remain exceptionally valuable *in gold*. These storage mechanics are **planned, not yet implemented** in the v0.2 prototype; its existing gold balance is still numeric.
+**Design update (GDD v1.2):** Gold is now the intended **primary trading currency and wealth measure**, with physical coin stacks, money bags and limited-capacity treasury chests. Rare items remain exceptionally valuable *in gold*. These storage mechanics are **planned, not yet implemented** in the v0.3 prototype; its existing gold balance is still numeric.
 
 ## Starting out
 
 1. Clone with [GitHub Desktop](https://desktop.github.com/) or `git clone https://github.com/wiings3/Money-Mercs.git`.
 2. Import `project.godot` in **Godot 4.5.1** and run **F5**.
 3. In **The Office**, open **The Crew** and select **Recruitment Board**.
-4. Hire Garrick (70 gold), then open **Expeditions**.
-5. Open **Harlow Mines**, send your separate invulnerable guild scout (60 seconds at tier 1), read the report, then select a miner and optionally a guard on the roster. Garrick (miner) and Oswin (guard) are affordable for the starting company.
+4. Hire Garrick (70 gold, Miner) and ideally Oswin (185 gold, Guard), then open **Harlow Mines**.
+5. Dispatch your separate invulnerable guild scout (60 seconds at tier 1), read the report, then assign your miner and guard.
 6. Set Cautious, Balanced, or Deep Push orders and dispatch. A successful party extracts a finite number of ore veins; underprepared workers may die and lose their gear. The expedition continues when you close the game. Read the return in **The Journal** and sell loot through **The Exchange**.
 
 ## Navigation
@@ -43,7 +43,7 @@ The illustrations are procedural and drawn in Godot; there are no placeholder st
 - Real permadeath at Harlow: deceased mercenaries and equipped upgrade tiers are removed; reports include casualties.
 - Cautious / Balanced / Deep Push orders; 1–3 crew; prepaid mission wages and provisions.
 - Offline progress calculated from saved timestamps and recorded exactly once when you reopen.
-- Seven collectible resources, evolving NPC prices, merchant spread, and rare expedition-only finds.
+- Eight collectible resources (including Copper), evolving NPC prices, merchant spread, and rare expedition-only finds.
 - Three expedition slots at most, unlocked through investment.
 - Auto-saved company file `user://money_mercs_save.json`.
 - In debug builds only, tools to skip 15 minutes and reset the save in two steps from The Journal.
@@ -52,7 +52,7 @@ The illustrations are procedural and drawn in Godot; there are no placeholder st
 
 ## Testing and changes
 
-GitHub Actions verifies script import, scene boot, economy smoke tests and interactive navigation through all five main screens. The CI-only UI test also recruits and dispatches a mercenary, simulates a return, and opens market and report views.
+GitHub Actions verifies script import, scene boot, economy smoke tests and interactive navigation through the legacy screens, plus a dedicated Harlow Mines scouting-and-dispatch integration test. The CI-only UI test also recruits and dispatches a mercenary, simulates a return, and opens market and report views.
 
 This remains a **single-player prototype**. Online marketplaces and competition should be server-authoritative before any actual trading between players, and can only follow playtesting the local economy.
 
