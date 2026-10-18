@@ -27,10 +27,10 @@ func _tag(label_text: String, color: Color = Color("#d6b47a")) -> Label:
 	return ui._tag(label_text, color)
 
 func _headline(parent: Node, title: String, extra: String, tint: Color) -> void:
-	var headline := ui._h(10)
+	var headline: HBoxContainer = ui._h(10)
 	parent.add_child(headline)
 	headline.add_child(ui._label(title, 15, tint, true))
-	var right := ui._label(extra, 11, FAINT)
+	var right: Label = ui._label(extra, 11, FAINT)
 	right.size_flags_horizontal = Control.SIZE_SHRINK_END
 	headline.add_child(right)
 
@@ -43,20 +43,20 @@ func build() -> void:
 	ui._title("FIELD DOSSIER   /   ACTIVE REGION", "Harlow Mines", "The mountain changes. Your decisions determine who comes home.")
 
 	# Hero illustration and restrained visual hierarchy.
-	var hero := ui._frame(ui.content_root, true, 0)
+	var hero: VBoxContainer = ui._frame(ui.content_root, true, 0)
 	ui._illustration(hero, "ironworks", 167)
 	var inset := MarginContainer.new()
 	inset.add_theme_constant_override("margin_left", 18)
 	inset.add_theme_constant_override("margin_right", 18)
 	inset.add_theme_constant_override("margin_bottom", 16)
 	hero.add_child(inset)
-	var below := ui._v(9)
+	var below: VBoxContainer = ui._v(9)
 	inset.add_child(below)
-	var status := ui._h(12)
+	var status: HBoxContainer = ui._h(12)
 	below.add_child(status)
 	status.add_child(_tag("SURVEY COMPLETE" if has_intel else ("SCOUT IN THE FIELD" if int(state["scout_finish"]) > 0 else "UNSURVEYED"), SUCCESS if has_intel else BRASS))
 	status.add_child(_tag("REGION 01  /  MINING DISTRICT", MUTED))
-	var meta := ui._h(12)
+	var meta: HBoxContainer = ui._h(12)
 	below.add_child(meta)
 	_item_metric(meta, "NEXT ROTATION", _remaining(game.harlow_rotation_remaining()), BRASS)
 	_item_metric(meta, "OPERATIONS RUNNING", "%d" % _harlow_jobs(), CREAM)
@@ -65,7 +65,7 @@ func build() -> void:
 
 	ui._spacer(ui.content_root, 4)
 	# Scouting represents the source of the expedition's knowledge.
-	var report := ui._frame(ui.content_root, false, 19)
+	var report: VBoxContainer = ui._frame(ui.content_root, false, 19)
 	_headline(report, "01  /  SCOUT'S REPORT", "INTELLIGENCE", BRASS)
 	ui._line(report)
 	if has_intel:
@@ -78,18 +78,18 @@ func build() -> void:
 	else:
 		report.add_child(_text("No current intelligence.", 18, CREAM))
 		report.add_child(_text("You may send a crew blindly, but an upgraded scout will reveal valuable deposits and threats before you commit equipment.", 13, MUTED))
-		var scout_button := ui._button("DISPATCH GUILD SCOUT   /   %s" % _remaining(game.harlow_scout_seconds()), _scout, true)
+		var scout_button: Button = ui._button("DISPATCH GUILD SCOUT   /   %s" % _remaining(game.harlow_scout_seconds()), _scout, true)
 		report.add_child(scout_button)
-	var upgrade_row := ui._h(8)
+	var upgrade_row: HBoxContainer = ui._h(8)
 	report.add_child(upgrade_row)
-	var upgrade_info := ui._v(3)
+	var upgrade_info: VBoxContainer = ui._v(3)
 	upgrade_row.add_child(upgrade_info)
 	upgrade_info.add_child(_text("SURVEY TRAINING", 11, FAINT))
 	var tier: int = int(state.get("scout_level", 1))
 	var cost: int = 200 if tier == 1 else 650
 	upgrade_info.add_child(_text("Faster return, more accurate intel" if tier < 3 else "Master scout fully trained", 12, MUTED))
 	if tier < 3:
-		var upgrade := ui._button("TRAIN  •  %s" % ui._money(cost), _upgrade, false, true)
+		var upgrade: Button = ui._button("TRAIN  •  %s" % ui._money(cost), _upgrade, false, true)
 		upgrade.disabled = game.gold < cost or int(state["scout_finish"]) > 0
 		upgrade_row.add_child(upgrade)
 	else:
@@ -97,16 +97,16 @@ func build() -> void:
 
 	ui._spacer(ui.content_root, 5)
 	# Role cards and predictable choices.
-	var crew_box := ui._frame(ui.content_root, false, 18)
+	var crew_box: VBoxContainer = ui._frame(ui.content_root, false, 18)
 	_headline(crew_box, "02  /  DEPLOY YOUR CREW", "UP TO THREE", BRASS)
 	ui._line(crew_box)
-	var choices := ui._h(12)
+	var choices: HBoxContainer = ui._h(12)
 	crew_box.add_child(choices)
-	var guard_summary := ui._frame(choices, false, 12)
+	var guard_summary: VBoxContainer = ui._frame(choices, false, 12)
 	guard_summary.add_child(_text("SHIELD   /   GUARD", 10, MUTED))
 	guard_summary.add_child(_text("Protection", 18, CREAM))
 	guard_summary.add_child(_text("Reduces the chance of fatal encounters.", 12, MUTED))
-	var miner_summary := ui._frame(choices, false, 12)
+	var miner_summary: VBoxContainer = ui._frame(choices, false, 12)
 	miner_summary.add_child(_text("PICKAXE   /   MINER", 10, MUTED))
 	miner_summary.add_child(_text("Extraction", 18, CREAM))
 	miner_summary.add_child(_text("Up to three ore veins per miner.", 12, MUTED))
@@ -124,7 +124,7 @@ func build() -> void:
 	elif _selected_available().is_empty():
 		crew_box.add_child(_text("Select at least one miner to start planning. Guards are strongly recommended.", 12, MUTED))
 	ui._line(crew_box)
-	var status_row := ui._h(7)
+	var status_row: HBoxContainer = ui._h(7)
 	crew_box.add_child(status_row)
 	var selected_stats: Dictionary = game.harlow_crew_stats(_selected_available(), stance)
 	status_row.add_child(_tag("%d MINERS" % int(selected_stats["miners"]), SUCCESS))
@@ -134,7 +134,7 @@ func build() -> void:
 	ui._spacer(ui.content_root, 5)
 	ui._section("IN PROGRESS")
 	if _harlow_jobs() == 0:
-		var empty := ui._frame(ui.content_root)
+		var empty: VBoxContainer = ui._frame(ui.content_root)
 		empty.add_child(_text("No crews underground right now.", 13, MUTED))
 	else:
 		for mission in game.missions:
@@ -145,20 +145,20 @@ func build() -> void:
 	update_clock()
 
 func _item_metric(row: Node, label_text: String, value: String, shade: Color) -> void:
-	var content := ui._v(4)
+	var content: VBoxContainer = ui._v(4)
 	row.add_child(content)
 	content.add_child(ui._label(label_text, 10, FAINT, true))
 	content.add_child(ui._label(value, 18, shade))
 
 func _render_intelligence(parent: Node, state: Dictionary, intel: Dictionary) -> void:
-	var headline := ui._h(12)
+	var headline: HBoxContainer = ui._h(12)
 	parent.add_child(headline)
-	var primary := ui._v(5)
+	var primary: VBoxContainer = ui._v(5)
 	headline.add_child(primary)
 	primary.add_child(_text("KNOWN ORE", 10, FAINT))
 	primary.add_child(_text("At least %d %s veins" % [int(intel.get("minimum", 0)), str(MoneyMercsState.RESOURCE_NAMES.get(str(intel["primary"]), "ore"))], 19, SUCCESS))
 	primary.add_child(_text("Measured this rotation  ·  available deposits decline after extraction", 12, MUTED))
-	var creature := ui._v(5)
+	var creature: VBoxContainer = ui._v(5)
 	headline.add_child(creature)
 	creature.add_child(_text("CONFIRMED THREAT", 10, FAINT))
 	creature.add_child(_text(str(intel.get("creature", "Unknown")), 18, DANGER))
@@ -178,7 +178,7 @@ func _render_intelligence(parent: Node, state: Dictionary, intel: Dictionary) ->
 
 func _worker_entry(parent: Node, merc: Dictionary) -> void:
 	var id: String = str(merc["id"])
-	var row := ui._h(10)
+	var row: HBoxContainer = ui._h(10)
 	parent.add_child(row)
 	var checkbox := CheckBox.new()
 	checkbox.text = "%s   /   %s" % [str(merc["name"]), str(merc["role"])]
@@ -244,7 +244,7 @@ func _render_inspector(state: Dictionary, has_intel: bool, stats: Dictionary) ->
 	ui._inspector_note("GEAR EXPOSED TO LOSS", "%d equipped upgrade tiers" % gear_at_risk)
 	ui._inspector_note("CREW SHARE OF FINDINGS", "%d%%" % int(round(minf(commission, 0.85) * 100.0)))
 	ui._line(ui.inspector_root)
-	var warning := ui._frame(ui.inspector_root)
+	var warning: VBoxContainer = ui._frame(ui.inspector_root)
 	warning.add_child(_text("PERMANENT CASUALTIES", 11, DANGER))
 	warning.add_child(_text("Mercenaries can die. Their experience and equipped gear will be lost permanently.", 12, MUTED))
 	var valid: Array[String] = _selected_available()
@@ -252,7 +252,7 @@ func _render_inspector(state: Dictionary, has_intel: bool, stats: Dictionary) ->
 	for key in (state.get("deposits", {}) as Dictionary):
 		veins += int((state["deposits"] as Dictionary)[key])
 	var can_send: bool = valid.size() >= 1 and valid.size() <= 3 and int(stats["miners"]) >= 1 and veins > 0 and game.gold >= int(stats["wage"]) and game.missions.size() < game.expedition_slots
-	var go := ui._button("FUND EXPEDITION   →", _dispatch, true)
+	var go: Button = ui._button("FUND EXPEDITION   →", _dispatch, true)
 	go.disabled = not can_send
 	ui.inspector_actions.add_child(go)
 	if valid.size() > 3:
