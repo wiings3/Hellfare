@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="460" viewBox="0 0 1600 460">
+<defs>
+<linearGradient id="sky" x2="0.8" y2="1"><stop stop-color="#161922"/><stop offset=".53" stop-color="#49332e"/><stop offset="1" stop-color="#98744a"/></linearGradient>
+<linearGradient id="stone" x2=".3" y2="1"><stop stop-color="#605a58"/><stop offset=".52" stop-color="#33343a"/><stop offset="1" stop-color="#1e252b"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#ffd08a" stop-opacity=".94"/><stop offset=".2" stop-color="#d9813b" stop-opacity=".53"/><stop offset="1" stop-color="#b35d29" stop-opacity="0"/></radialGradient>
+<linearGradient id="shade"><stop stop-color="#10171d" stop-opacity=".98"/><stop offset=".46" stop-color="#111820" stop-opacity=".46"/><stop offset="1" stop-color="#0c1115" stop-opacity=".18"/></linearGradient>
+<pattern id="dust" width="37" height="37" patternUnits="userSpaceOnUse"><path d="M7 14h2 M30 33h2 M22 5h1" stroke="#b7a083" opacity=".16"/><circle cx="14" cy="27" r=".8" fill="#c2ae90" opacity=".25"/></pattern>
+</defs>
+<path fill="url(#sky)" d="M0 0H1600V460H0Z"/>
+<path d="M0 157 92 102 158 143 249 39 351 131 470 55 548 101 643 8 749 126 838 70 910 154 1055 43 1159 141 1297 67 1466 121 1600 24V460H0Z" fill="#413c40"/>
+<path d="M0 239 123 138 238 226 390 102 498 201 652 135 745 223 888 117 975 210 1102 120 1235 188 1355 104 1499 193 1600 146V460H0Z" fill="#2a2d32"/>
+<path d="M0 292 89 260 228 291 349 223 471 297 584 248 746 318 860 267 986 306 1171 224 1386 288 1600 246V460H0Z" fill="url(#stone)"/>
+<path d="M0 363 183 337 286 375 439 336 624 380 798 331 981 377 1171 330 1348 368 1600 321V460H0Z" fill="#171c20"/>
+<path d="M0 410 280 396 443 420 708 383 874 403 1161 380 1367 410 1600 390V460H0Z" fill="#0d1418"/>
+<!-- copper-flecked mine entrance -->
+<path d="M950 379V230Q950 149 1096 133Q1260 152 1260 245V400Z" fill="#22262b" stroke="#76654e" stroke-width="9"/>
+<path d="M997 379V243Q997 193 1097 185Q1206 199 1206 251V397Z" fill="#070e12" stroke="#4a4039" stroke-width="7"/>
+<path d="M945 239 1263 245" stroke="#342b29" stroke-width="27"/>
+<path d="M960 238 1255 246" stroke="#9b6540" stroke-width="4"/>
+<path d="M957 211h302" stroke="#332c2a" stroke-width="16"/>
+<path d="M976 196V420 M1233 198V422" stroke="#44302a" stroke-width="31"/>
+<path d="M981 201V426 M1227 204V427" stroke="#805138" stroke-width="4"/>
+<path d="M1030 201l-52 51 M1180 198l51 56" stroke="#704532" stroke-width="10"/>
+<path d="M988 274h233 M987 353h235" stroke="#5d4134" stroke-width="9" opacity=".7"/>
+<!-- mining rails -->
+<path d="m1010 460 98-177 55 0 120 177" fill="none" stroke="#141718" stroke-width="17"/>
+<path d="m1025 460 91-173 M1262 460l-106-173" stroke="#a77d53" stroke-width="5"/>
+<path d="M1050 418h180 M1078 381h125 M1095 351h94 M1107 324h75" stroke="#654a39" stroke-width="13"/>
+<!-- faint inner cave -->
+<path d="M1058 346 1090 288 1142 288 1169 352" fill="#bd7d3c" opacity=".13"/>
+<circle cx="1101" cy="260" r="108" fill="url(#glow)" opacity=".6"/>
+<!-- hanging lamps -->
+<path d="M970 198v64 M1231 200v74" stroke="#0e1315" stroke-width="6"/>
+<path d="m959 261h22l7 31h-37Z M1220 275h23l7 31h-37Z" fill="#bd8a4b" stroke="#372924" stroke-width="6"/>
+<circle cx="970" cy="283" r="96" fill="url(#glow)"/>
+<circle cx="1231" cy="293" r="94" fill="url(#glow)"/>
+<!-- wooden wagon and ore -->
+<path d="M1343 360 1494 350 1474 418 1373 420Z" fill="#382b2b" stroke="#795539" stroke-width="9"/>
+<path d="M1365 346 1403 312 1430 352 1456 306 1487 344" fill="#ae7446" stroke="#3d3432" stroke-width="7"/>
+<circle cx="1393" cy="436" r="24" fill="#1b1e22" stroke="#74563f" stroke-width="8"/>
+<circle cx="1466" cy="434" r="24" fill="#1b1e22" stroke="#74563f" stroke-width="8"/>
+<!-- hanging chain and mine sign -->
+<path d="M840 98v76 M893 110v64" stroke="#16181c" stroke-width="6" stroke-dasharray="8 7"/>
+<path d="M800 171h135v56H800Z" fill="#49382e" stroke="#ac8453" stroke-width="6"/>
+<path d="M811 184h111M818 214h103" stroke="#c4a174" stroke-width="2" opacity=".65"/>
+<path d="M839 192h55M845 201h45" stroke="#ceb087" stroke-width="4"/>
+<!-- crates and supply -->
+<path d="M651 366h120v82H651Z M753 339h113v111H753Z" fill="#46372d" stroke="#936f4b" stroke-width="7"/>
+<path d="m657 374 107 64 M755 346l110 93" stroke="#896343" stroke-width="6"/>
+<path d="M164 402q84-78 192-38l-7 96H151Z" fill="#211d21" stroke="#615346" stroke-width="7"/>
+<path d="m191 376 13-61 48-7 16 80" fill="#47403b" stroke="#98714e" stroke-width="5"/>
+<!-- rugged foreground -->
+<path d="M0 430 111 389 183 421 285 401 423 439 548 390 728 451 847 413 998 448 1128 405 1339 446 1488 419 1600 446V460H0Z" fill="#171a1c"/>
+<path d="M0 0H1600V460H0Z" fill="url(#dust)"/>
+<path d="M0 0H1600V460H0Z" fill="url(#shade)"/>
+<path d="M0 5H1600 M0 455H1600" stroke="#c59c5f" stroke-width="3" opacity=".7"/>
+</svg>
