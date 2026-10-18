@@ -35,6 +35,9 @@ const MINER := preload("res://assets/ui/portrait_miner.svg")
 const GUARD := preload("res://assets/ui/portrait_guard.svg")
 const SCOUT := preload("res://assets/ui/portrait_scout.svg")
 const WOLF := preload("res://assets/ui/dire_wolf.svg")
+const GOBLINS := preload("res://assets/ui/goblin_prospectors.svg")
+const SPIDER := preload("res://assets/ui/cave_spider.svg")
+const TROLL := preload("res://assets/ui/cave_troll.svg")
 
 var game: MoneyMercsState
 var page: String = "harlow"
@@ -499,7 +502,14 @@ func _draw_harlow() -> void:
 	if has_report:
 		var enemy_name: String = str(report.get("creature", "Unknown creature"))
 		var enemy: Dictionary = game.harlow.get("enemy", {})
-		var preview := _image(WOLF if "Wolf" in enemy_name else CREST, 95)
+		var threat_art: Texture2D = WOLF
+		if "Goblin" in enemy_name:
+			threat_art = GOBLINS
+		elif "Spider" in enemy_name:
+			threat_art = SPIDER
+		elif "Troll" in enemy_name:
+			threat_art = TROLL
+		var preview := _image(threat_art, 116)
 		danger.add_child(preview)
 		var threat_title := _lab(enemy_name, 17, C_IVORY, true)
 		_grow(threat_title)
