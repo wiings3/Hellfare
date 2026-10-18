@@ -392,7 +392,14 @@ func available_guild_workers() -> Array[Dictionary]:
 			result.append(merc)
 	return result
 
+func can_accept_guild_work() -> bool:
+	# These are loss-recovery assignments, not an unlimited safer alternative
+	# to dangerous expeditions or the eventual player economy.
+	return gold < 120 and wealth() < 250
+
 func start_guild_work(worker_id: String = "") -> String:
+	if not can_accept_guild_work():
+		return "Guild relief contracts are reserved for companies below 120 G cash and 250 G total net worth."
 	if missions.size() >= expedition_slots:
 		return "All operation slots are occupied."
 	var worker: Dictionary = {}
