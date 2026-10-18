@@ -151,6 +151,14 @@ func _test() -> void:
 	assert(restored.hire(str(replacement_guard["id"])).contains("joined"))
 	assert(restored.crew.size() == 2)
 	assert(int(restored.merc_by_id("garrick").get("xp", 0)) > saved_xp)
+	# Relief work is a floor for broke companies, never an unlimited gold farm.
+	restored.gold = 120
+	assert(not restored.can_accept_guild_work())
+	assert(restored.start_guild_work("garrick").contains("reserved"))
+	restored.gold = 20
+	restored.resources["relic"] = 1
+	assert(not restored.can_accept_guild_work())
+	restored.resources["relic"] = 0
 	# Recovery is possible even with no mercenaries, gold or remaining credit.
 	restored.reset_company()
 	restored.gold = 0
