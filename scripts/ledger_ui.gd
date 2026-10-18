@@ -484,6 +484,9 @@ func _draw_harlow() -> void:
 		paper.add_child(_lab("AT LEAST %d VEINS" % num, 28, C_INK))
 		paper.add_child(_lab("Confirmed %s deposits" % str(MoneyMercsState.RESOURCE_NAMES.get(ore, ore)), 14, Color("#8b4b2c")))
 		paper.add_child(_lab("SURVEY RELIABILITY: %s" % ("EXACT COUNTS" if bool(report.get("exact", false)) else "PARTIAL INTELLIGENCE"), 11, C_PAPER_DIM))
+		if report.has("threat_note"):
+			paper.add_child(_lab("THREAT INTEL: %s  ·  %s" % [
+				str(report.get("danger_band", "Unknown")), str(report["threat_note"])], 12, C_PAPER_DIM, true))
 		var additional: Dictionary = report.get("all_ore", {})
 		if not additional.is_empty():
 			var findings: Array[String] = []
@@ -592,7 +595,9 @@ func _crew_card(parent: Node, merc: Dictionary) -> void:
 	row.add_child(details)
 	details.add_child(_lab(str(merc["name"]), 20, C_IVORY))
 	details.add_child(_lab(role.to_upper() + "  /  " + str(merc["title"]), 11, C_GOLD, true))
-	details.add_child(_lab("HEALTH %d%%   •   GEAR TIER %d" % [int(merc.get("health",100)),int(merc.get("gear",0))], 11, C_DIM))
+	var worn: Dictionary = merc.get("equipment", {})
+	details.add_child(_lab("HEALTH %d%%   ·   %s" % [
+		int(merc.get("health",100)), _equipment_name(worn.get("tool", {}))], 11, C_DIM, true))
 	var status := _h(8)
 	stack.add_child(status)
 	status.add_child(_chip("ASSIGNED" if active else "AVAILABLE", C_GOLD if active else C_SAFE))
@@ -633,7 +638,8 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 			var designation := _v(2)
 			slot.add_child(designation)
 			designation.add_child(_lab(str(worker["name"]), 15, C_INK))
-			designation.add_child(_lab(str(worker["role"]) + "  •  Tier %d gear" % int(worker.get("gear",0)), 11, C_PAPER_DIM))
+			designation.add_child(_lab("%s · %s" % [
+				str(worker["role"]), _equipment_name((worker.get("equipment", {}) as Dictionary).get("tool", {}))], 11, C_PAPER_DIM))
 		else:
 			var vacant := _lab("○    EMPTY CONTRACTOR SLOT", 12, Color("#9b8c76"))
 			slot.add_child(vacant)
@@ -647,6 +653,10 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 		column.add_child(opt)
 	_rule(column, Color("#ad916c"))
 	var stats: Dictionary = game.harlow_crew_stats(_selected_available(), tactic)
+	var risks: Dictionary = stats.get("death", {})
+	var maximum: float = 0.0
+	for id in risks:
+		maximum = maxf(maximum, float(risks[id]))
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 8)
@@ -655,7 +665,15 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 	_mini_stat(grid, "ORE CAPACITY", "%d veins" % int(stats["capacity"]), Color("#85512e"))
 	_mini_stat(grid, "UPFRONT WAGES", _money(int(stats["wage"])), C_INK)
 	_mini_stat(grid, "OBJECTIVE SUCCESS", "%d%%" % int(round(float(stats["success"])*100.0)) if has_report else "Unscouted", Color("#3e7958") if has_report else C_CRIMSON)
-	_mini_stat(grid, "DEATH RISK / WORKER", "%d%%" % int(round(float(stats["death"])*100.0)) if has_report else "Unknown", C_CRIMSON)
+	_mini_stat(grid, "HIGHEST PERSONAL RISK", "%d%%" % int(round(maximum*100.0)) if has_report else "Unknown", C_CRIMSON)
+	_mini_stat(grid, "GEAR EXPOSED TO LOSS", _money(int(stats["gear_value"])), C_INK)
+	_mini_stat(grid, "MISSION LENGTH", _duration(int(stats["duration"])), C_INK)
+	if has_report and not risks.is_empty():
+		for id in risks:
+			var member: Dictionary = game.merc_by_id(str(id))
+			if not member.is_empty():
+				column.add_child(_lab("%s: %d%% fatality estimate" % [
+					str(member["name"]), int(round(float(risks[id])*100.0))], 12, C_PAPER_DIM))
 	_rule(column, Color("#ad916c"))
 	var caution := _lab("PERMADEATH   /   Dead mercenaries and equipped gear are lost forever.", 12, Color("#a44039"), true)
 	_grow(caution)
@@ -755,6 +773,12 @@ func _draw_office() -> void:
 	var expand := _panel(body)
 	expand.add_child(_lab("EXPANSION / FIELD TEAM CAPACITY", 15, C_GOLD))
 	expand.add_child(_lab("%d of 3 expedition slots available. Expansion costs increase as your guild grows." % game.expedition_slots, 12, C_DIM, true))
+	if game.relief_debt > 0:
+		expand.add_child(_lab("Guild recovery debt: %s. Trade proceeds above a protected 120 gold repay it." % _money(game.relief_debt), 12, C_COPPER, true))
+	if game.crew.is_empty() and game.missions.is_empty() and game.gold < 60:
+		expand.add_child(_button("REQUEST EMERGENCY GUILD ADVANCE  /  90 G", func() -> void:
+			_action(game.guild_relief())
+		, true))
 	if game.expedition_slots < 3:
 		expand.add_child(_button("PURCHASE SLOT   •   %s" % _money(900 if game.expedition_slots == 1 else 4200), func() -> void:
 			_action(game.expand_operations())
@@ -1053,6 +1077,20 @@ func _draw_journal() -> void:
 			p.add_child(_lab("FALLEN CONTRACTORS: "+", ".join(casualties),14,C_CRIMSON))
 		if not injured.is_empty():
 			p.add_child(_lab("WOUNDED: "+", ".join(injured),13,C_COPPER))
+		if bool(report.get("partial", false)):
+			p.add_child(_chip("PARTIAL HAUL / RETREAT", C_COPPER))
+		var lost: Array = report.get("lost_items", [])
+		if not lost.is_empty():
+			p.add_child(_lab("LOST EQUIPMENT: " + ", ".join(lost), 13, C_CRIMSON, true))
+		var found_items: Array = report.get("found_items", [])
+		if not found_items.is_empty():
+			p.add_child(_lab("EQUIPMENT DISCOVERED: " + ", ".join(found_items), 14, C_GOLD, true))
+		var story: Array = report.get("events", [])
+		if not story.is_empty():
+			var narrative := _panel(p, true, 14)
+			narrative.add_child(_lab("AFTER-ACTION ACCOUNT", 13, C_INK))
+			for entry in story:
+				narrative.add_child(_lab("•  " + str(entry), 12, C_PAPER_DIM, true))
 		p.add_child(_lab("Net appraisal includes unsold resources; it is not equivalent to gold available for wages.", 11, C_DIM, true))
 	if OS.is_debug_build():
 		_section(body, "II", "DEV TESTING")
