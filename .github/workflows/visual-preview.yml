@@ -27,7 +27,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/ui_harlow_preview.png
+          git add docs/ui_*_preview.png
           if ! git diff --cached --quiet; then
             git commit -m "docs: Harlow visual QA snapshot [skip ci]"
             git push
