@@ -26,3 +26,10 @@ jobs:
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/harlow_test.log; then
             exit 1
           fi
+
+      - name: V0.5 regression (gear, permadeath, recruitment, migration)
+        run: |
+          set -o pipefail
+          timeout 45s godot --headless --path . --script res://tests/v05_smoke_test.gd 2>&1 | tee /tmp/v05.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/v05.log; then exit 1; fi
+          grep -F 'V0.5 equipment, permadeath, partial mining, debt, and migration tests passed.' /tmp/v05.log
