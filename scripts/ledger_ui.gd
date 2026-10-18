@@ -877,6 +877,7 @@ func _equipment_name(item: Dictionary) -> String:
 func _outfit(id: String) -> void:
 	selected_merc = id
 	roster_tab = "armory"
+	page = "roster"
 	_refresh()
 
 func _draw_armory(body: VBoxContainer) -> void:
