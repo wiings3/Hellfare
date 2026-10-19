@@ -23,7 +23,7 @@ The redesigned Overview, Harlow scouting/dispatch dossier, Mercenary recruitment
 
 Main scene: `scripts/guildhall_ui.gd` (the old `ledger_ui.gd` remains the compatibility base). Art: `assets/ui/guildhall_desk.svg`, `skin_parchment.svg`, `skin_wood.svg`, `skin_burgundy.svg`, `skin_wax_seal.svg`, `harlow_ink_sketch.svg`. The UI is scalable from a 1600×900 design canvas.
 
-**Actual in-game screenshots:** [Overview](docs/ui_office_preview.png) · [Harlow](docs/ui_harlow_preview.png) · [Mercenaries](docs/ui_mercenaries_preview.png) · [Armory](docs/ui_armory_preview.png) · [Trading Post](docs/ui_trading_preview.png).
+**Actual in-game screenshots:** [Overview](docs/ui_office_preview.jpg) · [Harlow](docs/ui_harlow_preview.jpg) · [Mercenaries](docs/ui_mercenaries_preview.jpg) · [Armory](docs/ui_armory_preview.jpg) · [Trading Post](docs/ui_trading_preview.jpg).
 
 ## What's fixed in 0.5.1
 
@@ -76,7 +76,7 @@ An automated regression test now forces the starter guard to die, reduces compan
 
 ## Guild Ledger interface
 
-**V0.4's visual design remains in place**, with gameplay-driven screens added to the Mercenary and Chronicle pages. See the latest [Harlow screenshot](docs/ui_harlow_preview.png), [Armory screenshot](docs/ui_armory_preview.png), and [Journal screenshot](docs/ui_journal_preview.png). These are rendered by Godot, not mockups.
+**V0.4's visual design remains in place**, with gameplay-driven screens added to the Mercenary and Chronicle pages. See the latest [Harlow screenshot](docs/ui_harlow_preview.jpg), [Armory screenshot](docs/ui_armory_preview.jpg), and [Journal screenshot](docs/ui_journal_preview.jpg). These are rendered by Godot, not mockups.
 
 ## Controls
 
