@@ -77,7 +77,7 @@ func _build_shell() -> void:
 	_picture(stage, DISPATCH, 15, 166, 306, 572)
 	navigation = _region(stage, 30, 248, 279, 476)
 	_picture(stage, BOARD, 323, 165, 886, 568)
-	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 553, 234, 421, 26, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	board_heading = _print(stage, "CONTRACTS", 544, 234, 205, 26, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	central_area = _region(stage, 350, 262, 825, 445)
 	content_host = central_area
 	_picture(stage, DISPATCH, 1200, 168, 380, 566)
@@ -197,10 +197,10 @@ func _refresh() -> void:
 	net_total.text = _money(game.wealth())
 	field_total.text = "%d / %d" % [game.missions.size(), game.expedition_slots]
 	var headings: Dictionary = {
-		"hq": "CONTRACTS & OPPORTUNITIES", "harlow": "HARLOW MINES  ·  FIELD DOSSIER",
-		"roster": "PERSONNEL & QUARTERMASTER", "guildwork": "GUILD WORK ORDERS",
-		"market": "THE TRADING POST", "finance": "COMPANY LEDGER",
-		"ledger": "THE COMPANY CHRONICLE", "expeditions": "REGIONAL CONTRACTS"
+		"hq": "CONTRACTS", "harlow": "HARLOW MINES",
+		"roster": "MERCENARIES", "guildwork": "GUILD WORK",
+		"market": "TRADING POST", "finance": "LEDGER",
+		"ledger": "CHRONICLE", "expeditions": "REGIONS"
 	}
 	board_heading.text = str(headings.get(page, "GUILD RECORDS"))
 	details_heading.text = "DISPATCH PLAN" if page in ["hq", "harlow"] else "GUILDMASTER'S NOTES"
