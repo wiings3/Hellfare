@@ -5,6 +5,8 @@ on:
       - "tests/capture_ui.gd"
       - ".github/workflows/visual-preview.yml"
       - "scripts/ledger_ui.gd"
+      - "scripts/guildhall_ui.gd"
+      - "scenes/main.tscn"
       - "assets/ui/**"
 permissions:
   contents: write
