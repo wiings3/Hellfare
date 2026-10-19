@@ -77,11 +77,11 @@ func _build_shell() -> void:
 	_picture(stage, DISPATCH, 15, 166, 306, 572)
 	navigation = _region(stage, 30, 248, 279, 476)
 	_picture(stage, BOARD, 323, 165, 886, 568)
-	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 361, 194, 802, 35, 21, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 553, 234, 421, 26, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	central_area = _region(stage, 350, 262, 825, 445)
 	content_host = central_area
 	_picture(stage, DISPATCH, 1200, 168, 380, 566)
-	details_heading = _print(stage, "CONTRACT DETAILS", 1245, 223, 288, 33, 20, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	details_heading = _print(stage, "CONTRACT DETAILS", 1272, 238, 232, 27, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	dispatch_area = _region(stage, 1244, 258, 294, 455)
 	# Loose desk notes and the wax-sealed guild status note.
 	notes_area = _region(stage, 345, 737, 1214, 151)
@@ -279,7 +279,6 @@ func _draw_status() -> void:
 func _overview() -> void:
 	_contract_tabs()
 	# Central dossier: Harlow drawn in sepia ink, paper rather than a combat HUD.
-	_print(central_area, "HARLOW MINES", 398, 14, 355, 40, 27, INK)
 	var known: Dictionary = game.harlow.get("report", {})
 	var state: String = "UNSURVEYED" if known.is_empty() else "SCOUTED THIS ROTATION"
 	_print(central_area, "REGION 01  ·  %s" % state, 398, 53, 365, 20, 13, INK_SOFT)
