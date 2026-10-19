@@ -18,7 +18,11 @@ jobs:
       - name: Test core gameplay
         run: godot --headless --path . --script res://tests/smoke_test.gd
       - name: Exercise UI screens and actions
-        run: godot --headless --path . --script res://tests/ui_smoke_test.gd
+        run: |
+          set -o pipefail
+          timeout 50s godot --headless --path . --script res://tests/ui_smoke_test.gd 2>&1 | tee /tmp/ui_smoke.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/ui_smoke.log; then exit 1; fi
+          grep -F 'Guild Ledger UI navigation, guild work recovery, and legacy operations passed.' /tmp/ui_smoke.log
       - name: Exercise Harlow scouting and dispatch
         run: |
           set -o pipefail
