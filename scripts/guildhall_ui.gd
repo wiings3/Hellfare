@@ -75,7 +75,6 @@ func _build_shell() -> void:
 	# Artwork occupies the physical framework; real controls occupy its
 	# readable interior. No procedural drawing is used for the art.
 	_picture(stage, DISPATCH, 15, 166, 306, 572)
-	_print(stage, "GUILD RECORDS", 49, 211, 241, 28, 18, INK)
 	navigation = _region(stage, 30, 248, 279, 476)
 	_picture(stage, BOARD, 323, 165, 886, 568)
 	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 360, 218, 806, 38, 24, INK, HORIZONTAL_ALIGNMENT_CENTER)
@@ -157,8 +156,9 @@ func _touch(parent: Node, label: String, x: float, y: float, w: float, h: float,
 		font_size: int = 17, active: bool = true) -> Button:
 	_skin(parent, style, x, y, w, h)
 	var button := Button.new()
-	button.position = Vector2(x + 6, y + 6)
-	button.size = Vector2(w - 12, h - 12)
+	# The medallion occupies the left quarter of the painted button.
+	button.position = Vector2(x + w * 0.205, y + 6)
+	button.size = Vector2(w * 0.77, h - 12)
 	button.text = label
 	button.add_theme_font_override("font", guild_book_font)
 	button.add_theme_font_size_override("font_size", font_size)
@@ -203,7 +203,7 @@ func _refresh() -> void:
 		"ledger": "THE COMPANY CHRONICLE", "expeditions": "REGIONAL CONTRACTS"
 	}
 	board_heading.text = str(headings.get(page, "GUILD RECORDS"))
-	details_heading.text = "CONTRACT DETAILS" if page in ["hq", "harlow"] else "GUILDMASTER'S NOTES"
+	details_heading.text = "DISPATCH PLAN" if page in ["hq", "harlow"] else "GUILDMASTER'S NOTES"
 	_clear(navigation)
 	_clear(central_area)
 	_clear(dispatch_area)
@@ -279,13 +279,12 @@ func _draw_status() -> void:
 func _overview() -> void:
 	_contract_tabs()
 	# Central dossier: Harlow drawn in sepia ink, paper rather than a combat HUD.
-	_print(central_area, "⚒", 343, 4, 50, 44, 39, INK)
-	_print(central_area, "HARLOW MINES", 395, 1, 396, 47, 32, INK)
+	_print(central_area, "HARLOW MINES", 398, 14, 355, 40, 27, INK)
 	var known: Dictionary = game.harlow.get("report", {})
 	var state: String = "UNSURVEYED" if known.is_empty() else "SCOUTED THIS ROTATION"
-	_print(central_area, "REGION 01  ·  %s" % state, 395, 46, 376, 22, 15, INK_SOFT)
-	_picture(central_area, SEAL, 747, 3, 72, 72)
-	_picture(central_area, MINE_INK, 343, 79, 474, 191)
+	_print(central_area, "REGION 01  ·  %s" % state, 398, 53, 365, 20, 13, INK_SOFT)
+	_picture(central_area, SEAL, 756, 8, 50, 50)
+	_picture(central_area, MINE_INK, 343, 79, 470, 183)
 	_print(central_area, "An old mine, opened up again. Reports of rich ore veins,", 347, 270, 469, 27, 17, INK)
 	_print(central_area, "unstable tunnels, and dangerous creatures in the dark.", 347, 294, 469, 27, 17, INK)
 	_print(central_area, "A profitable opportunity for a carefully equipped crew.", 347, 318, 469, 27, 17, INK)
@@ -333,13 +332,11 @@ func _ruling(parent: Node, x: float, y: float, w: float) -> void:
 	parent.add_child(line)
 
 func _draw_warrant(detailed: bool) -> void:
-	_print(dispatch_area, "✦", 5, 6, 43, 41, 33, INK)
-	_print(dispatch_area, "Dispatch Plan", 48, 6, 266, 36, 25, INK)
-	_print(dispatch_area, "Compare potential yield against risk", 13, 44, 295, 27, 16, INK, HORIZONTAL_ALIGNMENT_LEFT)
-	_print(dispatch_area, "before sending anyone into danger.", 13, 69, 295, 24, 16, INK)
-	_print(dispatch_area, "HOW HARD SHOULD THE CREW PUSH?", 14, 105, 285, 27, 17, INK)
+	_print(dispatch_area, "Compare yield against risk before", 20, 17, 274, 27, 16, INK)
+	_print(dispatch_area, "sending anyone into danger.", 20, 40, 274, 24, 16, INK)
+	_print(dispatch_area, "STANDING ORDERS", 20, 80, 277, 25, 17, INK)
 	var dropdown := OptionButton.new()
-	dropdown.position = Vector2(14, 137)
+	dropdown.position = Vector2(17, 110)
 	dropdown.size = Vector2(285, 39)
 	for option in MoneyMercsState.TACTICS:
 		dropdown.add_item(str(option))
@@ -359,36 +356,36 @@ func _draw_warrant(detailed: bool) -> void:
 		_set_tactic(str(MoneyMercsState.TACTICS[idx]))
 	)
 	dispatch_area.add_child(dropdown)
-	_ruling(dispatch_area, 15, 188, 284)
-	_print(dispatch_area, "EXPECTED OUTCOME", 15, 200, 275, 24, 17, INK_SOFT)
+	_ruling(dispatch_area, 15, 163, 284)
+	_print(dispatch_area, "EXPECTED OUTCOME", 17, 171, 275, 24, 17, INK_SOFT)
 	var report: Dictionary = game.harlow.get("report", {})
 	var miners: Array[String] = _selected_available()
 	var stats: Dictionary = game.harlow_crew_stats(miners, tactic)
 	var has_intel: bool = not report.is_empty()
 	var outcome: String = ("Survey first for reliable odds" if not has_intel else "%d%% objective success" % int(round(float(stats["success"]) * 100.0)))
-	_print(dispatch_area, outcome, 17, 228, 278, 35, 21, WINE if not has_intel else FOREST)
+	_print(dispatch_area, outcome, 18, 200, 278, 35, 21, WINE if not has_intel else FOREST)
 	if detailed:
 		var fatal: float = 0.0
 		for odds in (stats.get("death", {}) as Dictionary).values():
 			fatal = maxf(fatal, float(odds))
-		_print(dispatch_area, "Worst individual fatality risk: %d%%" % int(round(fatal*100.0)) if has_intel else "Threats are currently unconfirmed.", 15, 268, 287, 38, 15, INK, HORIZONTAL_ALIGNMENT_LEFT, true)
+		_print(dispatch_area, "Worst individual fatality risk: %d%%" % int(round(fatal*100.0)) if has_intel else "Threats are currently unconfirmed.", 18, 237, 278, 38, 15, INK, HORIZONTAL_ALIGNMENT_LEFT, true)
 	else:
-		_print(dispatch_area, "Assign miners and guards to inspect", 15, 269, 287, 36, 16, INK)
-		_print(dispatch_area, "capacity, risk, and expected costs.", 15, 301, 287, 31, 16, INK)
-	_ruling(dispatch_area, 15, 342, 284)
-	_print(dispatch_area, "MAXIMUM ORE VEINS", 15, 348, 280, 24, 15, INK_SOFT)
-	_print(dispatch_area, "⚒  %d     /     %s" % [int(stats["capacity"]), _money(int(stats["wage"]))], 16, 374, 283, 27, 19, INK)
+		_print(dispatch_area, "Assign miners and guards to inspect", 18, 237, 278, 36, 16, INK)
+		_print(dispatch_area, "capacity, risk, and expected costs.", 18, 267, 278, 31, 16, INK)
+	_ruling(dispatch_area, 15, 306, 284)
+	_print(dispatch_area, "MINING CAPACITY / DISPATCH COST", 18, 316, 279, 24, 15, INK_SOFT)
+	_print(dispatch_area, "⚒  %d     /     %s" % [int(stats["capacity"]), _money(int(stats["wage"]))], 18, 343, 276, 27, 19, INK)
 	var deposits_remaining: int = 0
 	for ore in (game.harlow.get("deposits", {}) as Dictionary).values():
 		deposits_remaining += int(ore)
 	var available: bool = (stats["miners"] > 0 and miners.size() <= 3 and game.gold >= int(stats["wage"]) and deposits_remaining > 0 and game.missions.size() < game.expedition_slots)
-	var go := _touch(dispatch_area, "FUND EXPEDITION   →", 15, 412, 286, 43, _dispatch_harlow, "wood", GOLD_LETTER, 20, available)
+	var go := _touch(dispatch_area, "FUND EXPEDITION", 15, 385, 286, 45, _dispatch_harlow, "wood", GOLD_LETTER, 18, available)
 	go.add_theme_color_override("font_color", Color("#cce6c2"))
-	_print(dispatch_area, "Requires a miner. Casualties are permanent.", 15, 458, 290, 18, 13, WINE)
+	_print(dispatch_area, "Requires a miner. Death is permanent.", 18, 432, 279, 20, 13, WINE)
 
 func _harlow_dossier() -> void:
 	# The board switches to a real guild scouting sheet and a 3-person manifest.
-	_print(central_area, "FIELD DOSSIER     /     HARLOW MINES", 8, 0, 812, 44, 28, INK)
+	_print(central_area, "SCOUT THE SHAFTS, THEN ASSEMBLE THE CREW.", 11, 11, 785, 31, 17, INK_SOFT)
 	var report: Dictionary = game.harlow.get("report", {})
 	_ruling(central_area, 9, 47, 801)
 	_picture(central_area, MINE_INK, 6, 57, 391, 160)
@@ -436,7 +433,7 @@ func _harlow_dossier() -> void:
 	_draw_warrant(true)
 
 func _guild_jobs() -> void:
-	_legacy_board_title("GUILD WORK ORDERS", "Safe wages for struggling companies.")
+	_print(central_area, "Guaranteed wages for struggling companies.", 15, 9, 785, 32, 18, INK_SOFT)
 	var y: float = 92
 	_print(central_area, "When you've lost a crew, you still have a company to run.", 18, y, 771, 31, 19, INK)
 	_print(central_area, "Work continues in the guildhall without risking anyone's life.", 18, y+33, 774, 26, 17, INK_SOFT)
@@ -452,7 +449,7 @@ func _guild_jobs() -> void:
 	_touch(dispatch_area, "RETURN TO CONTRACTS →", 12, 404, 294, 48, _nav_to.bind("harlow"), "red", CREAM, 17)
 
 func _financial_ledger() -> void:
-	_legacy_board_title("COMPANY LEDGER", "Every coin earned and every expense recorded.")
+	_print(central_area, "Every coin earned and every expense recorded.", 15, 9, 785, 32, 18, INK_SOFT)
 	var cells := [
 		["GOLD ON HAND", _money(game.gold)],
 		["COMPANY NET WORTH", _money(game.wealth())],
@@ -530,14 +527,13 @@ func _record(list: Node, height: int = 85) -> Control:
 	return rect
 
 func _parchment_roster() -> void:
-	_print(central_area,"THE MERCENARY ROLLS",11,0,799,40,29,INK)
 	var tabs: Array = [["employed","UNDER CONTRACT"],["recruits","RECRUITMENT"],["armory","THE ARMORY"]]
 	for i in range(tabs.size()):
 		var info: Array = tabs[i]
-		_touch(central_area,str(info[1]), 11+i*268,43,257,40,
+		_touch(central_area,str(info[1]), 11+i*268,14,257,42,
 			_set_roster_tab.bind(str(info[0])),
 			"red" if roster_tab == str(info[0]) else "wood",CREAM,16)
-	var list: VBoxContainer = _paper_scroll(93)
+	var list: VBoxContainer = _paper_scroll(68)
 	if roster_tab == "armory":
 		_parchment_armory(list)
 	elif roster_tab == "recruits":
@@ -602,9 +598,8 @@ func _parchment_armory(list: VBoxContainer) -> void:
 			_buy_equipment.bind(str(key)),"wood",GOLD_LETTER,16,game.gold>=int(definition["cost"]))
 
 func _parchment_market() -> void:
-	_print(central_area,"THE TRADING POST",14,0,780,40,29,INK)
-	_print(central_area,"Buy and sell commodities in gold. Trading with players is coming later.",13,38,785,31,17,INK_SOFT)
-	var list: VBoxContainer = _paper_scroll(79)
+	_print(central_area,"Buy and sell commodities in gold. Player trading comes later.",13,8,785,31,17,INK_SOFT)
+	var list: VBoxContainer = _paper_scroll(51)
 	for item_id in MoneyMercsState.RESOURCE_ORDER:
 		var id: String = str(item_id)
 		var quantity: int = int(game.resources.get(id,0))
@@ -619,9 +614,8 @@ func _parchment_market() -> void:
 		_touch(record,"BUY",700,16,86,48,_trade.bind(id,true,1),"wood",GOLD_LETTER,16,game.gold>=game.buy_price(id))
 
 func _parchment_sites() -> void:
-	_print(central_area,"OTHER REGIONAL CONTRACTS",11,0,800,42,27,INK)
-	_print(central_area,"These older sites still use the original expedition system.",13,40,780,26,17,INK_SOFT)
-	var list: VBoxContainer = _paper_scroll(81)
+	_print(central_area,"These older sites still use the original expedition system.",13,8,780,26,17,INK_SOFT)
+	var list: VBoxContainer = _paper_scroll(51)
 	for region in MoneyMercsState.REGIONS:
 		var contract: Control = _record(list,113)
 		_print(contract,str(region["name"]),19,6,670,35,24,INK)
@@ -632,9 +626,8 @@ func _parchment_sites() -> void:
 			game.free_crew()>0 and game.reputation >= int(region["rep"]) and game.missions.size()<game.expedition_slots)
 
 func _parchment_chronicle() -> void:
-	_print(central_area,"THE COMPANY CHRONICLE",12,0,791,40,29,INK)
-	_print(central_area,"Every earned coin and lost mercenary has a story.",12,41,781,28,17,INK_SOFT)
-	var list: VBoxContainer = _paper_scroll(85)
+	_print(central_area,"Every earned coin and lost mercenary has a story.",12,8,781,28,17,INK_SOFT)
+	var list: VBoxContainer = _paper_scroll(51)
 	if game.reports.is_empty():
 		var blank: Control = _record(list,85)
 		_print(blank,"No expeditions have returned yet.",18,18,735,42,21,INK)
@@ -649,10 +642,9 @@ func _parchment_chronicle() -> void:
 		_print(report_block,"Losses: %s" % (", ".join(dead) if not dead.is_empty() else "None"),17,91,731,28,16,WINE if not dead.is_empty() else INK_SOFT)
 
 func _simple_right(heading: String, lines: Array) -> void:
-	_print(dispatch_area,heading,17,18,286,43,25,INK)
-	_ruling(dispatch_area,18,73,281)
+	_ruling(dispatch_area,18,26,281)
 	for i in range(lines.size()):
-		_print(dispatch_area,str(lines[i]),19,92+i*38,283,35,17,INK,HORIZONTAL_ALIGNMENT_LEFT,true)
+		_print(dispatch_area,str(lines[i]),19,52+i*37,283,35,17,INK,HORIZONTAL_ALIGNMENT_LEFT,true)
 
 func _draw_note_cards() -> void:
 	# These are actual links, not painted mockup buttons.
