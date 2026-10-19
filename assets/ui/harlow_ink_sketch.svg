@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="365" viewBox="0 0 780 365">
+<rect width="780" height="365" fill="#e9d3ab" opacity=".02"/>
+<g fill="none" stroke="#5b4a37" stroke-linecap="round" stroke-linejoin="round">
+<path d="M18 301 71 255 125 278 165 238 223 270 293 214 327 241 379 183 441 237 517 207 569 242 655 201 747 257" stroke-width="13" opacity=".55"/>
+<path d="M0 321 150 302 211 312 355 288 468 311 570 286 780 316" stroke-width="10"/>
+<path d="M132 286 193 87 417 91 479 304" stroke-width="11"/>
+<path d="M170 292 209 108 400 111 442 291" stroke-width="19"/>
+<path d="M192 303 220 135 394 135 416 300" stroke-width="6"/>
+<path d="M209 112Q308 39 400 112" stroke-width="28"/>
+<path d="M225 123Q307 67 389 123" stroke-width="6"/>
+<path d="M240 285 260 158Q311 128 362 158L382 293" stroke-width="5"/>
+<path d="M260 294v-122q51-50 102-1v119" stroke-width="5" fill="#85755d" fill-opacity=".44"/>
+<path d="M292 311V208Q315 181 342 208v103" fill="#403b30" stroke-width="5"/>
+<path d="M175 155h266M157 215h304M140 272h334" stroke-width="10"/>
+<path d="M181 155 211 208 172 269M437 156l-22 50 37 69" stroke-width="8"/>
+<path d="M305 315 324 233M374 316 345 233M266 327l28-35M409 328l-38-35" stroke-width="5"/>
+<path d="m225 350 82-52h64l95 52M270 354l51-56M420 353l-61-55" stroke-width="7"/>
+<path d="M237 334h210 M252 321h170M277 308h129" stroke-width="6"/>
+<!-- ore and rocks -->
+<path d="m20 314 49-51 50 11 23 54-72 13Zm445 13 42-48 61 12 30 50-67 8Zm107 12 29-58 42-10 34 47-18 30Z" fill="#897a61" fill-opacity=".42" stroke-width="5"/>
+<path d="m70 267 6 49m30-27-35 35m420-12 44 9m69-29 39 32" stroke-width="4"/>
+<!-- wooden mining wagon -->
+<path d="m514 286 141-14-16 59-105 2Z" fill="#766249" fill-opacity=".3" stroke-width="7"/>
+<circle cx="545" cy="333" r="12" stroke-width="5"/><circle cx="622" cy="332" r="12" stroke-width="5"/>
+<path d="M505 270l64-20 36 20 38-32 34 25" stroke-width="5"/>
+<!-- scattered weeds -->
+<path d="m20 344 7-45 23 32 4-40 19 53m652-2 7-34 15 19 9-31 18 46" stroke-width="4"/>
+<!-- mine lamps -->
+<path d="M180 134v52m255-52v52" stroke-width="5"/>
+<path d="m168 186h23l6 25h-34Zm254 0h23l6 25h-34Z" fill="#7d6b50" stroke-width="5"/>
+<path d="M274 207h61" stroke-width="7" opacity=".45"/>
+<!-- distant mountains -->
+<path d="m483 193 40-86 39 50 47-80 71 104 39-39 49 60" stroke-width="6" opacity=".48"/>
+</g>
+<g stroke="#514330" stroke-width="2" opacity=".36"><path d="M26 306 90 274M50 324l72-34M470 340l94-48M570 322l64-31M658 333l74-68M493 188l23-46M592 169l24-44"/></g>
+</svg>
