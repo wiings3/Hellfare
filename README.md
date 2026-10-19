@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.5.1 — Recovery & Early-Game Balance**
+**Version 0.6 — Guildmaster's Desk UI**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,16 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## V0.6 — Guildmaster's Desk UI
+
+Money Mercs now launches into a **functional rustic guildhall interface**, not the old flat admin dashboard. Original art assets depict a timber-and-stone guildhall, carved signage, treasury plaques, wax seals, parchment contracts, a sketched mine and the guildmaster's desk.
+
+The redesigned Overview, Harlow scouting/dispatch dossier, Mercenary recruitment/armory, Trading Post, regional contracts, safe Guild Work, finances and Chronicle are interactive **native Godot controls** wired to live data and existing game saves. V0.5.1 mechanics, permanent casualties, injuries, item ownership, offline missions and recovery work remain unchanged.
+
+Main scene: `scripts/guildhall_ui.gd` (the old `ledger_ui.gd` remains the compatibility base). Art: `assets/ui/guildhall_desk.svg`, `skin_parchment.svg`, `skin_wood.svg`, `skin_burgundy.svg`, `skin_wax_seal.svg`, `harlow_ink_sketch.svg`. The UI is scalable from a 1600×900 design canvas.
+
+**Actual in-game screenshots:** [Overview](docs/ui_office_preview.png) · [Harlow](docs/ui_harlow_preview.png) · [Mercenaries](docs/ui_mercenaries_preview.png) · [Armory](docs/ui_armory_preview.png) · [Trading Post](docs/ui_trading_preview.png).
 
 ## What's fixed in 0.5.1
 
