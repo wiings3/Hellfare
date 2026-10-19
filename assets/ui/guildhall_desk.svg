@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+<defs>
+<linearGradient id="room" x2="0" y2="1"><stop stop-color="#211713"/><stop offset=".58" stop-color="#4b3325"/><stop offset="1" stop-color="#21150f"/></linearGradient>
+<linearGradient id="desk" x2="0" y2="1"><stop stop-color="#674126"/><stop offset=".42" stop-color="#352215"/><stop offset="1" stop-color="#1c110d"/></linearGradient>
+<linearGradient id="beam" x2="1" y2="0"><stop stop-color="#25140d"/><stop offset=".32" stop-color="#6f4224"/><stop offset=".58" stop-color="#4a2a17"/><stop offset="1" stop-color="#1b100a"/></linearGradient>
+<radialGradient id="light"><stop stop-color="#ffd58a" stop-opacity=".8"/><stop offset=".13" stop-color="#db8937" stop-opacity=".34"/><stop offset="1" stop-color="#e6a340" stop-opacity="0"/></radialGradient>
+<pattern id="wood" patternUnits="userSpaceOnUse" width="200" height="45"><path d="M0 11q30-5 77-2t123-4M0 21q50 7 89 3t111 5M0 37q100-8 200 0" fill="none" stroke="#9b6030" stroke-width="1.5" opacity=".22"/><path d="M21 0v45 M165 0v45" stroke="#190f0b" stroke-width="1" opacity=".14"/></pattern>
+<pattern id="floor" patternUnits="userSpaceOnUse" width="180" height="48"><path d="M0 0H180M0 46H180M42 0V46" stroke="#140e0c" stroke-width="6"/><path d="M0 3H180" stroke="#aa7243" opacity=".34"/><path d="M0 28q80-12 180 1" stroke="#ac7144" opacity=".2" fill="none"/></pattern>
+</defs>
+<rect width="1600" height="900" fill="url(#room)"/>
+<!-- stone and timber guild hall -->
+<path d="M0 0H1600V690H0Z" fill="#3b2922"/>
+<g fill="#5a4538" opacity=".65"><path d="M0 110h1600v16H0Z M0 220h1600v15H0Z M0 350h1600v16H0Z M0 500h1600v15H0Z M0 615h1600v15H0Z"/></g>
+<g fill="none" stroke="#20140e" stroke-width="44"><path d="M-100 0V700M300 0V660M690 0V650M1040 0V650M1450 0V680M0 0H1600"/><path d="M0 0Q800 350 1600 0" stroke-width="20"/></g>
+<g stroke="url(#beam)" stroke-width="31" fill="none"><path d="M26 0V650M316 0V650M697 0V650M1046 0V650M1456 0V660M0 14H1600"/></g>
+<g fill="#3b2320"><path d="M335 0h130v300H335Z M1120 0h130v300h-130Z"/></g>
+<!-- crimson banners hanging between beams -->
+<g><path d="M360 0h83v265l-41-31-42 31Z M1146 0h84v265l-41-31-43 31Z" fill="#6d2221" stroke="#b4863a" stroke-width="5"/><path d="M376 23h50v176l-25-18-25 18Z M1162 23h51v176l-26-18-25 18Z" fill="none" stroke="#d2a363" stroke-width="3" opacity=".65"/><path d="M402 49v110m-24-64 24-22 24 22" stroke="#d1a45e" stroke-width="7" fill="none"/><path d="M1188 48v110m-24-65 24-20 24 20" stroke="#d1a45e" stroke-width="7" fill="none"/></g>
+<!-- windows beyond -->
+<g fill="#172229" stroke="#89623d" stroke-width="12"><path d="M510 25q77-45 152 0v230H510Z M797 25q77-45 152 0v230H797Z M1290 21q72-39 144 0v226h-144Z"/></g>
+<g stroke="#7d6a54" stroke-width="5" opacity=".65"><path d="M584 12v242M509 122h153 M870 12v242M797 122h153 M1363 12v235M1290 122h144"/></g>
+<!-- remote guild staff silhouettes -->
+<g fill="#1c1617"><circle cx="747" cy="180" r="24"/><path d="M702 280q2-83 42-77 53-4 60 77Z"/><circle cx="989" cy="200" r="23"/><path d="M942 302q2-82 47-78 44 0 58 78Z"/><circle cx="1084" cy="204" r="20"/><path d="M1043 314q8-83 43-82 43 4 50 82Z"/></g>
+<!-- candle chandelier -->
+<g stroke="#221712" fill="none" stroke-width="12"><path d="M750 0v81 M1170 0v92 M668 82h164M1099 92h143"/></g>
+<g fill="#a77c47"><path d="M675 52h14v44h-14ZM712 42h14v55h-14ZM751 51h14v43h-14ZM788 40h14v55h-14ZM814 55h14v40h-14Z"/></g>
+<g fill="#fff1c5"><path d="M675 48q-4-14 6-27 13 11 4 27ZM712 39q-4-13 6-28 14 13 4 28ZM751 47q-4-14 6-27 13 11 4 27ZM788 38q-4-13 6-27 14 14 5 27ZM815 50q-3-14 6-25 13 10 4 25Z"/></g>
+<circle cx="746" cy="70" r="240" fill="url(#light)"/>
+<circle cx="1277" cy="105" r="230" fill="url(#light)"/>
+<!-- desk furniture, secondary timbers -->
+<rect x="0" y="622" width="1600" height="278" fill="url(#desk)"/>
+<rect x="0" y="622" width="1600" height="278" fill="url(#floor)" opacity=".58"/>
+<path d="M0 650h1600" stroke="#ae7843" stroke-width="14"/><path d="M0 663h1600" stroke="#25150f" stroke-width="9"/>
+<rect x="0" y="650" width="1600" height="250" fill="url(#wood)"/>
+<path d="M0 780h1600" stroke="#9b6334" stroke-width="5" opacity=".65"/>
+<!-- iron inkpot, quill and parchment prop at desk -->
+<path d="M270 760h95l-10 65h-72Z" fill="#12151a" stroke="#a57b47" stroke-width="8"/>
+<path d="M313 776q-25-95 65-187 3 117-65 187Z" fill="#baa07e" stroke="#412d27" stroke-width="5"/>
+<path d="M313 776q6-105 64-183" stroke="#eadab1" stroke-width="3"/>
+<path d="M316 694l45-73M317 716l58-73" stroke="#6a4c32" stroke-width="3"/>
+<!-- old closed ledger bottom-left -->
+<path d="M-24 805 230 767 296 901-7 901Z" fill="#3a1917" stroke="#9c753d" stroke-width="10"/>
+<path d="M-5 805 220 779 276 900H0Z" fill="#582421" stroke="#d09b58" stroke-width="3"/>
+<path d="M54 811 126 794l61 78-71 16Z" fill="none" stroke="#c99d5d" stroke-width="5"/>
+<path d="M120 812v57m-26-42 26-15 25 11" stroke="#d9b468" stroke-width="5"/>
+<!-- loose coins -->
+<g fill="#d5a24d" stroke="#6d441e" stroke-width="3"><ellipse cx="384" cy="810" rx="31" ry="12"/><ellipse cx="398" cy="826" rx="32" ry="12"/><ellipse cx="450" cy="813" rx="26" ry="11"/><ellipse cx="471" cy="844" rx="30" ry="10"/><ellipse cx="346" cy="856" rx="30" ry="9"/><ellipse cx="1385" cy="838" rx="35" ry="12"/><ellipse cx="1434" cy="857" rx="35" ry="11"/><ellipse cx="1491" cy="836" rx="33" ry="11"/></g>
+<g fill="none" stroke="#ffe2a1" stroke-width="2" opacity=".65"><ellipse cx="398" cy="824" rx="25" ry="7"/><ellipse cx="450" cy="811" rx="20" ry="7"/><ellipse cx="1385" cy="834" rx="28" ry="7"/></g>
+<!-- rolled cartography at desk right -->
+<path d="M1420 696q80-17 155 18l27 112q-75-13-147-4Z" fill="#c4a379" stroke="#513928" stroke-width="7"/>
+<path d="M1445 721q70-17 130 19m-112 15 87-8m-84 29 66 8" stroke="#775f47" stroke-width="3" fill="none"/>
+<path d="M1490 712q21 29 8 94" stroke="#b2824d" stroke-width="12"/>
+<!-- candle lower right -->
+<path d="M1553 632v109h35V631Z" fill="#dec69a" stroke="#70523d" stroke-width="7"/>
+<path d="M1570 629q-17-23 1-56 24 26-1 56Z" fill="#ffe1a1"/>
+<circle cx="1570" cy="617" r="160" fill="url(#light)"/>
+<path d="M0 900h1600" stroke="#d1a86a" stroke-width="8"/>
+</svg>
