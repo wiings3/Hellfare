@@ -3,12 +3,18 @@ extends "res://scripts/ledger_ui.gd"
 ## The artwork is separate from real Godot controls; all values and actions are live.
 ## 1600x900 authoring canvas, scaled to the current viewport without clipping.
 
-const ROOM: Texture2D = preload("res://assets/ui/guildhall_desk.svg")
-const PAPER: Texture2D = preload("res://assets/ui/skin_parchment.svg")
-const WOOD: Texture2D = preload("res://assets/ui/skin_wood.svg")
-const RED_WOOD: Texture2D = preload("res://assets/ui/skin_burgundy.svg")
-const SEAL: Texture2D = preload("res://assets/ui/skin_wax_seal.svg")
-const MINE_INK: Texture2D = preload("res://assets/ui/harlow_ink_sketch.svg")
+const ROOM: Texture2D = preload("res://assets/ui/painted/guildhall_background.webp")
+const PAPER: Texture2D = preload("res://assets/ui/painted/desk_note.webp")
+const WOOD: Texture2D = preload("res://assets/ui/painted/navigation_plaque.webp")
+const RED_WOOD: Texture2D = preload("res://assets/ui/painted/navigation_plaque.webp")
+const SEAL: Texture2D = preload("res://assets/ui/painted/wax_seal.webp")
+const MINE_INK: Texture2D = preload("res://assets/ui/painted/harlow_engraving.webp")
+
+const GUILD_SIGN: Texture2D = preload("res://assets/ui/painted/guild_sign.webp")
+const TREASURY: Texture2D = preload("res://assets/ui/painted/treasury_plaque.webp")
+const BOARD: Texture2D = preload("res://assets/ui/painted/contracts_board.webp")
+const CONTRACT_SLIP: Texture2D = preload("res://assets/ui/painted/contract_slip.webp")
+const DISPATCH: Texture2D = preload("res://assets/ui/painted/dispatch_panel.webp")
 
 const INK := Color("#35271d")
 const INK_SOFT := Color("#6d5038")
@@ -50,49 +56,39 @@ func _build_shell() -> void:
 
 	var scene: NinePatchRect = _picture(stage, ROOM, 0, 0, 1600, 900)
 	scene.name = "WarmGuildhallBackdrop"
-	# Sign, burgundy crest, and live company name.
-	_skin(stage, "wood", 19, 13, 550, 141)
-	_skin(stage, "red", 33, 33, 97, 122)
-	_picture(stage, CREST, 43, 41, 76, 88)
-	_print(stage, "MONEY MERCS", 145, 43, 405, 64, 49, GOLD_LETTER)
-	_print(stage, "THE CONTRACTOR'S GUILD", 157, 107, 387, 28, 22, CREAM)
-	# The three brass-framed treasury plaques use the actual save state.
-	_skin(stage, "wood", 766, 57, 250, 94)
-	_skin(stage, "wood", 1024, 57, 250, 94)
-	_skin(stage, "wood", 1282, 57, 293, 94)
-	_picture(stage, GOLD_ICON, 777, 79, 57, 54)
-	_print(stage, "TREASURY  /  GOLD", 838, 70, 164, 24, 16, CREAM)
-	gold_total = _print(stage, "0 G", 838, 94, 166, 48, 28, GOLD_LETTER)
-	_picture(stage, GOLD_ICON, 1035, 80, 55, 54)
-	_print(stage, "COMPANY VALUE", 1095, 70, 162, 24, 16, CREAM)
-	net_total = _print(stage, "0 G", 1095, 94, 155, 48, 28, GOLD_LETTER)
-	_picture(stage, CREST, 1297, 81, 57, 53)
-	_print(stage, "EXPEDITIONS IN FIELD", 1358, 70, 204, 24, 16, CREAM)
-	field_total = _print(stage, "0 / 1", 1358, 94, 185, 48, 28, GOLD_LETTER)
+	# Hand-painted UI elements supplied as individual raster textures.
+	# Text and click zones remain live Godot controls.
+	_picture(stage, GUILD_SIGN, 17, 8, 633, 153)
+	_picture(stage, TREASURY, 761, 52, 261, 99)
+	_picture(stage, TREASURY, 1019, 52, 261, 99)
+	_picture(stage, TREASURY, 1278, 52, 299, 99)
+	_print(stage, "TREASURY  /  GOLD", 844, 70, 166, 24, 15, CREAM)
+	gold_total = _print(stage, "0 G", 842, 98, 164, 39, 26, GOLD_LETTER)
+	_print(stage, "COMPANY VALUE", 1101, 70, 163, 24, 15, CREAM)
+	net_total = _print(stage, "0 G", 1098, 98, 161, 39, 26, GOLD_LETTER)
+	_print(stage, "EXPEDITIONS IN FIELD", 1366, 70, 199, 24, 15, CREAM)
+	field_total = _print(stage, "0 / 1", 1364, 98, 194, 39, 26, GOLD_LETTER)
 	header_gold = gold_total
 	header_wealth = net_total
 	header_jobs = field_total
 	notice = _print(stage, "Guild records updated.", 561, 153, 604, 19, 13, GOLD_LETTER)
-	# Strong asymmetrical wood framework, not desktop navigation widgets.
-	_skin(stage, "wood", 21, 167, 298, 556)
-	_print(stage, "THE GUILD'S RECORDS", 48, 180, 240, 25, 19, MUTED_GOLD)
-	navigation = _region(stage, 30, 214, 279, 487)
-	# Main board, paper face, separately pinned contract/warrant sheets.
-	_skin(stage, "wood", 324, 167, 881, 562)
-	_skin(stage, "paper", 335, 180, 859, 538)
-	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 361, 191, 809, 40, 25, INK, HORIZONTAL_ALIGNMENT_CENTER)
-	central_area = _region(stage, 349, 242, 828, 460)
+	# Artwork occupies the physical framework; real controls occupy its
+	# readable interior. No procedural drawing is used for the art.
+	_picture(stage, DISPATCH, 15, 166, 306, 572)
+	_print(stage, "GUILD RECORDS", 49, 211, 241, 28, 18, INK)
+	navigation = _region(stage, 30, 248, 279, 476)
+	_picture(stage, BOARD, 323, 165, 886, 568)
+	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 360, 218, 806, 38, 24, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	central_area = _region(stage, 350, 262, 825, 445)
 	content_host = central_area
-	_skin(stage, "wood", 1200, 167, 380, 563)
-	_skin(stage, "paper", 1212, 180, 354, 540)
-	details_heading = _print(stage, "CONTRACT DETAILS", 1235, 193, 301, 32, 22, INK, HORIZONTAL_ALIGNMENT_CENTER)
-	dispatch_area = _region(stage, 1230, 237, 319, 469)
-	# Tactile pieces of loose paperwork across the bottom of the desk.
-	notes_area = _region(stage, 344, 736, 1217, 149)
-	_skin(stage, "paper", 26, 739, 294, 143)
-	_picture(stage, SEAL, 277, 722, 45, 45)
-	_print(stage, "GUILD STATUS", 53, 757, 222, 30, 25, INK)
-	_print(stage, "━━━━━━━━━━━━━━━━", 51, 783, 227, 12, 11, INK_SOFT)
+	_picture(stage, DISPATCH, 1200, 168, 380, 566)
+	details_heading = _print(stage, "CONTRACT DETAILS", 1235, 218, 301, 34, 21, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	dispatch_area = _region(stage, 1230, 258, 318, 455)
+	# Loose desk notes and the wax-sealed guild status note.
+	notes_area = _region(stage, 345, 737, 1214, 151)
+	_picture(stage, PAPER, 26, 737, 294, 152)
+	_picture(stage, SEAL, 278, 725, 40, 40)
+	_print(stage, "GUILD STATUS", 51, 754, 233, 32, 22, INK)
 
 func _scale_stage() -> void:
 	if stage == null or not is_instance_valid(stage):
@@ -123,14 +119,17 @@ func _picture(parent: Node, tex: Texture2D, x: float, y: float, w: float, h: flo
 	return p
 
 func _skin(parent: Node, style: String, x: float, y: float, w: float, h: float) -> NinePatchRect:
+	# Nine-slicing the generated images preserves painted corners.
 	var p := NinePatchRect.new()
 	p.position = Vector2(x, y)
 	p.size = Vector2(w, h)
-	p.texture = PAPER if style == "paper" else (RED_WOOD if style == "red" else WOOD)
-	p.patch_margin_left = 30 if style == "paper" else 19
-	p.patch_margin_right = 30 if style == "paper" else 19
-	p.patch_margin_top = 10 if style == "paper" and h < 110 else (30 if style == "paper" else 19)
-	p.patch_margin_bottom = 10 if style == "paper" and h < 110 else (30 if style == "paper" else 19)
+	p.texture = PAPER if style == "paper" else WOOD
+	p.patch_margin_left = 18
+	p.patch_margin_right = 18
+	p.patch_margin_top = 12
+	p.patch_margin_bottom = 12
+	if style == "red":
+		p.modulate = Color(1.0, 0.72, 0.69, 1.0)
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(p)
 	return p
