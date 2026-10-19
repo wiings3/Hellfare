@@ -28,6 +28,11 @@ var gold_total: Label
 var net_total: Label
 var field_total: Label
 var guild_book_font: SystemFont
+var status_lines: Control
+
+func _ready() -> void:
+	page = "hq"
+	super._ready()
 
 func _build_shell() -> void:
 	guild_book_font = SystemFont.new()
@@ -248,7 +253,6 @@ func _outline_style() -> StyleBoxFlat:
 
 func _draw_status() -> void:
 	var employed: int = game.crew.size()
-	_print(stage, "", 0, 0, 1, 1) # node is freed after _refresh? avoid this placeholder.
 	# Previous status elements are tracked by putting live metrics in a dedicated container.
 	if status_lines != null and is_instance_valid(status_lines):
 		status_lines.queue_free()
@@ -257,7 +261,6 @@ func _draw_status() -> void:
 	_print(status_lines, "★  %d reputation" % game.reputation, 0, 26, 235, 24, 17, INK)
 	_print(status_lines, "▣  %d / %d field teams" % [game.missions.size(), game.expedition_slots], 0, 51, 235, 23, 17, INK)
 
-var status_lines: Control
 
 func _overview() -> void:
 	_contract_tabs()
