@@ -77,12 +77,12 @@ func _build_shell() -> void:
 	_picture(stage, DISPATCH, 15, 166, 306, 572)
 	navigation = _region(stage, 30, 248, 279, 476)
 	_picture(stage, BOARD, 323, 165, 886, 568)
-	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 360, 218, 806, 38, 24, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 361, 194, 802, 35, 21, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	central_area = _region(stage, 350, 262, 825, 445)
 	content_host = central_area
 	_picture(stage, DISPATCH, 1200, 168, 380, 566)
-	details_heading = _print(stage, "CONTRACT DETAILS", 1235, 218, 301, 34, 21, INK, HORIZONTAL_ALIGNMENT_CENTER)
-	dispatch_area = _region(stage, 1230, 258, 318, 455)
+	details_heading = _print(stage, "CONTRACT DETAILS", 1245, 223, 288, 33, 20, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	dispatch_area = _region(stage, 1244, 258, 294, 455)
 	# Loose desk notes and the wax-sealed guild status note.
 	notes_area = _region(stage, 345, 737, 1214, 151)
 	_picture(stage, PAPER, 26, 737, 294, 152)
@@ -502,26 +502,26 @@ func _paper_scroll(y: float = 91.0) -> VBoxContainer:
 	return list
 
 func _record(list: Node, height: int = 85) -> Control:
-	var outer := PanelContainer.new()
+	# Reusable painted parchment backing, cropped from generated note art.
+	# Text and buttons are still real controls.
+	var outer := Control.new()
+	outer.custom_minimum_size = Vector2(790, height)
 	outer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	outer.custom_minimum_size.y = height
-	var paper := StyleBoxFlat.new()
-	paper.bg_color = Color("#ecd5a9")
-	paper.border_color = Color("#b28b54")
-	paper.border_width_left = 3
-	paper.border_width_right = 3
-	paper.border_width_top = 2
-	paper.border_width_bottom = 3
-	paper.corner_radius_top_left = 3
-	paper.corner_radius_top_right = 3
-	paper.corner_radius_bottom_left = 3
-	paper.corner_radius_bottom_right = 3
-	paper.shadow_size = 3
-	paper.shadow_color = Color("#211105",0.20)
-	outer.add_theme_stylebox_override("panel",paper)
 	list.add_child(outer)
+	var crop := AtlasTexture.new()
+	crop.atlas = PAPER
+	crop.region = Rect2(35, 35, 449, 176)
+	var painted := NinePatchRect.new()
+	painted.texture = crop
+	painted.size = Vector2(790, height)
+	painted.patch_margin_left = 14
+	painted.patch_margin_right = 14
+	painted.patch_margin_top = 14
+	painted.patch_margin_bottom = 14
+	painted.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	outer.add_child(painted)
 	var rect := Control.new()
-	rect.custom_minimum_size.y = height - 7
+	rect.size = Vector2(790, height)
 	rect.mouse_filter = Control.MOUSE_FILTER_PASS
 	outer.add_child(rect)
 	return rect
