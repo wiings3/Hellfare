@@ -29,6 +29,8 @@ var net_total: Label
 var field_total: Label
 var guild_book_font: SystemFont
 var status_lines: Control
+var board_heading: Label
+var details_heading: Label
 
 func _ready() -> void:
 	page = "hq"
@@ -78,12 +80,12 @@ func _build_shell() -> void:
 	# Main board, paper face, separately pinned contract/warrant sheets.
 	_skin(stage, "wood", 324, 167, 881, 562)
 	_skin(stage, "paper", 335, 180, 859, 538)
-	_print(stage, "❖    CONTRACTS & OPPORTUNITIES    ❖", 361, 191, 809, 40, 25, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	board_heading = _print(stage, "CONTRACTS & OPPORTUNITIES", 361, 191, 809, 40, 25, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	central_area = _region(stage, 349, 242, 828, 460)
 	content_host = central_area
 	_skin(stage, "wood", 1200, 167, 380, 563)
 	_skin(stage, "paper", 1212, 180, 354, 540)
-	_print(stage, "CONTRACT DETAILS", 1235, 193, 301, 32, 22, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	details_heading = _print(stage, "CONTRACT DETAILS", 1235, 193, 301, 32, 22, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	dispatch_area = _region(stage, 1230, 237, 319, 469)
 	# Tactile pieces of loose paperwork across the bottom of the desk.
 	notes_area = _region(stage, 344, 736, 1217, 149)
@@ -195,6 +197,14 @@ func _refresh() -> void:
 	gold_total.text = _money(game.gold)
 	net_total.text = _money(game.wealth())
 	field_total.text = "%d / %d" % [game.missions.size(), game.expedition_slots]
+	var headings: Dictionary = {
+		"hq": "CONTRACTS & OPPORTUNITIES", "harlow": "HARLOW MINES  ·  FIELD DOSSIER",
+		"roster": "PERSONNEL & QUARTERMASTER", "guildwork": "GUILD WORK ORDERS",
+		"market": "THE TRADING POST", "finance": "COMPANY LEDGER",
+		"ledger": "THE COMPANY CHRONICLE", "expeditions": "REGIONAL CONTRACTS"
+	}
+	board_heading.text = str(headings.get(page, "GUILD RECORDS"))
+	details_heading.text = "CONTRACT DETAILS" if page in ["hq", "harlow"] else "GUILDMASTER'S NOTES"
 	_clear(navigation)
 	_clear(central_area)
 	_clear(dispatch_area)
@@ -369,7 +379,10 @@ func _draw_warrant(detailed: bool) -> void:
 	_ruling(dispatch_area, 15, 342, 284)
 	_print(dispatch_area, "MAXIMUM ORE VEINS", 15, 348, 280, 24, 15, INK_SOFT)
 	_print(dispatch_area, "⚒  %d     /     %s" % [int(stats["capacity"]), _money(int(stats["wage"]))], 16, 374, 283, 27, 19, INK)
-	var available: bool = (stats["miners"] > 0 and miners.size() <= 3 and game.gold >= int(stats["wage"]) and game.missions.size() < game.expedition_slots)
+	var deposits_remaining: int = 0
+	for ore in (game.harlow.get("deposits", {}) as Dictionary).values():
+		deposits_remaining += int(ore)
+	var available: bool = (stats["miners"] > 0 and miners.size() <= 3 and game.gold >= int(stats["wage"]) and deposits_remaining > 0 and game.missions.size() < game.expedition_slots)
 	var go := _touch(dispatch_area, "FUND EXPEDITION   →", 15, 412, 286, 43, _dispatch_harlow, "wood", GOLD_LETTER, 20, available)
 	go.add_theme_color_override("font_color", Color("#cce6c2"))
 	_print(dispatch_area, "Requires a miner. Casualties are permanent.", 15, 458, 290, 18, 13, WINE)
