@@ -46,7 +46,7 @@ func _build_shell() -> void:
 	resized.connect(_scale_stage)
 	_scale_stage()
 
-	var scene: TextureRect = _picture(stage, ROOM, 0, 0, 1600, 900)
+	var scene: NinePatchRect = _picture(stage, ROOM, 0, 0, 1600, 900)
 	scene.name = "WarmGuildhallBackdrop"
 	# Sign, burgundy crest, and live company name.
 	_skin(stage, "wood", 19, 13, 550, 141)
@@ -67,6 +67,10 @@ func _build_shell() -> void:
 	_picture(stage, CREST, 1297, 81, 57, 53)
 	_print(stage, "EXPEDITIONS IN FIELD", 1358, 70, 204, 24, 16, CREAM)
 	field_total = _print(stage, "0 / 1", 1358, 94, 185, 48, 28, GOLD_LETTER)
+	header_gold = gold_total
+	header_wealth = net_total
+	header_jobs = field_total
+	notice = _print(stage, "Guild records updated.", 561, 153, 604, 19, 13, GOLD_LETTER)
 	# Strong asymmetrical wood framework, not desktop navigation widgets.
 	_skin(stage, "wood", 21, 167, 298, 556)
 	_print(stage, "THE GUILD'S RECORDS", 48, 180, 240, 25, 19, MUTED_GOLD)
@@ -76,6 +80,7 @@ func _build_shell() -> void:
 	_skin(stage, "paper", 335, 180, 859, 538)
 	_print(stage, "❖    CONTRACTS & OPPORTUNITIES    ❖", 361, 191, 809, 40, 25, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	central_area = _region(stage, 349, 242, 828, 460)
+	content_host = central_area
 	_skin(stage, "wood", 1200, 167, 380, 563)
 	_skin(stage, "paper", 1212, 180, 354, 540)
 	_print(stage, "CONTRACT DETAILS", 1235, 193, 301, 32, 22, INK, HORIZONTAL_ALIGNMENT_CENTER)
@@ -104,13 +109,13 @@ func _region(parent: Node, x: float, y: float, w: float, h: float) -> Control:
 	parent.add_child(r)
 	return r
 
-func _picture(parent: Node, tex: Texture2D, x: float, y: float, w: float, h: float) -> TextureRect:
-	var p := TextureRect.new()
+func _picture(parent: Node, tex: Texture2D, x: float, y: float, w: float, h: float) -> NinePatchRect:
+	# Zero-patch NinePatchRect guarantees the art fits its exact bounds.
+	# TextureRect on GL Compatibility previously drew SVGs at native size.
+	var p := NinePatchRect.new()
 	p.texture = tex
 	p.position = Vector2(x, y)
 	p.size = Vector2(w, h)
-	p.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	p.stretch_mode = TextureRect.STRETCH_SCALE
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(p)
 	return p
@@ -122,8 +127,8 @@ func _skin(parent: Node, style: String, x: float, y: float, w: float, h: float) 
 	p.texture = PAPER if style == "paper" else (RED_WOOD if style == "red" else WOOD)
 	p.patch_margin_left = 30 if style == "paper" else 19
 	p.patch_margin_right = 30 if style == "paper" else 19
-	p.patch_margin_top = 30 if style == "paper" else 19
-	p.patch_margin_bottom = 30 if style == "paper" else 19
+	p.patch_margin_top = 10 if style == "paper" and h < 110 else (30 if style == "paper" else 19)
+	p.patch_margin_bottom = 10 if style == "paper" and h < 110 else (30 if style == "paper" else 19)
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(p)
 	return p
