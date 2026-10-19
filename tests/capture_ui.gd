@@ -47,6 +47,9 @@ func _capture() -> void:
 			push_error("Could not capture %s." % str(destination[0]))
 			quit(1)
 			return
+		# Downscale only the regression image; the running game remains 1440x900.
+		# Keep the file below GitHub's 1 MiB Contents API read limit.
+		screenshot.resize(1024, 640, Image.INTERPOLATE_LANCZOS)
 		var error: Error = screenshot.save_png(str(destination[1]))
 		if error != OK:
 			push_error("Could not save image (%d)." % error)
