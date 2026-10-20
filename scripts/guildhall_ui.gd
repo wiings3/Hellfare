@@ -327,7 +327,7 @@ func _draw_status() -> void:
 	# Previous status elements are tracked by putting live metrics in a dedicated container.
 	if status_lines != null and is_instance_valid(status_lines):
 		status_lines.queue_free()
-	status_lines = _region(stage, 51, 787, 232, 64)
+	status_lines = _region(stage, 50, 805, 235, 70)
 	_print(status_lines, "%d EMPLOYED   /   %d READY" % [employed, game.free_crew()], 0, 0, 224, 20, 14, INK)
 	_print(status_lines, "REPUTATION   %d" % game.reputation, 0, 21, 224, 20, 14, INK)
 	_print(status_lines, "FIELD TEAMS   %d / %d" % [game.missions.size(), game.expedition_slots], 0, 42, 224, 20, 14, INK)
@@ -335,49 +335,51 @@ func _draw_status() -> void:
 
 func _overview() -> void:
 	_contract_tabs()
-	# Central dossier: Harlow drawn in sepia ink, paper rather than a combat HUD.
 	var known: Dictionary = game.harlow.get("report", {})
-	var state: String = "UNSURVEYED" if known.is_empty() else "SCOUTED THIS ROTATION"
-	_print(central_area, "REGION 01  ·  %s" % state, 398, 53, 365, 20, 13, INK_SOFT)
-	_picture(central_area, SEAL, 756, 8, 50, 50)
-	_picture(central_area, MINE_INK, 343, 70, 470, 170)
-	_print(central_area, "An old mine reopened for contract work. Rich ore lies", 351, 243, 457, 25, 16, INK)
-	_print(central_area, "beyond unstable tunnels and dangerous creatures.", 351, 267, 457, 25, 16, INK)
-	_print(central_area, "A prepared crew might turn the claim into profit.", 351, 291, 457, 25, 16, INK)
-	_ruling(central_area, 347, 323, 464)
-	_print(central_area, "POTENTIAL YIELD", 353, 326, 171, 22, 13, INK_SOFT)
-	_print(central_area, "RISK", 550, 326, 122, 22, 13, INK_SOFT)
-	_print(central_area, "ROTATION ENDS", 685, 326, 116, 22, 13, INK_SOFT)
-	_print(central_area, "Ore deposits", 353, 350, 176, 25, 17, INK)
-	_print(central_area, "Unknown", 550, 350, 135, 25, 17, WINE)
-	_print(central_area, _duration(game.harlow_rotation_remaining()), 685, 350, 115, 25, 16, INK)
-	_touch(central_area, "OPEN HARLOW DOSSIER   →", 351, 386, 460, 42, _nav_to.bind("harlow"), "red", CREAM, 16)
+	_print(central_area, "REGION 01   /   %s" % ("UNSURVEYED" if known.is_empty() else "SURVEY COMPLETE"),
+		386, 12, 380, 22, 14, INK_SOFT)
+	_picture(central_area, SEAL, 766, 5, 39, 39)
+	# Source engraving is 738x435. 335x198 is proportional.
+	_picture(central_area, MINE_INK, 411, 45, 336, 198)
+	_print(central_area, "Rich ore hides beyond unstable", 386, 243, 397, 22, 16, INK)
+	_print(central_area, "tunnels and dangerous creatures.", 386, 266, 399, 22, 16, INK)
+	_ruling(central_area, 382, 301, 414)
+	_print(central_area, "YIELD", 386, 307, 136, 21, 13, INK_SOFT)
+	_print(central_area, "RISK", 541, 307, 93, 21, 13, INK_SOFT)
+	_print(central_area, "ROTATION", 658, 307, 136, 21, 13, INK_SOFT)
+	_print(central_area, "Ore", 386, 330, 121, 24, 18, INK)
+	_print(central_area, "Unknown", 541, 330, 100, 24, 17, WINE)
+	_print(central_area, _duration(game.harlow_rotation_remaining()), 658, 330, 135, 24, 17, INK)
+	_touch(central_area, "OPEN HARLOW DOSSIER   →",
+		382, 365, 414, 33, _nav_to.bind("harlow"), "wood", GOLD_LETTER, 16)
 	_draw_warrant(false)
 
 func _contract_tabs() -> void:
 	var sheets: Array = [
-		["HARLOW MINES", "Region 01  •  Rotating mine", "harlow"],
-		["THE OFFICE", "Your headquarters", "hq"],
+		["HARLOW MINES", "Rotating mining claim", "harlow"],
+		["THE OFFICE", "Headquarters", "hq"],
 		["OTHER SITES", "Additional contracts", "expeditions"],
-		["THE CREW", "Hire & outfit", "roster"],
-		["THE EXCHANGE", "Trade your resources", "market"],
-		["THE JOURNAL", "Recorded expeditions", "ledger"]
+		["THE CREW", "Hire and equip", "roster"],
+		["THE EXCHANGE", "Trade resources", "market"],
+		["THE JOURNAL", "Expedition reports", "ledger"]
 	]
 	for i in range(sheets.size()):
 		var info: Array = sheets[i]
-		var y: float = float(i * 72 + 5)
-		_skin(central_area, "red" if i == 0 else "paper", 0, y, 321, 65)
-		_print(central_area, str(i + 1).pad_zeros(2), 22, y + 13, 37, 32, 19, CREAM if i == 0 else INK_SOFT)
-		_print(central_area, str(info[0]), 73, y + 12, 226, 24, 17, CREAM if i == 0 else INK)
-		_print(central_area, str(info[1]), 74, y + 35, 219, 17, 12, Color("#ecd1b4") if i == 0 else INK_SOFT)
-		var b := Button.new()
-		b.position = Vector2(0, y)
-		b.size = Vector2(321, 64)
-		b.flat = true
-		b.add_theme_stylebox_override("normal", _transparent_style())
-		b.add_theme_stylebox_override("hover", _outline_style())
-		b.pressed.connect(_nav_to.bind(str(info[2])))
-		central_area.add_child(b)
+		var y: float = float(4 + i * 65)
+		_skin(central_area, "red" if i == 0 else "paper", 0, y, 362, 59)
+		_print(central_area, "%02d" % (i + 1), 15, y + 9, 42, 36, 19,
+			CREAM if i == 0 else INK_SOFT, HORIZONTAL_ALIGNMENT_CENTER)
+		_print(central_area, str(info[0]), 65, y + 7, 274, 24, 19, CREAM if i == 0 else INK)
+		_print(central_area, str(info[1]), 66, y + 31, 273, 20, 13,
+			Color("#eddab9") if i == 0 else INK_SOFT)
+		var hit := Button.new()
+		hit.position = Vector2(0, y)
+		hit.size = Vector2(362, 59)
+		hit.flat = true
+		hit.add_theme_stylebox_override("normal", _transparent_style())
+		hit.add_theme_stylebox_override("hover", _outline_style())
+		hit.pressed.connect(_nav_to.bind(str(info[2])))
+		central_area.add_child(hit)
 
 func _ruling(parent: Node, x: float, y: float, w: float) -> void:
 	var line := ColorRect.new()
@@ -388,56 +390,60 @@ func _ruling(parent: Node, x: float, y: float, w: float) -> void:
 	parent.add_child(line)
 
 func _draw_warrant(detailed: bool) -> void:
-	_print(dispatch_area, "Compare yield against risk before", 20, 17, 274, 27, 16, INK)
-	_print(dispatch_area, "sending anyone into danger.", 20, 40, 274, 24, 16, INK)
-	_print(dispatch_area, "STANDING ORDERS", 20, 80, 277, 25, 17, INK)
+	_print(dispatch_area, "Compare profit against risk", 8, 7, 224, 24, 15, INK)
+	_print(dispatch_area, "before dispatching your crew.", 8, 28, 224, 24, 15, INK)
+	_print(dispatch_area, "STANDING ORDERS", 9, 58, 220, 25, 16, INK_SOFT)
 	var dropdown := OptionButton.new()
-	dropdown.position = Vector2(17, 110)
-	dropdown.size = Vector2(285, 39)
+	dropdown.position = Vector2(8, 86)
+	dropdown.size = Vector2(225, 37)
 	for option in MoneyMercsState.TACTICS:
 		dropdown.add_item(str(option))
 	dropdown.select(maxi(0, MoneyMercsState.TACTICS.find(tactic)))
 	dropdown.add_theme_font_override("font", guild_book_font)
-	dropdown.add_theme_font_size_override("font_size", 19)
+	dropdown.add_theme_font_size_override("font_size", 16)
 	dropdown.add_theme_color_override("font_color", INK)
 	var parchment_bg := StyleBoxFlat.new()
-	parchment_bg.bg_color = Color("#ecd5ac")
-	parchment_bg.border_color = Color("#af8e5a")
-	parchment_bg.border_width_left = 2
-	parchment_bg.border_width_bottom = 2
-	parchment_bg.border_width_right = 2
-	parchment_bg.border_width_top = 2
+	parchment_bg.bg_color = Color("#ead3a7")
+	parchment_bg.border_color = Color("#ac8750")
+	for side in ["left", "right", "top", "bottom"]:
+		parchment_bg.set("border_width_" + side, 1)
 	dropdown.add_theme_stylebox_override("normal", parchment_bg)
 	dropdown.item_selected.connect(func(idx: int) -> void:
 		_set_tactic(str(MoneyMercsState.TACTICS[idx]))
 	)
 	dispatch_area.add_child(dropdown)
-	_ruling(dispatch_area, 15, 163, 284)
-	_print(dispatch_area, "EXPECTED OUTCOME", 17, 171, 275, 24, 17, INK_SOFT)
+	_ruling(dispatch_area, 9, 135, 223)
+	_print(dispatch_area, "EXPECTED OUTCOME", 9, 144, 220, 21, 15, INK_SOFT)
 	var report: Dictionary = game.harlow.get("report", {})
-	var miners: Array[String] = _selected_available()
-	var stats: Dictionary = game.harlow_crew_stats(miners, tactic)
+	var workers: Array[String] = _selected_available()
+	var stats: Dictionary = game.harlow_crew_stats(workers, tactic)
 	var has_intel: bool = not report.is_empty()
-	var outcome: String = ("Survey first for reliable odds" if not has_intel else "%d%% objective success" % int(round(float(stats["success"]) * 100.0)))
-	_print(dispatch_area, outcome, 18, 200, 278, 35, 21, WINE if not has_intel else FOREST)
+	var outcome: String = "Survey required for odds" if not has_intel else "%d%% success chance" % int(round(float(stats["success"]) * 100.0))
+	_print(dispatch_area, outcome, 9, 169, 222, 30, 18,
+		WINE if not has_intel else FOREST, HORIZONTAL_ALIGNMENT_LEFT, true)
 	if detailed:
 		var fatal: float = 0.0
 		for odds in (stats.get("death", {}) as Dictionary).values():
 			fatal = maxf(fatal, float(odds))
-		_print(dispatch_area, "Worst individual fatality risk: %d%%" % int(round(fatal*100.0)) if has_intel else "Threats are currently unconfirmed.", 18, 237, 278, 38, 15, INK, HORIZONTAL_ALIGNMENT_LEFT, true)
+		_print(dispatch_area,
+			"Highest fatality risk: %d%%" % int(round(fatal * 100.0)) if has_intel else "Unknown field threats",
+			9, 207, 221, 25, 14, WINE, HORIZONTAL_ALIGNMENT_LEFT, true)
 	else:
-		_print(dispatch_area, "Assign miners and guards to inspect", 18, 237, 278, 36, 16, INK)
-		_print(dispatch_area, "capacity, risk, and expected costs.", 18, 267, 278, 31, 16, INK)
-	_ruling(dispatch_area, 15, 306, 284)
-	_print(dispatch_area, "CAPACITY   /   COST", 18, 316, 267, 24, 15, INK_SOFT)
-	_print(dispatch_area, "⚒  %d     /     %s" % [int(stats["capacity"]), _money(int(stats["wage"]))], 18, 343, 276, 27, 19, INK)
+		_print(dispatch_area, "Choose miners and guards", 9, 206, 218, 23, 14, INK)
+	_ruling(dispatch_area, 9, 239, 223)
+	_print(dispatch_area, "CAPACITY   /   COST", 9, 247, 218, 20, 14, INK_SOFT)
+	_print(dispatch_area, "%d veins     /     %s" % [
+		int(stats["capacity"]), _money(int(stats["wage"]))], 9, 268, 224, 29, 18, INK)
 	var deposits_remaining: int = 0
 	for ore in (game.harlow.get("deposits", {}) as Dictionary).values():
 		deposits_remaining += int(ore)
-	var available: bool = (stats["miners"] > 0 and miners.size() <= 3 and game.gold >= int(stats["wage"]) and deposits_remaining > 0 and game.missions.size() < game.expedition_slots)
-	var go := _touch(dispatch_area, "FUND EXPEDITION", 15, 401, 286, 43, _dispatch_harlow, "wood", GOLD_LETTER, 17, available)
-	go.add_theme_color_override("font_color", Color("#cce6c2"))
-	_print(dispatch_area, "Mercenary death is permanent.", 20, 373, 271, 18, 13, WINE)
+	var available: bool = (int(stats["miners"]) > 0 and workers.size() <= 3 and
+		game.gold >= int(stats["wage"]) and deposits_remaining > 0 and
+		game.missions.size() < game.expedition_slots)
+	_print(dispatch_area, "Permanent death is possible.", 9, 295, 221, 20, 13, WINE)
+	var go := _touch(dispatch_area, "FUND EXPEDITION", 8, 320, 225, 34,
+		_dispatch_harlow, "wood", GOLD_LETTER, 16, available)
+	go.add_theme_color_override("font_color", Color("#e9e1b1"))
 
 func _harlow_dossier() -> void:
 	# The board switches to a real guild scouting sheet and a 3-person manifest.
