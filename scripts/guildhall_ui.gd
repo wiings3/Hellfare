@@ -34,6 +34,7 @@ var gold_total: Label
 var net_total: Label
 var field_total: Label
 var guild_book_font: SystemFont
+var guild_display_font: SystemFont
 var status_lines: Control
 var board_heading: Label
 var details_heading: Label
@@ -44,7 +45,9 @@ func _ready() -> void:
 
 func _build_shell() -> void:
 	guild_book_font = SystemFont.new()
-	guild_book_font.font_names = PackedStringArray(["Georgia", "Palatino Linotype", "Times New Roman", "Liberation Serif", "Noto Serif"])
+	guild_book_font.font_names = PackedStringArray(["Book Antiqua", "Palatino Linotype", "Georgia", "Noto Serif", "Liberation Serif"])
+	guild_display_font = SystemFont.new()
+	guild_display_font.font_names = PackedStringArray(["Cinzel", "Trajan Pro", "Copperplate Gothic", "Baskerville", "Palatino Linotype", "Georgia", "Noto Serif"])
 	stage = Control.new()
 	stage.name = "GuildmasterDesk"
 	stage.position = Vector2.ZERO
@@ -133,23 +136,53 @@ func _skin(parent: Node, style: String, x: float, y: float, w: float, h: float) 
 	parent.add_child(p)
 	return p
 
+# Measure the actual loaded font, not estimated character counts.
+# Automatically reduce oversized titles, prices and labels to fit their plaques.
+func _fitted_text_size(value: String, font: Font, requested: int,
+		w: float, h: float, wrap_text: bool = false) -> int:
+	var candidate: int = maxi(11, requested)
+	var usable_width: float = maxf(10.0, w - 9.0)
+	var usable_height: float = maxf(10.0, h - 3.0)
+	while candidate > 11:
+		var measured: Vector2 = font.get_string_size(value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, candidate)
+		if not wrap_text:
+			if measured.x <= usable_width and font.get_height(candidate) <= usable_height:
+				break
+		else:
+			var lines: int = 0
+			for paragraph in value.split("\n", true):
+				var current := ""
+				for word in paragraph.split(" ", false):
+					var next_word: String = word if current.is_empty() else current + " " + word
+					if not current.is_empty() and font.get_string_size(next_word, HORIZONTAL_ALIGNMENT_LEFT, -1.0, candidate).x > usable_width:
+						lines += 1
+						current = word
+					else:
+						current = next_word
+				lines += 1
+			if float(lines) * font.get_height(candidate) <= usable_height:
+				break
+		candidate -= 1
+	return candidate
+
 func _print(parent: Node, value: String, x: float, y: float, w: float, h: float,
 		font_size: int = 17, color: Color = INK,
 		align_text: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT, wrap_text: bool = false) -> Label:
-	var t := Label.new()
-	t.position = Vector2(x, y)
-	t.size = Vector2(w, h)
-	t.text = value
-	t.add_theme_font_override("font", guild_book_font)
-	t.add_theme_font_size_override("font_size", font_size)
-	t.add_theme_color_override("font_color", color)
-	t.horizontal_alignment = align_text
-	t.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap_text else TextServer.AUTOWRAP_OFF
-	t.clip_text = not wrap_text
-	t.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(t)
-	return t
+	var label := Label.new()
+	label.position = Vector2(x, y)
+	label.size = Vector2(w, h)
+	label.text = value
+	var font: Font = guild_display_font if font_size >= 22 or (value == value.to_upper() and font_size >= 17) else guild_book_font
+	label.add_theme_font_override("font", font)
+	label.add_theme_font_size_override("font_size", _fitted_text_size(value, font, font_size, w, h, wrap_text))
+	label.add_theme_color_override("font_color", color)
+	label.horizontal_alignment = align_text
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap_text else TextServer.AUTOWRAP_OFF
+	label.clip_text = true
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(label)
+	return label
 
 func _touch(parent: Node, label: String, x: float, y: float, w: float, h: float,
 		action: Callable, style: String = "wood", ink_color: Color = CREAM,
@@ -160,8 +193,9 @@ func _touch(parent: Node, label: String, x: float, y: float, w: float, h: float,
 	button.position = Vector2(x + w * 0.205, y + 6)
 	button.size = Vector2(w * 0.77, h - 12)
 	button.text = label
-	button.add_theme_font_override("font", guild_book_font)
-	button.add_theme_font_size_override("font_size", font_size)
+	button.add_theme_font_override("font", guild_display_font)
+	button.add_theme_font_size_override("font_size",
+		_fitted_text_size(label, guild_display_font, font_size, button.size.x - 9.0, button.size.y - 3.0))
 	button.add_theme_color_override("font_color", ink_color)
 	button.add_theme_color_override("font_hover_color", Color("#fff5d4") if style != "paper" else INK)
 	button.add_theme_color_override("font_pressed_color", ink_color)
