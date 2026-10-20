@@ -38,6 +38,8 @@ var guild_display_font: SystemFont
 var status_lines: Control
 var board_heading: Label
 var details_heading: Label
+var notice_panel: NinePatchRect
+var notice_expiration: int = 0
 
 func _ready() -> void:
 	page = "hq"
@@ -84,7 +86,7 @@ func _build_shell() -> void:
 	header_jobs = field_total
 
 	# This notice is empty at rest. Updated text appears above the desk.
-	notice = _print(stage, "", 763, 155, 382, 22, 14, GOLD_LETTER, HORIZONTAL_ALIGNMENT_CENTER)
+	
 
 	# Painted contract board rendered at its source aspect ratio (4:3).
 	# Move functional content below the crest and physically inside the paper.
@@ -106,6 +108,29 @@ func _build_shell() -> void:
 	_picture(stage, PAPER, 24, 741, 293, 162)
 	_picture(stage, SEAL, 286, 740, 36, 36)
 	_print(stage, "GUILD STATUS", 50, 771, 233, 28, 20, INK)
+	# Guild notices appear only when an action needs acknowledgment.
+	notice_panel = _skin(stage, "wood", 612, 157, 586, 39)
+	notice_panel.visible = false
+	notice = _print(stage, "", 628, 162, 554, 27, 15,
+		GOLD_LETTER, HORIZONTAL_ALIGNMENT_CENTER)
+	notice.visible = false
+
+func _notify(message: String) -> void:
+	if message.begins_with("Guild office open."):
+		return
+	notice.text = message
+	notice.add_theme_font_size_override("font_size",
+		_fitted_text_size(message, guild_book_font, 15, notice.size.x, notice.size.y))
+	notice.visible = true
+	notice_panel.visible = true
+	notice_expiration = Time.get_ticks_msec() + 6000
+
+func _on_clock() -> void:
+	super._on_clock()
+	if notice_expiration > 0 and Time.get_ticks_msec() >= notice_expiration:
+		notice_expiration = 0
+		notice.visible = false
+		notice_panel.visible = false
 
 func _scale_stage() -> void:
 	if stage == null or not is_instance_valid(stage):
