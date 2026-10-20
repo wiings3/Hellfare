@@ -427,7 +427,7 @@ func _draw_warrant(detailed: bool) -> void:
 
 func _harlow_dossier() -> void:
 	# The board switches to a real guild scouting sheet and a 3-person manifest.
-		var report: Dictionary = game.harlow.get("report", {})
+	var report: Dictionary = game.harlow.get("report", {})
 	_ruling(central_area, 9, 47, 801)
 	_picture(central_area, MINE_INK, 6, 57, 391, 160)
 	_print(central_area, "I. THE SURVEY", 410, 58, 375, 32, 22, INK)
