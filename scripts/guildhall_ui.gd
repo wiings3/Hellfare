@@ -446,86 +446,120 @@ func _draw_warrant(detailed: bool) -> void:
 	go.add_theme_color_override("font_color", Color("#e9e1b1"))
 
 func _harlow_dossier() -> void:
-	# The board switches to a real guild scouting sheet and a 3-person manifest.
 	var report: Dictionary = game.harlow.get("report", {})
-	_ruling(central_area, 9, 47, 801)
-	_picture(central_area, MINE_INK, 6, 57, 391, 160)
-	_print(central_area, "I. THE SURVEY", 410, 58, 375, 32, 22, INK)
+	_picture(central_area, MINE_INK, 15, 30, 303, 179)
+	_print(central_area, "I. THE SURVEY", 337, 10, 468, 31, 22, INK)
 	if report.is_empty():
 		var waiting: bool = int(game.harlow.get("scout_finish", 0)) > 0
-		_print(central_area, "Scout currently exploring." if waiting else "No field intelligence available.", 411, 98, 389, 29, 18, WINE, HORIZONTAL_ALIGNMENT_LEFT, true)
+		_print(central_area,
+			"Scout exploring." if waiting else "No field intelligence.",
+			338, 49, 451, 25, 17, WINE)
 		var time: int = maxi(0, int(game.harlow.get("scout_finish", 0)) - int(Time.get_unix_time_from_system()))
-		_print(central_area, "Returns in %s" % _duration(time) if waiting else "A scout always returns safely.", 411, 134, 379, 26, 16, INK)
-		_touch(central_area, "DISPATCH SCOUT →" if not waiting else "SCOUT IN THE FIELD", 414, 175, 370, 39, _scout, "red", CREAM, 17, not waiting)
+		_print(central_area, "Returns in %s" % _duration(time) if waiting else "Scouting is always safe.",
+			338, 82, 452, 25, 16, INK)
+		_touch(central_area, "SEND SCOUT" if not waiting else "SCOUT IN FIELD",
+			339, 145, 445, 38, _scout, "wood", GOLD_LETTER, 17, not waiting)
 	else:
-		_print(central_area, "At least %d veins of %s" % [int(report.get("minimum", 0)), str(MoneyMercsState.RESOURCE_NAMES.get(str(report.get("primary","copper")),"ore"))], 410, 98, 387, 30, 19, INK, HORIZONTAL_ALIGNMENT_LEFT, true)
-		_print(central_area, "SPOTTED: %s" % str(report.get("creature","Unknown")), 410, 136, 392, 35, 18, WINE, HORIZONTAL_ALIGNMENT_LEFT, true)
-		_print(central_area, "Rotation resets in %s" % _duration(game.harlow_rotation_remaining()), 411, 183, 366, 25, 16, INK_SOFT)
-	var level: int = int(game.harlow.get("scout_level",1))
+		_print(central_area, "At least %d veins of %s" % [
+			int(report.get("minimum", 0)),
+			str(MoneyMercsState.RESOURCE_NAMES.get(str(report.get("primary", "copper")), "ore"))],
+			338, 49, 445, 30, 17, INK, HORIZONTAL_ALIGNMENT_LEFT, true)
+		_print(central_area, "THREAT: %s" % str(report.get("creature", "Unknown")),
+			338, 86, 446, 30, 16, WINE, HORIZONTAL_ALIGNMENT_LEFT, true)
+		_print(central_area, "Rotation: %s remaining" % _duration(game.harlow_rotation_remaining()),
+			338, 126, 446, 25, 15, INK_SOFT)
+	var level: int = int(game.harlow.get("scout_level", 1))
 	var price: int = 200 if level == 1 else 650
-	_print(central_area, "SCOUT TIER %d / 3" % level, 8, 224, 300, 28, 17, INK_SOFT)
+	_print(central_area, "SCOUT TIER %d / 3" % level, 20, 215, 267, 24, 16, INK_SOFT)
 	if level < 3:
-		_touch(central_area, "TRAIN SCOUT   /   %d G" % price, 399, 222, 405, 37, _train_scout, "wood", GOLD_LETTER, 16,
-			game.gold >= price and int(game.harlow.get("scout_finish",0)) == 0)
-	_ruling(central_area, 8, 267, 801)
-	_print(central_area, "II. SELECT FIELD CREW   •   MINERS EXTRACT / GUARDS PROTECT", 9, 274, 801, 33, 22, INK)
-	var available_crew: Array[Dictionary] = game.available_guild_workers()
+		_touch(central_area, "TRAIN SCOUT  /  %d G" % price, 357, 210, 432, 35,
+			_train_scout, "wood", GOLD_LETTER, 16,
+			game.gold >= price and int(game.harlow.get("scout_finish", 0)) == 0)
+	_ruling(central_area, 15, 252, 783)
+	_print(central_area, "II. ASSIGN MINERS AND GUARDS", 17, 257, 775, 26, 20, INK)
 	var shown: int = 0
-	for merc in available_crew:
-		if str(merc.get("role","")) not in ["Miner","Guard"]:
+	for merc in game.available_guild_workers():
+		if str(merc.get("role", "")) not in ["Miner", "Guard"]:
 			continue
 		if shown >= 4:
 			break
-		var col: float = float(shown % 2)
-		var row: float = float(shown / 2) if shown < 2 else 1.0
-		var x: float = col * 401.0 + 10.0
-		var y: float = 310.0 + row * 61.0
-		_skin(central_area, "paper", x, y, 393, 58)
-		_picture(central_area, MINER if str(merc["role"])=="Miner" else GUARD, x+9, y+7, 44, 44)
-		_print(central_area, "%s · %s" % [str(merc["name"]), str(merc["role"])], x+61, y+5, 224, 24, 16, INK)
-		_print(central_area, "HP %d%%  ·  Outfitted %d/2" % [int(merc.get("health",100)), _equipped_count(merc)], x+61, y+31, 225, 18, 13, INK_SOFT)
-		_touch(central_area, "REMOVE" if selected_crew.has(str(merc["id"])) else "ADD", x+289, y+9, 92, 41, _toggle_crew.bind(not selected_crew.has(str(merc["id"])),str(merc["id"])), "red" if selected_crew.has(str(merc["id"])) else "wood", CREAM, 14)
+		var col: int = shown % 2
+		var row: int = shown / 2
+		var x: float = 13.0 + float(col) * 401.0
+		var y: float = 288.0 + float(row) * 57.0
+		_skin(central_area, "paper", x, y, 393, 53)
+		_picture(central_area, MINER if str(merc["role"]) == "Miner" else GUARD, x + 8, y + 7, 40, 40)
+		_print(central_area, "%s  /  %s" % [str(merc["name"]), str(merc["role"])],
+			x + 55, y + 4, 227, 23, 17, INK)
+		_print(central_area, "HP %d%%  ·  Gear %d/2" % [
+			int(merc.get("health", 100)), _equipped_count(merc)],
+			x + 55, y + 29, 221, 16, 13, INK_SOFT)
+		_touch(central_area, "REMOVE" if selected_crew.has(str(merc["id"])) else "ADD",
+			x + 285, y + 8, 99, 37,
+			_toggle_crew.bind(not selected_crew.has(str(merc["id"])), str(merc["id"])),
+			"red" if selected_crew.has(str(merc["id"])) else "wood", CREAM, 14)
 		shown += 1
 	if shown == 0:
-		_print(central_area, "No ready miners or guards. Hire a new crew.", 15, 331, 750, 30, 20, WINE)
-		_touch(central_area, "OPEN RECRUITMENT →", 17, 376, 379, 43, _open_recruitment, "red", CREAM, 17)
-	elif shown < 3:
-		_print(central_area, "Only ready contractors can be assigned.", 14, 395, 766, 25, 15, INK_SOFT)
+		_print(central_area, "No available crews. Recruit miners and guards.",
+			17, 301, 765, 29, 18, WINE)
+		_touch(central_area, "OPEN RECRUITMENT", 18, 350, 340, 36,
+			_open_recruitment, "wood", GOLD_LETTER, 16)
 	_draw_warrant(true)
 
 func _guild_jobs() -> void:
-	_print(central_area, "Guaranteed wages for struggling companies.", 15, 9, 785, 32, 18, INK_SOFT)
-	var y: float = 92
-	_print(central_area, "When you've lost a crew, you still have a company to run.", 18, y, 771, 31, 19, INK)
-	_print(central_area, "Work continues in the guildhall without risking anyone's life.", 18, y+33, 774, 26, 17, INK_SOFT)
+	_print(central_area, "SAFE GUILD CONTRACTS", 17, 14, 770, 30, 23, INK)
+	_print(central_area, "Guaranteed wages to rebuild after difficult expeditions.",
+		18, 53, 776, 26, 17, INK_SOFT)
+	_print(central_area, "No crew deaths, supply fees or equipment requirements.",
+		18, 82, 776, 26, 16, INK)
 	var eligible: bool = game.can_accept_guild_work() and game.missions.size() < game.expedition_slots
-	_touch(central_area, "OFFICE PAPERWORK    ·    9 G / 3 MIN", 20, 207, 782, 61, _guild_work.bind(""), "wood", GOLD_LETTER, 20, eligible)
-	var row := 0
+	_touch(central_area, "OFFICE PAPERWORK   ·   9 G   /   3 MIN",
+		20, 132, 785, 53, _guild_work.bind(""), "wood", GOLD_LETTER, 18, eligible)
+	var index: int = 0
 	for person in game.available_guild_workers():
-		if row >= 3:
+		if index >= 3:
 			break
-		_touch(central_area, "%s    ·    18 G / 2M 30S" % str(person["name"]).to_upper(), 20, 282 + row*61, 782, 58, _guild_work.bind(str(person["id"])), "wood", GOLD_LETTER, 19, eligible)
-		row += 1
-	_simple_right("GUILD WORK", ["No entry cost", "Zero injury or death risk", "Paid when workers return", "For companies below 120 G cash", "and 250 G estimated net worth."])
-	_touch(dispatch_area, "RETURN TO CONTRACTS →", 12, 404, 294, 48, _nav_to.bind("harlow"), "red", CREAM, 17)
+		_touch(central_area,
+			"%s   ·   18 G   /   2M 30S" % str(person["name"]).to_upper(),
+			20, 202 + index * 61, 785, 53,
+			_guild_work.bind(str(person["id"])), "wood", GOLD_LETTER, 18, eligible)
+		index += 1
+	_simple_right("GUILD WORK", [
+		"No entry fee",
+		"No combat or injury",
+		"Safe offline income",
+		"Recovery for struggling",
+		"companies only."
+	])
+	_touch(dispatch_area, "VIEW CONTRACTS", 8, 315, 225, 37,
+		_nav_to.bind("harlow"), "wood", GOLD_LETTER, 15)
 
 func _financial_ledger() -> void:
-	_print(central_area, "Every coin earned and every expense recorded.", 15, 9, 785, 32, 18, INK_SOFT)
+	_print(central_area, "ACCOUNTS OF THE CONTRACTORS' GUILD",
+		17, 8, 791, 29, 18, INK_SOFT)
 	var cells := [
 		["GOLD ON HAND", _money(game.gold)],
 		["COMPANY NET WORTH", _money(game.wealth())],
 		["EQUIPMENT VALUE", _money(game.owned_equipment_value())],
 		["GUILD DEBT", _money(game.relief_debt)],
 		["REPUTATION", str(game.reputation)],
-		["ACTIVE OPERATIONS", "%d / %d" % [game.missions.size(),game.expedition_slots]]
+		["ACTIVE OPERATIONS", "%d / %d" % [game.missions.size(), game.expedition_slots]]
 	]
 	for i in range(cells.size()):
-		var x: float = 14 + float(i % 2) * 401.0
-		var y: float = 90 + float(i / 2) * 114.0
-		_skin(central_area,"paper",x,y,393,103)
-		_print(central_area,str(cells[i][0]),x+21,y+15,348,27,17,INK_SOFT)
-		_print(central_area,str(cells[i][1]),x+21,y+43,348,51,30,INK)
-	_simple_right("TREASURY NOTES", ["Gold is the principal currency.", "Rare items have appraised values,", "but only coins can pay wages.", "Money bags and physical vaults", "remain a future milestone."])
+		var x: float = 11.0 + float(i % 2) * 409.0
+		var y: float = 53.0 + float(i / 2) * 110.0
+		_skin(central_area, "paper", x, y, 397, 98)
+		_print(central_area, str(cells[i][0]),
+			x + 23, y + 14, 346, 24, 15, INK_SOFT)
+		_print(central_area, str(cells[i][1]),
+			x + 24, y + 45, 343, 42, 27, INK)
+	_simple_right("TREASURY NOTES", [
+		"Gold is working capital.",
+		"Equipment is appraised,",
+		"but only coins pay wages.",
+		"Physical vault storage",
+		"will come later."
+	])
 
 func _legacy_board_title(title: String, subtitle: String) -> void:
 	_print(central_area, title, 15, 8, 784, 48, 29, INK)
@@ -552,7 +586,7 @@ func _other_page() -> void:
 func _paper_scroll(y: float = 91.0) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
 	scroll.position = Vector2(12, y)
-	scroll.size = Vector2(805, 446 - y)
+	scroll.size = Vector2(805, maxf(80.0, central_area.size.y - y - 12.0))
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	central_area.add_child(scroll)
@@ -703,9 +737,11 @@ func _parchment_chronicle() -> void:
 		_print(report_block,"Losses: %s" % (", ".join(dead) if not dead.is_empty() else "None"),17,91,731,28,16,WINE if not dead.is_empty() else INK_SOFT)
 
 func _simple_right(heading: String, lines: Array) -> void:
-	_ruling(dispatch_area,18,26,281)
+	_ruling(dispatch_area, 8, 26, 222)
 	for i in range(lines.size()):
-		_print(dispatch_area,str(lines[i]),19,52+i*37,283,35,17,INK,HORIZONTAL_ALIGNMENT_LEFT,true)
+		_print(dispatch_area, str(lines[i]), 10, 48 + i * 39,
+			219, 33, 15, INK, HORIZONTAL_ALIGNMENT_LEFT, true)
+
 
 func _draw_note_cards() -> void:
 	# These are actual links, not painted mockup buttons.
