@@ -637,7 +637,7 @@ func _parchment_roster() -> void:
 	var tabs: Array = [["employed","UNDER CONTRACT"],["recruits","RECRUITMENT"],["armory","THE ARMORY"]]
 	for i in range(tabs.size()):
 		var info: Array = tabs[i]
-		_touch(central_area,str(info[1]), 11+i*268,14,257,42,
+		_touch(central_area,str(info[1]), 50+i*244,14,230,42,
 			_set_roster_tab.bind(str(info[0])),
 			"red" if roster_tab == str(info[0]) else "wood",CREAM,16)
 	var list: VBoxContainer = _paper_scroll(68)
@@ -651,7 +651,7 @@ func _parchment_roster() -> void:
 			_print(card,"%s  ·  Skill %d  ·  %s" % [
 				str(candidate["role"]),int(candidate["skill"]),str(candidate.get("title","Contractor"))],91,36,420,25,16,INK_SOFT)
 			_print(card,"Signing fee: %s" % _money(int(candidate["hire"])),91,66,300,24,17,INK)
-			_touch(card,"HIRE  →",636,25,144,48,_hire.bind(str(candidate["id"])),"red",CREAM,17,game.gold>=int(candidate["hire"]))
+			_touch(card,"HIRE  →",578,25,138,48,_hire.bind(str(candidate["id"])),"red",CREAM,17,game.gold>=int(candidate["hire"]))
 	else:
 		for merc in game.crew:
 			var card: Control = _record(list,116)
@@ -659,19 +659,19 @@ func _parchment_roster() -> void:
 			_print(card,str(merc["name"]),102,7,380,32,25,INK)
 			_print(card,"%s  ·  %s" % [str(merc["role"]),str(merc.get("title","Contractor"))],103,36,409,24,16,INK_SOFT)
 			_print(card,"Health %d%%     Experience %d     Gear %d/2" % [
-				int(merc.get("health",100)),int(merc.get("xp",0)),_equipped_count(merc)],103,66,510,25,16,INK)
-			_touch(card,"OUTFIT",633,12,148,42,_outfit.bind(str(merc["id"])),"wood",GOLD_LETTER,16)
-			_touch(card,"TERMS",633,61,148,41,_terms.bind(str(merc["id"])),"red",CREAM,16)
+				int(merc.get("health",100)),int(merc.get("xp",0)),_equipped_count(merc)],103,66,452,25,16,INK)
+			_touch(card,"OUTFIT",579,12,135,42,_outfit.bind(str(merc["id"])),"wood",GOLD_LETTER,16)
+			_touch(card,"TERMS",579,61,135,41,_terms.bind(str(merc["id"])),"red",CREAM,16)
 			if int(merc.get("health",100))<100:
-				_touch(card,"TREAT",477,65,141,34,_heal.bind(str(merc["id"])),"wood",GOLD_LETTER,15)
+				_touch(card,"TREAT",425,65,137,34,_heal.bind(str(merc["id"])),"wood",GOLD_LETTER,15)
 	if list.get_child_count()==0:
 		var empty: Control = _record(list,90)
-		_print(empty,"No contractors on this page.",19,18,742,45,19,INK)
+		_print(empty,"No contractors on this page.",19,18,689,45,19,INK)
 
 func _parchment_armory(list: VBoxContainer) -> void:
 	var intro: Control = _record(list,73)
-	_print(intro,"THE QUARTERMASTER'S ARMORY",18,8,700,35,22,INK)
-	_print(intro,"Every pickaxe and sword is a company asset.",19,39,727,24,16,INK_SOFT)
+	_print(intro,"THE QUARTERMASTER'S ARMORY",18,8,680,35,22,INK)
+	_print(intro,"Every pickaxe and sword is a company asset.",19,39,678,24,16,INK_SOFT)
 	var crew: Array = game.crew
 	for i in range(mini(crew.size(),4)):
 		var merc: Dictionary = crew[i]
@@ -679,7 +679,7 @@ func _parchment_armory(list: VBoxContainer) -> void:
 		_print(selector,"%s  ·  %s" % [str(merc["name"]),str(merc["role"])],18,8,420,31,20,INK)
 		var worn: Dictionary = merc.get("equipment",{})
 		_print(selector,"%s | %s" % [_equipment_name(worn.get("tool",{})),_equipment_name(worn.get("armor",{}))],19,33,530,24,15,INK_SOFT)
-		_touch(selector,"SELECT" if selected_merc!=str(merc["id"]) else "SELECTED",623,7,162,49,
+		_touch(selector,"SELECT" if selected_merc!=str(merc["id"]) else "SELECTED",571,7,142,49,
 			_choose_worker.bind(str(merc["id"])),"red" if selected_merc==str(merc["id"]) else "wood",CREAM,15)
 	if selected_merc.is_empty() and not crew.is_empty():
 		selected_merc = str(crew[0]["id"])
@@ -690,22 +690,22 @@ func _parchment_armory(list: VBoxContainer) -> void:
 		var card: Control = _record(list,70)
 		_print(card,"%s  ·  STORED" % str(definition["name"]),20,5,532,30,20,INK)
 		_print(card,"Resale value: ~%d G" % int(float(definition["cost"])*0.65),20,35,444,25,15,INK_SOFT)
-		_touch(card,"EQUIP",468,12,145,46,_equip.bind(selected_merc,str(item["uid"])),"wood",GOLD_LETTER,16,
+		_touch(card,"EQUIP",453,12,122,46,_equip.bind(selected_merc,str(item["uid"])),"wood",GOLD_LETTER,16,
 			not owner.is_empty() and MercsV05.validate_role(key,owner) and game.is_available(owner))
-		_touch(card,"SELL",628,12,156,46,_sell_equipment.bind(str(item["uid"])),"red",CREAM,16)
+		_touch(card,"SELL",584,12,133,46,_sell_equipment.bind(str(item["uid"])),"red",CREAM,16)
 	var heading: Control = _record(list,55)
-	_print(heading,"CATALOGUE  /  PURCHASE EQUIPMENT",17,9,742,37,21,INK)
+	_print(heading,"CATALOGUE  /  PURCHASE EQUIPMENT",17,9,675,37,21,INK)
 	for key in MercsV05.ITEMS:
 		var definition: Dictionary = MercsV05.ITEMS[key]
 		var stock: Control = _record(list,66)
 		_print(stock,"%s    ·   %s" % [str(definition["name"]),str(definition["role"])],16,8,536,29,19,INK)
 		_print(stock,"Extraction %d   Combat %d   Protection %d" % [
 			int(definition["mining"]),int(definition["guard"]),int(definition["protection"])],17,36,550,22,15,INK_SOFT)
-		_touch(stock,"BUY %d G" % int(definition["cost"]),622,9,163,46,
+		_touch(stock,"BUY %d G" % int(definition["cost"]),568,9,149,46,
 			_buy_equipment.bind(str(key)),"wood",GOLD_LETTER,16,game.gold>=int(definition["cost"]))
 
 func _parchment_market() -> void:
-	_print(central_area,"MERCHANT PRICES  ·  COMPANY INVENTORY",18,8,772,26,14,INK_SOFT)
+	_print(central_area,"MERCHANT PRICES  ·  COMPANY INVENTORY",54,8,719,26,14,INK_SOFT)
 	var list: VBoxContainer = _paper_scroll(51)
 	for item_id in MoneyMercsState.RESOURCE_ORDER:
 		var id: String = str(item_id)
@@ -716,12 +716,12 @@ func _parchment_market() -> void:
 		_print(record,str(MoneyMercsState.RESOURCE_NAMES[id]),83,7,364,30,22,INK)
 		_print(record,"%d STORED   ·   SELL %d G   ·   BUY %d G" % [
 			quantity,game.sell_price(id),game.buy_price(id)],83,39,457,25,15,INK_SOFT)
-		_touch(record,"SELL",505,16,81,48,_trade.bind(id,false,1),"red",CREAM,16,quantity>0)
-		_touch(record,"SELL ALL",597,16,93,48,_trade.bind(id,false,quantity),"wood",GOLD_LETTER,15,quantity>0)
-		_touch(record,"BUY",700,16,86,48,_trade.bind(id,true,1),"wood",GOLD_LETTER,16,game.gold>=game.buy_price(id))
+		_touch(record,"SELL",454,16,82,48,_trade.bind(id,false,1),"red",CREAM,16,quantity>0)
+		_touch(record,"SELL ALL",545,16,92,48,_trade.bind(id,false,quantity),"wood",GOLD_LETTER,15,quantity>0)
+		_touch(record,"BUY",646,16,78,48,_trade.bind(id,true,1),"wood",GOLD_LETTER,16,game.gold>=game.buy_price(id))
 
 func _parchment_sites() -> void:
-	_print(central_area,"These older sites still use the original expedition system.",13,8,780,26,17,INK_SOFT)
+	_print(central_area,"These older sites still use the original expedition system.",52,8,720,26,17,INK_SOFT)
 	var list: VBoxContainer = _paper_scroll(51)
 	for region in MoneyMercsState.REGIONS:
 		var contract: Control = _record(list,113)
@@ -729,24 +729,24 @@ func _parchment_sites() -> void:
 		_print(contract,str(region.get("tagline","Dangerous contract")),19,39,670,26,16,INK_SOFT)
 		_print(contract,"Threat %d  ·  Cost %d G  ·  Required reputation %d" % [
 			int(region["threat"]),int(region["supplies"]),int(region["rep"])],19,70,565,28,16,INK)
-		_touch(contract,"DISPATCH →",611,53,176,48,_old_dispatch.bind(str(region["id"])),"red",CREAM,16,
+		_touch(contract,"DISPATCH →",546,53,172,48,_old_dispatch.bind(str(region["id"])),"red",CREAM,16,
 			game.free_crew()>0 and game.reputation >= int(region["rep"]) and game.missions.size()<game.expedition_slots)
 
 func _parchment_chronicle() -> void:
-	_print(central_area,"Every earned coin and lost mercenary has a story.",12,8,781,28,17,INK_SOFT)
+	_print(central_area,"Every earned coin and lost mercenary has a story.",52,8,721,28,17,INK_SOFT)
 	var list: VBoxContainer = _paper_scroll(51)
 	if game.reports.is_empty():
 		var blank: Control = _record(list,85)
-		_print(blank,"No expeditions have returned yet.",18,18,735,42,21,INK)
+		_print(blank,"No expeditions have returned yet.",18,18,693,42,21,INK)
 	for record in game.reports:
 		var report: Dictionary = record
 		var report_block: Control = _record(list,139)
 		_print(report_block,str(report.get("region","Unknown Contract")),16,7,544,32,23,INK)
-		_print(report_block,"SUCCESS" if bool(report.get("won",false)) else "COSTLY RETURN",598,7,179,31,16,FOREST if bool(report.get("won",false)) else WINE)
-		_print(report_block,"Recovered: %s" % _loot_text(report.get("loot",{})),17,37,757,26,16,INK_SOFT)
-		_print(report_block,"Found gold: %d G  ·  Mission cost: %d G" % [int(report.get("cash",0)),int(report.get("cost",0))],17,64,740,25,17,INK)
+		_print(report_block,"SUCCESS" if bool(report.get("won",false)) else "COSTLY RETURN",547,7,167,31,16,FOREST if bool(report.get("won",false)) else WINE)
+		_print(report_block,"Recovered: %s" % _loot_text(report.get("loot",{})),17,37,691,26,16,INK_SOFT)
+		_print(report_block,"Found gold: %d G  ·  Mission cost: %d G" % [int(report.get("cash",0)),int(report.get("cost",0))],17,64,691,25,17,INK)
 		var dead: Array = report.get("casualties",[])
-		_print(report_block,"Losses: %s" % (", ".join(dead) if not dead.is_empty() else "None"),17,91,731,28,16,WINE if not dead.is_empty() else INK_SOFT)
+		_print(report_block,"Losses: %s" % (", ".join(dead) if not dead.is_empty() else "None"),17,91,689,28,16,WINE if not dead.is_empty() else INK_SOFT)
 
 func _simple_right(heading: String, lines: Array) -> void:
 	_ruling(dispatch_area, 8, 26, 222)
