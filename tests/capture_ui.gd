@@ -18,6 +18,8 @@ func _capture() -> void:
 	var destinations: Array = [
 		["harlow", "res://docs/ui_harlow_preview.jpg"],
 		["roster", "res://docs/ui_mercenaries_preview.jpg"],
+		["guildwork", "res://docs/ui_guildwork_preview.jpg"],
+		["finance", "res://docs/ui_finance_preview.jpg"],
 		["market", "res://docs/ui_trading_preview.jpg"],
 		["hq", "res://docs/ui_office_preview.jpg"],
 		["armory", "res://docs/ui_armory_preview.jpg"],
