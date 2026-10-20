@@ -190,8 +190,8 @@ func _touch(parent: Node, label: String, x: float, y: float, w: float, h: float,
 	_skin(parent, style, x, y, w, h)
 	var button := Button.new()
 	# The medallion occupies the left quarter of the painted button.
-	button.position = Vector2(x + w * 0.205, y + 6)
-	button.size = Vector2(w * 0.77, h - 12)
+	button.position = Vector2(x + 12, y + 6)
+	button.size = Vector2(w - 24, h - 12)
 	button.text = label
 	button.add_theme_font_override("font", guild_display_font)
 	button.add_theme_font_size_override("font_size",
@@ -317,18 +317,18 @@ func _overview() -> void:
 	var state: String = "UNSURVEYED" if known.is_empty() else "SCOUTED THIS ROTATION"
 	_print(central_area, "REGION 01  ·  %s" % state, 398, 53, 365, 20, 13, INK_SOFT)
 	_picture(central_area, SEAL, 756, 8, 50, 50)
-	_picture(central_area, MINE_INK, 343, 79, 470, 183)
-	_print(central_area, "An old mine reopened for contract work. Rich ore veins lie", 351, 265, 457, 26, 15, INK)
-	_print(central_area, "behind unstable tunnels and dangerous creatures.", 351, 291, 457, 26, 15, INK)
-	_print(central_area, "A careful crew could turn the claim into profit.", 351, 317, 457, 26, 15, INK)
-	_ruling(central_area, 347, 354, 464)
-	_print(central_area, "POTENTIAL YIELD", 353, 357, 171, 22, 12, INK_SOFT)
-	_print(central_area, "RISK", 550, 357, 122, 22, 12, INK_SOFT)
-	_print(central_area, "ROTATION ENDS", 698, 357, 112, 22, 12, INK_SOFT)
-	_print(central_area, "Ore deposits", 353, 382, 176, 25, 17, INK)
-	_print(central_area, "Unknown", 550, 382, 135, 25, 17, WINE)
-	_print(central_area, _duration(game.harlow_rotation_remaining()), 698, 382, 108, 25, 16, INK)
-	_touch(central_area, "INSPECT MINE & SEND SCOUT  →", 350, 418, 469, 43, _nav_to.bind("harlow"), "red", CREAM, 17)
+	_picture(central_area, MINE_INK, 343, 70, 470, 170)
+	_print(central_area, "An old mine reopened for contract work. Rich ore lies", 351, 243, 457, 25, 16, INK)
+	_print(central_area, "beyond unstable tunnels and dangerous creatures.", 351, 267, 457, 25, 16, INK)
+	_print(central_area, "A prepared crew might turn the claim into profit.", 351, 291, 457, 25, 16, INK)
+	_ruling(central_area, 347, 323, 464)
+	_print(central_area, "POTENTIAL YIELD", 353, 326, 171, 22, 13, INK_SOFT)
+	_print(central_area, "RISK", 550, 326, 122, 22, 13, INK_SOFT)
+	_print(central_area, "ROTATION ENDS", 698, 326, 112, 22, 13, INK_SOFT)
+	_print(central_area, "Ore deposits", 353, 350, 176, 25, 17, INK)
+	_print(central_area, "Unknown", 550, 350, 135, 25, 17, WINE)
+	_print(central_area, _duration(game.harlow_rotation_remaining()), 698, 350, 108, 25, 16, INK)
+	_touch(central_area, "OPEN HARLOW DOSSIER   →", 351, 386, 460, 42, _nav_to.bind("harlow"), "red", CREAM, 16)
 	_draw_warrant(false)
 
 func _contract_tabs() -> void:
@@ -412,9 +412,9 @@ func _draw_warrant(detailed: bool) -> void:
 	for ore in (game.harlow.get("deposits", {}) as Dictionary).values():
 		deposits_remaining += int(ore)
 	var available: bool = (stats["miners"] > 0 and miners.size() <= 3 and game.gold >= int(stats["wage"]) and deposits_remaining > 0 and game.missions.size() < game.expedition_slots)
-	var go := _touch(dispatch_area, "FUND EXPEDITION", 15, 385, 286, 45, _dispatch_harlow, "wood", GOLD_LETTER, 18, available)
+	var go := _touch(dispatch_area, "FUND EXPEDITION", 15, 401, 286, 43, _dispatch_harlow, "wood", GOLD_LETTER, 17, available)
 	go.add_theme_color_override("font_color", Color("#cce6c2"))
-	_print(dispatch_area, "Requires a miner. Death is permanent.", 18, 432, 279, 20, 13, WINE)
+	_print(dispatch_area, "Mercenary death is permanent.", 20, 373, 271, 18, 13, WINE)
 
 func _harlow_dossier() -> void:
 	# The board switches to a real guild scouting sheet and a 3-person manifest.
@@ -690,8 +690,8 @@ func _draw_note_cards() -> void:
 		var n: Array = note_titles[i]
 		var x: float = float(i)*407.0
 		_skin(notes_area,"paper",x,0,396,147)
-		_print(notes_area,str(n[0]),x+24,13,355,30,21,INK)
-		_print(notes_area,str(n[1]),x+24,45,355,23,15,INK_SOFT)
+		_print(notes_area,str(n[0]),x+27,15,344,27,19,INK)
+		_print(notes_area,str(n[1]),x+27,46,343,22,14,INK_SOFT)
 		if i == 1 and not game.reports.is_empty():
 			var report: Dictionary = game.reports[0]
 			_print(notes_area,"%s  ·  %s" % [str(report.get("region","Unknown")),("Successful" if bool(report.get("won",false)) else "Costly return")],x+24,68,348,23,15,INK)
@@ -699,7 +699,7 @@ func _draw_note_cards() -> void:
 			_print(notes_area,"Safe contracts available to the needy",x+24,69,343,21,14,INK)
 		elif i == 2:
 			_print(notes_area,"Hire, outfit and assign your employees",x+24,69,345,21,14,INK)
-		_touch(notes_area,str(n[2]),x+72,98,250,38,_nav_to.bind(str(n[3])),"wood",GOLD_LETTER,16)
+		_touch(notes_area,str(n[2]),x+70,99,254,38,_nav_to.bind(str(n[3])),"wood",GOLD_LETTER,15)
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
