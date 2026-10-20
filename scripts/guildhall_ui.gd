@@ -98,7 +98,11 @@ func _scale_stage() -> void:
 	var window_size: Vector2 = size
 	if window_size.x <= 0 or window_size.y <= 0:
 		window_size = get_viewport_rect().size
-	stage.scale = Vector2(window_size.x / 1600.0, window_size.y / 900.0)
+	# Keep font and artwork proportions intact on 16:10 and ultrawide monitors.
+	# Independent X/Y scaling squeezed serif letters at the default 1440x900 size.
+	var factor: float = minf(window_size.x / 1600.0, window_size.y / 900.0)
+	stage.scale = Vector2(factor, factor)
+	stage.position = (window_size - Vector2(1600.0, 900.0) * factor) * 0.5
 
 func _region(parent: Node, x: float, y: float, w: float, h: float) -> Control:
 	var r := Control.new()
