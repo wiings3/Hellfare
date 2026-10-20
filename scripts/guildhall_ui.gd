@@ -65,32 +65,32 @@ func _build_shell() -> void:
 	_picture(stage, TREASURY, 761, 52, 261, 99)
 	_picture(stage, TREASURY, 1019, 52, 261, 99)
 	_picture(stage, TREASURY, 1278, 52, 299, 99)
-	_print(stage, "TREASURY  /  GOLD", 844, 70, 166, 24, 15, CREAM)
+	_print(stage, "TREASURY  /  GOLD", 846, 70, 163, 24, 13, CREAM)
 	gold_total = _print(stage, "0 G", 842, 98, 164, 39, 26, GOLD_LETTER)
-	_print(stage, "COMPANY VALUE", 1101, 70, 163, 24, 15, CREAM)
+	_print(stage, "COMPANY VALUE", 1101, 70, 156, 24, 13, CREAM)
 	net_total = _print(stage, "0 G", 1098, 98, 161, 39, 26, GOLD_LETTER)
-	_print(stage, "EXPEDITIONS IN FIELD", 1366, 70, 199, 24, 15, CREAM)
+	_print(stage, "EXPEDITIONS IN FIELD", 1369, 70, 187, 24, 13, CREAM)
 	field_total = _print(stage, "0 / 1", 1364, 98, 194, 39, 26, GOLD_LETTER)
 	header_gold = gold_total
 	header_wealth = net_total
 	header_jobs = field_total
-	notice = _print(stage, "Guild records updated.", 561, 153, 604, 19, 13, GOLD_LETTER)
+	notice = _print(stage, "Guild records updated.", 604, 156, 510, 18, 12, GOLD_LETTER, HORIZONTAL_ALIGNMENT_CENTER)
 	# Artwork occupies the physical framework; real controls occupy its
 	# readable interior. No procedural drawing is used for the art.
 	_picture(stage, DISPATCH, 15, 166, 306, 572)
 	navigation = _region(stage, 30, 248, 279, 476)
 	_picture(stage, BOARD, 323, 165, 886, 568)
-	board_heading = _print(stage, "CONTRACTS", 544, 234, 205, 26, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	board_heading = _print(stage, "CONTRACTS", 535, 235, 231, 29, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	central_area = _region(stage, 350, 262, 825, 445)
 	content_host = central_area
 	_picture(stage, DISPATCH, 1200, 168, 380, 566)
-	details_heading = _print(stage, "CONTRACT DETAILS", 1272, 238, 232, 27, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	details_heading = _print(stage, "DISPATCH PLAN", 1262, 240, 249, 30, 17, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	dispatch_area = _region(stage, 1244, 258, 294, 455)
 	# Loose desk notes and the wax-sealed guild status note.
 	notes_area = _region(stage, 345, 737, 1214, 151)
 	_picture(stage, PAPER, 26, 737, 294, 152)
 	_picture(stage, SEAL, 278, 725, 40, 40)
-	_print(stage, "GUILD STATUS", 51, 754, 233, 32, 22, INK)
+	_print(stage, "GUILD STATUS", 51, 757, 222, 30, 21, INK)
 
 func _scale_stage() -> void:
 	if stage == null or not is_instance_valid(stage):
@@ -273,8 +273,8 @@ func _draw_navigation() -> void:
 		else:
 			_skin(navigation, "wood", 0, y, 278, 64)
 		_print(navigation, str(info[1]), 17, y + 6, 39, 39, 33, GOLD_LETTER, HORIZONTAL_ALIGNMENT_CENTER)
-		_print(navigation, str(info[2]), 65, y + 7, 201, 26, 18, CREAM)
-		_print(navigation, str(info[3]), 66, y + 34, 200, 20, 14, Color("#c8b29a"))
+		_print(navigation, str(info[2]), 72, y + 12, 190, 25, 16, CREAM)
+		_print(navigation, str(info[3]), 73, y + 36, 188, 17, 12, Color("#e3cba8"))
 		var hit := Button.new()
 		hit.flat = true
 		hit.position = Vector2(0, y)
@@ -305,9 +305,9 @@ func _draw_status() -> void:
 	if status_lines != null and is_instance_valid(status_lines):
 		status_lines.queue_free()
 	status_lines = _region(stage, 51, 797, 235, 77)
-	_print(status_lines, "⚒  %d employed / %d ready" % [employed, game.free_crew()], 0, 0, 235, 25, 17, INK)
-	_print(status_lines, "★  %d reputation" % game.reputation, 0, 26, 235, 24, 17, INK)
-	_print(status_lines, "▣  %d / %d field teams" % [game.missions.size(), game.expedition_slots], 0, 51, 235, 23, 17, INK)
+	_print(status_lines, "%d EMPLOYED   /   %d READY" % [employed, game.free_crew()], 0, 2, 229, 22, 14, INK)
+	_print(status_lines, "REPUTATION   %d" % game.reputation, 0, 26, 229, 21, 14, INK)
+	_print(status_lines, "FIELD TEAMS   %d / %d" % [game.missions.size(), game.expedition_slots], 0, 50, 229, 21, 14, INK)
 
 
 func _overview() -> void:
@@ -318,16 +318,16 @@ func _overview() -> void:
 	_print(central_area, "REGION 01  ·  %s" % state, 398, 53, 365, 20, 13, INK_SOFT)
 	_picture(central_area, SEAL, 756, 8, 50, 50)
 	_picture(central_area, MINE_INK, 343, 79, 470, 183)
-	_print(central_area, "An old mine, opened up again. Reports of rich ore veins,", 347, 270, 469, 27, 17, INK)
-	_print(central_area, "unstable tunnels, and dangerous creatures in the dark.", 347, 294, 469, 27, 17, INK)
-	_print(central_area, "A profitable opportunity for a carefully equipped crew.", 347, 318, 469, 27, 17, INK)
+	_print(central_area, "An old mine reopened for contract work. Rich ore veins lie", 351, 265, 457, 26, 15, INK)
+	_print(central_area, "behind unstable tunnels and dangerous creatures.", 351, 291, 457, 26, 15, INK)
+	_print(central_area, "A careful crew could turn the claim into profit.", 351, 317, 457, 26, 15, INK)
 	_ruling(central_area, 347, 354, 464)
-	_print(central_area, "ESTIMATED YIELD", 348, 364, 168, 19, 14, INK_SOFT)
-	_print(central_area, "RISK LEVEL", 540, 364, 136, 19, 14, INK_SOFT)
-	_print(central_area, "ROTATION", 696, 364, 117, 19, 14, INK_SOFT)
-	_print(central_area, "Moderate to high", 348, 384, 190, 29, 19, INK)
-	_print(central_area, "Uncertain", 540, 384, 150, 29, 18, WINE)
-	_print(central_area, _duration(game.harlow_rotation_remaining()), 696, 384, 123, 29, 18, INK)
+	_print(central_area, "POTENTIAL YIELD", 353, 357, 171, 22, 12, INK_SOFT)
+	_print(central_area, "RISK", 550, 357, 122, 22, 12, INK_SOFT)
+	_print(central_area, "ROTATION ENDS", 698, 357, 112, 22, 12, INK_SOFT)
+	_print(central_area, "Ore deposits", 353, 382, 176, 25, 17, INK)
+	_print(central_area, "Unknown", 550, 382, 135, 25, 17, WINE)
+	_print(central_area, _duration(game.harlow_rotation_remaining()), 698, 382, 108, 25, 16, INK)
 	_touch(central_area, "INSPECT MINE & SEND SCOUT  →", 350, 418, 469, 43, _nav_to.bind("harlow"), "red", CREAM, 17)
 	_draw_warrant(false)
 
@@ -344,9 +344,9 @@ func _contract_tabs() -> void:
 		var info: Array = sheets[i]
 		var y: float = float(i * 72 + 5)
 		_skin(central_area, "red" if i == 0 else "paper", 0, y, 321, 65)
-		_print(central_area, str(i + 1).pad_zeros(2), 19, y + 7, 46, 39, 23, CREAM if i == 0 else INK_SOFT)
-		_print(central_area, str(info[0]), 69, y + 6, 239, 27, 21, CREAM if i == 0 else INK)
-		_print(central_area, str(info[1]), 69, y + 34, 242, 19, 13, Color("#ecd1b4") if i == 0 else INK_SOFT)
+		_print(central_area, str(i + 1).pad_zeros(2), 22, y + 13, 37, 32, 19, CREAM if i == 0 else INK_SOFT)
+		_print(central_area, str(info[0]), 73, y + 12, 226, 24, 17, CREAM if i == 0 else INK)
+		_print(central_area, str(info[1]), 74, y + 35, 219, 17, 12, Color("#ecd1b4") if i == 0 else INK_SOFT)
 		var b := Button.new()
 		b.position = Vector2(0, y)
 		b.size = Vector2(321, 64)
