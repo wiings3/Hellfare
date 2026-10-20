@@ -8,11 +8,11 @@ const SIGN: Texture2D = preload("res://assets/ui/painted/guild_sign.webp")
 const MINE_ART: Texture2D = preload("res://assets/ui/painted/harlow_engraving.webp")
 
 const INK := Color("#181e1c")
-const NIGHT := Color("#161c1b")
-const SURFACE := Color("#222a29")
-const SURFACE_RAISED := Color("#2b3330")
-const EDGE := Color("#665d4b")
-const RULE := Color("#504b3f")
+const NIGHT := Color("#1a1b17")
+const SURFACE := Color("#292922")
+const SURFACE_RAISED := Color("#363328")
+const EDGE := Color("#776b52")
+const RULE := Color("#5d5544")
 const IVORY := Color("#f3e7cd")
 const PAPER := Color("#e3d6b9")
 const GOLD := Color("#e1be76")
@@ -153,19 +153,19 @@ func _box_style(kind: String) -> StyleBoxFlat:
 	style.set_content_margin_all(0)
 	match kind:
 		"dark":
-			style.bg_color = Color("#171d1b", 0.98)
+			style.bg_color = Color("#1c201b", 0.98)
 			style.border_color = Color("#4f4d40")
 		"main":
-			style.bg_color = Color("#202622", 0.99)
+			style.bg_color = Color("#262823", 0.99)
 			style.border_color = Color("#827153")
 		"row":
-			style.bg_color = Color("#30372f")
+			style.bg_color = Color("#35352d")
 			style.border_color = Color("#4c5144")
 		"row_selected":
-			style.bg_color = Color("#51443b")
+			style.bg_color = Color("#544239")
 			style.border_color = GOLD
 		"soft":
-			style.bg_color = Color("#292f2b")
+			style.bg_color = Color("#2d2e28")
 			style.border_color = Color("#444b40")
 		"danger":
 			style.bg_color = Color("#3d2925")
@@ -238,7 +238,7 @@ func _button_style(variant: String) -> StyleBoxFlat:
 	style.set_corner_radius_all(3)
 	style.set_border_width_all(1)
 	style.set_content_margin_all(4)
-	style.bg_color = Color("#383f37")
+	style.bg_color = Color("#433f34")
 	style.border_color = Color("#7b806d")
 	match variant:
 		"primary":
@@ -248,13 +248,13 @@ func _button_style(variant: String) -> StyleBoxFlat:
 			style.bg_color = Color("#ac8046")
 			style.border_color = Color("#ffe1a3")
 		"secondary_hover", "secondary_pressed":
-			style.bg_color = Color("#555f51")
+			style.bg_color = Color("#655949")
 			style.border_color = GOLD
 		"quiet":
-			style.bg_color = Color("#262e28")
+			style.bg_color = Color("#2a2c27")
 			style.border_color = Color("#444b41")
 		"quiet_hover", "quiet_pressed":
-			style.bg_color = Color("#3c493e")
+			style.bg_color = Color("#53483a")
 			style.border_color = GOLD
 		"disabled":
 			style.bg_color = Color("#242a26")
