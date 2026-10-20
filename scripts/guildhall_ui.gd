@@ -365,16 +365,24 @@ func _contract_tabs() -> void:
 	]
 	for i in range(sheets.size()):
 		var info: Array = sheets[i]
-		var y: float = float(4 + i * 65)
-		_skin(central_area, "red" if i == 0 else "paper", 0, y, 362, 59)
-		_print(central_area, "%02d" % (i + 1), 15, y + 9, 42, 36, 19,
-			CREAM if i == 0 else INK_SOFT, HORIZONTAL_ALIGNMENT_CENTER)
-		_print(central_area, str(info[0]), 65, y + 7, 274, 24, 19, CREAM if i == 0 else INK)
-		_print(central_area, str(info[1]), 66, y + 31, 273, 20, 13,
-			Color("#eddab9") if i == 0 else INK_SOFT)
+		var y: float = float(i * 64 + 2)
+		# Individual, unwarped hand-painted slips, pinned in a stack.
+		_picture(central_area, CONTRACT_SLIP, 0, y, 346, 74)
+		if i == 0:
+			var tint := ColorRect.new()
+			tint.position = Vector2(53, y + 8)
+			tint.size = Vector2(276, 51)
+			tint.color = Color("#7d3225", 0.12)
+			tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			central_area.add_child(tint)
+		_picture(central_area, SEAL, 9, y + 13, 47, 47)
+		_print(central_area, "%02d" % (i + 1), 17, y + 20, 31, 27, 15,
+			CREAM, HORIZONTAL_ALIGNMENT_CENTER)
+		_print(central_area, str(info[0]), 75, y + 16, 258, 23, 17, INK)
+		_print(central_area, str(info[1]), 75, y + 40, 258, 18, 13, INK_SOFT)
 		var hit := Button.new()
-		hit.position = Vector2(0, y)
-		hit.size = Vector2(362, 59)
+		hit.position = Vector2(0, y + 7)
+		hit.size = Vector2(346, 58)
 		hit.flat = true
 		hit.add_theme_stylebox_override("normal", _transparent_style())
 		hit.add_theme_stylebox_override("hover", _outline_style())
@@ -743,6 +751,24 @@ func _simple_right(heading: String, lines: Array) -> void:
 			219, 33, 15, INK, HORIZONTAL_ALIGNMENT_LEFT, true)
 
 
+func _desk_note(parent: Node, x: float, y: float, w: float, h: float) -> void:
+	# The upper portion of the original painted memo preserves the organic
+	# corners; the source's built-in lower button strip is excluded because
+	# the actual clickable wooden action is drawn separately.
+	var crop := AtlasTexture.new()
+	crop.atlas = PAPER
+	crop.region = Rect2(0, 0, 525, 217)
+	var note := NinePatchRect.new()
+	note.texture = crop
+	note.position = Vector2(x, y)
+	note.size = Vector2(w, h)
+	note.patch_margin_left = 39
+	note.patch_margin_right = 39
+	note.patch_margin_top = 25
+	note.patch_margin_bottom = 24
+	note.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(note)
+
 func _draw_note_cards() -> void:
 	# These are actual links, not painted mockup buttons.
 	var note_titles: Array = [
@@ -753,7 +779,7 @@ func _draw_note_cards() -> void:
 	for i in range(3):
 		var n: Array = note_titles[i]
 		var x: float = float(i)*407.0
-		_skin(notes_area,"paper",x,0,396,147)
+		_desk_note(notes_area, x, 0, 396, 134)
 		_print(notes_area,str(n[0]),x+27,15,344,27,19,INK)
 		_print(notes_area,str(n[1]),x+27,46,343,22,14,INK_SOFT)
 		if i == 1 and not game.reports.is_empty():
