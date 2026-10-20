@@ -640,7 +640,7 @@ func _parchment_armory(list: VBoxContainer) -> void:
 			_buy_equipment.bind(str(key)),"wood",GOLD_LETTER,16,game.gold>=int(definition["cost"]))
 
 func _parchment_market() -> void:
-	_print(central_area,"Buy and sell commodities in gold. Player trading comes later.",13,8,785,31,17,INK_SOFT)
+	_print(central_area,"MERCHANT PRICES  ·  COMPANY INVENTORY",18,8,772,26,14,INK_SOFT)
 	var list: VBoxContainer = _paper_scroll(51)
 	for item_id in MoneyMercsState.RESOURCE_ORDER:
 		var id: String = str(item_id)
