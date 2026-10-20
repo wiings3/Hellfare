@@ -90,8 +90,8 @@ func _build_shell() -> void:
 
 	# Painted contract board rendered at its source aspect ratio (4:3).
 	# Move functional content below the crest and physically inside the paper.
-	_picture(stage, DISPATCH, -12, 177, 355, 532)
-	navigation = _region(stage, 16, 270, 290, 435)
+	_picture(stage, DISPATCH, 12, 191, 316, 474)
+	navigation = _region(stage, 29, 269, 272, 401)
 	_picture(stage, BOARD, 324, 154, 886, 665)
 	board_heading = _print(stage, "CONTRACTS", 526, 255, 446, 34, 20, INK, HORIZONTAL_ALIGNMENT_CENTER)
 	central_area = _region(stage, 349, 319, 829, 401)
@@ -104,10 +104,12 @@ func _build_shell() -> void:
 	dispatch_area = _region(stage, 1272, 303, 241, 355)
 
 	# Desk notes are laid over the lower frame like physical loose papers.
-	notes_area = _region(stage, 345, 752, 1216, 137)
-	_picture(stage, PAPER, 24, 741, 293, 162)
-	_picture(stage, SEAL, 286, 740, 36, 36)
-	_print(stage, "GUILD STATUS", 50, 771, 233, 28, 20, INK)
+	# The bottom notes start below the carved board's lower brass rail.
+	# Keep both the heading and button wholly inside their paper.
+	notes_area = _region(stage, 345, 785, 1216, 111)
+	_desk_note(stage, 25, 779, 288, 116)
+	_picture(stage, SEAL, 282, 771, 34, 34)
+	_print(stage, "GUILD STATUS", 49, 792, 235, 26, 18, INK)
 	# Guild notices appear only when an action needs acknowledgment.
 	notice_panel = _skin(stage, "wood", 612, 157, 586, 39)
 	notice_panel.visible = false
@@ -323,13 +325,13 @@ func _draw_navigation() -> void:
 	for i in range(entries.size()):
 		var info: Array = entries[i]
 		var id: String = str(info[0])
-		var y: float = float(i * 59 + 3)
-		_skin(navigation, "red" if page == id else "wood", 0, y, 284, 54)
-		_print(navigation, str(info[1]), 22, y + 7, 245, 23, 17, CREAM)
-		_print(navigation, str(info[2]), 24, y + 31, 234, 16, 12, Color("#ead4b0"))
+		var y: float = float(i * 56 + 2)
+		_skin(navigation, "red" if page == id else "wood", 0, y, 269, 51)
+		_print(navigation, str(info[1]), 30, y + 7, 224, 23, 17, CREAM)
+		_print(navigation, str(info[2]), 31, y + 30, 219, 16, 12, Color("#ead4b0"))
 		var hit := Button.new()
 		hit.position = Vector2(0, y)
-		hit.size = Vector2(284, 54)
+		hit.size = Vector2(269, 51)
 		hit.flat = true
 		hit.focus_mode = Control.FOCUS_NONE
 		hit.add_theme_stylebox_override("normal", _transparent_style())
@@ -356,10 +358,10 @@ func _draw_status() -> void:
 	# Previous status elements are tracked by putting live metrics in a dedicated container.
 	if status_lines != null and is_instance_valid(status_lines):
 		status_lines.queue_free()
-	status_lines = _region(stage, 50, 805, 235, 70)
-	_print(status_lines, "%d EMPLOYED   /   %d READY" % [employed, game.free_crew()], 0, 0, 224, 20, 14, INK)
-	_print(status_lines, "REPUTATION   %d" % game.reputation, 0, 21, 224, 20, 14, INK)
-	_print(status_lines, "FIELD TEAMS   %d / %d" % [game.missions.size(), game.expedition_slots], 0, 42, 224, 20, 14, INK)
+	status_lines = _region(stage, 49, 820, 236, 60)
+	_print(status_lines, "%d EMPLOYED   /   %d READY" % [employed, game.free_crew()], 0, 0, 224, 18, 13, INK)
+	_print(status_lines, "REPUTATION   %d" % game.reputation, 0, 19, 224, 18, 13, INK)
+	_print(status_lines, "FIELD TEAMS   %d / %d" % [game.missions.size(), game.expedition_slots], 0, 38, 224, 18, 13, INK)
 
 
 func _overview() -> void:
@@ -808,17 +810,17 @@ func _draw_note_cards() -> void:
 	for i in range(3):
 		var n: Array = note_titles[i]
 		var x: float = float(i)*407.0
-		_desk_note(notes_area, x, 0, 396, 134)
-		_print(notes_area,str(n[0]),x+27,15,344,27,19,INK)
-		_print(notes_area,str(n[1]),x+27,46,343,22,14,INK_SOFT)
+		_desk_note(notes_area, x, 0, 396, 110)
+		_print(notes_area, str(n[0]), x+28, 16, 338, 23, 17, INK)
+		_print(notes_area, str(n[1]), x+29, 40, 336, 18, 13, INK_SOFT)
 		if i == 1 and not game.reports.is_empty():
 			var report: Dictionary = game.reports[0]
-			_print(notes_area,"%s  ·  %s" % [str(report.get("region","Unknown")),("Successful" if bool(report.get("won",false)) else "Costly return")],x+24,68,348,23,15,INK)
+			_print(notes_area,"%s  ·  %s" % [str(report.get("region","Unknown")),("Successful" if bool(report.get("won",false)) else "Costly return")],x+29,60,337,18,13,INK)
 		elif i == 0:
-			_print(notes_area,"Safe contracts available to the needy",x+24,69,343,21,14,INK)
+			_print(notes_area,"Safe contracts available to the needy",x+29,60,337,18,13,INK)
 		elif i == 2:
-			_print(notes_area,"Hire, outfit and assign your employees",x+24,69,345,21,14,INK)
-		_touch(notes_area,str(n[2]),x+70,99,254,38,_nav_to.bind(str(n[3])),"wood",GOLD_LETTER,15)
+			_print(notes_area,"Hire, outfit and assign your employees",x+29,60,337,18,13,INK)
+		_touch(notes_area, str(n[2]), x+66, 81, 264, 28, _nav_to.bind(str(n[3])), "wood", GOLD_LETTER, 14)
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
