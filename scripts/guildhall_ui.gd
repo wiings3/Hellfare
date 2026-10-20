@@ -48,6 +48,11 @@ func _build_shell() -> void:
 	guild_book_font.font_names = PackedStringArray(["Book Antiqua", "Palatino Linotype", "Georgia", "Noto Serif", "Liberation Serif"])
 	guild_display_font = SystemFont.new()
 	guild_display_font.font_names = PackedStringArray(["Cinzel", "Trajan Pro", "Copperplate Gothic", "Baskerville", "Palatino Linotype", "Georgia", "Noto Serif"])
+	var letterbox := ColorRect.new()
+	letterbox.color = Color("#21140e")
+	letterbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	letterbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(letterbox)
 	stage = Control.new()
 	stage.name = "GuildmasterDesk"
 	stage.position = Vector2.ZERO
@@ -308,10 +313,10 @@ func _draw_status() -> void:
 	# Previous status elements are tracked by putting live metrics in a dedicated container.
 	if status_lines != null and is_instance_valid(status_lines):
 		status_lines.queue_free()
-	status_lines = _region(stage, 51, 797, 235, 77)
-	_print(status_lines, "%d EMPLOYED   /   %d READY" % [employed, game.free_crew()], 0, 2, 229, 22, 14, INK)
-	_print(status_lines, "REPUTATION   %d" % game.reputation, 0, 26, 229, 21, 14, INK)
-	_print(status_lines, "FIELD TEAMS   %d / %d" % [game.missions.size(), game.expedition_slots], 0, 50, 229, 21, 14, INK)
+	status_lines = _region(stage, 51, 787, 232, 64)
+	_print(status_lines, "%d EMPLOYED   /   %d READY" % [employed, game.free_crew()], 0, 0, 224, 20, 14, INK)
+	_print(status_lines, "REPUTATION   %d" % game.reputation, 0, 21, 224, 20, 14, INK)
+	_print(status_lines, "FIELD TEAMS   %d / %d" % [game.missions.size(), game.expedition_slots], 0, 42, 224, 20, 14, INK)
 
 
 func _overview() -> void:
@@ -328,10 +333,10 @@ func _overview() -> void:
 	_ruling(central_area, 347, 323, 464)
 	_print(central_area, "POTENTIAL YIELD", 353, 326, 171, 22, 13, INK_SOFT)
 	_print(central_area, "RISK", 550, 326, 122, 22, 13, INK_SOFT)
-	_print(central_area, "ROTATION ENDS", 698, 326, 112, 22, 13, INK_SOFT)
+	_print(central_area, "ROTATION ENDS", 685, 326, 116, 22, 13, INK_SOFT)
 	_print(central_area, "Ore deposits", 353, 350, 176, 25, 17, INK)
 	_print(central_area, "Unknown", 550, 350, 135, 25, 17, WINE)
-	_print(central_area, _duration(game.harlow_rotation_remaining()), 698, 350, 108, 25, 16, INK)
+	_print(central_area, _duration(game.harlow_rotation_remaining()), 685, 350, 115, 25, 16, INK)
 	_touch(central_area, "OPEN HARLOW DOSSIER   →", 351, 386, 460, 42, _nav_to.bind("harlow"), "red", CREAM, 16)
 	_draw_warrant(false)
 
@@ -410,7 +415,7 @@ func _draw_warrant(detailed: bool) -> void:
 		_print(dispatch_area, "Assign miners and guards to inspect", 18, 237, 278, 36, 16, INK)
 		_print(dispatch_area, "capacity, risk, and expected costs.", 18, 267, 278, 31, 16, INK)
 	_ruling(dispatch_area, 15, 306, 284)
-	_print(dispatch_area, "MINING CAPACITY / DISPATCH COST", 18, 316, 279, 24, 15, INK_SOFT)
+	_print(dispatch_area, "CAPACITY   /   COST", 18, 316, 267, 24, 15, INK_SOFT)
 	_print(dispatch_area, "⚒  %d     /     %s" % [int(stats["capacity"]), _money(int(stats["wage"]))], 18, 343, 276, 27, 19, INK)
 	var deposits_remaining: int = 0
 	for ore in (game.harlow.get("deposits", {}) as Dictionary).values():
