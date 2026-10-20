@@ -129,15 +129,19 @@ func _region(parent: Node, x: float, y: float, w: float, h: float) -> Control:
 	return r
 
 func _picture(parent: Node, tex: Texture2D, x: float, y: float, w: float, h: float) -> NinePatchRect:
-	# Zero-patch NinePatchRect guarantees the art fits its exact bounds.
-	# TextureRect on GL Compatibility previously drew SVGs at native size.
-	var p := NinePatchRect.new()
-	p.texture = tex
-	p.position = Vector2(x, y)
-	p.size = Vector2(w, h)
-	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(p)
-	return p
+	# Full painted illustrations must never be scaled independently on X/Y.
+	# Fit inside the intended bounds, preserving their source aspect ratio.
+	var source_width: float = maxf(1.0, float(tex.get_width()))
+	var source_height: float = maxf(1.0, float(tex.get_height()))
+	var factor: float = minf(w / source_width, h / source_height)
+	var draw_size := Vector2(source_width * factor, source_height * factor)
+	var art := NinePatchRect.new()
+	art.texture = tex
+	art.position = Vector2(x + (w - draw_size.x) * 0.5, y + (h - draw_size.y) * 0.5)
+	art.size = draw_size
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(art)
+	return art
 
 func _skin(parent: Node, style: String, x: float, y: float, w: float, h: float) -> NinePatchRect:
 	# Only the painted, repeatable *material* is nine-sliced. The gilded
