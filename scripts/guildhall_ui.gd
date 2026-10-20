@@ -74,9 +74,9 @@ func _build_shell() -> void:
 	# Right edge is a restrained guild seal / build identity.
 	_label(canvas, "GUILD OPERATIONS", 1380, 58, 195, 24, 14, GOLD, false, HORIZONTAL_ALIGNMENT_RIGHT)
 
-	_panel(canvas, 28, 157, 244, 676, "dark")
-	_panel(canvas, 289, 157, 955, 676, "main")
-	_panel(canvas, 1260, 157, 312, 676, "dark")
+	_ui_panel(canvas, 28, 157, 244, 676, "dark")
+	_ui_panel(canvas, 289, 157, 955, 676, "main")
+	_ui_panel(canvas, 1260, 157, 312, 676, "dark")
 	_label(canvas, "COMPANY RECORDS", 48, 180, 200, 26, 14, GOLD, true)
 	_hline(canvas, 48, 214, 204)
 	heading = _label(canvas, "OVERVIEW", 318, 181, 790, 46, 31, IVORY, true)
@@ -166,7 +166,7 @@ func _box_style(kind: String) -> StyleBoxFlat:
 			style.border_color = GOLD.darkened(0.45)
 	return style
 
-func _panel(parent: Node, x: float, y: float, w: float, h: float, kind: String = "soft") -> Panel:
+func _ui_panel(parent: Node, x: float, y: float, w: float, h: float, kind: String = "soft") -> Panel:
 	var rect := Panel.new()
 	rect.position = Vector2(x, y)
 	rect.size = Vector2(w, h)
@@ -202,7 +202,7 @@ func _label(parent: Node, label: String, x: float, y: float, w: float, h: float,
 func _hline(parent: Node, x: float, y: float, length: float) -> void:
 	_block(parent, x, y, length, 1, RULE)
 
-func _button(parent: Node, title: String, x: float, y: float, w: float, h: float,
+func _ui_button(parent: Node, title: String, x: float, y: float, w: float, h: float,
 		callback: Callable, kind: String = "secondary", enabled: bool = true) -> Button:
 	var button := Button.new()
 	button.position = Vector2(x, y)
@@ -262,7 +262,7 @@ func _button_style(variant: String) -> StyleBoxFlat:
 	return style
 
 func _stat_plate(x: float, caption: String, key: String) -> void:
-	_panel(canvas, x, 33, 267, 73, "soft")
+	_ui_panel(canvas, x, 33, 267, 73, "soft")
 	_block(canvas, x, 33, 4, 73, GOLD)
 	_label(canvas, caption, x + 20, 41, 229, 21, 13, MUTED, true)
 	var number := _label(canvas, "0", x + 20, 65, 230, 34, 25, GOLD, true)
@@ -322,10 +322,10 @@ func _render_navigation() -> void:
 		var entry: Array = entries[i]
 		var y: float = float(i * 67)
 		if str(entry[0]) == page:
-			_panel(nav_area, 0, y, 213, 62, "row_selected")
+			_ui_panel(nav_area, 0, y, 213, 62, "row_selected")
 			_block(nav_area, 0, y, 4, 62, GOLD)
 		else:
-			_panel(nav_area, 0, y, 213, 62, "soft")
+			_ui_panel(nav_area, 0, y, 213, 62, "soft")
 		_label(nav_area, str(entry[1]), 17, y + 10, 190, 26, 17, IVORY, true)
 		_label(nav_area, str(entry[2]), 17, y + 36, 192, 17, 12, MUTED)
 		var hit := Button.new()
@@ -361,25 +361,25 @@ func _on_clock() -> void:
 		message_until = 0
 		report_banner.visible = false
 
-func _metric(parent: Node, title: String, value: String, x: float, y: float, w: float) -> void:
-	_panel(parent, x, y, w, 92, "soft")
+func _ui_metric(parent: Node, title: String, value: String, x: float, y: float, w: float) -> void:
+	_ui_panel(parent, x, y, w, 92, "soft")
 	_label(parent, title, x + 17, y + 13, w - 32, 20, 13, MUTED)
 	_label(parent, value, x + 17, y + 37, w - 32, 42, 27, IVORY, true)
 
 func _render_overview() -> void:
-	_panel(work_area, 12, 10, 890, 246, "row")
+	_ui_panel(work_area, 12, 10, 890, 246, "row")
 	_block(work_area, 12, 10, 4, 246, GOLD)
 	_label(work_area, "FEATURED CONTRACT  /  REGION 01", 33, 30, 460, 25, 14, GOLD)
 	_label(work_area, "Harlow Mines", 32, 66, 441, 52, 33, IVORY, true)
 	_label(work_area, "Changing ore deposits. Uncertain threats.", 33, 126, 420, 28, 17, MUTED)
 	_label(work_area, "A scout's report helps you decide whether the crew is worth risking.",
 		33, 159, 415, 48, 15, IVORY, false, HORIZONTAL_ALIGNMENT_LEFT, true)
-	_button(work_area, "INSPECT CONTRACT", 32, 211, 280, 37, _nav_to.bind("harlow"), "primary")
+	_ui_button(work_area, "INSPECT CONTRACT", 32, 211, 280, 37, _nav_to.bind("harlow"), "primary")
 	_picture(work_area, MINE_ART, 527, 22, 347, 216)
-	_metric(work_area, "CASH ON HAND", _money(game.gold), 12, 270, 286)
-	_metric(work_area, "ASSET VALUE", _money(game.wealth()), 314, 270, 286)
-	_metric(work_area, "READY WORKERS", str(game.free_crew()), 616, 270, 286)
-	_panel(work_area, 12, 375, 890, 148, "soft")
+	_ui_metric(work_area, "CASH ON HAND", _money(game.gold), 12, 270, 286)
+	_ui_metric(work_area, "ASSET VALUE", _money(game.wealth()), 314, 270, 286)
+	_ui_metric(work_area, "READY WORKERS", str(game.free_crew()), 616, 270, 286)
+	_ui_panel(work_area, 12, 375, 890, 148, "soft")
 	_label(work_area, "MOST RECENT FIELD REPORT", 32, 392, 600, 27, 15, GOLD)
 	if game.reports.is_empty():
 		_label(work_area, "No completed expeditions. Start by inspecting Harlow Mines.",
@@ -392,15 +392,15 @@ func _render_overview() -> void:
 		_label(work_area, "Recovered: %s  •  Gold found: %d G" % [
 			_loot_text(r.get("loot", {})), int(r.get("cash", 0))],
 			32, 456, 760, 25, 15, MUTED)
-	_button(work_area, "VIEW CHRONICLE", 640, 483, 242, 31, _nav_to.bind("ledger"), "quiet")
+	_ui_button(work_area, "VIEW CHRONICLE", 640, 483, 242, 31, _nav_to.bind("ledger"), "quiet")
 	_context_title("TODAY'S WORK")
 	_context_line("Company cash", _money(game.gold), 52)
 	_context_line("Standing contractors", str(game.crew.size()), 100)
 	_context_line("Operations in field", str(game.missions.size()), 148)
 	_context_line("Outstanding guild debt", _money(game.relief_debt), 196)
-	_button(side_area, "SCOUT HARLOW MINES", 14, 280, 248, 45, _nav_to.bind("harlow"), "primary")
-	_button(side_area, "MANAGE YOUR CREW", 14, 336, 248, 43, _nav_to.bind("roster"), "secondary")
-	_button(side_area, "SAFE GUILD WORK", 14, 390, 248, 43, _nav_to.bind("guildwork"), "quiet")
+	_ui_button(side_area, "SCOUT HARLOW MINES", 14, 280, 248, 45, _nav_to.bind("harlow"), "primary")
+	_ui_button(side_area, "MANAGE YOUR CREW", 14, 336, 248, 43, _nav_to.bind("roster"), "secondary")
+	_ui_button(side_area, "SAFE GUILD WORK", 14, 390, 248, 43, _nav_to.bind("guildwork"), "quiet")
 	_label(side_area, "Your company grows by returning safely, not just by finding ore.",
 		16, 461, 242, 75, 14, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
 
@@ -415,7 +415,7 @@ func _context_line(label: String, value: String, y: float) -> void:
 
 func _render_harlow() -> void:
 	var report: Dictionary = game.harlow.get("report", {})
-	_panel(work_area, 10, 8, 891, 215, "soft")
+	_ui_panel(work_area, 10, 8, 891, 215, "soft")
 	_label(work_area, "SCOUTING REPORT", 27, 23, 560, 29, 17, GOLD, true)
 	_picture(work_area, MINE_ART, 568, 14, 310, 189)
 	if report.is_empty():
@@ -427,7 +427,7 @@ func _render_harlow() -> void:
 				int(game.harlow.get("scout_finish", 0)) - int(Time.get_unix_time_from_system()))),
 				27, 139, 515, 25, 15, GOLD)
 		else:
-			_button(work_area, "SEND SCOUT", 27, 153, 230, 43, _scout, "primary")
+			_ui_button(work_area, "SEND SCOUT", 27, 153, 230, 43, _scout, "primary")
 	else:
 		_label(work_area, "At least %d veins of %s" % [
 			int(report.get("minimum", 0)),
@@ -439,12 +439,12 @@ func _render_harlow() -> void:
 	_label(work_area, "SCOUT LEVEL  %d / 3" % scout_level, 283, 180, 220, 27, 14, MUTED)
 	if scout_level < 3:
 		var upgrade_cost: int = 200 if scout_level == 1 else 650
-		_button(work_area, "UPGRADE SCOUT  /  %d G" % upgrade_cost,
+		_ui_button(work_area, "UPGRADE SCOUT  /  %d G" % upgrade_cost,
 			27, 177, 228, 29, _train_scout, "quiet", game.gold >= upgrade_cost)
 	_label(work_area, "ASSIGN AVAILABLE CREW", 13, 234, 725, 30, 20, IVORY, true)
 	_label(work_area, "Miners extract ore. Guards improve survival. Lost gear cannot be recovered.",
 		13, 263, 873, 30, 14, MUTED)
-	var list: VBoxContainer = _scroller(work_area, 13, 302, 890, 217)
+	var list: VBoxContainer = _ui_scroller(work_area, 13, 302, 890, 217)
 	var displayed: int = 0
 	for person in game.available_guild_workers():
 		if str(person.get("role", "")) not in ["Miner", "Guard"]:
@@ -458,14 +458,14 @@ func _render_harlow() -> void:
 			role, int(person.get("health", 100)), _equipped_count(person)],
 			75, 38, 455, 21, 14, MUTED)
 		var on_team: bool = selected_crew.has(str(person["id"]))
-		_button(card, "REMOVE" if on_team else "ASSIGN", 720, 16, 140, 38,
+		_ui_button(card, "REMOVE" if on_team else "ASSIGN", 720, 16, 140, 38,
 			_toggle_crew.bind(not on_team, str(person["id"])),
 			"danger" if on_team else "secondary")
 		displayed += 1
 	if displayed == 0:
 		var empty: Control = _record(list, 74)
 		_label(empty, "No available miners or guards.", 16, 13, 550, 34, 18, MUTED)
-		_button(empty, "RECRUIT", 712, 13, 148, 39, _open_recruitment, "primary")
+		_ui_button(empty, "RECRUIT", 712, 13, 148, 39, _open_recruitment, "primary")
 	_render_dispatch()
 
 func _render_dispatch() -> void:
@@ -504,12 +504,12 @@ func _render_dispatch() -> void:
 		ore_left += int(amount)
 	var can_go: bool = (int(forecast["miners"]) >= 1 and ids.size() <= 3 and ore_left > 0
 		and game.gold >= int(forecast["wage"]) and game.missions.size() < game.expedition_slots)
-	_button(side_area, "FUND EXPEDITION", 13, 464, 249, 49,
+	_ui_button(side_area, "FUND EXPEDITION", 13, 464, 249, 49,
 		_dispatch_harlow, "primary", can_go)
-	_button(side_area, "GUILD WORK / RECOVERY", 13, 526, 249, 36,
+	_ui_button(side_area, "GUILD WORK / RECOVERY", 13, 526, 249, 36,
 		_nav_to.bind("guildwork"), "quiet")
 
-func _scroller(parent: Node, x: float, y: float, w: float, h: float) -> VBoxContainer:
+func _ui_scroller(parent: Node, x: float, y: float, w: float, h: float) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
 	scroll.position = Vector2(x, y)
 	scroll.size = Vector2(w, h)
@@ -539,10 +539,10 @@ func _render_roster() -> void:
 	var tabset: Array = [["employed", "YOUR CREW"], ["recruits", "RECRUITMENT"], ["armory", "ARMORY"]]
 	for i in range(tabset.size()):
 		var tab: Array = tabset[i]
-		_button(work_area, str(tab[1]), 12 + i * 299, 11, 288, 46,
+		_ui_button(work_area, str(tab[1]), 12 + i * 299, 11, 288, 46,
 			_set_roster_tab.bind(str(tab[0])),
 			"primary" if roster_tab == str(tab[0]) else "quiet")
-	var list := _scroller(work_area, 12, 74, 891, 447)
+	var list := _ui_scroller(work_area, 12, 74, 891, 447)
 	if roster_tab == "recruits":
 		for applicant in game.recruitment_board():
 			var row := _record(list, 91)
@@ -552,7 +552,7 @@ func _render_roster() -> void:
 			_label(row, "%s  •  Skill %d  •  Wage %d G" % [
 				str(applicant["role"]), int(applicant["skill"]), int(applicant["wage"])],
 				86, 43, 491, 25, 15, MUTED)
-			_button(row, "HIRE  /  %d G" % int(applicant["hire"]), 683, 22, 175, 43,
+			_ui_button(row, "HIRE  /  %d G" % int(applicant["hire"]), 683, 22, 175, 43,
 				_hire.bind(str(applicant["id"])), "primary",
 				game.gold >= int(applicant["hire"]))
 	elif roster_tab == "armory":
@@ -568,12 +568,12 @@ func _render_roster() -> void:
 			_label(row, "Equipped %d / 2   •   Wage %d G" % [
 				_equipped_count(merc), int(merc.get("wage", 0))],
 				95, 68, 482, 20, 14, GOLD)
-			_button(row, "OUTFIT", 683, 12, 175, 36,
+			_ui_button(row, "OUTFIT", 683, 12, 175, 36,
 				_outfit.bind(str(merc["id"])), "primary")
-			_button(row, "CONTRACT", 683, 53, 175, 35,
+			_ui_button(row, "CONTRACT", 683, 53, 175, 35,
 				_terms.bind(str(merc["id"])), "quiet")
 			if int(merc.get("health", 100)) < 100:
-				_button(row, "TREAT", 551, 53, 125, 35,
+				_ui_button(row, "TREAT", 551, 53, 125, 35,
 					_heal.bind(str(merc["id"])), "secondary")
 	if list.get_child_count() == 0:
 		var empty := _record(list, 94)
@@ -582,11 +582,11 @@ func _render_roster() -> void:
 	_context_line("Contractors on payroll", str(game.crew.size()), 61)
 	_context_line("Ready for work", str(game.free_crew()), 137)
 	_context_line("Stored equipment", str(game.equipment_inventory.size()), 213)
-	_button(side_area, "YOUR CREW", 13, 310, 248, 43,
+	_ui_button(side_area, "YOUR CREW", 13, 310, 248, 43,
 		_set_roster_tab.bind("employed"), "secondary")
-	_button(side_area, "RECRUITMENT", 13, 365, 248, 43,
+	_ui_button(side_area, "RECRUITMENT", 13, 365, 248, 43,
 		_set_roster_tab.bind("recruits"), "secondary")
-	_button(side_area, "OPEN ARMORY", 13, 420, 248, 43,
+	_ui_button(side_area, "OPEN ARMORY", 13, 420, 248, 43,
 		_set_roster_tab.bind("armory"), "primary")
 	_label(side_area, "Employees are assets. Skilled workers and equipped gear are expensive to replace.",
 		15, 477, 247, 75, 14, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
@@ -601,7 +601,7 @@ func _render_armory(list: VBoxContainer) -> void:
 		_label(picker, "%s  •  %s" % [
 			_equipment_name(worn.get("tool", {})), _equipment_name(worn.get("armor", {}))],
 			15, 38, 565, 24, 14, MUTED)
-		_button(picker, "SELECTED" if selected_merc == id else "SELECT",
+		_ui_button(picker, "SELECTED" if selected_merc == id else "SELECT",
 			690, 17, 167, 40, _choose_worker.bind(id),
 			"primary" if selected_merc == id else "quiet")
 	if selected_merc.is_empty() and not game.crew.is_empty():
@@ -615,7 +615,7 @@ func _render_armory(list: VBoxContainer) -> void:
 				var equipped := _record(list, 66)
 				_label(equipped, "EQUIPPED: %s" % _equipment_name(item),
 					14, 11, 616, 37, 17, GOLD)
-				_button(equipped, "UNEQUIP", 690, 13, 167, 39,
+				_ui_button(equipped, "UNEQUIP", 690, 13, 167, 39,
 					_unequip.bind(selected_merc, slot), "secondary")
 	for item in game.equipment_inventory:
 		var key: String = str(item.get("key", ""))
@@ -624,10 +624,10 @@ func _render_armory(list: VBoxContainer) -> void:
 		_label(stock, str(def.get("name", "Unknown item")), 14, 7, 486, 32, 19, IVORY, true)
 		_label(stock, "Stored • resale %d G" % int(float(def.get("cost", 0)) * 0.65),
 			15, 40, 499, 21, 14, MUTED)
-		_button(stock, "EQUIP", 569, 14, 138, 43,
+		_ui_button(stock, "EQUIP", 569, 14, 138, 43,
 			_equip.bind(selected_merc, str(item["uid"])), "primary",
 			not assigned.is_empty() and game.is_available(assigned) and MercsV05.validate_role(key, assigned))
-		_button(stock, "SELL", 714, 14, 141, 43,
+		_ui_button(stock, "SELL", 714, 14, 141, 43,
 			_sell_equipment.bind(str(item["uid"])), "secondary")
 	var heading_row := _record(list, 49)
 	_label(heading_row, "QUARTERMASTER'S CATALOGUE", 14, 4, 811, 38, 17, GOLD, true)
@@ -638,7 +638,7 @@ func _render_armory(list: VBoxContainer) -> void:
 		_label(purchase, "%s  •  Mining +%d  •  Combat +%d  •  Armor +%d" % [
 			str(def["role"]), int(def["mining"]), int(def["guard"]), int(def["protection"])],
 			14, 38, 582, 25, 14, MUTED)
-		_button(purchase, "BUY  /  %d G" % int(def["cost"]), 672, 14, 182, 41,
+		_ui_button(purchase, "BUY  /  %d G" % int(def["cost"]), 672, 14, 182, 41,
 			_buy_equipment.bind(str(key)), "primary", game.gold >= int(def["cost"]))
 
 func _render_market() -> void:
@@ -647,7 +647,7 @@ func _render_market() -> void:
 	_label(work_area, "Buy price", 567, 13, 112, 28, 14, MUTED)
 	_label(work_area, "Sell price", 690, 13, 109, 28, 14, MUTED)
 	_hline(work_area, 13, 49, 889)
-	var list := _scroller(work_area, 11, 59, 894, 460)
+	var list := _ui_scroller(work_area, 11, 59, 894, 460)
 	for item_id in MoneyMercsState.RESOURCE_ORDER:
 		var id: String = str(item_id)
 		var count: int = int(game.resources.get(id, 0))
@@ -660,14 +660,14 @@ func _render_market() -> void:
 		_label(row, "%d" % count, 434, 20, 93, 36, 21, IVORY, true)
 		_label(row, "%d G" % game.buy_price(id), 551, 20, 100, 36, 19, GOLD)
 		_label(row, "%d G" % game.sell_price(id), 673, 20, 90, 36, 19, GOLD)
-		_button(row, "BUY", 762, 8, 96, 30, _trade.bind(id, true, 1),
+		_ui_button(row, "BUY", 762, 8, 96, 30, _trade.bind(id, true, 1),
 			"primary", game.gold >= game.buy_price(id))
-		_button(row, "SELL", 762, 42, 96, 30, _trade.bind(id, false, 1),
+		_ui_button(row, "SELL", 762, 42, 96, 30, _trade.bind(id, false, 1),
 			"secondary", count > 0)
 	_context_title("MERCHANT TERMS")
 	_context_line("Spendable gold", _money(game.gold), 61)
 	_context_line("Known commodities", str(MoneyMercsState.RESOURCE_ORDER.size()), 142)
-	_button(side_area, "COMPANY LEDGER", 13, 280, 249, 47,
+	_ui_button(side_area, "COMPANY LEDGER", 13, 280, 249, 47,
 		_nav_to.bind("finance"), "primary")
 	_label(side_area, "Buy prices include a merchant premium. Selling converts goods to gold immediately.",
 		15, 358, 243, 95, 15, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
@@ -685,9 +685,9 @@ func _render_finance() -> void:
 	]
 	for i in range(entries.size()):
 		var pair: Array = entries[i]
-		_metric(work_area, str(pair[0]), str(pair[1]),
+		_ui_metric(work_area, str(pair[0]), str(pair[1]),
 			14 + float(i % 2) * 448, 16 + float(i / 2) * 125, 429)
-	_panel(work_area, 14, 398, 887, 121, "soft")
+	_ui_panel(work_area, 14, 398, 887, 121, "soft")
 	_label(work_area, "ACCOUNTING NOTE", 31, 415, 840, 27, 15, GOLD)
 	_label(work_area, "Gold pays wages. Stored resources and equipment count toward company value,",
 		32, 449, 847, 27, 17, IVORY)
@@ -696,33 +696,33 @@ func _render_finance() -> void:
 	_context_line("Gold available", _money(game.gold), 59)
 	_context_line("Net worth", _money(game.wealth()), 144)
 	_context_line("Debt owed", _money(game.relief_debt), 229)
-	_button(side_area, "OPEN TRADING POST", 13, 337, 248, 48,
+	_ui_button(side_area, "OPEN TRADING POST", 13, 337, 248, 48,
 		_nav_to.bind("market"), "primary")
-	_button(side_area, "MANAGE CONTRACTORS", 13, 397, 248, 46,
+	_ui_button(side_area, "MANAGE CONTRACTORS", 13, 397, 248, 46,
 		_nav_to.bind("roster"), "secondary")
 
 func _render_guild_work() -> void:
-	_panel(work_area, 12, 12, 890, 126, "soft")
+	_ui_panel(work_area, 12, 12, 890, 126, "soft")
 	_label(work_area, "GET BACK ON YOUR FEET", 32, 29, 812, 35, 21, IVORY, true)
 	_label(work_area, "Work orders pay a guaranteed wage. No deaths, supply fees or lost gear.",
 		32, 76, 809, 35, 17, MUTED)
 	var eligible: bool = game.can_accept_guild_work() and game.missions.size() < game.expedition_slots
-	_panel(work_area, 12, 151, 890, 81, "row")
+	_ui_panel(work_area, 12, 151, 890, 81, "row")
 	_label(work_area, "Office paperwork", 28, 162, 527, 30, 21, IVORY, true)
 	_label(work_area, "3 minutes  •  No employees required", 29, 197, 575, 24, 15, MUTED)
-	_button(work_area, "ACCEPT  /  9 G", 700, 170, 186, 46,
+	_ui_button(work_area, "ACCEPT  /  9 G", 700, 170, 186, 46,
 		_guild_work.bind(""), "primary", eligible)
 	var index: int = 0
 	for person in game.available_guild_workers():
 		if index >= 3:
 			break
 		var y: float = 245.0 + float(index) * 93.0
-		_panel(work_area, 12, y, 890, 83, "row")
+		_ui_panel(work_area, 12, y, 890, 83, "row")
 		_label(work_area, "Guild labor  •  %s" % str(person["name"]),
 			28, y + 9, 622, 31, 20, IVORY, true)
 		_label(work_area, "2m 30s  •  Guaranteed pay  •  No combat",
 			29, y + 42, 596, 25, 15, MUTED)
-		_button(work_area, "ASSIGN  /  18 G", 700, y + 17, 186, 46,
+		_ui_button(work_area, "ASSIGN  /  18 G", 700, y + 17, 186, 46,
 			_guild_work.bind(str(person["id"])), "primary", eligible)
 		index += 1
 	if index == 0:
@@ -733,11 +733,11 @@ func _render_guild_work() -> void:
 	_context_line("Appraised company", _money(game.wealth()), 143)
 	_label(side_area, "Work is available while cash is below 120 G and company value below 250 G.",
 		15, 245, 244, 87, 15, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
-	_button(side_area, "RETURN TO CONTRACTS", 13, 381, 249, 47,
+	_ui_button(side_area, "RETURN TO CONTRACTS", 13, 381, 249, 47,
 		_nav_to.bind("harlow"), "secondary")
 
 func _render_chronicle() -> void:
-	var history := _scroller(work_area, 12, 13, 893, 508)
+	var history := _ui_scroller(work_area, 12, 13, 893, 508)
 	for report in game.reports:
 		var row := _record(history, 112)
 		_label(row, str(report.get("region", "Unknown expedition")), 15, 10, 596, 34,
@@ -757,15 +757,15 @@ func _render_chronicle() -> void:
 	_context_title("FIELD RECORDS")
 	_context_line("Completed reports", str(game.reports.size()), 64)
 	_context_line("Current expeditions", str(game.missions.size()), 143)
-	_button(side_area, "INSPECT HARLOW MINES", 13, 289, 247, 48,
+	_ui_button(side_area, "INSPECT HARLOW MINES", 13, 289, 247, 48,
 		_nav_to.bind("harlow"), "primary")
-	_button(side_area, "VIEW COMPANY LEDGER", 13, 349, 247, 44,
+	_ui_button(side_area, "VIEW COMPANY LEDGER", 13, 349, 247, 44,
 		_nav_to.bind("finance"), "secondary")
 
 func _render_regions() -> void:
 	_label(work_area, "Other sites currently use the original expedition rules.",
 		14, 14, 879, 31, 17, MUTED)
-	var jobs := _scroller(work_area, 12, 64, 895, 456)
+	var jobs := _ui_scroller(work_area, 12, 64, 895, 456)
 	for location in MoneyMercsState.REGIONS:
 		var row := _record(jobs, 138)
 		_label(row, str(location["name"]), 15, 10, 654, 35, 22, IVORY, true)
@@ -773,14 +773,14 @@ func _render_regions() -> void:
 		_label(row, "Threat %d  •  Supplies %d G  •  Reputation %d" % [
 			int(location["threat"]), int(location["supplies"]), int(location["rep"])],
 			15, 86, 680, 25, 15, GOLD)
-		_button(row, "DISPATCH", 679, 78, 174, 45,
+		_ui_button(row, "DISPATCH", 679, 78, 174, 45,
 			_old_dispatch.bind(str(location["id"])), "primary",
 			game.free_crew() > 0 and game.reputation >= int(location["rep"]) and
 			game.missions.size() < game.expedition_slots)
 	_context_title("REGIONAL BOARD")
 	_label(side_area, "Higher rewards demand better-paid, better-equipped teams.",
 		15, 71, 242, 84, 16, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
-	_button(side_area, "HARLOW MINES", 13, 210, 249, 48,
+	_ui_button(side_area, "HARLOW MINES", 13, 210, 249, 48,
 		_nav_to.bind("harlow"), "primary")
 
 func _unhandled_key_input(event: InputEvent) -> void:
