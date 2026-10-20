@@ -15,6 +15,7 @@ func _capture() -> void:
 	instance.game.harlow_sync()
 	instance._toggle_crew(true, "garrick")
 	instance._toggle_crew(true, "oswin")
+	var widescreen: bool = OS.get_environment("MM_CAPTURE_WIDE") == "1"
 	var destinations: Array = [
 		["harlow", "res://docs/ui_harlow_preview.jpg"],
 		["roster", "res://docs/ui_mercenaries_preview.jpg"],
@@ -25,6 +26,14 @@ func _capture() -> void:
 		["armory", "res://docs/ui_armory_preview.jpg"],
 		["ledger", "res://docs/ui_journal_preview.jpg"]
 	]
+	if widescreen:
+		destinations = [
+			["hq", "res://docs/ui_office_wide_preview.jpg"],
+			["harlow", "res://docs/ui_harlow_wide_preview.jpg"],
+			["guildwork", "res://docs/ui_guildwork_wide_preview.jpg"],
+			["finance", "res://docs/ui_finance_wide_preview.jpg"],
+			["market", "res://docs/ui_trading_wide_preview.jpg"]
+		]
 	for destination in destinations:
 		var name: String = str(destination[0])
 		if name == "armory":
@@ -51,7 +60,10 @@ func _capture() -> void:
 			return
 		# Downscale only the regression image; the running game remains 1440x900.
 		# Keep the file below GitHub's 1 MiB Contents API read limit.
-		screenshot.resize(1120, 700, Image.INTERPOLATE_LANCZOS)
+		if widescreen:
+			screenshot.resize(1600, 900, Image.INTERPOLATE_LANCZOS)
+		else:
+			screenshot.resize(1120, 700, Image.INTERPOLATE_LANCZOS)
 		var error: Error = screenshot.save_jpg(str(destination[1]), 0.85)
 		if error != OK:
 			push_error("Could not save image (%d)." % error)
