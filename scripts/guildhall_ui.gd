@@ -427,8 +427,7 @@ func _draw_warrant(detailed: bool) -> void:
 
 func _harlow_dossier() -> void:
 	# The board switches to a real guild scouting sheet and a 3-person manifest.
-	_print(central_area, "SCOUT THE SHAFTS, THEN ASSEMBLE THE CREW.", 11, 11, 785, 31, 17, INK_SOFT)
-	var report: Dictionary = game.harlow.get("report", {})
+		var report: Dictionary = game.harlow.get("report", {})
 	_ruling(central_area, 9, 47, 801)
 	_picture(central_area, MINE_INK, 6, 57, 391, 160)
 	_print(central_area, "I. THE SURVEY", 410, 58, 375, 32, 22, INK)
@@ -460,12 +459,12 @@ func _harlow_dossier() -> void:
 		var col: float = float(shown % 2)
 		var row: float = float(shown / 2) if shown < 2 else 1.0
 		var x: float = col * 401.0 + 10.0
-		var y: float = 314.0 + row * 70.0
-		_skin(central_area, "paper", x, y, 393, 65)
-		_picture(central_area, MINER if str(merc["role"])=="Miner" else GUARD, x+9, y+7, 46, 49)
-		_print(central_area, "%s · %s" % [str(merc["name"]), str(merc["role"])], x+62, y+7, 226, 26, 18, INK)
-		_print(central_area, "HP %d%%  ·  Outfitted %d/2" % [int(merc.get("health",100)), _equipped_count(merc)], x+62, y+33, 223, 20, 14, INK_SOFT)
-		_touch(central_area, "REMOVE" if selected_crew.has(str(merc["id"])) else "ADD", x+288, y+10, 93, 44, _toggle_crew.bind(not selected_crew.has(str(merc["id"])),str(merc["id"])), "red" if selected_crew.has(str(merc["id"])) else "wood", CREAM, 15)
+		var y: float = 310.0 + row * 61.0
+		_skin(central_area, "paper", x, y, 393, 58)
+		_picture(central_area, MINER if str(merc["role"])=="Miner" else GUARD, x+9, y+7, 44, 44)
+		_print(central_area, "%s · %s" % [str(merc["name"]), str(merc["role"])], x+61, y+5, 224, 24, 16, INK)
+		_print(central_area, "HP %d%%  ·  Outfitted %d/2" % [int(merc.get("health",100)), _equipped_count(merc)], x+61, y+31, 225, 18, 13, INK_SOFT)
+		_touch(central_area, "REMOVE" if selected_crew.has(str(merc["id"])) else "ADD", x+289, y+9, 92, 41, _toggle_crew.bind(not selected_crew.has(str(merc["id"])),str(merc["id"])), "red" if selected_crew.has(str(merc["id"])) else "wood", CREAM, 14)
 		shown += 1
 	if shown == 0:
 		_print(central_area, "No ready miners or guards. Hire a new crew.", 15, 331, 750, 30, 20, WINE)
