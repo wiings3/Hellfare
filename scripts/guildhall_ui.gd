@@ -48,11 +48,16 @@ func _build_shell() -> void:
 	guild_book_font.font_names = PackedStringArray(["Book Antiqua", "Palatino Linotype", "Georgia", "Noto Serif", "Liberation Serif"])
 	guild_display_font = SystemFont.new()
 	guild_display_font.font_names = PackedStringArray(["Cinzel", "Trajan Pro", "Copperplate Gothic", "Baskerville", "Palatino Linotype", "Georgia", "Noto Serif"])
-	var letterbox := ColorRect.new()
-	letterbox.color = Color("#21140e")
-	letterbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	letterbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(letterbox)
+	# The environment fills any unused letterbox area; the desk controls
+	# retain an undistorted 1600x900 layout at every desktop resolution.
+	var hall := TextureRect.new()
+	hall.name = "GuildhallRoom"
+	hall.texture = ROOM
+	hall.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hall.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	hall.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	hall.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(hall)
 	stage = Control.new()
 	stage.name = "GuildmasterDesk"
 	stage.position = Vector2.ZERO
@@ -62,40 +67,45 @@ func _build_shell() -> void:
 	resized.connect(_scale_stage)
 	_scale_stage()
 
-	var scene: NinePatchRect = _picture(stage, ROOM, 0, 0, 1600, 900)
-	scene.name = "WarmGuildhallBackdrop"
-	# Hand-painted UI elements supplied as individual raster textures.
-	# Text and click zones remain live Godot controls.
-	_picture(stage, GUILD_SIGN, 17, 8, 633, 153)
-	_picture(stage, TREASURY, 761, 52, 261, 99)
-	_picture(stage, TREASURY, 1019, 52, 261, 99)
-	_picture(stage, TREASURY, 1278, 52, 299, 99)
-	_print(stage, "TREASURY  /  GOLD", 846, 70, 163, 24, 13, CREAM)
-	gold_total = _print(stage, "0 G", 842, 98, 164, 39, 26, GOLD_LETTER)
-	_print(stage, "COMPANY VALUE", 1101, 70, 156, 24, 13, CREAM)
-	net_total = _print(stage, "0 G", 1098, 98, 161, 39, 26, GOLD_LETTER)
-	_print(stage, "EXPEDITIONS IN FIELD", 1369, 70, 187, 24, 13, CREAM)
-	field_total = _print(stage, "0 / 1", 1364, 98, 194, 39, 26, GOLD_LETTER)
+	# These full illustrations are drawn in aspect-correct bounds. Their art
+	# isn't nine-stretched into a different aspect ratio.
+	_picture(stage, GUILD_SIGN, 30, 6, 555, 185)
+	_picture(stage, TREASURY, 741, 70, 275, 77)
+	_picture(stage, TREASURY, 1022, 70, 275, 77)
+	_picture(stage, TREASURY, 1304, 70, 275, 77)
+	_print(stage, "TREASURY", 819, 82, 182, 20, 15, CREAM)
+	gold_total = _print(stage, "0 G", 819, 104, 183, 29, 23, GOLD_LETTER)
+	_print(stage, "COMPANY VALUE", 1100, 82, 180, 20, 14, CREAM)
+	net_total = _print(stage, "0 G", 1100, 104, 184, 29, 23, GOLD_LETTER)
+	_print(stage, "IN THE FIELD", 1383, 82, 180, 20, 14, CREAM)
+	field_total = _print(stage, "0 / 1", 1383, 104, 181, 29, 23, GOLD_LETTER)
 	header_gold = gold_total
 	header_wealth = net_total
 	header_jobs = field_total
-	notice = _print(stage, "Guild records updated.", 604, 156, 510, 18, 12, GOLD_LETTER, HORIZONTAL_ALIGNMENT_CENTER)
-	# Artwork occupies the physical framework; real controls occupy its
-	# readable interior. No procedural drawing is used for the art.
-	_picture(stage, DISPATCH, 15, 166, 306, 572)
-	navigation = _region(stage, 30, 248, 279, 476)
-	_picture(stage, BOARD, 323, 165, 886, 568)
-	board_heading = _print(stage, "CONTRACTS", 535, 235, 231, 29, 18, INK, HORIZONTAL_ALIGNMENT_CENTER)
-	central_area = _region(stage, 350, 262, 825, 445)
+
+	# This notice is empty at rest. Updated text appears above the desk.
+	notice = _print(stage, "", 763, 155, 382, 22, 14, GOLD_LETTER, HORIZONTAL_ALIGNMENT_CENTER)
+
+	# Painted contract board rendered at its source aspect ratio (4:3).
+	# Move functional content below the crest and physically inside the paper.
+	_picture(stage, DISPATCH, -12, 177, 355, 532)
+	navigation = _region(stage, 16, 270, 290, 435)
+	_picture(stage, BOARD, 324, 154, 886, 665)
+	board_heading = _print(stage, "CONTRACTS", 526, 255, 446, 34, 20, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	central_area = _region(stage, 349, 319, 829, 401)
 	content_host = central_area
-	_picture(stage, DISPATCH, 1200, 168, 380, 566)
-	details_heading = _print(stage, "DISPATCH PLAN", 1262, 240, 249, 30, 17, INK, HORIZONTAL_ALIGNMENT_CENTER)
-	dispatch_area = _region(stage, 1244, 258, 294, 455)
-	# Loose desk notes and the wax-sealed guild status note.
-	notes_area = _region(stage, 345, 737, 1214, 151)
-	_picture(stage, PAPER, 26, 737, 294, 152)
-	_picture(stage, SEAL, 278, 725, 40, 40)
-	_print(stage, "GUILD STATUS", 51, 757, 222, 30, 21, INK)
+
+	# Dispatcher art is a 2:3 portrait. All its labels are constrained to
+	# the parchment interior, clear of banners, the crest and bottom rail.
+	_picture(stage, DISPATCH, 1209, 180, 363, 544)
+	details_heading = _print(stage, "DISPATCH PLAN", 1278, 261, 228, 30, 17, INK, HORIZONTAL_ALIGNMENT_CENTER)
+	dispatch_area = _region(stage, 1272, 303, 241, 355)
+
+	# Desk notes are laid over the lower frame like physical loose papers.
+	notes_area = _region(stage, 345, 752, 1216, 137)
+	_picture(stage, PAPER, 24, 741, 293, 162)
+	_picture(stage, SEAL, 286, 740, 36, 36)
+	_print(stage, "GUILD STATUS", 50, 771, 233, 28, 20, INK)
 
 func _scale_stage() -> void:
 	if stage == null or not is_instance_valid(stage):
@@ -130,17 +140,26 @@ func _picture(parent: Node, tex: Texture2D, x: float, y: float, w: float, h: flo
 	return p
 
 func _skin(parent: Node, style: String, x: float, y: float, w: float, h: float) -> NinePatchRect:
-	# Nine-slicing the generated images preserves painted corners.
+	# Only the painted, repeatable *material* is nine-sliced. The gilded
+	# medallion in the navigation art and the memo's button bar are excluded
+	# so they cannot stretch across wide buttons or ledger cells.
+	var atlas := AtlasTexture.new()
+	if style == "paper":
+		atlas.atlas = PAPER
+		atlas.region = Rect2(48, 38, 431, 179)
+	else:
+		atlas.atlas = WOOD
+		atlas.region = Rect2(130, 17, 285, 86)
 	var p := NinePatchRect.new()
 	p.position = Vector2(x, y)
 	p.size = Vector2(w, h)
-	p.texture = PAPER if style == "paper" else WOOD
-	p.patch_margin_left = 18
-	p.patch_margin_right = 18
-	p.patch_margin_top = 12
-	p.patch_margin_bottom = 12
+	p.texture = atlas
+	p.patch_margin_left = 17
+	p.patch_margin_right = 17
+	p.patch_margin_top = 14
+	p.patch_margin_bottom = 14
 	if style == "red":
-		p.modulate = Color(1.0, 0.72, 0.69, 1.0)
+		p.modulate = Color(1.0, 0.67, 0.64, 1.0)
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(p)
 	return p
@@ -264,33 +283,28 @@ func _refresh() -> void:
 
 func _draw_navigation() -> void:
 	var entries: Array = [
-		["hq", "⌂", "OVERVIEW", "Guild HQ"],
-		["harlow", "⚒", "CONTRACTS", "Opportunities"],
-		["roster", "♟", "MERCENARIES", "Your Crew"],
-		["guildwork", "⚒", "GUILD WORK", "Safe Orders"],
-		["market", "⚖", "TRADING POST", "Buy & Sell"],
-		["finance", "◈", "LEDGER", "Finances"],
-		["ledger", "▣", "CHRONICLE", "Reports"]
+		["hq", "OVERVIEW", "Guild HQ"],
+		["harlow", "CONTRACTS", "Opportunities"],
+		["roster", "MERCENARIES", "Your Crew"],
+		["guildwork", "GUILD WORK", "Safe Orders"],
+		["market", "TRADING POST", "Buy & Sell"],
+		["finance", "LEDGER", "Finances"],
+		["ledger", "CHRONICLE", "Reports"]
 	]
 	for i in range(entries.size()):
 		var info: Array = entries[i]
 		var id: String = str(info[0])
-		var y: float = 2.0 + i * 69.0
-		var active: bool = (page == id) or (page == "expeditions" and id == "harlow")
-		if active:
-			_skin(navigation, "red", 0, y, 278, 64)
-		else:
-			_skin(navigation, "wood", 0, y, 278, 64)
-		_print(navigation, str(info[1]), 17, y + 6, 39, 39, 33, GOLD_LETTER, HORIZONTAL_ALIGNMENT_CENTER)
-		_print(navigation, str(info[2]), 72, y + 12, 190, 25, 16, CREAM)
-		_print(navigation, str(info[3]), 73, y + 36, 188, 17, 12, Color("#e3cba8"))
+		var y: float = float(i * 59 + 3)
+		_skin(navigation, "red" if page == id else "wood", 0, y, 284, 54)
+		_print(navigation, str(info[1]), 22, y + 7, 245, 23, 17, CREAM)
+		_print(navigation, str(info[2]), 24, y + 31, 234, 16, 12, Color("#ead4b0"))
 		var hit := Button.new()
-		hit.flat = true
 		hit.position = Vector2(0, y)
-		hit.size = Vector2(278, 64)
+		hit.size = Vector2(284, 54)
+		hit.flat = true
 		hit.focus_mode = Control.FOCUS_NONE
-		hit.add_theme_stylebox_override("hover", _outline_style())
 		hit.add_theme_stylebox_override("normal", _transparent_style())
+		hit.add_theme_stylebox_override("hover", _outline_style())
 		hit.pressed.connect(_nav_to.bind(id))
 		navigation.add_child(hit)
 
