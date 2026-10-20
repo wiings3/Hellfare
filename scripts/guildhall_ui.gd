@@ -410,8 +410,8 @@ func _render_overview() -> void:
 	_ui_button(side_area, "SCOUT HARLOW MINES", 14, 280, 248, 45, _nav_to.bind("harlow"), "primary")
 	_ui_button(side_area, "MANAGE YOUR CREW", 14, 336, 248, 43, _nav_to.bind("roster"), "secondary")
 	_ui_button(side_area, "SAFE GUILD WORK", 14, 390, 248, 43, _nav_to.bind("guildwork"), "quiet")
-	_label(side_area, "Consistent returns build a stronger guild.",
-		16, 461, 242, 75, 14, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_label(side_area, "Consistent returns build wealth.",
+		16, 461, 244, 28, 14, MUTED)
 
 func _context_title(text: String) -> void:
 	_label(side_area, text, 13, 7, 250, 32, 18, IVORY, true)
@@ -506,8 +506,8 @@ func _render_dispatch() -> void:
 			14, 374, 249, 28, 17, SUCCESS)
 	else:
 		_label(side_area, "Risk unknown — scout first", 14, 374, 249, 28, 16, DANGER)
-	_label(side_area, "Death and lost equipment are permanent.", 14, 406, 248, 48,
-		14, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_label(side_area, "Death is permanent.", 14, 404, 246, 23, 14, DANGER)
+	_label(side_area, "Equipped gear is lost.", 14, 429, 246, 23, 14, MUTED)
 	var ore_left: int = 0
 	for amount in (game.harlow.get("deposits", {}) as Dictionary).values():
 		ore_left += int(amount)
@@ -597,8 +597,8 @@ func _render_roster() -> void:
 		_set_roster_tab.bind("recruits"), "secondary")
 	_ui_button(side_area, "OPEN ARMORY", 13, 420, 248, 43,
 		_set_roster_tab.bind("armory"), "primary")
-	_label(side_area, "Employees are assets. Skilled workers and equipped gear are expensive to replace.",
-		15, 477, 247, 75, 14, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_label(side_area, "Skilled workers cost more", 15, 477, 246, 23, 14, MUTED)
+	_label(side_area, "to replace after a loss.", 15, 501, 246, 23, 14, MUTED)
 
 func _render_armory(list: VBoxContainer) -> void:
 	for person in game.crew:
@@ -678,8 +678,8 @@ func _render_market() -> void:
 	_context_line("Known commodities", str(MoneyMercsState.RESOURCE_ORDER.size()), 142)
 	_ui_button(side_area, "COMPANY LEDGER", 13, 280, 249, 47,
 		_nav_to.bind("finance"), "primary")
-	_label(side_area, "Merchant buy prices are higher than sell prices.",
-		15, 358, 243, 95, 15, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_label(side_area, "Buy prices include fees.", 15, 358, 241, 23, 14, MUTED)
+	_label(side_area, "Sell goods to fund crews.", 15, 386, 241, 23, 14, MUTED)
 	_label(side_area, "The player market is a future feature.", 15, 487, 246, 53,
 		14, GOLD, false, HORIZONTAL_ALIGNMENT_LEFT, true)
 
@@ -740,8 +740,8 @@ func _render_guild_work() -> void:
 	_context_title("RECOVERY CONTRACTS")
 	_context_line("Cash", _money(game.gold), 64)
 	_context_line("Appraised company", _money(game.wealth()), 143)
-	_label(side_area, "Work is available while cash is below 120 G and company value below 250 G.",
-		15, 245, 244, 87, 15, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_label(side_area, "Available below 120 G cash", 15, 244, 247, 24, 14, MUTED)
+	_label(side_area, "and 250 G company value.", 15, 270, 247, 24, 14, MUTED)
 	_ui_button(side_area, "RETURN TO CONTRACTS", 13, 381, 249, 47,
 		_nav_to.bind("harlow"), "secondary")
 
@@ -787,8 +787,8 @@ func _render_regions() -> void:
 			game.free_crew() > 0 and game.reputation >= int(location["rep"]) and
 			game.missions.size() < game.expedition_slots)
 	_context_title("REGIONAL BOARD")
-	_label(side_area, "Higher rewards demand better-paid, better-equipped teams.",
-		15, 71, 242, 84, 16, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
+	_label(side_area, "Better rewards require", 15, 71, 244, 24, 15, MUTED)
+	_label(side_area, "better-equipped crews.", 15, 96, 244, 24, 15, MUTED)
 	_ui_button(side_area, "HARLOW MINES", 13, 210, 249, 48,
 		_nav_to.bind("harlow"), "primary")
 
