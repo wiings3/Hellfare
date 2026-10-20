@@ -49,6 +49,11 @@ func _build_shell() -> void:
 	canvas.name = "GuildOperations"
 	canvas.size = Vector2(1600, 900)
 	canvas.mouse_filter = Control.MOUSE_FILTER_PASS
+	var outer := ColorRect.new()
+	outer.color = NIGHT
+	outer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(outer)
 	add_child(canvas)
 	resized.connect(_fit_canvas)
 	_fit_canvas()
@@ -99,7 +104,7 @@ func _build_shell() -> void:
 func _fit_canvas() -> void:
 	if not is_instance_valid(canvas):
 		return
-	var dims: Vector2 = size
+	var dims: Vector2 = get_viewport_rect().size
 	if dims.x <= 0 or dims.y <= 0:
 		dims = get_viewport_rect().size
 	var scale_factor: float = minf(dims.x / 1600.0, dims.y / 900.0)
@@ -124,16 +129,20 @@ func _block(parent: Node, x: float, y: float, w: float, h: float, color: Color) 
 	parent.add_child(rect)
 	return rect
 
-func _picture(parent: Node, source: Texture2D, x: float, y: float, w: float, h: float) -> TextureRect:
-	var icon := TextureRect.new()
-	icon.texture = source
-	icon.position = Vector2(x, y)
-	icon.size = Vector2(w, h)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(icon)
-	return icon
+func _picture(parent: Node, source: Texture2D, x: float, y: float, w: float, h: float) -> NinePatchRect:
+	# Full image, aspect preserved. Never draw at source pixel dimensions.
+	var natural_w: float = maxf(1.0, float(source.get_width()))
+	var natural_h: float = maxf(1.0, float(source.get_height()))
+	var factor: float = minf(w / natural_w, h / natural_h)
+	var draw_w: float = natural_w * factor
+	var draw_h: float = natural_h * factor
+	var image := NinePatchRect.new()
+	image.texture = source
+	image.position = Vector2(x + (w - draw_w) * 0.5, y + (h - draw_h) * 0.5)
+	image.size = Vector2(draw_w, draw_h)
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(image)
+	return image
 
 func _box_style(kind: String) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -401,7 +410,7 @@ func _render_overview() -> void:
 	_ui_button(side_area, "SCOUT HARLOW MINES", 14, 280, 248, 45, _nav_to.bind("harlow"), "primary")
 	_ui_button(side_area, "MANAGE YOUR CREW", 14, 336, 248, 43, _nav_to.bind("roster"), "secondary")
 	_ui_button(side_area, "SAFE GUILD WORK", 14, 390, 248, 43, _nav_to.bind("guildwork"), "quiet")
-	_label(side_area, "Your company grows by returning safely, not just by finding ore.",
+	_label(side_area, "Consistent returns build a stronger guild.",
 		16, 461, 242, 75, 14, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
 
 func _context_title(text: String) -> void:
@@ -669,7 +678,7 @@ func _render_market() -> void:
 	_context_line("Known commodities", str(MoneyMercsState.RESOURCE_ORDER.size()), 142)
 	_ui_button(side_area, "COMPANY LEDGER", 13, 280, 249, 47,
 		_nav_to.bind("finance"), "primary")
-	_label(side_area, "Buy prices include a merchant premium. Selling converts goods to gold immediately.",
+	_label(side_area, "Merchant buy prices are higher than sell prices.",
 		15, 358, 243, 95, 15, MUTED, false, HORIZONTAL_ALIGNMENT_LEFT, true)
 	_label(side_area, "The player market is a future feature.", 15, 487, 246, 53,
 		14, GOLD, false, HORIZONTAL_ALIGNMENT_LEFT, true)
