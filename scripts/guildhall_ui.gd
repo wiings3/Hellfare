@@ -519,21 +519,21 @@ func _harlow_dossier() -> void:
 	_draw_warrant(true)
 
 func _guild_jobs() -> void:
-	_print(central_area, "SAFE GUILD CONTRACTS", 17, 14, 770, 30, 23, INK)
+	_print(central_area, "SAFE GUILD CONTRACTS", 56, 14, 719, 30, 22, INK)
 	_print(central_area, "Guaranteed wages to rebuild after difficult expeditions.",
-		18, 53, 776, 26, 17, INK_SOFT)
+		56, 53, 720, 26, 17, INK_SOFT)
 	_print(central_area, "No crew deaths, supply fees or equipment requirements.",
-		18, 82, 776, 26, 16, INK)
+		56, 82, 720, 26, 16, INK)
 	var eligible: bool = game.can_accept_guild_work() and game.missions.size() < game.expedition_slots
 	_touch(central_area, "OFFICE PAPERWORK   ·   9 G   /   3 MIN",
-		20, 132, 785, 53, _guild_work.bind(""), "wood", GOLD_LETTER, 18, eligible)
+		55, 132, 717, 53, _guild_work.bind(""), "wood", GOLD_LETTER, 18, eligible)
 	var index: int = 0
 	for person in game.available_guild_workers():
 		if index >= 3:
 			break
 		_touch(central_area,
 			"%s   ·   18 G   /   2M 30S" % str(person["name"]).to_upper(),
-			20, 202 + index * 61, 785, 53,
+			55, 202 + index * 61, 717, 53,
 			_guild_work.bind(str(person["id"])), "wood", GOLD_LETTER, 18, eligible)
 		index += 1
 	_simple_right("GUILD WORK", [
@@ -548,7 +548,7 @@ func _guild_jobs() -> void:
 
 func _financial_ledger() -> void:
 	_print(central_area, "ACCOUNTS OF THE CONTRACTORS' GUILD",
-		17, 8, 791, 29, 18, INK_SOFT)
+		54, 8, 718, 29, 18, INK_SOFT)
 	var cells := [
 		["GOLD ON HAND", _money(game.gold)],
 		["COMPANY NET WORTH", _money(game.wealth())],
@@ -558,13 +558,13 @@ func _financial_ledger() -> void:
 		["ACTIVE OPERATIONS", "%d / %d" % [game.missions.size(), game.expedition_slots]]
 	]
 	for i in range(cells.size()):
-		var x: float = 11.0 + float(i % 2) * 409.0
+		var x: float = 52.0 + float(i % 2) * 374.0
 		var y: float = 53.0 + float(i / 2) * 110.0
-		_skin(central_area, "paper", x, y, 397, 98)
+		_skin(central_area, "paper", x, y, 355, 98)
 		_print(central_area, str(cells[i][0]),
-			x + 23, y + 14, 346, 24, 15, INK_SOFT)
+			x + 19, y + 14, 310, 24, 15, INK_SOFT)
 		_print(central_area, str(cells[i][1]),
-			x + 24, y + 45, 343, 42, 27, INK)
+			x + 19, y + 45, 307, 42, 27, INK)
 	_simple_right("TREASURY NOTES", [
 		"Gold is working capital.",
 		"Equipment is appraised,",
@@ -597,8 +597,8 @@ func _other_page() -> void:
 
 func _paper_scroll(y: float = 91.0) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
-	scroll.position = Vector2(12, y)
-	scroll.size = Vector2(805, maxf(80.0, central_area.size.y - y - 12.0))
+	scroll.position = Vector2(48, y)
+	scroll.size = Vector2(734, maxf(80.0, central_area.size.y - y - 12.0))
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	central_area.add_child(scroll)
@@ -612,7 +612,7 @@ func _record(list: Node, height: int = 85) -> Control:
 	# Reusable painted parchment backing, cropped from generated note art.
 	# Text and buttons are still real controls.
 	var outer := Control.new()
-	outer.custom_minimum_size = Vector2(790, height)
+	outer.custom_minimum_size = Vector2(730, height)
 	outer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_child(outer)
 	var crop := AtlasTexture.new()
@@ -620,7 +620,7 @@ func _record(list: Node, height: int = 85) -> Control:
 	crop.region = Rect2(35, 35, 449, 176)
 	var painted := NinePatchRect.new()
 	painted.texture = crop
-	painted.size = Vector2(790, height)
+	painted.size = Vector2(730, height)
 	painted.patch_margin_left = 14
 	painted.patch_margin_right = 14
 	painted.patch_margin_top = 14
@@ -628,7 +628,7 @@ func _record(list: Node, height: int = 85) -> Control:
 	painted.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	outer.add_child(painted)
 	var rect := Control.new()
-	rect.size = Vector2(790, height)
+	rect.size = Vector2(730, height)
 	rect.mouse_filter = Control.MOUSE_FILTER_PASS
 	outer.add_child(rect)
 	return rect
