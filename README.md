@@ -15,6 +15,15 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.7 — Guild Operations interface
+
+- The previous ornate panel-heavy guildhall UI has been replaced with a calmer, reference-led operations interface informed by the management structure of *Battle Brothers* and the scan-friendly item hierarchy of *Dark and Darker*.
+- The painted guildhall remains the atmospheric background. Content uses a reusable walnut-and-brass control kit: left navigation, functional cards, high-contrast typography, clearly differentiated primary and secondary actions, and a context panel.
+- Screens rebuilt together: Overview, Harlow scouting and dispatch, Mercenaries, Recruitment, Armory, Trading Post, Ledger, Guild Work, regional contracts, and Chronicle.
+- Images use aspect-preserving, explicitly bounded controls instead of distorted full artwork. Source textures, UI labels and data are separate.
+- Persistent saves, asynchronous expeditions, scouting, equipment purchases, mercenary death, guild work, trading, and risk math continue to use the existing gameplay implementation.
+- Verification: Godot 4.5.1 gameplay regression suite, UI flows at standard desktop and 1280×720, and native rendering at 1440×900 and 1920×1080. Actual screenshots: [Overview](docs/ui_office_wide_preview.jpg), [Contracts](docs/ui_harlow_wide_preview.jpg), [Trading Post](docs/ui_trading_wide_preview.jpg), [Company Ledger](docs/ui_finance_wide_preview.jpg).
+
 ## V0.6 — Guildmaster's Desk UI
 
 Money Mercs now launches into a **functional rustic guildhall interface**, not the old flat admin dashboard. Original art assets depict a timber-and-stone guildhall, carved signage, treasury plaques, wax seals, parchment contracts, a sketched mine and the guildmaster's desk.
