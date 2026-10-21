@@ -36,7 +36,14 @@ func _build_shell() -> void:
 func _refresh() -> void:
 	pass
 
+# Money Mercs is entirely mouse-driven. Always restore the OS pointer on
+# launch and when returning from another window (including the Godot editor).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
 func _ready() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	game = MoneyMercsState.new()
 	game.harlow_sync()
 	var returned: int = game.complete_due()
