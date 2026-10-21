@@ -16,6 +16,11 @@ func _verify() -> void:
 	assert(view.left_leaf.size.x >= 500)
 	assert(view.right_leaf.size.x >= 470)
 	assert(view.tab_host.get_child_count() == 7)
+	# Source-art alignment: first tab begins at (153, 182), every subsequent tab 90 px lower.
+	assert(view.tab_host.position == Vector2(151, 182))
+	assert(view.title_label.position.x >= view.left_leaf.position.x)
+	assert(view.money_label.position.x >= view.right_leaf.position.x)
+	assert(view.body_font.font_names[0] == "Palatino Linotype")
 	# Six actual page tabs must be the buttons, not a row of text labels.
 	for i in range(6):
 		var tab: Button = view.tab_host.get_node("ChapterTab" + str(i))
@@ -23,6 +28,8 @@ func _verify() -> void:
 		assert(tab.text.is_empty())
 		assert(tab.tooltip_text.length() > 5)
 		assert(tab.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND)
+		assert(tab.position == Vector2(2, float(i) * 90.0))
+		assert(tab.size == Vector2(60, 60))
 	var personnel_tab: Button = view.tab_host.get_node("ChapterTab2")
 	personnel_tab.pressed.emit()
 	assert(view.page == "roster")
