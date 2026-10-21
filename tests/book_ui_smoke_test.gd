@@ -15,15 +15,15 @@ func _verify() -> void:
 	view._nav_to("hq")
 	assert(view.left_leaf.size.x >= 500)
 	assert(view.right_leaf.size.x >= 470)
-	assert(view.tab_host.get_child_count() == 12)
+	assert(view.tab_host.get_child_count() == 7)
 	# Six actual page tabs must be the buttons, not a row of text labels.
 	for i in range(6):
-		var tab: Button = view.tab_host.get_child(2 * i)
+		var tab: Button = view.tab_host.get_node("ChapterTab" + str(i))
 		assert(tab.name == "ChapterTab" + str(i))
 		assert(tab.text.is_empty())
 		assert(tab.tooltip_text.length() > 5)
 		assert(tab.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND)
-	var personnel_tab: Button = view.tab_host.get_child(4)
+	var personnel_tab: Button = view.tab_host.get_node("ChapterTab2")
 	personnel_tab.pressed.emit()
 	assert(view.page == "roster")
 	assert(view.money_label.text.contains("350"))
