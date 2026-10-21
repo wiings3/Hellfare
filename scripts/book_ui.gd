@@ -603,3 +603,191 @@ func _draw_armory() -> void:
 			8, 29, 281, 21, 13, false, INK_SOFT)
 		_text_button(row, "%d G" % int(definition["cost"]), 310, 10, 126, 40,
 			_buy_equipment.bind(str(key)))
+
+func _choose_commodity(id: String) -> void:
+	selected_market_item = id
+	_refresh()
+
+func _draw_exchange() -> void:
+	_page_heading(left_leaf, "Merchant Stock", "Select an item for its buying and selling price.")
+	var stock := _scroll(left_leaf, 5, 83, 491, 429)
+	for id in MoneyMercsState.RESOURCE_ORDER:
+		var key: String = str(id)
+		var row := _record(stock, 61, 462)
+		if key == selected_market_item:
+			_tint(row, 0, 0, 462, 61, Color("#36697e", 0.12))
+		_text(row, str(MoneyMercsState.RESOURCE_NAMES[key]), 9, 6, 296, 27,
+			17, true, BLUE if selected_market_item == key else INK)
+		_text(row, "Stored: %d    |    Sell: %d G" % [
+			int(game.resources.get(key, 0)), game.sell_price(key)],
+			9, 31, 290, 22, 14, false, INK_SOFT)
+		_text_button(row, "INSPECT  →", 316, 12, 141, 39,
+			_choose_commodity.bind(key), selected_market_item == key)
+	_page_heading(right_leaf, "The Exchange Desk", "All prices settled in gold.")
+	var name: String = str(MoneyMercsState.RESOURCE_NAMES.get(selected_market_item, "Unknown item"))
+	_text(right_leaf, name, 9, 91, 457, 43, 24, true)
+	_text(right_leaf, str(MoneyMercsState.RESOURCE_DESC.get(selected_market_item, "")),
+		10, 139, 457, 74, 15, false, INK_SOFT, true)
+	_field(right_leaf, "Quantity owned", str(game.resources.get(selected_market_item, 0)), 228)
+	_field(right_leaf, "Merchant sells for", _money(game.buy_price(selected_market_item)), 279)
+	_field(right_leaf, "Merchant buys for", _money(game.sell_price(selected_market_item)), 329)
+	_book_button(right_leaf, "Buy One", 10, 387, 202, 45,
+		_trade.bind(selected_market_item, true, 1),
+		game.gold >= game.buy_price(selected_market_item))
+	_book_button(right_leaf, "Sell One", 224, 387, 200, 45,
+		_trade.bind(selected_market_item, false, 1),
+		int(game.resources.get(selected_market_item, 0)) > 0)
+	_text_button(right_leaf, "Sell all in storage  →", 13, 446, 341, 36,
+		_trade.bind(selected_market_item, false, int(game.resources.get(selected_market_item, 0))))
+	_text(right_leaf, "Markets between players are not implemented yet.", 12, 489,
+		462, 29, 13, false, INK_LIGHT)
+
+func _draw_accounts() -> void:
+	_page_heading(left_leaf, "Company Balance", "Gold is the working capital of your guild.")
+	_field(left_leaf, "Gold on hand", _money(game.gold), 87)
+	_field(left_leaf, "Appraised net worth", _money(game.wealth()), 142)
+	_field(left_leaf, "Equipment valuation", _money(game.owned_equipment_value()), 197)
+	_field(left_leaf, "Outstanding loans", _money(game.relief_debt), 252)
+	_field(left_leaf, "Guild reputation", str(game.reputation), 307)
+	_book_button(left_leaf, "Visit the Exchange", 9, 393, 279, 44, _turn_to.bind("market"))
+	_text(left_leaf, "Stored ore and weapons raise your company's value; they do not pay wages until sold.",
+		10, 451, 471, 66, 15, false, INK_SOFT, true)
+	_page_heading(right_leaf, "Storehouse Register", "Commodities held by the company.")
+	var stores := _scroll(right_leaf, 4, 91, 478, 338)
+	var owned: int = 0
+	for id in MoneyMercsState.RESOURCE_ORDER:
+		var quantity: int = int(game.resources.get(str(id), 0))
+		if quantity <= 0:
+			continue
+		var line := _record(stores, 49, 452)
+		_text(line, str(MoneyMercsState.RESOURCE_NAMES.get(str(id), str(id))),
+			11, 8, 285, 29, 17, true)
+		_text(line, str(quantity) + " owned", 320, 8, 123, 29,
+			15, false, INK_SOFT)
+		owned += 1
+	if owned == 0:
+		var blank := _record(stores, 74, 450)
+		_text(blank, "Nothing stored in the warehouse.", 10, 13, 420, 46,
+			16, false, INK_SOFT)
+	_text(right_leaf, "Remember: running out of liquid gold doesn't mean your company has no assets.",
+		10, 446, 463, 61, 15, false, INK_SOFT, true)
+
+func _draw_guild_jobs() -> void:
+	_page_heading(left_leaf, "Reliable Contracts", "When the mines go badly, honest wages remain.")
+	_text(left_leaf, "Guild work is risk-free, requires no equipment and continues while you are away.",
+		10, 98, 455, 86, 17, false, INK_SOFT, true)
+	var can_take: bool = game.can_accept_guild_work() and game.missions.size() < game.expedition_slots
+	_text(left_leaf, "OFFICE PAPERWORK", 10, 208, 425, 30, 18, true)
+	_text(left_leaf, "Three minutes  •  Earn 9 G  •  No workers needed",
+		10, 246, 461, 28, 15, false, INK_SOFT)
+	_book_button(left_leaf, "Accept Office Work", 11, 292, 314, 44,
+		_guild_work.bind(""), can_take)
+	_label_rule(left_leaf, 10, 359, 451)
+	_text(left_leaf, "CONTRACTOR LABOR", 10, 375, 438, 26, 18, true)
+	_text(left_leaf, "Two and a half minutes  •  Earn 18 G",
+		10, 410, 455, 27, 15, false, INK_SOFT)
+	_text_button(left_leaf, "Return to Harlow Mines  →", 10, 465, 330, 34,
+		_turn_to.bind("harlow"))
+	_page_heading(right_leaf, "Assign a Safe Job", "A small but guaranteed payment.")
+	var workers := _scroll(right_leaf, 5, 88, 479, 310)
+	var count: int = 0
+	for member in game.available_guild_workers():
+		var row := _record(workers, 72, 444)
+		var who: String = str(member.get("name", "Contractor"))
+		_text(row, who, 10, 5, 276, 32, 17, true)
+		_text(row, "No injury or equipment risk", 10, 34, 292, 22,
+			14, false, INK_SOFT)
+		_book_button(row, "ASSIGN", 320, 14, 112, 42,
+			_guild_work.bind(str(member["id"])), can_take)
+		count += 1
+	if count == 0:
+		_text(right_leaf, "No available mercenaries. You can still complete office paperwork alone.",
+			10, 114, 450, 89, 17, false, INK_SOFT, true)
+	_text(right_leaf, "Eligibility: below 120 G cash and 250 G in net worth.",
+		10, 426, 458, 67, 15, false, INK_SOFT, true)
+
+func _choose_report(index: int) -> void:
+	selected_report_index = index
+	_refresh()
+
+func _draw_history() -> void:
+	_page_heading(left_leaf, "After-action Reports", "Good fortune and costly lessons alike.")
+	var records := _scroll(left_leaf, 5, 83, 491, 420)
+	for i in range(game.reports.size()):
+		var entry: Dictionary = game.reports[i]
+		var row := _record(records, 74, 459)
+		if i == selected_report_index:
+			_tint(row, 0, 0, 459, 74, Color("#36697e", 0.13))
+		_text(row, str(entry.get("region", "Unknown assignment")),
+			9, 7, 302, 30, 17, true)
+		_text(row, "Completed" if bool(entry.get("won", false)) else "Costly return",
+			10, 39, 290, 24, 14, false, BLUE if bool(entry.get("won", false)) else OXBLOOD)
+		_text_button(row, "READ", 342, 17, 109, 39,
+			_choose_report.bind(i), i == selected_report_index)
+	if game.reports.is_empty():
+		_text(left_leaf, "No field reports have been filed yet.",
+			11, 110, 453, 59, 17, false, INK_SOFT, true)
+		_book_button(left_leaf, "Inspect Contracts", 10, 192, 283, 44,
+			_turn_to.bind("harlow"))
+	_page_heading(right_leaf, "Return & Losses", "The firm's permanent record.")
+	if game.reports.is_empty():
+		_text(right_leaf, "Reports are filed here when field teams return.",
+			10, 109, 448, 73, 17, false, INK_SOFT, true)
+		return
+	var idx: int = clampi(selected_report_index, 0, game.reports.size() - 1)
+	var report: Dictionary = game.reports[idx]
+	_text(right_leaf, str(report.get("region", "Unknown expedition")),
+		8, 91, 445, 39, 21, true)
+	_field(right_leaf, "Outcome", "Success" if bool(report.get("won", false)) else "Failed",
+		149)
+	_field(right_leaf, "Gold recovered", _money(int(report.get("cash", 0))), 195)
+	_field(right_leaf, "Mission costs", _money(int(report.get("cost", 0))), 241)
+	var deaths: Array = report.get("casualties", [])
+	_field(right_leaf, "Casualties", str(deaths.size()), 287)
+	_text(right_leaf, "EVENT LOG", 9, 341, 447, 27, 16, true, BLUE)
+	var events := _scroll(right_leaf, 6, 371, 477, 135)
+	for event in report.get("events", []):
+		var note := _record(events, 60, 444)
+		_text(note, str(event), 8, 3, 428, 54,
+			13, false, INK_SOFT, true)
+	if (report.get("events", []) as Array).is_empty():
+		var blank := _record(events, 57, 444)
+		_text(blank, _loot_text(report.get("loot", {})), 8, 7, 427, 45,
+			14, false, INK_SOFT, true)
+
+func _draw_regions() -> void:
+	_page_heading(left_leaf, "Open Assignments", "Some routes remain under old dispatch rules.")
+	var regions := _scroll(left_leaf, 4, 89, 490, 403)
+	for region in MoneyMercsState.REGIONS:
+		var entry := _record(regions, 107, 464)
+		var id: String = str(region["id"])
+		_text(entry, str(region["name"]), 9, 4, 442, 33, 18, true)
+		_text(entry, str(region.get("tagline", "")), 9, 37, 440, 28,
+			14, false, INK_SOFT)
+		_text_button(entry, "INSPECT  →", 314, 69, 138, 32,
+			_select_region.bind(id), selected_region == id)
+	_page_heading(right_leaf, "Dispatch Order", "Review required supplies and threat level.")
+	var site: Dictionary = {}
+	for r in MoneyMercsState.REGIONS:
+		if str(r["id"]) == selected_region:
+			site = r
+	if site.is_empty():
+		return
+	_text(right_leaf, str(site["name"]), 10, 89, 445, 59, 20, true, INK, true)
+	_field(right_leaf, "Threat rating", str(site.get("threat", 0)), 165)
+	_field(right_leaf, "Supply cost", _money(int(site.get("supplies", 0))), 219)
+	_field(right_leaf, "Required reputation", str(site.get("rep", 0)), 273)
+	_text(right_leaf, str(site.get("tagline", "")), 12, 335, 454, 66,
+		16, false, INK_SOFT, true)
+	var can_start: bool = game.free_crew() > 0 and game.reputation >= int(site.get("rep", 0)) and game.missions.size() < game.expedition_slots
+	_book_button(right_leaf, "Dispatch Crew", 12, 427, 280, 45,
+		_old_dispatch.bind(str(site["id"])), can_start)
+	_text_button(right_leaf, "Harlow Mines  →", 14, 483, 245, 33,
+		_turn_to.bind("harlow"))
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		var pages: Array[String] = ["hq", "harlow", "roster", "market", "finance", "ledger", "guildwork"]
+		var index: int = int(event.keycode) - int(KEY_1)
+		if index >= 0 and index < pages.size():
+			_turn_to(pages[index])
