@@ -22,7 +22,7 @@ func _verify() -> void:
 	assert(view.tab_overlay.mouse_filter == Control.MOUSE_FILTER_IGNORE)
 	assert(view.tab_overlay.position == Vector2(144, 30))
 	assert(is_equal_approx(view.tab_overlay.size.x,
-		1326.0 * view.TAB_STRIP_REGION.size.x / view.BOOK_REGION.size.x))
+		1326.0 * 51.0 / 710.0))
 	assert(view.tab_overlay.size.y == 870)
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
 	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
