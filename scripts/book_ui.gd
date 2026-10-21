@@ -36,6 +36,7 @@ var clear_notice_at: int = 0
 var selected_market_item: String = "copper"
 var selected_report_index: int = 0
 var view_count: int = 0
+var tab_host: Control
 
 func _ready() -> void:
 	page = "hq"
@@ -87,7 +88,7 @@ func _build_shell() -> void:
 	header_jobs = missions_label
 	notice = notification
 	# Six side tabs supplied with the book art. Labels are legible at 720p.
-	_render_tabs()
+	tab_host = _region(stage, 0, 0, 161, 800)
 	# Page turns use the pack's own animation frames when clicked.
 	flip_art = TextureRect.new()
 	flip_art.position = Vector2(144, 30)
@@ -238,7 +239,7 @@ func _render_tabs() -> void:
 		var info: Array = entries[i]
 		var top: float = 178.0 + 88.0 * float(i)
 		var target: String = str(info[0])
-		_text_button(stage, str(info[1]), 16, top, 144, 54,
+		_text_button(tab_host, str(info[1]), 16, top, 144, 54,
 			_turn_to.bind(target), page == target)
 
 func _turn_to(destination: String) -> void:
@@ -286,6 +287,8 @@ func _refresh() -> void:
 	missions_label.text = "%d / %d  IN THE FIELD" % [game.missions.size(), game.expedition_slots]
 	_clear(left_leaf)
 	_clear(right_leaf)
+	_clear(tab_host)
+	_render_tabs()
 	var headings: Dictionary = {
 		"hq": ["Company Records", "Keeping the guild solvent"],
 		"harlow": ["Harlow Mines", "Contract dossier and dispatch"],
@@ -482,7 +485,7 @@ func _draw_people() -> void:
 	match roster_tab:
 		"employed": _draw_employees()
 		"recruits": _draw_recruitment()
-		"armory": _draw_armory()
+		"armory": _draw_armory_page()
 
 func _focus_person(id: String) -> void:
 	selected_merc = id
@@ -552,7 +555,7 @@ func _draw_recruitment() -> void:
 	_text(right_leaf, "A fallen mercenary cannot be rehired. The company must replace them from new applicants.",
 		10, 393, 455, 94, 16, false, OXBLOOD, true)
 
-func _draw_armory() -> void:
+func _draw_armory_page() -> void:
 	_text(left_leaf, "THE QUARTERMASTER", 10, 56, 446, 32, 20, true)
 	_text(left_leaf, "Choose a worker, then assign stored gear.", 10, 89, 451, 30, 14, false, INK_SOFT)
 	if selected_merc.is_empty() and not game.crew.is_empty():

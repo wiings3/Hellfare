@@ -6,6 +6,8 @@ on:
       - ".github/workflows/visual-preview.yml"
       - "scripts/ledger_ui.gd"
       - "scripts/guildhall_ui.gd"
+      - "scripts/book_ui.gd"
+      - "assets/BookUI/**"
       - "scenes/main.tscn"
       - "assets/ui/**"
 permissions:
