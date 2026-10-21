@@ -1,4 +1,4 @@
-extends "res://scripts/ledger_ui.gd"
+extends "res://scripts/game_actions.gd"
 ## Active Guildmaster journal: book shell, art, shared drawing primitives and tabs.
 ## Rebuild around the licensed BookUI sprites already supplied in assets/BookUI.
 ## No flattened interface image: each page remains live and interactive.
