@@ -216,6 +216,7 @@ func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: 
 	btn.add_theme_color_override("font_color", BLUE if active else INK)
 	btn.add_theme_color_override("font_hover_color", BLUE_LIGHT)
 	btn.add_theme_color_override("font_pressed_color", BLUE)
+	btn.add_theme_color_override("font_disabled_color", Color("#866a5e"))
 	var transparent := StyleBoxFlat.new()
 	transparent.bg_color = Color.TRANSPARENT
 	var hover := StyleBoxFlat.new()
