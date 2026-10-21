@@ -11,6 +11,11 @@ func _verify() -> void:
 	var view: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(view)
 	assert(view.get_script().resource_path == "res://scripts/book_ui.gd")
+	# Presentation should inherit the active book shell and the lean action layer,
+	# not a whole previous-generation UI implementation.
+	var shell_script: Script = view.get_script().get_base_script()
+	assert(shell_script.resource_path == "res://scripts/book_shell.gd")
+	assert(shell_script.get_base_script().resource_path == "res://scripts/game_actions.gd")
 	view.game.reset_company()
 	view._nav_to("hq")
 	assert(view.left_leaf.size.x >= 500)
