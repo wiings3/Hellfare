@@ -29,6 +29,12 @@ jobs:
           timeout 50s godot --headless --resolution 1280x720 --path . --script res://tests/ui_smoke_test.gd 2>&1 | tee /tmp/ui_720p.log
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/ui_720p.log; then exit 1; fi
           grep -F 'Guild Ledger UI navigation, guild work recovery, and legacy operations passed.' /tmp/ui_720p.log
+      - name: Verify BookUI chapters and page-turn sprites
+        run: |
+          set -o pipefail
+          timeout 70s godot --headless --path . --script res://tests/book_ui_smoke_test.gd 2>&1 | tee /tmp/book_ui.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/book_ui.log; then exit 1; fi
+          grep -F 'BookUI page navigation, equipment desk, merchant selection, and page-turn assets passed.' /tmp/book_ui.log
       - name: Exercise Harlow scouting and dispatch
         run: |
           set -o pipefail
