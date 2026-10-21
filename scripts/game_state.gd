@@ -3,6 +3,16 @@ class_name MoneyMercsState
 ## Harlow mine mechanics and expedition settlement.
 ## All existing MoneyMercsState methods, state fields and save keys are retained.
 
+# Harlow Mines: separate persistent rotation state, scouting, and role-based work.
+# This is the first vertical slice. Existing jobs remain backward compatible.
+const HARLOW_ROTATION_SECONDS := 14400
+const HARLOW_ENEMIES := [
+	{"name": "Sleeping Dire Wolf", "danger": 3, "note": "Territorial predator near the lower shafts"},
+	{"name": "Goblin Prospectors", "danger": 2, "note": "A band of armed scavengers"},
+	{"name": "Cave Spiders", "danger": 1, "note": "Nest signs around the old supports"},
+	{"name": "Ancient Cave Troll", "danger": 4, "note": "Huge tracks vanish into the rock"}
+]
+
 func harlow_sync(now: int = -1) -> bool:
 	if now < 0:
 		now = int(Time.get_unix_time_from_system())
