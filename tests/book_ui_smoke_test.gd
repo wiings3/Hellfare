@@ -10,6 +10,11 @@ func _initialize() -> void:
 func _verify() -> void:
 	var view: Control = load("res://scenes/main.tscn").instantiate()
 	root.add_child(view)
+	# The game is mouse driven, so startup and focus changes must restore the cursor.
+	assert(Input.mouse_mode == Input.MOUSE_MODE_VISIBLE)
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	view.notification(Control.NOTIFICATION_WM_WINDOW_FOCUS_IN)
+	assert(Input.mouse_mode == Input.MOUSE_MODE_VISIBLE)
 	assert(view.get_script().resource_path == "res://scripts/book_ui.gd")
 	# Presentation should inherit the active book shell and the lean action layer,
 	# not a whole previous-generation UI implementation.
