@@ -9,6 +9,10 @@ func _initialize() -> void:
 
 func _test() -> void:
 	var g := MoneyMercsState.new()
+	# The public state still uses the same API; Harlow mechanics now live in
+	# a subclass of the generic company simulation.
+	assert(g.get_script().resource_path == "res://scripts/game_state.gd")
+	assert(g.get_script().get_base_script().resource_path == "res://scripts/company_state_base.gd")
 	g.reset_company()
 	assert(g.recruitment_board().size() >= 6)
 	var affordable_miner: bool = false
