@@ -19,6 +19,8 @@ func _capture() -> void:
 	var destinations: Array = [
 		["harlow", "res://docs/ui_harlow_preview.jpg"],
 		["roster", "res://docs/ui_mercenaries_preview.jpg"],
+		["recruits", "res://docs/ui_recruitment_preview.jpg"],
+		["regions", "res://docs/ui_regions_preview.jpg"],
 		["guildwork", "res://docs/ui_guildwork_preview.jpg"],
 		["finance", "res://docs/ui_finance_preview.jpg"],
 		["market", "res://docs/ui_trading_preview.jpg"],
@@ -36,7 +38,12 @@ func _capture() -> void:
 		]
 	for destination in destinations:
 		var name: String = str(destination[0])
-		if name == "armory":
+		if name == "recruits":
+			instance._nav_to("roster")
+			instance._set_roster_tab("recruits")
+		elif name == "regions":
+			instance._nav_to("expeditions")
+		elif name == "armory":
 			instance.game.gold = 1200
 			instance.game.buy_equipment("basic_pick")
 			instance.game.buy_equipment("steel_sword")
