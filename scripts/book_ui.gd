@@ -1,0 +1,473 @@
+extends "res://scripts/ledger_ui.gd"
+## Money Mercs V0.8 — Guildmaster's Logbook.
+## Rebuild around the licensed BookUI sprites already supplied in assets/BookUI.
+## No flattened interface image: each page remains live and interactive.
+
+const SOURCE := "res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/"
+const DESK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Book Desk/1.png")
+const OPEN_BOOK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/1.png")
+const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
+const BUTTON_HOVER := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png")
+const PAGE_ARROW := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/6 Arrows & Highlighters/Arrows/1.png")
+const BOOK_REGION := Rect2(80, 200, 710, 465)
+const INK := Color("#45362d")
+const INK_SOFT := Color("#806557")
+const INK_LIGHT := Color("#9e8070")
+const BLUE := Color("#315f73")
+const BLUE_LIGHT := Color("#477b8d")
+const OXBLOOD := Color("#a24e4a")
+const PALE := Color("#efe2cf")
+const SHADE := Color("#976b4e", 0.11)
+
+var stage: Control
+var left_leaf: Control
+var right_leaf: Control
+var flip_art: TextureRect
+var title_label: Label
+var subheading: Label
+var money_label: Label
+var worth_label: Label
+var missions_label: Label
+var notification: Label
+var body_font: SystemFont
+var heading_font: SystemFont
+var current_flip: int = 0
+var clear_notice_at: int = 0
+var selected_market_item: String = "copper"
+var selected_report_index: int = 0
+var view_count: int = 0
+
+func _ready() -> void:
+	page = "hq"
+	super._ready()
+
+func _build_shell() -> void:
+	stage = Control.new()
+	stage.name = "GuildmastersLogbook"
+	stage.size = Vector2(1600, 900)
+	stage.mouse_filter = Control.MOUSE_FILTER_PASS
+	stage.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	add_child(stage)
+	body_font = SystemFont.new()
+	body_font.font_names = PackedStringArray(["DejaVu Sans", "Noto Sans", "Liberation Sans"])
+	heading_font = SystemFont.new()
+	heading_font.font_names = PackedStringArray(["DejaVu Serif", "Noto Serif", "Liberation Serif"])
+	resized.connect(_fit_layout)
+	_fit_layout()
+
+	# Desk is a legitimate BookUI illustration, not a generated backdrop.
+	var desk := TextureRect.new()
+	desk.texture = DESK
+	desk.position = Vector2.ZERO
+	desk.size = Vector2(1600, 900)
+	desk.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	desk.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	desk.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.add_child(desk)
+	# Cropping transparent margins keeps the book itself large and crisp.
+	_book_image(stage, OPEN_BOOK, 144, 30, 1326, 870)
+	_text(stage, "MONEY MERCS  /  THE GUILDMASTER'S LOG", 230, 60, 800, 33, 21, true, INK)
+	title_label = _text(stage, "Company Records", 220, 130, 517, 43, 30, true)
+	subheading = _text(stage, "Every coin and every loss accounted for", 220, 169, 511, 25, 15, false, INK_SOFT)
+	_label_rule(stage, 222, 203, 515)
+	_text(stage, "COMPANY SUMMARY", 869, 132, 478, 30, 21, true)
+	money_label = _text(stage, "", 873, 166, 200, 29, 17, true, BLUE)
+	worth_label = _text(stage, "", 1089, 166, 260, 29, 17, true, BLUE)
+	missions_label = _text(stage, "", 1104, 62, 231, 30, 15, false, INK_SOFT)
+	_label_rule(stage, 868, 203, 484)
+	left_leaf = _region(stage, 222, 212, 520, 520)
+	right_leaf = _region(stage, 869, 212, 486, 520)
+	_text(stage, "01   THE LEDGER OF MONEY MERCS", 251, 767, 502, 24, 13, false, INK_SOFT)
+	_text(stage, "OPERATIONS   /   CONTRACTS   /   RECORDS", 896, 767, 434, 24, 13, false, INK_SOFT)
+	notification = _text(stage, "", 230, 803, 1020, 30, 17, false, BLUE)
+	notification.visible = false
+	# Inherited controller integration: keeps legacy actions and CI navigation.
+	header_gold = money_label
+	header_wealth = worth_label
+	header_jobs = missions_label
+	notice = notification
+	# Six side tabs supplied with the book art. Labels are legible at 720p.
+	_render_tabs()
+	# Page turns use the pack's own animation frames when clicked.
+	flip_art = TextureRect.new()
+	flip_art.position = Vector2(144, 30)
+	flip_art.size = Vector2(1326, 870)
+	flip_art.stretch_mode = TextureRect.STRETCH_SCALE
+	flip_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	flip_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	flip_art.visible = false
+	stage.add_child(flip_art)
+
+func _fit_layout() -> void:
+	if not is_instance_valid(stage):
+		return
+	var viewport: Vector2 = get_viewport_rect().size
+	var factor: float = minf(viewport.x / 1600.0, viewport.y / 900.0)
+	stage.scale = Vector2(factor, factor)
+	stage.position = (viewport - Vector2(1600, 900) * factor) * 0.5
+
+func _book_image(parent: Node, full: Texture2D, x: float, y: float, w: float, h: float) -> TextureRect:
+	var crop := AtlasTexture.new()
+	crop.atlas = full
+	crop.region = BOOK_REGION
+	var image := TextureRect.new()
+	image.texture = crop
+	image.position = Vector2(x, y)
+	image.size = Vector2(w, h)
+	image.stretch_mode = TextureRect.STRETCH_SCALE
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(image)
+	return image
+
+func _region(parent: Node, x: float, y: float, w: float, h: float) -> Control:
+	var box := Control.new()
+	box.position = Vector2(x, y)
+	box.size = Vector2(w, h)
+	box.clip_contents = true
+	parent.add_child(box)
+	return box
+
+func _text(parent: Node, message: String, x: float, y: float, w: float, h: float,
+		size: int = 18, header: bool = false, color: Color = INK,
+		wrap_text: bool = false) -> Label:
+	var label := Label.new()
+	label.position = Vector2(x, y)
+	label.size = Vector2(w, h)
+	label.text = message
+	var font: Font = heading_font if header else body_font
+	label.add_theme_font_override("font", font)
+	var actual: int = size
+	if not wrap_text:
+		while actual > 12 and font.get_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, -1, actual).x > w - 4:
+			actual -= 1
+	label.add_theme_font_size_override("font_size", actual)
+	label.add_theme_color_override("font_color", color)
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap_text else TextServer.AUTOWRAP_OFF
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.clip_text = true
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(label)
+	return label
+
+func _label_rule(parent: Node, x: float, y: float, w: float) -> void:
+	var line := ColorRect.new()
+	line.position = Vector2(x, y)
+	line.size = Vector2(w, 2)
+	line.color = Color("#997563", 0.45)
+	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(line)
+
+func _tint(parent: Node, x: float, y: float, w: float, h: float, color: Color = SHADE) -> void:
+	var surface := ColorRect.new()
+	surface.position = Vector2(x, y)
+	surface.size = Vector2(w, h)
+	surface.color = color
+	surface.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(surface)
+
+func _button_style(texture: Texture2D) -> StyleBoxTexture:
+	var style := StyleBoxTexture.new()
+	style.texture = texture
+	style.texture_margin_left = 12
+	style.texture_margin_right = 12
+	style.texture_margin_top = 9
+	style.texture_margin_bottom = 9
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	return style
+
+func _book_button(parent: Node, value: String, x: float, y: float, w: float, h: float,
+		action: Callable, enabled: bool = true, secondary: bool = false) -> Button:
+	var btn := Button.new()
+	btn.text = value
+	btn.position = Vector2(x, y)
+	btn.size = Vector2(w, h)
+	btn.disabled = not enabled
+	btn.add_theme_font_override("font", body_font)
+	btn.add_theme_font_size_override("font_size", 16 if h >= 38 else 14)
+	btn.add_theme_color_override("font_color", PALE)
+	btn.add_theme_color_override("font_hover_color", Color.WHITE)
+	btn.add_theme_color_override("font_disabled_color", Color("#778d94"))
+	btn.add_theme_stylebox_override("normal", _button_style(BUTTON_NORMAL))
+	btn.add_theme_stylebox_override("hover", _button_style(BUTTON_HOVER))
+	btn.add_theme_stylebox_override("pressed", _button_style(BUTTON_HOVER))
+	btn.add_theme_stylebox_override("disabled", _button_style(BUTTON_NORMAL))
+	btn.add_theme_stylebox_override("focus", _button_style(BUTTON_HOVER))
+	if secondary:
+		btn.modulate = Color("#b2bec3")
+	btn.pressed.connect(action)
+	parent.add_child(btn)
+	return btn
+
+func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: float,
+		action: Callable, active: bool = false) -> Button:
+	var btn := Button.new()
+	btn.text = value
+	btn.position = Vector2(x, y)
+	btn.size = Vector2(w, h)
+	btn.flat = true
+	btn.add_theme_font_override("font", body_font)
+	btn.add_theme_font_size_override("font_size", 15)
+	btn.add_theme_color_override("font_color", BLUE if active else INK)
+	btn.add_theme_color_override("font_hover_color", BLUE_LIGHT)
+	btn.add_theme_color_override("font_pressed_color", BLUE)
+	var transparent := StyleBoxFlat.new()
+	transparent.bg_color = Color.TRANSPARENT
+	var hover := StyleBoxFlat.new()
+	hover.bg_color = Color("#315f73", 0.13)
+	btn.add_theme_stylebox_override("normal", transparent)
+	btn.add_theme_stylebox_override("hover", hover)
+	btn.add_theme_stylebox_override("pressed", hover)
+	btn.pressed.connect(action)
+	parent.add_child(btn)
+	return btn
+
+func _render_tabs() -> void:
+	var entries: Array = [
+		["hq", "COMPANY"],
+		["harlow", "CONTRACTS"],
+		["roster", "PERSONNEL"],
+		["market", "EXCHANGE"],
+		["finance", "FINANCES"],
+		["ledger", "CHRONICLE"]
+	]
+	for i in range(entries.size()):
+		var info: Array = entries[i]
+		var top: float = 178.0 + 88.0 * float(i)
+		var target: String = str(info[0])
+		_text_button(stage, str(info[1]), 16, top, 144, 54,
+			_turn_to.bind(target), page == target)
+
+func _turn_to(destination: String) -> void:
+	if page == destination:
+		return
+	var old: String = page
+	_nav_to(destination)
+	var direction: String = "Page Flip Right" if _tab_index(destination) >= _tab_index(old) else "Page Flip Left"
+	_start_page_flip(direction)
+
+func _tab_index(destination: String) -> int:
+	var keys: Array = ["hq", "harlow", "expeditions", "roster", "guildwork", "market", "finance", "ledger"]
+	return keys.find(destination)
+
+func _start_page_flip(direction: String) -> void:
+	current_flip += 1
+	var generation: int = current_flip
+	var frames: Array[Texture2D] = []
+	for i in range(1, 9):
+		var tex: Texture2D = load(SOURCE + "Inventory Book/Page Flip/Style 1/" + direction + "/" + str(i) + ".png")
+		if tex != null:
+			frames.append(tex)
+	if frames.is_empty():
+		return
+	_animate_turn(generation, frames)
+
+func _animate_turn(generation: int, frames: Array[Texture2D]) -> void:
+	for picture in frames:
+		if generation != current_flip or not is_instance_valid(flip_art):
+			return
+		var crop := AtlasTexture.new()
+		crop.atlas = picture
+		crop.region = BOOK_REGION
+		flip_art.texture = crop
+		flip_art.visible = true
+		await get_tree().create_timer(0.037).timeout
+	if generation == current_flip:
+		flip_art.visible = false
+
+func _refresh() -> void:
+	if not is_instance_valid(stage):
+		return
+	money_label.text = "GOLD  " + _money(game.gold)
+	worth_label.text = "WORTH  " + _money(game.wealth())
+	missions_label.text = "%d / %d  IN THE FIELD" % [game.missions.size(), game.expedition_slots]
+	_clear(left_leaf)
+	_clear(right_leaf)
+	var headings: Dictionary = {
+		"hq": ["Company Records", "Keeping the guild solvent"],
+		"harlow": ["Harlow Mines", "Contract dossier and dispatch"],
+		"expeditions": ["Regional Contracts", "Other assignments"],
+		"roster": ["Personnel Register", "Employees, recruitment and gear"],
+		"guildwork": ["Guild Work Orders", "Safe work and recovery"],
+		"market": ["Exchange Ledger", "Buying and selling goods"],
+		"finance": ["Treasury & Assets", "Accounts and net worth"],
+		"ledger": ["Field Chronicle", "Expeditions and casualties"]
+	}
+	var caption: Array = headings.get(page, headings["hq"])
+	title_label.text = str(caption[0])
+	subheading.text = str(caption[1])
+	match page:
+		"hq": _draw_company()
+		"harlow": _draw_harlow()
+		"expeditions": _draw_regions()
+		"roster": _draw_people()
+		"guildwork": _draw_guild_jobs()
+		"market": _draw_exchange()
+		"finance": _draw_accounts()
+		"ledger": _draw_history()
+		_: _draw_company()
+
+func _notify(message: String) -> void:
+	if message.begins_with("Guild office open."):
+		return
+	notification.text = message
+	notification.visible = true
+	clear_notice_at = Time.get_ticks_msec() + 6500
+
+func _on_clock() -> void:
+	super._on_clock()
+	if clear_notice_at > 0 and Time.get_ticks_msec() >= clear_notice_at:
+		clear_notice_at = 0
+		notification.visible = false
+
+func _scroll(parent: Node, x: float, y: float, w: float, h: float) -> VBoxContainer:
+	var wrapper := ScrollContainer.new()
+	wrapper.position = Vector2(x, y)
+	wrapper.size = Vector2(w, h)
+	wrapper.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	wrapper.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	parent.add_child(wrapper)
+	var content := VBoxContainer.new()
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.custom_minimum_size.x = w - 21
+	content.add_theme_constant_override("separation", 8)
+	wrapper.add_child(content)
+	return content
+
+func _record(parent: Node, height: int, width: int = 465) -> Control:
+	var frame := PanelContainer.new()
+	frame.custom_minimum_size = Vector2(width, height)
+	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("#946e57", 0.10)
+	style.border_color = Color("#715a49", 0.21)
+	style.border_width_bottom = 1
+	style.content_margin_left = 0
+	style.content_margin_top = 0
+	style.content_margin_right = 0
+	style.content_margin_bottom = 0
+	frame.add_theme_stylebox_override("panel", style)
+	parent.add_child(frame)
+	var contents := Control.new()
+	contents.custom_minimum_size = Vector2(width, height)
+	frame.add_child(contents)
+	return contents
+
+func _page_heading(parent: Node, heading_text: String, small: String = "") -> void:
+	_text(parent, heading_text, 6, 1, 464, 37, 22, true)
+	if not small.is_empty():
+		_text(parent, small, 7, 38, 464, 24, 14, false, INK_SOFT)
+	_label_rule(parent, 5, 68, 466)
+
+func _field(parent: Node, caption: String, value: String, y: int) -> void:
+	_text(parent, caption, 9, y, 244, 26, 16, false, INK_SOFT)
+	_text(parent, value, 270, y, 204, 29, 18, true, INK)
+	_label_rule(parent, 8, y + 35, 464)
+
+func _draw_company() -> void:
+	_page_heading(left_leaf, "Guild Balance Sheet", "An honest account of the company.")
+	_field(left_leaf, "Cash in treasury", _money(game.gold), 88)
+	_field(left_leaf, "Total company value", _money(game.wealth()), 141)
+	_field(left_leaf, "Contractors employed", str(game.crew.size()), 194)
+	_field(left_leaf, "Ready for work", str(game.free_crew()), 247)
+	_field(left_leaf, "Outstanding debt", _money(game.relief_debt), 300)
+	_book_button(left_leaf, "Review Harlow Mines", 20, 371, 300, 42,
+		_turn_to.bind("harlow"))
+	_text(left_leaf, "The company grows by earning its way back.", 22, 441, 462, 48,
+		16, false, INK_SOFT, true)
+	_page_heading(right_leaf, "Today's Business", "Your field teams and their reports.")
+	_field(right_leaf, "Active expeditions", str(game.missions.size()), 89)
+	_field(right_leaf, "Reputation", str(game.reputation), 141)
+	_text(right_leaf, "MOST RECENT REPORT", 9, 214, 457, 24, 15, true, BLUE)
+	if game.reports.is_empty():
+		_text(right_leaf, "No completed expeditions are in the journal yet.",
+			10, 249, 460, 60, 17, false, INK_SOFT, true)
+	else:
+		var last: Dictionary = game.reports[0]
+		_text(right_leaf, str(last.get("region", "Unnamed expedition")),
+			10, 249, 442, 28, 20, true)
+		_text(right_leaf, "Returned safely" if bool(last.get("won", false)) else "Costly return",
+			10, 287, 444, 26, 16, false, OXBLOOD if not bool(last.get("won", false)) else BLUE)
+		_text(right_leaf, _loot_text(last.get("loot", {})), 10, 320, 440, 56,
+			15, false, INK_SOFT, true)
+	_book_button(right_leaf, "Read the Chronicle", 16, 383, 275, 42,
+		_turn_to.bind("ledger"))
+	_text_button(right_leaf, "Safe Guild Work  →", 18, 447, 235, 36,
+		_turn_to.bind("guildwork"))
+
+func _draw_harlow() -> void:
+	_page_heading(left_leaf, "I. Site Intelligence", "Scouting is safe. Expeditions are not.")
+	var report: Dictionary = game.harlow.get("report", {})
+	var waiting: bool = int(game.harlow.get("scout_finish", 0)) > 0
+	_text(left_leaf, "HARLOW MINES", 9, 87, 442, 31, 21, true)
+	if report.is_empty():
+		_text(left_leaf, "Survey in progress" if waiting else "Not yet surveyed",
+			9, 131, 433, 29, 18, false, OXBLOOD)
+		_text(left_leaf, "A scout returns with intelligence. Improve your scout to learn more.",
+			9, 174, 433, 69, 16, false, INK_SOFT, true)
+		if waiting:
+			_text(left_leaf, "Returns in %s" % _duration(maxi(0, int(game.harlow["scout_finish"]) - int(Time.get_unix_time_from_system()))),
+				10, 254, 425, 28, 16, false, BLUE)
+		_book_button(left_leaf, "Dispatch Scout" if not waiting else "Scout Away",
+			10, 300, 241, 42, _scout, not waiting)
+	else:
+		_field(left_leaf, "Confirmed veins", "At least %d" % int(report.get("minimum", 0)), 135)
+		_text(left_leaf, "THREAT OBSERVED", 9, 202, 430, 24, 15, false, INK_SOFT)
+		_text(left_leaf, str(report.get("creature", "Unknown")), 9, 232, 436, 34,
+			20, true, OXBLOOD)
+		_text(left_leaf, "Report expires when the mine rotates.", 9, 288, 430, 29,
+			15, false, INK_SOFT)
+	var level: int = int(game.harlow.get("scout_level", 1))
+	_text(left_leaf, "SCOUT TRAINING  %d / 3" % level, 10, 362, 427, 27, 16, true)
+	if level < 3:
+		var price: int = 200 if level == 1 else 650
+		_book_button(left_leaf, "Train Scout  /  %d G" % price,
+			10, 406, 269, 40, _train_scout, game.gold >= price)
+	_text_button(left_leaf, "Other regional contracts  →", 10, 468, 337, 32,
+		_turn_to.bind("expeditions"))
+	_page_heading(right_leaf, "II. Expedition Orders", "Choose miners, guards and your risk.")
+	var roster := _scroll(right_leaf, 5, 78, 475, 199)
+	for merc in game.available_guild_workers():
+		if str(merc.get("role", "")) not in ["Miner", "Guard"]:
+			continue
+		var entry := _record(roster, 61, 449)
+		var id: String = str(merc["id"])
+		var assigned: bool = selected_crew.has(id)
+		_text(entry, "%s  (%s)" % [str(merc["name"]), str(merc["role"])],
+			8, 4, 275, 27, 17, true)
+		_text(entry, "Health %d%%   •   Gear %d/2" % [
+			int(merc.get("health", 100)), _equipped_count(merc)],
+			8, 32, 288, 22, 13, false, INK_SOFT)
+		_book_button(entry, "REMOVE" if assigned else "ASSIGN", 313, 10, 122, 42,
+			_toggle_crew.bind(not assigned, id))
+	var ids: Array[String] = _selected_available()
+	var stats: Dictionary = game.harlow_crew_stats(ids, tactic)
+	_text(right_leaf, "Standing Orders", 9, 293, 214, 24, 15, true)
+	var stance := OptionButton.new()
+	stance.position = Vector2(230, 295)
+	stance.size = Vector2(239, 32)
+	stance.add_theme_font_override("font", body_font)
+	stance.add_theme_font_size_override("font_size", 15)
+	for t in MoneyMercsState.TACTICS:
+		stance.add_item(str(t))
+	stance.select(maxi(0, MoneyMercsState.TACTICS.find(tactic)))
+	stance.item_selected.connect(func(i: int) -> void:
+		_set_tactic(str(MoneyMercsState.TACTICS[i]))
+	)
+	right_leaf.add_child(stance)
+	_field(right_leaf, "Mining capacity", "%d veins" % int(stats["capacity"]), 337)
+	_field(right_leaf, "Dispatch cost", _money(int(stats["wage"])), 379)
+	var intel: bool = not report.is_empty()
+	var forecast: String = "Unknown — scout first" if not intel else "%d%% success chance" % int(round(float(stats["success"]) * 100.0))
+	_text(right_leaf, forecast, 9, 426, 469, 29, 16, true, OXBLOOD if not intel else BLUE)
+	var ore_count: int = 0
+	for amount in (game.harlow.get("deposits", {}) as Dictionary).values():
+		ore_count += int(amount)
+	var possible: bool = int(stats["miners"]) > 0 and ids.size() <= 3 and ore_count > 0 and game.gold >= int(stats["wage"]) and game.missions.size() < game.expedition_slots
+	_book_button(right_leaf, "Fund Expedition", 11, 462, 290, 45,
+		_dispatch_harlow, possible)
+	_text(right_leaf, "Permanent death and gear loss are possible.", 312, 459, 162, 48,
+		12, false, OXBLOOD, true)
