@@ -5,22 +5,26 @@ extends "res://scripts/ledger_ui.gd"
 
 const SOURCE := "res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/"
 const DESK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Book Desk/1.png")
-const OPEN_BOOK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/1.png")
+const OPEN_BOOK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/1.png")
 # The pack supplies one open-book image per physical tab, with that tab
 # extended as an arrow. These are the actual selected/hover art states.
 const SELECTED_TAB_BOOKS := [
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/2.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/3.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/4.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/5.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/6.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/7.png")
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/2.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/3.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/4.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/5.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/6.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/7.png")
 ]
 const PHYSICAL_TAB_PAGES := ["hq", "harlow", "roster", "market", "finance", "ledger"]
 const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
 const BUTTON_HOVER := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png")
 const PALETTE_SHADER := preload("res://assets/ui/book_burgundy.gdshader")
 const BOOK_REGION := Rect2(80, 200, 710, 465)
+# The flip animation is a full-book sprite WITHOUT tabs. Repaint this narrow
+# tab-and-edge strip above it so tabs never duck behind the turning parchment.
+# 51 source pixels cover both the resting tabs and their extended arrow tips.
+const TAB_STRIP_REGION := Rect2(80, 200, 51, 465)
 const INK := Color("#45362d")
 const INK_SOFT := Color("#624d43")
 const INK_LIGHT := Color("#7b6152")
@@ -35,7 +39,9 @@ var left_leaf: Control
 var right_leaf: Control
 var flip_art: TextureRect
 var book_art: TextureRect
+var tab_overlay: TextureRect
 var tab_book_textures: Array[Texture2D] = []
+var tab_strip_textures: Array[Texture2D] = []
 var title_label: Label
 var subheading: Label
 var right_heading: Label
@@ -100,11 +106,13 @@ func _build_shell() -> void:
 	# Crop the seven sheets identically once; switching never shifts or
 	# repaints the underlying parchment and decorative border.
 	tab_book_textures.append(book_art.texture)
+	tab_strip_textures.append(_tab_strip_texture(OPEN_BOOK))
 	for sheet: Texture2D in SELECTED_TAB_BOOKS:
 		var cropped := AtlasTexture.new()
 		cropped.atlas = sheet
 		cropped.region = BOOK_REGION
 		tab_book_textures.append(cropped)
+		tab_strip_textures.append(_tab_strip_texture(sheet))
 	_text(stage, "MONEY MERCS   /   GUILDMASTER'S JOURNAL", 244, 100, 497, 24, 16, true, INK_SOFT)
 	title_label = _text(stage, "Company Records", 241, 141, 500, 42, 28, true)
 	subheading = _text(stage, "Every coin and every loss accounted for", 241, 179, 500, 24, 16, false, INK_SOFT)
@@ -139,6 +147,19 @@ func _build_shell() -> void:
 	flip_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	flip_art.material = palette_material
 	stage.add_child(flip_art)
+	# A duplicate of *only* the tab strip is drawn above the page-turn sprite.
+	# The rest of the book remains underneath the page animation.
+	tab_overlay = TextureRect.new()
+	tab_overlay.name = "PinnedBookTabs"
+	tab_overlay.texture = tab_strip_textures[0]
+	tab_overlay.position = Vector2(144, 30)
+	tab_overlay.size = Vector2(1326.0 * TAB_STRIP_REGION.size.x / BOOK_REGION.size.x, 870)
+	tab_overlay.stretch_mode = TextureRect.STRETCH_SCALE
+	tab_overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tab_overlay.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	tab_overlay.material = palette_material
+	tab_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.add_child(tab_overlay)
 
 func _fit_layout() -> void:
 	if not is_instance_valid(stage):
@@ -163,6 +184,12 @@ func _book_image(parent: Node, full: Texture2D, x: float, y: float, w: float, h:
 	image.material = palette_material
 	parent.add_child(image)
 	return image
+
+func _tab_strip_texture(full: Texture2D) -> AtlasTexture:
+	var crop := AtlasTexture.new()
+	crop.atlas = full
+	crop.region = TAB_STRIP_REGION
+	return crop
 
 func _region(parent: Node, x: float, y: float, w: float, h: float) -> Control:
 	var box := Control.new()
@@ -286,6 +313,8 @@ func _show_tab_art(index: int) -> void:
 	if frame < 0 or frame >= tab_book_textures.size():
 		frame = 0
 	book_art.texture = tab_book_textures[frame]
+	if is_instance_valid(tab_overlay):
+		tab_overlay.texture = tab_strip_textures[frame]
 
 func _active_tab_index() -> int:
 	# These secondary pages belong to the Contracts chapter.
