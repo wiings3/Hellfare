@@ -17,7 +17,7 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 
 ## V0.8 — The Guildmaster's Logbook (BookUI)
 
-The primary game interface is now a **literal open company ledger** built around the complete two-page book, desk, six chapter tabs, blue button shapes, and frame-by-frame page-turn sprites from the user's licensed `assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/` pack.
+The primary game interface is now a **literal open company ledger** built around the complete two-page book, desk, six chapter tabs, icon-free tab variants, dark red button shapes, and frame-by-frame page-turn sprites from the user's licensed `assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/` pack.
 
 Every main function has its own live book spread: Overview, Harlow Mines scouting and dispatch, regional contracts, Mercenaries, recruitment, quartermaster/armory, commodity exchange, financial ledger, safe guild work, and after-action Chronicle. Each page is a working native Godot interface over existing sprites, not a flattened illustration.
 
@@ -25,7 +25,27 @@ Navigation uses the pack's actual tab art and flip animations. Pixel art is near
 
 **Actual screenshots:** [Open Book](docs/ui_office_wide_preview.jpg), [Harlow Dossier](docs/ui_harlow_wide_preview.jpg), [Exchange](docs/ui_trading_wide_preview.jpg), [Personnel](docs/ui_mercenaries_preview.jpg), [Armory](docs/ui_armory_preview.jpg), [Chronicle](docs/ui_journal_preview.jpg).
 
-The prior `scripts/guildhall_ui.gd` remains in the repository as a historical version, but `scenes/main.tscn` now runs `scripts/book_ui.gd`. No mercenary or economy data was reset by this change.
+The prior `scripts/guildhall_ui.gd` and `scripts/ledger_ui.gd` remain as historical UI implementations. Neither is in the current game's inheritance chain. `scenes/main.tscn` loads `scripts/book_ui.gd`. The refactor preserves the existing game-state API and save-file format.
+
+## Where to make changes (current architecture)
+
+The game intentionally uses a small number of focused scripts rather than a framework:
+
+| File | Responsibility |
+| --- | --- |
+| `scripts/book_ui.gd` | Content and interactions of the active journal pages |
+| `scripts/book_shell.gd` | Shared book artwork, tabs, navigation animation, visual widgets |
+| `scripts/game_actions.gd` | Buttons-to-gameplay actions, selection state and game clock |
+| `scripts/game_state.gd` | Harlow mine scouting, dispatch, rotation and resolution (public `MoneyMercsState`) |
+| `scripts/company_state_base.gd` | Company state, saves, employees, equipment, money, trading, other jobs |
+| `scripts/v05_rules.gd` | Data-only equipment and party calculations |
+| `scripts/ledger_ui.gd`, `scripts/guildhall_ui.gd` | Inactive historical UIs; do not add new features here |
+
+Active presentation inheritance: `BookUI → BookShell → GameActions → Control`. Active game state: `MoneyMercsState → CompanyStateBase → RefCounted`.
+
+**Practical rules:** keep new page drawing in `book_ui.gd`, common book controls in `book_shell.gd`, gameplay callbacks in `game_actions.gd`, and gameplay mechanics in the state scripts. Don't put economy or expedition rules inside UI scripts. Don't change save keys casually: `user://money_mercs_save.json` still uses version 1.
+
+**Checks:** the GitHub Actions workflow in `.github/workflows/ci.yml` imports Godot 4.5.1 and runs the existing smoke/regression tests. Tests that reset the company are CI-only and should not be run on personal save data.
 
 ## V0.7 — Guild Operations interface
 
