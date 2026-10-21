@@ -52,21 +52,25 @@ func _build_shell() -> void:
 	stage.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	add_child(stage)
 	body_font = SystemFont.new()
-	body_font.font_names = PackedStringArray(["DejaVu Sans", "Noto Sans", "Liberation Sans"])
+	body_font.font_names = PackedStringArray(["Segoe UI", "Arial", "Noto Sans", "DejaVu Sans", "Liberation Sans"])
 	heading_font = SystemFont.new()
-	heading_font.font_names = PackedStringArray(["Noto Serif", "Liberation Serif", "DejaVu Serif"])
+	heading_font.font_names = PackedStringArray(["Georgia", "Cambria", "Noto Serif", "DejaVu Serif", "Liberation Serif"])
 	palette_material = ShaderMaterial.new()
 	palette_material.shader = PALETTE_SHADER
 	resized.connect(_fit_layout)
 	_fit_layout()
 
 	# Desk is a legitimate BookUI illustration, not a generated backdrop.
-	var desk := TextureRect.new()
+	# The desk is nine-sliced, not cropped or distorted: corners and screws
+	# keep their original proportions; only the plain wood planks expand.
+	var desk := NinePatchRect.new()
 	desk.texture = DESK
 	desk.position = Vector2.ZERO
 	desk.size = Vector2(1600, 900)
-	desk.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	desk.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	desk.patch_margin_left = 110
+	desk.patch_margin_right = 110
+	desk.patch_margin_top = 96
+	desk.patch_margin_bottom = 96
 	desk.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	desk.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(desk)
