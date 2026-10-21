@@ -681,16 +681,6 @@ func reset_company() -> void:
 	save_game()
 
 
-# Harlow Mines: separate persistent rotation state, scouting, and role-based work.
-# This is the first vertical slice. Existing jobs remain backward compatible.
-const HARLOW_ROTATION_SECONDS := 14400
-const HARLOW_ENEMIES := [
-	{"name": "Sleeping Dire Wolf", "danger": 3, "note": "Territorial predator near the lower shafts"},
-	{"name": "Goblin Prospectors", "danger": 2, "note": "A band of armed scavengers"},
-	{"name": "Cave Spiders", "danger": 1, "note": "Nest signs around the old supports"},
-	{"name": "Ancient Cave Troll", "danger": 4, "note": "Huge tracks vanish into the rock"}
-]
-
 # Called from generic expedition completion; implemented by MoneyMercsState.
 func _harlow_finish(_mission: Dictionary) -> void:
 	push_error("CompanyStateBase needs a Harlow expedition resolver.")
