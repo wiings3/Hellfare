@@ -17,6 +17,15 @@ func _verify() -> void:
 	assert(view.right_leaf.size.x >= 470)
 	assert(view.tab_host.get_child_count() == 6)
 	assert(view.tab_book_textures.size() == 7)
+	assert(view.tab_strip_textures.size() == 7)
+	assert(view.tab_overlay.get_index() > view.flip_art.get_index())
+	assert(view.tab_overlay.mouse_filter == Control.MOUSE_FILTER_IGNORE)
+	assert(view.tab_overlay.position == Vector2(144, 30))
+	assert(is_equal_approx(view.tab_overlay.size.x,
+		1326.0 * view.TAB_STRIP_REGION.size.x / view.BOOK_REGION.size.x))
+	assert(view.tab_overlay.size.y == 870)
+	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
+	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.ends_with("/2.png"))
 	# Source-art alignment: first tab begins at (153, 182), every subsequent tab 90 px lower.
 	assert(view.tab_host.position == Vector2(151, 182))
@@ -38,12 +47,15 @@ func _verify() -> void:
 	# Hover previews the original selected sprite, then restores the active tab.
 	view._preview_tab(4)
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.ends_with("/6.png"))
+	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.ends_with("/6.png"))
 	view._restore_tab_art()
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.ends_with("/2.png"))
+	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.ends_with("/2.png"))
 	var personnel_tab: Button = view.tab_host.get_node("ChapterTab2")
 	personnel_tab.pressed.emit()
 	assert(view.page == "roster")
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.ends_with("/4.png"))
+	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.ends_with("/4.png"))
 	assert(view.money_label.text.contains("350"))
 	for chapter in ["harlow", "expeditions", "roster", "market", "finance", "ledger", "guildwork"]:
 		view._nav_to(chapter)
@@ -68,6 +80,10 @@ func _verify() -> void:
 	view._turn_to("harlow")
 	assert(view.page == "harlow")
 	assert(view.flip_art.visible)
+	# The icon-free tab strip is a later sibling and stays drawn over flips.
+	assert(view.tab_overlay.visible)
+	assert(view.tab_overlay.get_index() > view.flip_art.get_index())
+	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.ends_with("/3.png"))
 	await create_timer(0.5).timeout
 	assert(not view.flip_art.visible)
 	view.game.reset_company()
