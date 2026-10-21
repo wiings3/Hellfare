@@ -6,6 +6,17 @@ extends "res://scripts/ledger_ui.gd"
 const SOURCE := "res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/"
 const DESK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Book Desk/1.png")
 const OPEN_BOOK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/1.png")
+# The pack supplies one open-book image per physical tab, with that tab
+# extended as an arrow. These are the actual selected/hover art states.
+const SELECTED_TAB_BOOKS := [
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/2.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/3.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/4.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/5.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/6.png"),
+	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/7.png")
+]
+const PHYSICAL_TAB_PAGES := ["hq", "harlow", "roster", "market", "finance", "ledger"]
 const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
 const BUTTON_HOVER := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png")
 const PALETTE_SHADER := preload("res://assets/ui/book_burgundy.gdshader")
@@ -23,6 +34,8 @@ var stage: Control
 var left_leaf: Control
 var right_leaf: Control
 var flip_art: TextureRect
+var book_art: TextureRect
+var tab_book_textures: Array[Texture2D] = []
 var title_label: Label
 var subheading: Label
 var right_heading: Label
@@ -83,7 +96,15 @@ func _build_shell() -> void:
 	desk.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(desk)
 	# Cropping transparent margins keeps the book itself large and crisp.
-	_book_image(stage, OPEN_BOOK, 144, 30, 1326, 870)
+	book_art = _book_image(stage, OPEN_BOOK, 144, 30, 1326, 870)
+	# Crop the seven sheets identically once; switching never shifts or
+	# repaints the underlying parchment and decorative border.
+	tab_book_textures.append(book_art.texture)
+	for sheet: Texture2D in SELECTED_TAB_BOOKS:
+		var cropped := AtlasTexture.new()
+		cropped.atlas = sheet
+		cropped.region = BOOK_REGION
+		tab_book_textures.append(cropped)
 	_text(stage, "MONEY MERCS   /   GUILDMASTER'S JOURNAL", 244, 100, 497, 24, 16, true, INK_SOFT)
 	title_label = _text(stage, "Company Records", 241, 141, 500, 42, 28, true)
 	subheading = _text(stage, "Every coin and every loss accounted for", 241, 179, 500, 24, 16, false, INK_SOFT)
@@ -105,7 +126,8 @@ func _build_shell() -> void:
 	header_jobs = missions_label
 	notice = notification
 	# Six side tabs supplied with the book art. Labels are legible at 720p.
-	tab_host = _region(stage, 151, 182, 65, 515)
+	# Invisible clickable shapes cover each tab and its extended arrow tip.
+	tab_host = _region(stage, 151, 182, 84, 515)
 	# Page turns use the pack's own animation frames when clicked.
 	flip_art = TextureRect.new()
 	flip_art.position = Vector2(144, 30)
@@ -255,6 +277,28 @@ func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: 
 	parent.add_child(btn)
 	return btn
 
+# An icon is selected by switching the book to the corresponding included
+# sprite, not by painting a rectangle on top of its tab.
+func _show_tab_art(index: int) -> void:
+	if not is_instance_valid(book_art) or tab_book_textures.is_empty():
+		return
+	var frame: int = index + 1
+	if frame < 0 or frame >= tab_book_textures.size():
+		frame = 0
+	book_art.texture = tab_book_textures[frame]
+
+func _active_tab_index() -> int:
+	# These secondary pages belong to the Contracts chapter.
+	if page == "expeditions" or page == "guildwork":
+		return 1
+	return PHYSICAL_TAB_PAGES.find(page)
+
+func _restore_tab_art() -> void:
+	_show_tab_art(_active_tab_index())
+
+func _preview_tab(index: int) -> void:
+	_show_tab_art(index)
+
 func _render_tabs() -> void:
 	# The six REAL pixel-art page tabs are the six navigation controls.
 	# No duplicate navigation bars or floating labels on the desk.
@@ -276,27 +320,20 @@ func _render_tabs() -> void:
 		click.text = ""
 		click.tooltip_text = "%s\n%s" % [str(entry[1]), str(entry[2])]
 		click.position = Vector2(2, y)
-		click.size = Vector2(60, 60)
+		click.size = Vector2(80, 60)
 		click.focus_mode = Control.FOCUS_ALL
 		click.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		var plain := StyleBoxFlat.new()
-		plain.bg_color = Color.TRANSPARENT
-		var hover := StyleBoxFlat.new()
-		hover.bg_color = Color("#762c37", 0.20)
-		hover.set_corner_radius_all(2)
-		var focus := StyleBoxFlat.new()
-		focus.bg_color = Color.TRANSPARENT
-		focus.border_color = Color("#762c37", 0.65)
-		focus.set_border_width_all(2)
-		click.add_theme_stylebox_override("normal", plain)
-		click.add_theme_stylebox_override("hover", hover)
-		click.add_theme_stylebox_override("pressed", hover)
-		click.add_theme_stylebox_override("focus", focus)
+		# Every button state is invisible. The sheet artwork IS the button state.
+		# A StyleBoxEmpty also prevents Godot from drawing its usual focus outline.
+		var invisible := StyleBoxEmpty.new()
+		for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+			click.add_theme_stylebox_override(state, invisible)
+		click.mouse_entered.connect(_preview_tab.bind(index))
+		click.mouse_exited.connect(_restore_tab_art)
+		click.focus_entered.connect(_preview_tab.bind(index))
+		click.focus_exited.connect(_restore_tab_art)
 		click.pressed.connect(_turn_to.bind(target))
 		tab_host.add_child(click)
-		if page == target:
-			# A small ink line on the active physical tab, not a second button.
-			_tint(tab_host, 61, y + 17, 3, 26, OXBLOOD)
 
 func _turn_to(destination: String) -> void:
 	if page == destination:
@@ -345,6 +382,7 @@ func _refresh() -> void:
 	_clear(right_leaf)
 	_clear(tab_host)
 	_render_tabs()
+	_restore_tab_art()
 	var headings: Dictionary = {
 		"hq": ["Company Records", "Keeping the guild solvent"],
 		"harlow": ["Harlow Mines", "Contract dossier and dispatch"],
