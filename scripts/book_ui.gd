@@ -471,3 +471,135 @@ func _draw_harlow() -> void:
 		_dispatch_harlow, possible)
 	_text(right_leaf, "Permanent death and gear loss are possible.", 312, 459, 162, 48,
 		12, false, OXBLOOD, true)
+
+func _draw_people() -> void:
+	var subtabs: Array = [["employed", "EMPLOYEES"], ["recruits", "RECRUITMENT"], ["armory", "ARMORY"]]
+	for i in range(subtabs.size()):
+		var tab: Array = subtabs[i]
+		_text_button(left_leaf, str(tab[1]), 2 + i * 169, 0, 160, 38,
+			_set_roster_tab.bind(str(tab[0])), roster_tab == str(tab[0]))
+	_label_rule(left_leaf, 5, 44, 464)
+	match roster_tab:
+		"employed": _draw_employees()
+		"recruits": _draw_recruitment()
+		"armory": _draw_armory()
+
+func _focus_person(id: String) -> void:
+	selected_merc = id
+	_refresh()
+
+func _draw_employees() -> void:
+	_text(left_leaf, "UNDER CONTRACT", 10, 57, 450, 28, 18, true)
+	var roster := _scroll(left_leaf, 4, 97, 493, 396)
+	if selected_merc.is_empty() and not game.crew.is_empty():
+		selected_merc = str(game.crew[0]["id"])
+	for person in game.crew:
+		var id: String = str(person["id"])
+		var row := _record(roster, 75, 462)
+		_text(row, str(person["name"]), 10, 5, 242, 29, 18, true,
+			BLUE if id == selected_merc else INK)
+		_text(row, "%s  •  %d%% health" % [str(person["role"]), int(person.get("health", 100))],
+			11, 39, 274, 25, 14, false, INK_SOFT)
+		_text_button(row, "VIEW  →", 334, 16, 119, 39,
+			_focus_person.bind(id), id == selected_merc)
+	if game.crew.is_empty():
+		_text(left_leaf, "The payroll is empty. Recruit a miner or a guard to begin.",
+			9, 105, 449, 98, 17, false, INK_SOFT, true)
+		_book_button(left_leaf, "Open Recruitment", 10, 223, 274, 45,
+			_set_roster_tab.bind("recruits"))
+	_page_heading(right_leaf, "Employee Dossier", "Read contracts before assigning crews.")
+	var person: Dictionary = game.merc_by_id(selected_merc)
+	if person.is_empty():
+		_text(right_leaf, "Select a contractor to inspect their dossier.",
+			8, 104, 461, 63, 17, false, INK_SOFT, true)
+		return
+	_text(right_leaf, str(person["name"]), 10, 84, 453, 44, 25, true)
+	_field(right_leaf, "Occupation", str(person["role"]), 145)
+	_field(right_leaf, "Skill", str(int(person.get("skill", 0))), 190)
+	_field(right_leaf, "Health", "%d%%" % int(person.get("health", 100)), 235)
+	_field(right_leaf, "Daily wage", _money(int(person.get("wage", 0))), 280)
+	var equipped: Dictionary = person.get("equipment", {})
+	_text(right_leaf, "TOOL: %s" % _equipment_name(equipped.get("tool", {})),
+		12, 342, 460, 26, 15, false, INK_SOFT)
+	_text(right_leaf, "ARMOR: %s" % _equipment_name(equipped.get("armor", {})),
+		12, 375, 460, 26, 15, false, INK_SOFT)
+	_book_button(right_leaf, "Open Armory", 10, 431, 225, 43,
+		_outfit.bind(selected_merc))
+	_book_button(right_leaf, "Renegotiate Terms", 244, 431, 228, 43,
+		_terms.bind(selected_merc))
+	if int(person.get("health", 100)) < 100:
+		_text_button(right_leaf, "Pay for treatment  →", 16, 479, 278, 31,
+			_heal.bind(selected_merc))
+
+func _draw_recruitment() -> void:
+	_text(left_leaf, "APPLICANTS", 10, 58, 440, 32, 19, true)
+	_text(left_leaf, "Candidates change regularly.", 10, 90, 450, 23, 14, false, INK_SOFT)
+	var offers := _scroll(left_leaf, 4, 126, 492, 382)
+	for candidate in game.recruitment_board():
+		var record := _record(offers, 87, 462)
+		_text(record, str(candidate["name"]), 8, 7, 266, 30, 19, true)
+		_text(record, "%s  •  Skill %d  •  Wage %d G" % [
+			str(candidate["role"]), int(candidate["skill"]), int(candidate["wage"])],
+			9, 37, 320, 24, 14, false, INK_SOFT)
+		_text_button(record, "HIRE %d G" % int(candidate["hire"]),
+			320, 22, 142, 41, _hire.bind(str(candidate["id"])))
+	_page_heading(right_leaf, "The Signing Desk", "Contractors are hired, not summoned.")
+	_text(right_leaf, "HIRING", 9, 95, 454, 26, 17, true)
+	_text(right_leaf, "An applicant's signing fee is paid immediately. Wages and a share of recovered wealth follow after each expedition.",
+		10, 134, 447, 126, 17, false, INK_SOFT, true)
+	_field(right_leaf, "Treasury available", _money(game.gold), 278)
+	_field(right_leaf, "Workers employed", str(game.crew.size()), 329)
+	_text(right_leaf, "A fallen mercenary cannot be rehired. The company must replace them from new applicants.",
+		10, 393, 455, 94, 16, false, OXBLOOD, true)
+
+func _draw_armory() -> void:
+	_text(left_leaf, "THE QUARTERMASTER", 10, 56, 446, 32, 20, true)
+	_text(left_leaf, "Choose a worker, then assign stored gear.", 10, 89, 451, 30, 14, false, INK_SOFT)
+	if selected_merc.is_empty() and not game.crew.is_empty():
+		selected_merc = str(game.crew[0]["id"])
+	var crew_picker := _scroll(left_leaf, 5, 130, 491, 174)
+	for person in game.crew:
+		var row := _record(crew_picker, 60, 459)
+		var id: String = str(person["id"])
+		_text(row, "%s / %s" % [str(person["name"]), str(person["role"])],
+			7, 9, 303, 34, 16, true)
+		_text_button(row, "SELECT", 335, 10, 118, 39, _choose_worker.bind(id), id == selected_merc)
+	_text(left_leaf, "UNASSIGNED EQUIPMENT", 10, 317, 455, 27, 16, true)
+	var stash := _scroll(left_leaf, 5, 348, 492, 155)
+	var owner: Dictionary = game.merc_by_id(selected_merc)
+	for item in game.equipment_inventory:
+		var def: Dictionary = game.item_definition(str(item.get("key", "")))
+		var row := _record(stash, 59, 462)
+		_text(row, str(def.get("name", "Unknown")), 9, 4, 244, 28, 16, true)
+		_text(row, "Owned  /  %s" % str(def.get("slot", "tool")), 9, 28, 277, 22, 13, false, INK_SOFT)
+		_text_button(row, "EQUIP", 278, 8, 89, 40,
+			_equip.bind(selected_merc, str(item.get("uid", ""))))
+		_text_button(row, "SELL", 375, 8, 83, 40,
+			_sell_equipment.bind(str(item.get("uid", ""))))
+	if game.equipment_inventory.is_empty():
+		var empty := _record(stash, 63, 460)
+		_text(empty, "No equipment in storage.", 10, 12, 431, 39, 16, false, INK_SOFT)
+	_page_heading(right_leaf, "Arms & Provisions", "Purchased equipment belongs to the guild.")
+	if not owner.is_empty():
+		var worn: Dictionary = owner.get("equipment", {})
+		_text(right_leaf, "OUTFITTING: %s" % str(owner.get("name", "")), 9, 81, 453, 28, 17, true)
+		for i in range(2):
+			var slot: String = "tool" if i == 0 else "armor"
+			var equipped: Dictionary = worn.get(slot, {})
+			var y: float = 117.0 + float(i) * 48.0
+			_text(right_leaf, "%s: %s" % [slot.capitalize(), _equipment_name(equipped)],
+				9, y, 332, 35, 15)
+			if not equipped.is_empty():
+				_text_button(right_leaf, "REMOVE", 348, y, 112, 35,
+					_unequip.bind(selected_merc, slot))
+	_label_rule(right_leaf, 8, 214, 459)
+	_text(right_leaf, "PURCHASE EQUIPMENT", 10, 221, 460, 29, 17, true)
+	var catalog := _scroll(right_leaf, 6, 262, 478, 244)
+	for key in MercsV05.ITEMS:
+		var definition: Dictionary = MercsV05.ITEMS[key]
+		var row := _record(catalog, 63, 444)
+		_text(row, str(definition.get("name", "")), 7, 4, 273, 28, 16, true)
+		_text(row, "%s  •  %s" % [str(definition.get("role", "")), str(definition.get("slot", ""))],
+			8, 29, 281, 21, 13, false, INK_SOFT)
+		_text_button(row, "%d G" % int(definition["cost"]), 310, 10, 126, 40,
+			_buy_equipment.bind(str(key)))
