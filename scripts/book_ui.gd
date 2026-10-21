@@ -8,16 +8,16 @@ const DESK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of St
 const OPEN_BOOK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/With icons/1.png")
 const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
 const BUTTON_HOVER := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png")
-const PAGE_ARROW := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/6 Arrows & Highlighters/Arrows/1.png")
+const PALETTE_SHADER := preload("res://assets/ui/book_burgundy.gdshader")
 const BOOK_REGION := Rect2(80, 200, 710, 465)
 const INK := Color("#45362d")
-const INK_SOFT := Color("#806557")
-const INK_LIGHT := Color("#9e8070")
-const BLUE := Color("#315f73")
-const BLUE_LIGHT := Color("#477b8d")
-const OXBLOOD := Color("#a24e4a")
+const INK_SOFT := Color("#624d43")
+const INK_LIGHT := Color("#7b6152")
+const BLUE := Color("#762c37")
+const BLUE_LIGHT := Color("#984251")
+const OXBLOOD := Color("#8d3339")
 const PALE := Color("#efe2cf")
-const SHADE := Color("#976b4e", 0.11)
+const SHADE := Color("#805349", 0.13)
 
 var stage: Control
 var left_leaf: Control
@@ -38,6 +38,7 @@ var selected_market_item: String = "copper"
 var selected_report_index: int = 0
 var view_count: int = 0
 var tab_host: Control
+var palette_material: ShaderMaterial
 
 func _ready() -> void:
 	page = "hq"
@@ -48,12 +49,14 @@ func _build_shell() -> void:
 	stage.name = "GuildmastersLogbook"
 	stage.size = Vector2(1600, 900)
 	stage.mouse_filter = Control.MOUSE_FILTER_PASS
-	stage.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	stage.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	add_child(stage)
 	body_font = SystemFont.new()
 	body_font.font_names = PackedStringArray(["DejaVu Sans", "Noto Sans", "Liberation Sans"])
 	heading_font = SystemFont.new()
-	heading_font.font_names = PackedStringArray(["DejaVu Serif", "Noto Serif", "Liberation Serif"])
+	heading_font.font_names = PackedStringArray(["Noto Serif", "Liberation Serif", "DejaVu Serif"])
+	palette_material = ShaderMaterial.new()
+	palette_material.shader = PALETTE_SHADER
 	resized.connect(_fit_layout)
 	_fit_layout()
 
@@ -63,25 +66,26 @@ func _build_shell() -> void:
 	desk.position = Vector2.ZERO
 	desk.size = Vector2(1600, 900)
 	desk.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	desk.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	desk.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	desk.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	desk.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stage.add_child(desk)
 	# Cropping transparent margins keeps the book itself large and crisp.
 	_book_image(stage, OPEN_BOOK, 144, 30, 1326, 870)
-	_text(stage, "MONEY MERCS  /  THE GUILDMASTER'S LOG", 230, 60, 800, 33, 21, true, INK)
-	title_label = _text(stage, "Company Records", 220, 130, 517, 43, 30, true)
-	subheading = _text(stage, "Every coin and every loss accounted for", 220, 169, 511, 25, 15, false, INK_SOFT)
-	_label_rule(stage, 222, 203, 515)
-	right_heading = _text(stage, "CURRENT ACCOUNTS", 869, 132, 478, 30, 21, true)
-	money_label = _text(stage, "", 873, 166, 200, 29, 17, true, BLUE)
-	worth_label = _text(stage, "", 1089, 166, 260, 29, 17, true, BLUE)
-	missions_label = _text(stage, "", 1104, 62, 231, 30, 15, false, INK_SOFT)
-	_label_rule(stage, 868, 203, 484)
+	_text(stage, "MONEY MERCS   /   GUILDMASTER'S JOURNAL", 230, 99, 520, 23, 16, true, INK_SOFT)
+	title_label = _text(stage, "Company Records", 220, 141, 517, 42, 28, true)
+	subheading = _text(stage, "Every coin and every loss accounted for", 220, 179, 511, 24, 16, false, INK_SOFT)
+	_label_rule(stage, 222, 208, 515)
+	right_heading = _text(stage, "CURRENT ACCOUNTS", 869, 147, 478, 27, 19, true)
+	money_label = _text(stage, "", 873, 178, 208, 29, 17, true, BLUE)
+	worth_label = _text(stage, "", 1090, 178, 258, 29, 17, true, BLUE)
+	missions_label = _text(stage, "", 1090, 111, 258, 23, 14, false, INK_SOFT)
+	_label_rule(stage, 868, 208, 484)
 	left_leaf = _region(stage, 222, 212, 520, 520)
 	right_leaf = _region(stage, 869, 212, 486, 520)
-	_text(stage, "01   THE LEDGER OF MONEY MERCS", 251, 767, 502, 24, 13, false, INK_SOFT)
-	_text(stage, "OPERATIONS   /   CONTRACTS   /   RECORDS", 896, 767, 434, 24, 13, false, INK_SOFT)
-	notification = _text(stage, "", 319, 13, 977, 33, 16, false, PALE)
+	
+	
+	notification = _text(stage, "", 295, 22, 1045, 29, 16, false, PALE)
 	notification.visible = false
 	# Inherited controller integration: keeps legacy actions and CI navigation.
 	header_gold = money_label
@@ -89,7 +93,7 @@ func _build_shell() -> void:
 	header_jobs = missions_label
 	notice = notification
 	# Six side tabs supplied with the book art. Labels are legible at 720p.
-	tab_host = _region(stage, 0, 0, 161, 800)
+	tab_host = _region(stage, 138, 195, 78, 532)
 	# Page turns use the pack's own animation frames when clicked.
 	flip_art = TextureRect.new()
 	flip_art.position = Vector2(144, 30)
@@ -98,6 +102,8 @@ func _build_shell() -> void:
 	flip_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	flip_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	flip_art.visible = false
+	flip_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	flip_art.material = palette_material
 	stage.add_child(flip_art)
 
 func _fit_layout() -> void:
@@ -119,6 +125,8 @@ func _book_image(parent: Node, full: Texture2D, x: float, y: float, w: float, h:
 	image.stretch_mode = TextureRect.STRETCH_SCALE
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	image.material = palette_material
 	parent.add_child(image)
 	return image
 
@@ -139,11 +147,12 @@ func _text(parent: Node, message: String, x: float, y: float, w: float, h: float
 	label.text = message
 	var font: Font = heading_font if header else body_font
 	label.add_theme_font_override("font", font)
-	var actual: int = size
+	var actual: int = size + 1 if size <= 16 else size
 	if not wrap_text:
-		while actual > 12 and font.get_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, -1, actual).x > w - 4:
+		while actual > 13 and font.get_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, -1, actual).x > w - 4:
 			actual -= 1
 	label.add_theme_font_size_override("font_size", actual)
+	label.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	label.add_theme_color_override("font_color", color)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap_text else TextServer.AUTOWRAP_OFF
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -192,7 +201,9 @@ func _book_button(parent: Node, value: String, x: float, y: float, w: float, h: 
 	btn.add_theme_font_size_override("font_size", 16 if h >= 38 else 14)
 	btn.add_theme_color_override("font_color", PALE)
 	btn.add_theme_color_override("font_hover_color", Color.WHITE)
-	btn.add_theme_color_override("font_disabled_color", Color("#778d94"))
+	btn.add_theme_color_override("font_disabled_color", Color("#c3a9a0"))
+	btn.material = palette_material
+	btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	btn.add_theme_stylebox_override("normal", _button_style(BUTTON_NORMAL))
 	btn.add_theme_stylebox_override("hover", _button_style(BUTTON_HOVER))
 	btn.add_theme_stylebox_override("pressed", _button_style(BUTTON_HOVER))
@@ -220,7 +231,7 @@ func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: 
 	var transparent := StyleBoxFlat.new()
 	transparent.bg_color = Color.TRANSPARENT
 	var hover := StyleBoxFlat.new()
-	hover.bg_color = Color("#315f73", 0.13)
+	hover.bg_color = Color("#762c37", 0.13)
 	btn.add_theme_stylebox_override("normal", transparent)
 	btn.add_theme_stylebox_override("hover", hover)
 	btn.add_theme_stylebox_override("pressed", hover)
@@ -229,25 +240,46 @@ func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: 
 	return btn
 
 func _render_tabs() -> void:
+	# The six REAL pixel-art page tabs are the six navigation controls.
+	# No duplicate navigation bars or floating labels on the desk.
 	var entries: Array = [
-		["hq", "COMPANY"],
-		["harlow", "CONTRACTS"],
-		["roster", "PERSONNEL"],
-		["market", "EXCHANGE"],
-		["finance", "FINANCES"],
-		["ledger", "CHRONICLE"]
+		["hq", "Company records", "Company overview, profit and losses"],
+		["harlow", "Contracts", "Scout Harlow Mines and fund field work"],
+		["roster", "Personnel", "Hire, equip and manage contractors"],
+		["market", "Exchange", "Buy and sell the guild's resources"],
+		["finance", "Finances", "Review cash and total company value"],
+		["ledger", "Chronicle", "Read expedition reports and casualties"]
 	]
-	for i in range(entries.size()):
-		var info: Array = entries[i]
-		var top: float = 178.0 + 88.0 * float(i)
-		var target: String = str(info[0])
-		_tint(tab_host, 8, top + 10, 136, 34,
-			Color("#171b1e", 0.88) if page == target else Color("#161619", 0.73))
-		var nav := _text_button(tab_host, str(info[1]), 12, top, 139, 53,
-			_turn_to.bind(target), page == target)
-		nav.add_theme_font_size_override("font_size", 14)
-		nav.add_theme_color_override("font_color", Color("#fff0d7") if page == target else Color("#ddd0bd"))
-		nav.add_theme_color_override("font_hover_color", Color.WHITE)
+	for index in range(entries.size()):
+		var entry: Array = entries[index]
+		var target: String = str(entry[0])
+		var y: float = float(index) * 88.0
+		var click := Button.new()
+		click.name = "ChapterTab" + str(index)
+		click.text = ""
+		click.tooltip_text = "%s\n%s" % [str(entry[1]), str(entry[2])]
+		click.position = Vector2(4, y)
+		click.size = Vector2(71, 69)
+		click.focus_mode = Control.FOCUS_ALL
+		click.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		var plain := StyleBoxFlat.new()
+		plain.bg_color = Color.TRANSPARENT
+		var hover := StyleBoxFlat.new()
+		hover.bg_color = Color("#e0b3a0", 0.18)
+		hover.set_corner_radius_all(2)
+		var focus := StyleBoxFlat.new()
+		focus.bg_color = Color.TRANSPARENT
+		focus.border_color = Color("#bf7955", 0.8)
+		focus.set_border_width_all(2)
+		click.add_theme_stylebox_override("normal", plain)
+		click.add_theme_stylebox_override("hover", hover)
+		click.add_theme_stylebox_override("pressed", hover)
+		click.add_theme_stylebox_override("focus", focus)
+		click.pressed.connect(_turn_to.bind(target))
+		tab_host.add_child(click)
+		if page == target:
+			# A small ink line on the active physical tab, not a second button.
+			_tint(tab_host, 70, y + 21, 3, 27, OXBLOOD)
 
 func _turn_to(destination: String) -> void:
 	if page == destination:
@@ -483,15 +515,15 @@ func _draw_harlow() -> void:
 	_field(right_leaf, "Dispatch cost", _money(int(stats["wage"])), 379)
 	var intel: bool = not report.is_empty()
 	var forecast: String = "Unknown — scout first" if not intel else "%d%% success chance" % int(round(float(stats["success"]) * 100.0))
-	_text(right_leaf, forecast, 9, 426, 469, 29, 16, true, OXBLOOD if not intel else BLUE)
+	_text(right_leaf, forecast, 9, 420, 466, 28, 16, true, OXBLOOD if not intel else BLUE)
 	var ore_count: int = 0
 	for amount in (game.harlow.get("deposits", {}) as Dictionary).values():
 		ore_count += int(amount)
 	var possible: bool = int(stats["miners"]) > 0 and ids.size() <= 3 and ore_count > 0 and game.gold >= int(stats["wage"]) and game.missions.size() < game.expedition_slots
-	_book_button(right_leaf, "Fund Expedition", 11, 462, 290, 45,
+	_text(right_leaf, "Mercenary deaths and lost equipment are permanent.",
+		11, 445, 464, 23, 14, false, OXBLOOD)
+	_book_button(right_leaf, "Fund Expedition", 11, 473, 295, 42,
 		_dispatch_harlow, possible)
-	_text(right_leaf, "Permanent death and gear loss are possible.", 312, 459, 162, 48,
-		12, false, OXBLOOD, true)
 
 func _draw_people() -> void:
 	var subtabs: Array = [["employed", "EMPLOYEES"], ["recruits", "RECRUITMENT"], ["armory", "ARMORY"]]
@@ -638,7 +670,7 @@ func _draw_exchange() -> void:
 		var key: String = str(id)
 		var row := _record(stock, 61, 462)
 		if key == selected_market_item:
-			_tint(row, 0, 0, 462, 61, Color("#36697e", 0.12))
+			_tint(row, 0, 0, 462, 61, Color("#762c37", 0.10))
 		_text(row, str(MoneyMercsState.RESOURCE_NAMES[key]), 9, 6, 296, 27,
 			17, true, BLUE if selected_market_item == key else INK)
 		_text(row, "Stored: %d    |    Sell: %d G" % [
@@ -741,7 +773,7 @@ func _draw_history() -> void:
 		var entry: Dictionary = game.reports[i]
 		var row := _record(records, 74, 459)
 		if i == selected_report_index:
-			_tint(row, 0, 0, 459, 74, Color("#36697e", 0.13))
+			_tint(row, 0, 0, 459, 74, Color("#762c37", 0.10))
 		_text(row, str(entry.get("region", "Unknown assignment")),
 			9, 7, 302, 30, 17, true)
 		_text(row, "Completed" if bool(entry.get("won", false)) else "Costly return",
