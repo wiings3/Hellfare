@@ -25,6 +25,7 @@ var right_leaf: Control
 var flip_art: TextureRect
 var title_label: Label
 var subheading: Label
+var right_heading: Label
 var money_label: Label
 var worth_label: Label
 var missions_label: Label
@@ -71,7 +72,7 @@ func _build_shell() -> void:
 	title_label = _text(stage, "Company Records", 220, 130, 517, 43, 30, true)
 	subheading = _text(stage, "Every coin and every loss accounted for", 220, 169, 511, 25, 15, false, INK_SOFT)
 	_label_rule(stage, 222, 203, 515)
-	_text(stage, "COMPANY SUMMARY", 869, 132, 478, 30, 21, true)
+	right_heading = _text(stage, "CURRENT ACCOUNTS", 869, 132, 478, 30, 21, true)
 	money_label = _text(stage, "", 873, 166, 200, 29, 17, true, BLUE)
 	worth_label = _text(stage, "", 1089, 166, 260, 29, 17, true, BLUE)
 	missions_label = _text(stage, "", 1104, 62, 231, 30, 15, false, INK_SOFT)
@@ -80,7 +81,7 @@ func _build_shell() -> void:
 	right_leaf = _region(stage, 869, 212, 486, 520)
 	_text(stage, "01   THE LEDGER OF MONEY MERCS", 251, 767, 502, 24, 13, false, INK_SOFT)
 	_text(stage, "OPERATIONS   /   CONTRACTS   /   RECORDS", 896, 767, 434, 24, 13, false, INK_SOFT)
-	notification = _text(stage, "", 230, 803, 1020, 30, 17, false, BLUE)
+	notification = _text(stage, "", 319, 13, 977, 33, 16, false, PALE)
 	notification.visible = false
 	# Inherited controller integration: keeps legacy actions and CI navigation.
 	header_gold = money_label
@@ -239,8 +240,13 @@ func _render_tabs() -> void:
 		var info: Array = entries[i]
 		var top: float = 178.0 + 88.0 * float(i)
 		var target: String = str(info[0])
-		_text_button(tab_host, str(info[1]), 16, top, 144, 54,
+		_tint(tab_host, 8, top + 10, 136, 34,
+			Color("#171b1e", 0.88) if page == target else Color("#161619", 0.73))
+		var nav := _text_button(tab_host, str(info[1]), 12, top, 139, 53,
 			_turn_to.bind(target), page == target)
+		nav.add_theme_font_size_override("font_size", 14)
+		nav.add_theme_color_override("font_color", Color("#fff0d7") if page == target else Color("#ddd0bd"))
+		nav.add_theme_color_override("font_hover_color", Color.WHITE)
 
 func _turn_to(destination: String) -> void:
 	if page == destination:
@@ -302,6 +308,17 @@ func _refresh() -> void:
 	var caption: Array = headings.get(page, headings["hq"])
 	title_label.text = str(caption[0])
 	subheading.text = str(caption[1])
+	var right_titles: Dictionary = {
+		"hq": "CURRENT ACCOUNTS",
+		"harlow": "EXPEDITION LEDGER",
+		"expeditions": "FIELD CONTRACTS",
+		"roster": "PERSONNEL FILES",
+		"guildwork": "WORK ASSIGNMENTS",
+		"market": "MARKET RECORDS",
+		"finance": "COMPANY ACCOUNTS",
+		"ledger": "AFTER-ACTION RECORDS"
+	}
+	right_heading.text = str(right_titles.get(page, "CURRENT ACCOUNTS"))
 	match page:
 		"hq": _draw_company()
 		"harlow": _draw_harlow()
@@ -544,8 +561,9 @@ func _draw_recruitment() -> void:
 		_text(record, "%s  •  Skill %d  •  Wage %d G" % [
 			str(candidate["role"]), int(candidate["skill"]), int(candidate["wage"])],
 			9, 37, 320, 24, 14, false, INK_SOFT)
-		_text_button(record, "HIRE %d G" % int(candidate["hire"]),
+		var hire_button := _text_button(record, "HIRE %d G" % int(candidate["hire"]),
 			320, 22, 142, 41, _hire.bind(str(candidate["id"])))
+		hire_button.disabled = game.gold < int(candidate["hire"])
 	_page_heading(right_leaf, "The Signing Desk", "Contractors are hired, not summoned.")
 	_text(right_leaf, "HIRING", 9, 95, 454, 26, 17, true)
 	_text(right_leaf, "An applicant's signing fee is paid immediately. Wages and a share of recovered wealth follow after each expedition.",
@@ -575,8 +593,9 @@ func _draw_armory_page() -> void:
 		var row := _record(stash, 59, 462)
 		_text(row, str(def.get("name", "Unknown")), 9, 4, 244, 28, 16, true)
 		_text(row, "Owned  /  %s" % str(def.get("slot", "tool")), 9, 28, 277, 22, 13, false, INK_SOFT)
-		_text_button(row, "EQUIP", 278, 8, 89, 40,
+		var equip_button := _text_button(row, "EQUIP", 278, 8, 89, 40,
 			_equip.bind(selected_merc, str(item.get("uid", ""))))
+		equip_button.disabled = owner.is_empty() or not game.is_available(owner) or not MercsV05.validate_role(str(item.get("key", "")), owner)
 		_text_button(row, "SELL", 375, 8, 83, 40,
 			_sell_equipment.bind(str(item.get("uid", ""))))
 	if game.equipment_inventory.is_empty():
@@ -640,8 +659,9 @@ func _draw_exchange() -> void:
 	_book_button(right_leaf, "Sell One", 224, 387, 200, 45,
 		_trade.bind(selected_market_item, false, 1),
 		int(game.resources.get(selected_market_item, 0)) > 0)
-	_text_button(right_leaf, "Sell all in storage  →", 13, 446, 341, 36,
+	var sell_all := _text_button(right_leaf, "Sell all in storage  →", 13, 446, 341, 36,
 		_trade.bind(selected_market_item, false, int(game.resources.get(selected_market_item, 0))))
+	sell_all.disabled = int(game.resources.get(selected_market_item, 0)) <= 0
 	_text(right_leaf, "Markets between players are not implemented yet.", 12, 489,
 		462, 29, 13, false, INK_LIGHT)
 
