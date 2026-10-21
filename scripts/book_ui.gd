@@ -60,7 +60,15 @@ func _build_shell() -> void:
 	resized.connect(_fit_layout)
 	_fit_layout()
 
-	# Desk is a legitimate BookUI illustration, not a generated backdrop.
+	# Fill transparent pixels around the desk with matching walnut instead
+	# of exposing the engine's gray clear color.
+	var backing := ColorRect.new()
+	backing.color = Color("#443e3a")
+	backing.position = Vector2.ZERO
+	backing.size = Vector2(1600, 900)
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.add_child(backing)
+	# The desk is a legitimate BookUI illustration, not a generated backdrop.
 	# The desk is nine-sliced, not cropped or distorted: corners and screws
 	# keep their original proportions; only the plain wood planks expand.
 	var desk := NinePatchRect.new()
