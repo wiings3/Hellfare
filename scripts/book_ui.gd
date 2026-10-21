@@ -52,9 +52,9 @@ func _build_shell() -> void:
 	stage.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	add_child(stage)
 	body_font = SystemFont.new()
-	body_font.font_names = PackedStringArray(["Segoe UI", "Arial", "Noto Sans", "DejaVu Sans", "Liberation Sans"])
+	body_font.font_names = PackedStringArray(["Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif"])
 	heading_font = SystemFont.new()
-	heading_font.font_names = PackedStringArray(["Georgia", "Cambria", "Noto Serif", "DejaVu Serif", "Liberation Serif"])
+	heading_font.font_names = PackedStringArray(["Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif"])
 	palette_material = ShaderMaterial.new()
 	palette_material.shader = PALETTE_SHADER
 	resized.connect(_fit_layout)
@@ -84,17 +84,17 @@ func _build_shell() -> void:
 	stage.add_child(desk)
 	# Cropping transparent margins keeps the book itself large and crisp.
 	_book_image(stage, OPEN_BOOK, 144, 30, 1326, 870)
-	_text(stage, "MONEY MERCS   /   GUILDMASTER'S JOURNAL", 230, 99, 520, 23, 16, true, INK_SOFT)
-	title_label = _text(stage, "Company Records", 220, 141, 517, 42, 28, true)
-	subheading = _text(stage, "Every coin and every loss accounted for", 220, 179, 511, 24, 16, false, INK_SOFT)
-	_label_rule(stage, 222, 208, 515)
-	right_heading = _text(stage, "CURRENT ACCOUNTS", 869, 147, 478, 27, 19, true)
-	money_label = _text(stage, "", 873, 178, 208, 29, 17, true, BLUE)
-	worth_label = _text(stage, "", 1090, 178, 258, 29, 17, true, BLUE)
-	missions_label = _text(stage, "", 1090, 111, 258, 23, 14, false, INK_SOFT)
-	_label_rule(stage, 868, 208, 484)
-	left_leaf = _region(stage, 222, 212, 520, 520)
-	right_leaf = _region(stage, 869, 212, 486, 520)
+	_text(stage, "MONEY MERCS   /   GUILDMASTER'S JOURNAL", 244, 100, 497, 24, 16, true, INK_SOFT)
+	title_label = _text(stage, "Company Records", 241, 141, 500, 42, 28, true)
+	subheading = _text(stage, "Every coin and every loss accounted for", 241, 179, 500, 24, 16, false, INK_SOFT)
+	_label_rule(stage, 241, 208, 498)
+	right_heading = _text(stage, "CURRENT ACCOUNTS", 891, 147, 465, 27, 19, true)
+	money_label = _text(stage, "", 894, 178, 201, 29, 17, true, BLUE)
+	worth_label = _text(stage, "", 1111, 178, 245, 29, 17, true, BLUE)
+	missions_label = _text(stage, "", 1095, 111, 260, 23, 14, false, INK_SOFT)
+	_label_rule(stage, 890, 208, 464)
+	left_leaf = _region(stage, 235, 212, 520, 520)
+	right_leaf = _region(stage, 886, 212, 486, 520)
 	
 	
 	notification = _text(stage, "", 295, 22, 1045, 29, 16, false, PALE)
@@ -105,7 +105,7 @@ func _build_shell() -> void:
 	header_jobs = missions_label
 	notice = notification
 	# Six side tabs supplied with the book art. Labels are legible at 720p.
-	tab_host = _region(stage, 138, 195, 78, 532)
+	tab_host = _region(stage, 151, 182, 65, 515)
 	# Page turns use the pack's own animation frames when clicked.
 	flip_art = TextureRect.new()
 	flip_art.position = Vector2(144, 30)
@@ -160,8 +160,12 @@ func _text(parent: Node, message: String, x: float, y: float, w: float, h: float
 	var font: Font = heading_font if header else body_font
 	label.add_theme_font_override("font", font)
 	var actual: int = size + 1 if size <= 16 else size
-	if not wrap_text:
-		while actual > 13 and font.get_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, -1, actual).x > w - 4:
+	if wrap_text:
+		# A short journal annotation must fit the page vertically, not be clipped mid-sentence.
+		while actual > 13 and font.get_multiline_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, w - 14, actual).y > h - 4:
+			actual -= 1
+	else:
+		while actual > 13 and font.get_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, -1, actual).x > w - 12:
 			actual -= 1
 	label.add_theme_font_size_override("font_size", actual)
 	label.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -265,23 +269,24 @@ func _render_tabs() -> void:
 	for index in range(entries.size()):
 		var entry: Array = entries[index]
 		var target: String = str(entry[0])
-		var y: float = float(index) * 88.0
+		# The six tabs in the sprite are spaced 48 source pixels apart, or ~90 stage pixels.
+		var y: float = float(index) * 90.0
 		var click := Button.new()
 		click.name = "ChapterTab" + str(index)
 		click.text = ""
 		click.tooltip_text = "%s\n%s" % [str(entry[1]), str(entry[2])]
-		click.position = Vector2(4, y)
-		click.size = Vector2(71, 69)
+		click.position = Vector2(2, y)
+		click.size = Vector2(60, 60)
 		click.focus_mode = Control.FOCUS_ALL
 		click.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 		var plain := StyleBoxFlat.new()
 		plain.bg_color = Color.TRANSPARENT
 		var hover := StyleBoxFlat.new()
-		hover.bg_color = Color("#e0b3a0", 0.18)
+		hover.bg_color = Color("#762c37", 0.20)
 		hover.set_corner_radius_all(2)
 		var focus := StyleBoxFlat.new()
 		focus.bg_color = Color.TRANSPARENT
-		focus.border_color = Color("#bf7955", 0.8)
+		focus.border_color = Color("#762c37", 0.65)
 		focus.set_border_width_all(2)
 		click.add_theme_stylebox_override("normal", plain)
 		click.add_theme_stylebox_override("hover", hover)
@@ -291,7 +296,7 @@ func _render_tabs() -> void:
 		tab_host.add_child(click)
 		if page == target:
 			# A small ink line on the active physical tab, not a second button.
-			_tint(tab_host, 70, y + 21, 3, 27, OXBLOOD)
+			_tint(tab_host, 61, y + 17, 3, 26, OXBLOOD)
 
 func _turn_to(destination: String) -> void:
 	if page == destination:
