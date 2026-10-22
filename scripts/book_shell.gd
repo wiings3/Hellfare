@@ -17,7 +17,7 @@ const SELECTED_TAB_BOOKS := [
 	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/7.png")
 ]
 const PHYSICAL_TAB_PAGES := ["hq", "harlow", "roster", "market", "finance", "ledger"]
-# The six 16x16 icons correspond to the real tab order.
+# Six hand-pixeled native 24x24 icons. No AI-image downsampling or smearing.
 # Expeditions uses a compass for logging, foraging, dungeon runs, etc.
 const CHAPTER_TAB_ICONS := [
 	preload("res://assets/ui/tab_icons/company.png"),
@@ -29,7 +29,7 @@ const CHAPTER_TAB_ICONS := [
 ]
 const TAB_ICON_FIRST_CENTER := Vector2(184, 212)
 const TAB_ICON_STEP_Y := 90.0
-const TAB_ICON_DRAW_SIZE := Vector2(32, 32)
+const TAB_ICON_DRAW_SIZE := Vector2(40, 40)
 const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
 const BUTTON_HOVER := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png")
 const PALETTE_SHADER := preload("res://assets/ui/book_burgundy.gdshader")
