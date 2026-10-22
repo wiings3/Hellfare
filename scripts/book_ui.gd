@@ -148,6 +148,7 @@ func _draw_company() -> void:
 	_page_value(right, "Reputation", str(game.reputation))
 	var empty: bool = game.reports.is_empty()
 	(right.get_node("EmptyReport") as Label).visible = empty
+	(right.get_node("ReportSeal") as TextureRect).visible = not empty
 	var report_name := right.get_node("ReportName") as Label
 	var report_outcome := right.get_node("ReportOutcome") as Label
 	var report_loot := right.get_node("ReportLoot") as Label
@@ -169,6 +170,8 @@ func _draw_harlow() -> void:
 	var right := _mount_page(HARLOW_RIGHT, right_leaf)
 	var report: Dictionary = game.harlow.get("report", {})
 	var surveyed: bool = not report.is_empty()
+	(left.get_node("SurveyVeil") as ColorRect).visible = not surveyed
+	(left.get_node("SurveyedStamp") as Label).visible = surveyed
 	var waiting: bool = int(game.harlow.get("scout_finish", 0)) > 0
 	(left.get_node("SurveyStatus") as Label).text = "Survey in progress" if waiting else "Not yet surveyed"
 	_page_visibility(left, ["SurveyStatus", "SurveyHelp", "DispatchScout"], not surveyed)
@@ -196,9 +199,11 @@ func _draw_harlow() -> void:
 		training.pressed.connect(_train_scout)
 	(left.get_node("OtherContracts") as Button).pressed.connect(_turn_to.bind("expeditions"))
 	var roster := right.get_node("Crew/Items") as VBoxContainer
+	var eligible_workers: int = 0
 	for merc in game.available_guild_workers():
 		if str(merc.get("role", "")) not in ["Miner", "Guard"]:
 			continue
+		eligible_workers += 1
 		var entry := _make_row(ROW_HARLOW_CREW, roster)
 		var id: String = str(merc["id"])
 		var assigned: bool = selected_crew.has(id)
@@ -207,6 +212,7 @@ func _draw_harlow() -> void:
 			int(merc.get("health", 100)), _equipped_count(merc)])
 		_row_button(entry, "Assign", "REMOVE" if assigned else "ASSIGN",
 			_toggle_crew.bind(not assigned, id), true, false, true)
+	(right.get_node("NoCrew") as Label).visible = eligible_workers == 0
 	var ids: Array[String] = _selected_available()
 	var stats: Dictionary = game.harlow_crew_stats(ids, tactic)
 	var stance := right.get_node("Stance") as OptionButton
@@ -219,7 +225,7 @@ func _draw_harlow() -> void:
 	_page_value(right, "Capacity", "%d veins" % int(stats["capacity"]))
 	_page_value(right, "Cost", _money(int(stats["wage"])))
 	var intel: bool = surveyed
-	var forecast: String = "Unknown — scout first" if not intel else "%d%% success chance" % int(round(float(stats["success"]) * 100.0))
+	var forecast: String = "Scout first" if not intel else "%d%%" % int(round(float(stats["success"]) * 100.0))
 	var forecast_label := right.get_node("Forecast") as Label
 	forecast_label.text = forecast
 	forecast_label.add_theme_color_override("font_color", OXBLOOD if not intel else BLUE)

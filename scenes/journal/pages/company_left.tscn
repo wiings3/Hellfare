@@ -1,261 +1,355 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
 [ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
-
+[ext_resource type="Texture2D" path="res://assets/ui/guild_crest.svg" id="crest"]
+[ext_resource type="Texture2D" path="res://assets/ui/gold_coin.svg" id="coin"]
+[ext_resource type="Texture2D" path="res://assets/ui/harlow_ink_sketch.svg" id="harlow"]
+[ext_resource type="Texture2D" path="res://assets/ui/skin_wax_seal.svg" id="seal"]
 [sub_resource type="SystemFont" id="body"]
 font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
 [sub_resource type="SystemFont" id="heading"]
 font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
 [sub_resource type="ShaderMaterial" id="burgundy"]
 shader = ExtResource("shader")
 
 [node name="CompanyLeft" type="Control"]
-offset_right = 520
-offset_bottom = 520
+offset_right = 520.0
+offset_bottom = 520.0
 mouse_filter = 1
 
-[node name="Heading" type="Label" parent="."]
-offset_left = 6
-offset_top = 1
-offset_right = 470
-offset_bottom = 38
-text = "Guild Balance Sheet"
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 22
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-texture_filter = 2
-
-[node name="HeadingNote" type="Label" parent="."]
-offset_left = 7
-offset_top = 38
-offset_right = 471
-offset_bottom = 62
-text = "An honest account of the company."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-texture_filter = 2
-
 [node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 5
-offset_top = 68
-offset_right = 471
-offset_bottom = 70
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
+offset_left = 10.0
+offset_top = 65.0
+offset_right = 476.0
+offset_bottom = 67.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
 mouse_filter = 2
 
-[node name="GoldCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 88
-offset_right = 253
-offset_bottom = 114
-text = "Cash in treasury"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
+[node name="CrestBackdrop" type="ColorRect" parent="."]
+offset_left = 13.0
+offset_top = 86.0
+offset_right = 138.0
+offset_bottom = 223.0
+color = Color(0.592000, 0.383000, 0.266000, 0.13)
 mouse_filter = 2
-texture_filter = 2
 
-[node name="GoldValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 88
-offset_right = 474
-offset_bottom = 117
-text = ""
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
+[node name="CrestEdgeTop" type="ColorRect" parent="."]
+offset_left = 13.0
+offset_top = 86.0
+offset_right = 138.0
+offset_bottom = 88.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
 mouse_filter = 2
-texture_filter = 2
+
+[node name="CrestEdgeBottom" type="ColorRect" parent="."]
+offset_left = 13.0
+offset_top = 221.0
+offset_right = 138.0
+offset_bottom = 223.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
+mouse_filter = 2
 
 [node name="GoldRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 123
-offset_right = 472
-offset_bottom = 125
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
+offset_left = 145.0
+offset_top = 213.0
+offset_right = 478.0
+offset_bottom = 215.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
 mouse_filter = 2
+
+[node name="WorthBackdrop" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 239.0
+offset_right = 237.0
+offset_bottom = 322.0
+color = Color(0.592000, 0.383000, 0.266000, 0.13)
+mouse_filter = 2
+
+[node name="WorthEdge" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 239.0
+offset_right = 237.0
+offset_bottom = 241.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
+mouse_filter = 2
+
+[node name="CrewBackdrop" type="ColorRect" parent="."]
+offset_left = 252.0
+offset_top = 239.0
+offset_right = 477.0
+offset_bottom = 322.0
+color = Color(0.592000, 0.383000, 0.266000, 0.13)
+mouse_filter = 2
+
+[node name="CrewEdge" type="ColorRect" parent="."]
+offset_left = 252.0
+offset_top = 239.0
+offset_right = 477.0
+offset_bottom = 241.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
+mouse_filter = 2
+
+[node name="ReadyBackdrop" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 332.0
+offset_right = 237.0
+offset_bottom = 415.0
+color = Color(0.592000, 0.383000, 0.266000, 0.13)
+mouse_filter = 2
+
+[node name="ReadyEdge" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 332.0
+offset_right = 237.0
+offset_bottom = 334.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
+mouse_filter = 2
+
+[node name="DebtBackdrop" type="ColorRect" parent="."]
+offset_left = 252.0
+offset_top = 332.0
+offset_right = 477.0
+offset_bottom = 415.0
+color = Color(0.462745, 0.172549, 0.215686, 0.15)
+mouse_filter = 2
+
+[node name="DebtEdge" type="ColorRect" parent="."]
+offset_left = 252.0
+offset_top = 332.0
+offset_right = 477.0
+offset_bottom = 334.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
+mouse_filter = 2
+
+[node name="CompanyCrest" type="TextureRect" parent="."]
+offset_left = 21.0
+offset_top = 91.0
+offset_right = 132.0
+offset_bottom = 215.0
+texture_filter = 2
+mouse_filter = 2
+texture = ExtResource("crest")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TreasuryCoin" type="TextureRect" parent="."]
+offset_left = 424.0
+offset_top = 145.0
+offset_right = 469.0
+offset_bottom = 190.0
+texture_filter = 2
+mouse_filter = 2
+texture = ExtResource("coin")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Heading" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 1.0
+offset_right = 475.0
+offset_bottom = 37.0
+text = "COMPANY OVERVIEW"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+
+
+[node name="HeadingNote" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 38.0
+offset_right = 478.0
+offset_bottom = 60.0
+text = "THE GUILDMASTER'S REGISTER"
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+
+
+[node name="CrestCaption" type="Label" parent="."]
+offset_left = 148.0
+offset_top = 88.0
+offset_right = 444.0
+offset_bottom = 118.0
+text = "THE COMPANY"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+
+
+[node name="GoldCaption" type="Label" parent="."]
+offset_left = 149.0
+offset_top = 125.0
+offset_right = 375.0
+offset_bottom = 149.0
+text = "TREASURY"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.462745, 0.172549, 0.215686, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+
+
+[node name="GoldValue" type="Label" parent="."]
+offset_left = 148.0
+offset_top = 153.0
+offset_right = 428.0
+offset_bottom = 209.0
+text = "0 G"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+
 
 [node name="WorthCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 141
-offset_right = 253
-offset_bottom = 167
-text = "Total company value"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+offset_left = 26.0
+offset_top = 247.0
+offset_right = 223.0
+offset_bottom = 271.0
+text = "COMPANY VALUE"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
+
 
 [node name="WorthValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 141
-offset_right = 474
-offset_bottom = 170
-text = ""
+offset_left = 26.0
+offset_top = 272.0
+offset_right = 221.0
+offset_bottom = 315.0
+text = "0 G"
 theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
-[node name="WorthRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 176
-offset_right = 472
-offset_bottom = 178
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
 
 [node name="CrewCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 194
-offset_right = 253
-offset_bottom = 220
-text = "Contractors employed"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+offset_left = 266.0
+offset_top = 247.0
+offset_right = 463.0
+offset_bottom = 271.0
+text = "MERCENARIES"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
+
 
 [node name="CrewValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 194
-offset_right = 474
-offset_bottom = 223
-text = ""
+offset_left = 266.0
+offset_top = 272.0
+offset_right = 461.0
+offset_bottom = 315.0
+text = "0"
 theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
-[node name="CrewRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 229
-offset_right = 472
-offset_bottom = 231
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
 
 [node name="ReadyCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 247
-offset_right = 253
-offset_bottom = 273
-text = "Ready for work"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+offset_left = 26.0
+offset_top = 340.0
+offset_right = 223.0
+offset_bottom = 364.0
+text = "READY FOR WORK"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
+
 
 [node name="ReadyValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 247
-offset_right = 474
-offset_bottom = 276
-text = ""
+offset_left = 26.0
+offset_top = 365.0
+offset_right = 221.0
+offset_bottom = 408.0
+text = "0"
 theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
-[node name="ReadyRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 282
-offset_right = 472
-offset_bottom = 284
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
 
 [node name="DebtCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 300
-offset_right = 253
-offset_bottom = 326
-text = "Outstanding debt"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+offset_left = 266.0
+offset_top = 340.0
+offset_right = 463.0
+offset_bottom = 364.0
+text = "OUTSTANDING DEBT"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.462745, 0.172549, 0.215686, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
+
 
 [node name="DebtValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 300
-offset_right = 474
-offset_bottom = 329
-text = ""
+offset_left = 266.0
+offset_top = 365.0
+offset_right = 461.0
+offset_bottom = 408.0
+text = "0 G"
 theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
-[node name="DebtRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 335
-offset_right = 472
-offset_bottom = 337
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
 
 [node name="OpenHarlow" parent="." instance=ExtResource("button")]
-offset_left = 20
-offset_top = 371
-offset_right = 320
-offset_bottom = 413
-text = "Review Harlow Mines"
-material = SubResource("burgundy")
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 16
-
-[node name="FooterNote" type="Label" parent="."]
-offset_left = 22
-offset_top = 441
-offset_right = 484
-offset_bottom = 489
-text = "The company grows by earning its way back."
+offset_left = 86.0
+offset_top = 431.0
+offset_right = 401.0
+offset_bottom = 476.0
+text = "REVIEW HARLOW MINES  →"
 theme_override_fonts/font = SubResource("body")
 theme_override_font_sizes/font_size = 17
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+material = SubResource("burgundy")
+
+[node name="FooterNote" type="Label" parent="."]
+offset_left = 62.0
+offset_top = 479.0
+offset_right = 455.0
+offset_bottom = 505.0
+text = "Company records update automatically"
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
-autowrap_mode = 3
+horizontal_alignment = 1
+
+
