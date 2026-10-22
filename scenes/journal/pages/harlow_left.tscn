@@ -87,6 +87,15 @@ offset_bottom = 392.0
 color = Color(0.462745, 0.172549, 0.215686, 0.15)
 mouse_filter = 2
 
+[node name="VeinsRule" type="ColorRect" parent="."]
+offset_left = 243.0
+offset_top = 316.0
+offset_right = 245.0
+offset_bottom = 382.0
+color = Color(0.570000, 0.406000, 0.305000, 0.42)
+mouse_filter = 2
+visible = false
+
 [node name="TrainingRule" type="ColorRect" parent="."]
 offset_left = 13.0
 offset_top = 412.0
