@@ -7,6 +7,8 @@ on:
       - "scripts/ledger_ui.gd"
       - "scripts/guildhall_ui.gd"
       - "scripts/book_ui.gd"
+      - "scripts/book_shell.gd"
+      - "scenes/journal/**"
       - "assets/BookUI/**"
       - "scenes/main.tscn"
       - "assets/ui/**"
@@ -31,7 +33,15 @@ jobs:
         run: |
           set -o pipefail
           timeout 75s xvfb-run -a -s "-screen 0 1920x1080x24" env MM_CAPTURE_WIDE=1 godot --path . --rendering-method gl_compatibility --resolution 1920x1080 --script res://tests/capture_ui.gd
+      - name: Upload editable-UI visual snapshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: money-mercs-ui-preview
+          path: docs/ui_*_preview.jpg
+          retention-days: 7
+          if-no-files-found: error
       - name: Store visual QA snapshot
+        if: github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
