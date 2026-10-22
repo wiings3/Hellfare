@@ -1,0 +1,74 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
+[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
+
+[sub_resource type="SystemFont" id="body"]
+font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+
+[sub_resource type="SystemFont" id="heading"]
+font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+
+[sub_resource type="ShaderMaterial" id="burgundy"]
+shader = ExtResource("shader")
+
+[node name="PersonnelArmoryLeft" type="Control"]
+offset_right = 520
+offset_bottom = 520
+mouse_filter = 1
+
+[node name="ArmoryHeading" type="Label" parent="."]
+offset_left = 10
+offset_top = 56
+offset_right = 456
+offset_bottom = 88
+text = "THE QUARTERMASTER"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="ArmoryNote" type="Label" parent="."]
+offset_left = 10
+offset_top = 89
+offset_right = 461
+offset_bottom = 119
+text = "Choose a worker, then assign stored gear."
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="CrewPicker" parent="." instance=ExtResource("scroll")]
+offset_left = 5
+offset_top = 130
+offset_right = 496
+offset_bottom = 304
+
+[node name="StashHeading" type="Label" parent="."]
+offset_left = 10
+offset_top = 317
+offset_right = 465
+offset_bottom = 344
+text = "UNASSIGNED EQUIPMENT"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="Stash" parent="." instance=ExtResource("scroll")]
+offset_left = 5
+offset_top = 348
+offset_right = 497
+offset_bottom = 503

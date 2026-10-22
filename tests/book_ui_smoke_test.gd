@@ -100,8 +100,20 @@ func _verify() -> void:
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.ends_with("/4.png"))
 	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.ends_with("/4.png"))
 	assert(view.money_label.text.contains("350"))
+	var scene_by_chapter := {
+		"harlow": ["harlow_left", "harlow_right"],
+		"expeditions": ["regions_left", "regions_right"],
+		"roster": ["personnel_employed_left", "personnel_employed_right"],
+		"market": ["exchange_left", "exchange_right"],
+		"finance": ["finance_left", "finance_right"],
+		"ledger": ["chronicle_left", "chronicle_right"],
+		"guildwork": ["guildwork_left", "guildwork_right"]
+	}
 	for chapter in ["harlow", "expeditions", "roster", "market", "finance", "ledger", "guildwork"]:
 		view._nav_to(chapter)
+		var paths: Array = scene_by_chapter[chapter]
+		assert(view.left_leaf.get_child(0).scene_file_path.ends_with("/pages/" + str(paths[0]) + ".tscn"))
+		assert(view.right_leaf.get_child(0).scene_file_path.ends_with("/pages/" + str(paths[1]) + ".tscn"))
 		assert(view.page == chapter)
 		assert(view.left_leaf.get_child_count() > 0)
 		assert(view.right_leaf.get_child_count() > 0)
@@ -111,10 +123,12 @@ func _verify() -> void:
 	view._nav_to("roster")
 	view._set_roster_tab("recruits")
 	assert(view.roster_tab == "recruits")
+	assert(view.left_leaf.get_child(0).scene_file_path.ends_with("/personnel_recruits_left.tscn"))
 	view._hire("garrick")
 	assert(view.game.crew.size() == 1)
 	view._outfit("garrick")
 	assert(view.roster_tab == "armory")
+	assert(view.left_leaf.get_child(0).scene_file_path.ends_with("/personnel_armory_left.tscn"))
 	assert(view.selected_merc == "garrick")
 	view._nav_to("market")
 	view._choose_commodity("iron")

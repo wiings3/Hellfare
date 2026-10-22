@@ -35,7 +35,7 @@ The fixed Guildmaster's Journal is editable in `scenes/journal/journal_shell.tsc
 
 Reusable UI elements are also editor scenes in `scenes/journal/widgets/`: label, divider, highlight, book button, text button, scroll list and record row. Dynamic content instantiates these scenes so their styles can be changed in the editor without adjusting code.
 
-**Migration status:** The fixed journal shell, seven shared widget types, and the **Company Records and Finances spreads** are editor scenes under `scenes/journal/pages/`. These spreads have fixed headers, fields and buttons as editable nodes. Their scripts now only populate live values, handle button events and instantiate repeated warehouse rows. The Harlow, personnel, market, chronicle, regional contracts and guild-work spreads still need conversion; the migration is not complete yet.
+**Migration status: completed for the active journal.** The fixed journal shell, seven shared widget types, and **every active journal spread** are editor scenes under `scenes/journal/pages/`: Company, Harlow, Personnel (Employees, Recruitment, Armory), Exchange, Finances, Guild Work, Chronicle and regional Expeditions. The page scenes contain the actual fixed labels, field positions, scroll areas, headings and buttons, editable in the Godot editor. Scripts now bind game values, connect buttons, update visibility, and fill variable-length lists by instancing the editable record/button/label widgets. Lists need some GDScript because their contents depend on live saved game state; no fixed layout needs to be constructed in code.
 
 ## Where to make changes (current architecture)
 

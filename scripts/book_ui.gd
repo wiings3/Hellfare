@@ -2,12 +2,28 @@ extends "res://scripts/book_shell.gd"
 ## Active book screens. Page content and interactions only.
 ## Shared book art, tab animation, input hitboxes, and drawing primitives live in book_shell.gd.
 
-const JOURNAL_SCROLL := preload("res://scenes/journal/widgets/journal_scroll.tscn")
 const JOURNAL_RECORD := preload("res://scenes/journal/widgets/journal_record.tscn")
 const COMPANY_LEFT := preload("res://scenes/journal/pages/company_left.tscn")
 const COMPANY_RIGHT := preload("res://scenes/journal/pages/company_right.tscn")
 const FINANCE_LEFT := preload("res://scenes/journal/pages/finance_left.tscn")
 const FINANCE_RIGHT := preload("res://scenes/journal/pages/finance_right.tscn")
+const HARLOW_LEFT := preload("res://scenes/journal/pages/harlow_left.tscn")
+const HARLOW_RIGHT := preload("res://scenes/journal/pages/harlow_right.tscn")
+const EXCHANGE_LEFT := preload("res://scenes/journal/pages/exchange_left.tscn")
+const EXCHANGE_RIGHT := preload("res://scenes/journal/pages/exchange_right.tscn")
+const GUILDWORK_LEFT := preload("res://scenes/journal/pages/guildwork_left.tscn")
+const GUILDWORK_RIGHT := preload("res://scenes/journal/pages/guildwork_right.tscn")
+const CHRONICLE_LEFT := preload("res://scenes/journal/pages/chronicle_left.tscn")
+const CHRONICLE_RIGHT := preload("res://scenes/journal/pages/chronicle_right.tscn")
+const REGIONS_LEFT := preload("res://scenes/journal/pages/regions_left.tscn")
+const REGIONS_RIGHT := preload("res://scenes/journal/pages/regions_right.tscn")
+const PERSONNEL_TABS := preload("res://scenes/journal/pages/personnel_tabs.tscn")
+const PERSONNEL_EMPLOYEES_LEFT := preload("res://scenes/journal/pages/personnel_employed_left.tscn")
+const PERSONNEL_EMPLOYEES_RIGHT := preload("res://scenes/journal/pages/personnel_employed_right.tscn")
+const PERSONNEL_RECRUITS_LEFT := preload("res://scenes/journal/pages/personnel_recruits_left.tscn")
+const PERSONNEL_RECRUITS_RIGHT := preload("res://scenes/journal/pages/personnel_recruits_right.tscn")
+const PERSONNEL_ARMORY_LEFT := preload("res://scenes/journal/pages/personnel_armory_left.tscn")
+const PERSONNEL_ARMORY_RIGHT := preload("res://scenes/journal/pages/personnel_armory_right.tscn")
 
 func _ready() -> void:
 	page = "hq"
@@ -71,15 +87,6 @@ func _on_clock() -> void:
 		notification.visible = false
 
 # Variable-length lists use editable row and scroll PackedScenes.
-func _scroll(parent: Node, x: float, y: float, w: float, h: float) -> VBoxContainer:
-	var wrapper := JOURNAL_SCROLL.instantiate() as ScrollContainer
-	wrapper.position = Vector2(x, y)
-	wrapper.size = Vector2(w, h)
-	parent.add_child(wrapper)
-	var content := wrapper.get_node("Items") as VBoxContainer
-	content.custom_minimum_size.x = w - 21
-	return content
-
 func _record(parent: Node, height: int, width: int = 465) -> Control:
 	var frame := JOURNAL_RECORD.instantiate() as PanelContainer
 	frame.custom_minimum_size = Vector2(width, height)
@@ -97,16 +104,9 @@ func _mount_page(scene: PackedScene, leaf: Control) -> Control:
 func _page_value(root: Control, key: String, value: String) -> void:
 	(root.get_node(key + "Value") as Label).text = value
 
-func _page_heading(parent: Node, heading_text: String, small: String = "") -> void:
-	_text(parent, heading_text, 6, 1, 464, 37, 22, true)
-	if not small.is_empty():
-		_text(parent, small, 7, 38, 464, 24, 14, false, INK_SOFT)
-	_label_rule(parent, 5, 68, 466)
-
-func _field(parent: Node, caption: String, value: String, y: int) -> void:
-	_text(parent, caption, 9, y, 244, 26, 16, false, INK_SOFT)
-	_text(parent, value, 270, y, 204, 29, 18, true, INK)
-	_label_rule(parent, 8, y + 35, 464)
+func _page_visibility(root: Control, names: Array, shown: bool) -> void:
+	for path in names:
+		(root.get_node(path) as CanvasItem).visible = shown
 
 func _draw_company() -> void:
 	var left := _mount_page(COMPANY_LEFT, left_leaf)
@@ -138,37 +138,37 @@ func _draw_company() -> void:
 	(right.get_node("OpenGuildWork") as Button).pressed.connect(_turn_to.bind("guildwork"))
 
 func _draw_harlow() -> void:
-	_page_heading(left_leaf, "I. Site Intelligence", "Scouting is safe. Expeditions are not.")
+	var left := _mount_page(HARLOW_LEFT, left_leaf)
+	var right := _mount_page(HARLOW_RIGHT, right_leaf)
 	var report: Dictionary = game.harlow.get("report", {})
+	var surveyed: bool = not report.is_empty()
 	var waiting: bool = int(game.harlow.get("scout_finish", 0)) > 0
-	_text(left_leaf, "HARLOW MINES", 9, 87, 442, 31, 21, true)
-	if report.is_empty():
-		_text(left_leaf, "Survey in progress" if waiting else "Not yet surveyed",
-			9, 131, 433, 29, 18, false, OXBLOOD)
-		_text(left_leaf, "A scout returns with intelligence. Improve your scout to learn more.",
-			9, 174, 433, 69, 16, false, INK_SOFT, true)
-		if waiting:
-			_text(left_leaf, "Returns in %s" % _duration(maxi(0, int(game.harlow["scout_finish"]) - int(Time.get_unix_time_from_system()))),
-				10, 254, 425, 28, 16, false, BLUE)
-		_book_button(left_leaf, "Dispatch Scout" if not waiting else "Scout Away",
-			10, 300, 241, 42, _scout, not waiting)
-	else:
-		_field(left_leaf, "Confirmed veins", "At least %d" % int(report.get("minimum", 0)), 135)
-		_text(left_leaf, "THREAT OBSERVED", 9, 202, 430, 24, 15, false, INK_SOFT)
-		_text(left_leaf, str(report.get("creature", "Unknown")), 9, 232, 436, 34,
-			20, true, OXBLOOD)
-		_text(left_leaf, "Report expires when the mine rotates.", 9, 288, 430, 29,
-			15, false, INK_SOFT)
+	(left.get_node("SurveyStatus") as Label).text = "Survey in progress" if waiting else "Not yet surveyed"
+	_page_visibility(left, ["SurveyStatus", "SurveyHelp", "DispatchScout"], not surveyed)
+	(left.get_node("ReturnTime") as Label).visible = not surveyed and waiting
+	if waiting:
+		(left.get_node("ReturnTime") as Label).text = "Returns in %s" % _duration(maxi(0,
+			int(game.harlow["scout_finish"]) - int(Time.get_unix_time_from_system())))
+	var scout_btn := left.get_node("DispatchScout") as Button
+	scout_btn.text = "Scout Away" if waiting else "Dispatch Scout"
+	scout_btn.disabled = waiting
+	scout_btn.pressed.connect(_scout)
+	_page_visibility(left, ["VeinsCaption", "VeinsValue", "VeinsRule",
+		"ThreatCaption", "ThreatValue", "ExpiryNote"], surveyed)
+	if surveyed:
+		_page_value(left, "Veins", "At least %d" % int(report.get("minimum", 0)))
+		(left.get_node("ThreatValue") as Label).text = str(report.get("creature", "Unknown"))
 	var level: int = int(game.harlow.get("scout_level", 1))
-	_text(left_leaf, "SCOUT TRAINING  %d / 3" % level, 10, 362, 427, 27, 16, true)
+	(left.get_node("Training") as Label).text = "SCOUT TRAINING  %d / 3" % level
+	var training := left.get_node("TrainScout") as Button
+	training.visible = level < 3
 	if level < 3:
 		var price: int = 200 if level == 1 else 650
-		_book_button(left_leaf, "Train Scout  /  %d G" % price,
-			10, 406, 269, 40, _train_scout, game.gold >= price)
-	_text_button(left_leaf, "Other regional contracts  →", 10, 468, 337, 32,
-		_turn_to.bind("expeditions"))
-	_page_heading(right_leaf, "II. Expedition Orders", "Choose miners, guards and your risk.")
-	var roster := _scroll(right_leaf, 5, 78, 475, 199)
+		training.text = "Train Scout  /  %d G" % price
+		training.disabled = game.gold < price
+		training.pressed.connect(_train_scout)
+	(left.get_node("OtherContracts") as Button).pressed.connect(_turn_to.bind("expeditions"))
+	var roster := right.get_node("Crew/Items") as VBoxContainer
 	for merc in game.available_guild_workers():
 		if str(merc.get("role", "")) not in ["Miner", "Guard"]:
 			continue
@@ -184,52 +184,49 @@ func _draw_harlow() -> void:
 			_toggle_crew.bind(not assigned, id))
 	var ids: Array[String] = _selected_available()
 	var stats: Dictionary = game.harlow_crew_stats(ids, tactic)
-	_text(right_leaf, "Standing Orders", 9, 293, 214, 24, 15, true)
-	var stance := OptionButton.new()
-	stance.position = Vector2(230, 295)
-	stance.size = Vector2(239, 32)
-	stance.add_theme_font_override("font", body_font)
-	stance.add_theme_font_size_override("font_size", 15)
+	var stance := right.get_node("Stance") as OptionButton
 	for t in MoneyMercsState.TACTICS:
 		stance.add_item(str(t))
 	stance.select(maxi(0, MoneyMercsState.TACTICS.find(tactic)))
 	stance.item_selected.connect(func(i: int) -> void:
 		_set_tactic(str(MoneyMercsState.TACTICS[i]))
 	)
-	right_leaf.add_child(stance)
-	_field(right_leaf, "Mining capacity", "%d veins" % int(stats["capacity"]), 337)
-	_field(right_leaf, "Dispatch cost", _money(int(stats["wage"])), 379)
-	var intel: bool = not report.is_empty()
+	_page_value(right, "Capacity", "%d veins" % int(stats["capacity"]))
+	_page_value(right, "Cost", _money(int(stats["wage"])))
+	var intel: bool = surveyed
 	var forecast: String = "Unknown — scout first" if not intel else "%d%% success chance" % int(round(float(stats["success"]) * 100.0))
-	_text(right_leaf, forecast, 9, 420, 466, 28, 16, true, OXBLOOD if not intel else BLUE)
+	var forecast_label := right.get_node("Forecast") as Label
+	forecast_label.text = forecast
+	forecast_label.add_theme_color_override("font_color", OXBLOOD if not intel else BLUE)
 	var ore_count: int = 0
 	for amount in (game.harlow.get("deposits", {}) as Dictionary).values():
 		ore_count += int(amount)
 	var possible: bool = int(stats["miners"]) > 0 and ids.size() <= 3 and ore_count > 0 and game.gold >= int(stats["wage"]) and game.missions.size() < game.expedition_slots
-	_text(right_leaf, "Mercenary deaths and lost equipment are permanent.",
-		11, 445, 464, 23, 14, false, OXBLOOD)
-	_book_button(right_leaf, "Fund Expedition", 11, 473, 295, 42,
-		_dispatch_harlow, possible)
+	var dispatch_btn := right.get_node("FundExpedition") as Button
+	dispatch_btn.disabled = not possible
+	dispatch_btn.pressed.connect(_dispatch_harlow)
 
 func _draw_people() -> void:
-	var subtabs: Array = [["employed", "EMPLOYEES"], ["recruits", "RECRUITMENT"], ["armory", "ARMORY"]]
-	for i in range(subtabs.size()):
-		var tab: Array = subtabs[i]
-		_text_button(left_leaf, str(tab[1]), 2 + i * 169, 0, 160, 38,
-			_set_roster_tab.bind(str(tab[0])), roster_tab == str(tab[0]))
-	_label_rule(left_leaf, 5, 44, 464)
+	# Individual personnel spreads are scenes, sharing one editable tab bar.
 	match roster_tab:
 		"employed": _draw_employees()
 		"recruits": _draw_recruitment()
 		"armory": _draw_armory_page()
+		_: _draw_employees()
+	var tabs := _mount_page(PERSONNEL_TABS, left_leaf)
+	for tab in [["EmployeesTab", "employed"], ["RecruitmentTab", "recruits"], ["ArmoryTab", "armory"]]:
+		var btn := tabs.get_node(str(tab[0])) as Button
+		btn.add_theme_color_override("font_color", BLUE if roster_tab == str(tab[1]) else INK)
+		btn.pressed.connect(_set_roster_tab.bind(str(tab[1])))
 
 func _focus_person(id: String) -> void:
 	selected_merc = id
 	_refresh()
 
 func _draw_employees() -> void:
-	_text(left_leaf, "UNDER CONTRACT", 10, 57, 450, 28, 18, true)
-	var roster := _scroll(left_leaf, 4, 97, 493, 396)
+	var left := _mount_page(PERSONNEL_EMPLOYEES_LEFT, left_leaf)
+	var right := _mount_page(PERSONNEL_EMPLOYEES_RIGHT, right_leaf)
+	var roster := left.get_node("Employed/Items") as VBoxContainer
 	if selected_merc.is_empty() and not game.crew.is_empty():
 		selected_merc = str(game.crew[0]["id"])
 	for person in game.crew:
@@ -241,39 +238,39 @@ func _draw_employees() -> void:
 			11, 39, 274, 25, 14, false, INK_SOFT)
 		_text_button(row, "VIEW  →", 334, 16, 119, 39,
 			_focus_person.bind(id), id == selected_merc)
-	if game.crew.is_empty():
-		_text(left_leaf, "The payroll is empty. Recruit a miner or a guard to begin.",
-			9, 105, 449, 98, 17, false, INK_SOFT, true)
-		_book_button(left_leaf, "Open Recruitment", 10, 223, 274, 45,
-			_set_roster_tab.bind("recruits"))
-	_page_heading(right_leaf, "Employee Dossier", "Read contracts before assigning crews.")
+	var empty_crew: bool = game.crew.is_empty()
+	(left.get_node("EmptyCrew") as Label).visible = empty_crew
+	var recruit := left.get_node("Recruit") as Button
+	recruit.visible = empty_crew
+	recruit.pressed.connect(_set_roster_tab.bind("recruits"))
 	var person: Dictionary = game.merc_by_id(selected_merc)
-	if person.is_empty():
-		_text(right_leaf, "Select a contractor to inspect their dossier.",
-			8, 104, 461, 63, 17, false, INK_SOFT, true)
+	var no_selection: bool = person.is_empty()
+	(right.get_node("EmptyDossier") as Label).visible = no_selection
+	_page_visibility(right, ["PersonName", "OccupationCaption", "OccupationValue", "OccupationRule",
+		"SkillCaption", "SkillValue", "SkillRule", "HealthCaption", "HealthValue", "HealthRule",
+		"WageCaption", "WageValue", "WageRule", "Tool", "Armor",
+		"OpenArmory", "ChangeTerms", "Heal"], not no_selection)
+	if no_selection:
 		return
-	_text(right_leaf, str(person["name"]), 10, 84, 453, 44, 25, true)
-	_field(right_leaf, "Occupation", str(person["role"]), 145)
-	_field(right_leaf, "Skill", str(int(person.get("skill", 0))), 190)
-	_field(right_leaf, "Health", "%d%%" % int(person.get("health", 100)), 235)
-	_field(right_leaf, "Daily wage", _money(int(person.get("wage", 0))), 280)
+	(right.get_node("PersonName") as Label).text = str(person["name"])
+	_page_value(right, "Occupation", str(person["role"]))
+	_page_value(right, "Skill", str(int(person.get("skill", 0))))
+	_page_value(right, "Health", "%d%%" % int(person.get("health", 100)))
+	_page_value(right, "Wage", _money(int(person.get("wage", 0))))
 	var equipped: Dictionary = person.get("equipment", {})
-	_text(right_leaf, "TOOL: %s" % _equipment_name(equipped.get("tool", {})),
-		12, 342, 460, 26, 15, false, INK_SOFT)
-	_text(right_leaf, "ARMOR: %s" % _equipment_name(equipped.get("armor", {})),
-		12, 375, 460, 26, 15, false, INK_SOFT)
-	_book_button(right_leaf, "Open Armory", 10, 431, 225, 43,
-		_outfit.bind(selected_merc))
-	_book_button(right_leaf, "Renegotiate Terms", 244, 431, 228, 43,
-		_terms.bind(selected_merc))
-	if int(person.get("health", 100)) < 100:
-		_text_button(right_leaf, "Pay for treatment  →", 16, 479, 278, 31,
-			_heal.bind(selected_merc))
+	(right.get_node("Tool") as Label).text = "TOOL: %s" % _equipment_name(equipped.get("tool", {}))
+	(right.get_node("Armor") as Label).text = "ARMOR: %s" % _equipment_name(equipped.get("armor", {}))
+	(right.get_node("OpenArmory") as Button).pressed.connect(_outfit.bind(selected_merc))
+	(right.get_node("ChangeTerms") as Button).pressed.connect(_terms.bind(selected_merc))
+	var heal := right.get_node("Heal") as Button
+	heal.visible = int(person.get("health", 100)) < 100
+	if heal.visible:
+		heal.pressed.connect(_heal.bind(selected_merc))
 
 func _draw_recruitment() -> void:
-	_text(left_leaf, "APPLICANTS", 10, 58, 440, 32, 19, true)
-	_text(left_leaf, "Candidates change regularly.", 10, 90, 450, 23, 14, false, INK_SOFT)
-	var offers := _scroll(left_leaf, 4, 126, 492, 382)
+	var left := _mount_page(PERSONNEL_RECRUITS_LEFT, left_leaf)
+	var right := _mount_page(PERSONNEL_RECRUITS_RIGHT, right_leaf)
+	var offers := left.get_node("Offers/Items") as VBoxContainer
 	for candidate in game.recruitment_board():
 		var record := _record(offers, 87, 462)
 		_text(record, str(candidate["name"]), 8, 7, 266, 30, 19, true)
@@ -283,35 +280,29 @@ func _draw_recruitment() -> void:
 		var hire_button := _text_button(record, "HIRE %d G" % int(candidate["hire"]),
 			320, 22, 142, 41, _hire.bind(str(candidate["id"])))
 		hire_button.disabled = game.gold < int(candidate["hire"])
-	_page_heading(right_leaf, "The Signing Desk", "Contractors are hired, not summoned.")
-	_text(right_leaf, "HIRING", 9, 95, 454, 26, 17, true)
-	_text(right_leaf, "An applicant's signing fee is paid immediately. Wages and a share of recovered wealth follow after each expedition.",
-		10, 134, 447, 126, 17, false, INK_SOFT, true)
-	_field(right_leaf, "Treasury available", _money(game.gold), 278)
-	_field(right_leaf, "Workers employed", str(game.crew.size()), 329)
-	_text(right_leaf, "A fallen mercenary cannot be rehired. The company must replace them from new applicants.",
-		10, 393, 455, 94, 16, false, OXBLOOD, true)
+	_page_value(right, "Treasury", _money(game.gold))
+	_page_value(right, "Workers", str(game.crew.size()))
 
 func _draw_armory_page() -> void:
-	_text(left_leaf, "THE QUARTERMASTER", 10, 56, 446, 32, 20, true)
-	_text(left_leaf, "Choose a worker, then assign stored gear.", 10, 89, 451, 30, 14, false, INK_SOFT)
+	var left := _mount_page(PERSONNEL_ARMORY_LEFT, left_leaf)
+	var right := _mount_page(PERSONNEL_ARMORY_RIGHT, right_leaf)
 	if selected_merc.is_empty() and not game.crew.is_empty():
 		selected_merc = str(game.crew[0]["id"])
-	var crew_picker := _scroll(left_leaf, 5, 130, 491, 174)
+	var crew_picker := left.get_node("CrewPicker/Items") as VBoxContainer
 	for person in game.crew:
 		var row := _record(crew_picker, 60, 459)
 		var id: String = str(person["id"])
 		_text(row, "%s / %s" % [str(person["name"]), str(person["role"])],
 			7, 9, 303, 34, 16, true)
-		_text_button(row, "SELECT", 335, 10, 118, 39, _choose_worker.bind(id), id == selected_merc)
-	_text(left_leaf, "UNASSIGNED EQUIPMENT", 10, 317, 455, 27, 16, true)
-	var stash := _scroll(left_leaf, 5, 348, 492, 155)
+		_text_button(row, "SELECT", 335, 10, 118, 39,
+			_choose_worker.bind(id), id == selected_merc)
+	var stash := left.get_node("Stash/Items") as VBoxContainer
 	var owner: Dictionary = game.merc_by_id(selected_merc)
 	for item in game.equipment_inventory:
-		var def: Dictionary = game.item_definition(str(item.get("key", "")))
+		var definition: Dictionary = game.item_definition(str(item.get("key", "")))
 		var row := _record(stash, 59, 462)
-		_text(row, str(def.get("name", "Unknown")), 9, 4, 244, 28, 16, true)
-		_text(row, "Owned  /  %s" % str(def.get("slot", "tool")), 9, 28, 277, 22, 13, false, INK_SOFT)
+		_text(row, str(definition.get("name", "Unknown")), 9, 4, 244, 28, 16, true)
+		_text(row, "Owned  /  %s" % str(definition.get("slot", "tool")), 9, 28, 277, 22, 13, false, INK_SOFT)
 		var equip_button := _text_button(row, "EQUIP", 278, 8, 89, 40,
 			_equip.bind(selected_merc, str(item.get("uid", ""))))
 		equip_button.disabled = owner.is_empty() or not game.is_available(owner) or not MercsV05.validate_role(str(item.get("key", "")), owner)
@@ -320,22 +311,19 @@ func _draw_armory_page() -> void:
 	if game.equipment_inventory.is_empty():
 		var empty := _record(stash, 63, 460)
 		_text(empty, "No equipment in storage.", 10, 12, 431, 39, 16, false, INK_SOFT)
-	_page_heading(right_leaf, "Arms & Provisions", "Purchased equipment belongs to the guild.")
-	if not owner.is_empty():
+	var has_owner: bool = not owner.is_empty()
+	_page_visibility(right, ["Outfitting", "Tool", "Armor", "RemoveTool", "RemoveArmor"], has_owner)
+	if has_owner:
+		(right.get_node("Outfitting") as Label).text = "OUTFITTING: %s" % str(owner.get("name", ""))
 		var worn: Dictionary = owner.get("equipment", {})
-		_text(right_leaf, "OUTFITTING: %s" % str(owner.get("name", "")), 9, 81, 453, 28, 17, true)
-		for i in range(2):
-			var slot: String = "tool" if i == 0 else "armor"
+		for slot in ["tool", "armor"]:
 			var equipped: Dictionary = worn.get(slot, {})
-			var y: float = 117.0 + float(i) * 48.0
-			_text(right_leaf, "%s: %s" % [slot.capitalize(), _equipment_name(equipped)],
-				9, y, 332, 35, 15)
-			if not equipped.is_empty():
-				_text_button(right_leaf, "REMOVE", 348, y, 112, 35,
-					_unequip.bind(selected_merc, slot))
-	_label_rule(right_leaf, 8, 214, 459)
-	_text(right_leaf, "PURCHASE EQUIPMENT", 10, 221, 460, 29, 17, true)
-	var catalog := _scroll(right_leaf, 6, 262, 478, 244)
+			(right.get_node(slot.capitalize()) as Label).text = "%s: %s" % [slot.capitalize(), _equipment_name(equipped)]
+			var remove := right.get_node("Remove" + slot.capitalize()) as Button
+			remove.visible = not equipped.is_empty()
+			if remove.visible:
+				remove.pressed.connect(_unequip.bind(selected_merc, slot))
+	var catalog := right.get_node("Catalog/Items") as VBoxContainer
 	for key in MercsV05.ITEMS:
 		var definition: Dictionary = MercsV05.ITEMS[key]
 		var row := _record(catalog, 63, 444)
@@ -350,8 +338,9 @@ func _choose_commodity(id: String) -> void:
 	_refresh()
 
 func _draw_exchange() -> void:
-	_page_heading(left_leaf, "Merchant Stock", "Select an item for its buying and selling price.")
-	var stock := _scroll(left_leaf, 5, 83, 491, 429)
+	var left := _mount_page(EXCHANGE_LEFT, left_leaf)
+	var right := _mount_page(EXCHANGE_RIGHT, right_leaf)
+	var stock := left.get_node("Stock/Items") as VBoxContainer
 	for id in MoneyMercsState.RESOURCE_ORDER:
 		var key: String = str(id)
 		var row := _record(stock, 61, 462)
@@ -364,25 +353,22 @@ func _draw_exchange() -> void:
 			9, 31, 290, 22, 14, false, INK_SOFT)
 		_text_button(row, "INSPECT  →", 316, 12, 141, 39,
 			_choose_commodity.bind(key), selected_market_item == key)
-	_page_heading(right_leaf, "The Exchange Desk", "All prices settled in gold.")
 	var name: String = str(MoneyMercsState.RESOURCE_NAMES.get(selected_market_item, "Unknown item"))
-	_text(right_leaf, name, 9, 91, 457, 43, 24, true)
-	_text(right_leaf, str(MoneyMercsState.RESOURCE_DESC.get(selected_market_item, "")),
-		10, 139, 457, 74, 15, false, INK_SOFT, true)
-	_field(right_leaf, "Quantity owned", str(game.resources.get(selected_market_item, 0)), 228)
-	_field(right_leaf, "Merchant sells for", _money(game.buy_price(selected_market_item)), 279)
-	_field(right_leaf, "Merchant buys for", _money(game.sell_price(selected_market_item)), 329)
-	_book_button(right_leaf, "Buy One", 10, 387, 202, 45,
-		_trade.bind(selected_market_item, true, 1),
-		game.gold >= game.buy_price(selected_market_item))
-	_book_button(right_leaf, "Sell One", 224, 387, 200, 45,
-		_trade.bind(selected_market_item, false, 1),
-		int(game.resources.get(selected_market_item, 0)) > 0)
-	var sell_all := _text_button(right_leaf, "Sell all in storage  →", 13, 446, 341, 36,
-		_trade.bind(selected_market_item, false, int(game.resources.get(selected_market_item, 0))))
+	(right.get_node("ItemName") as Label).text = name
+	(right.get_node("ItemDesc") as Label).text = str(MoneyMercsState.RESOURCE_DESC.get(selected_market_item, ""))
+	_page_value(right, "Quantity", str(game.resources.get(selected_market_item, 0)))
+	_page_value(right, "SellsFor", _money(game.buy_price(selected_market_item)))
+	_page_value(right, "BuysFor", _money(game.sell_price(selected_market_item)))
+	var buy_btn := right.get_node("BuyOne") as Button
+	buy_btn.disabled = game.gold < game.buy_price(selected_market_item)
+	buy_btn.pressed.connect(_trade.bind(selected_market_item, true, 1))
+	var sell_btn := right.get_node("SellOne") as Button
+	sell_btn.disabled = int(game.resources.get(selected_market_item, 0)) <= 0
+	sell_btn.pressed.connect(_trade.bind(selected_market_item, false, 1))
+	var sell_all := right.get_node("SellAll") as Button
 	sell_all.disabled = int(game.resources.get(selected_market_item, 0)) <= 0
-	_text(right_leaf, "Markets between players are not implemented yet.", 12, 489,
-		462, 29, 13, false, INK_LIGHT)
+	sell_all.pressed.connect(_trade.bind(selected_market_item, false,
+		int(game.resources.get(selected_market_item, 0))))
 
 func _draw_accounts() -> void:
 	var left := _mount_page(FINANCE_LEFT, left_leaf)
@@ -411,23 +397,14 @@ func _draw_accounts() -> void:
 			16, false, INK_SOFT)
 
 func _draw_guild_jobs() -> void:
-	_page_heading(left_leaf, "Reliable Contracts", "When the mines go badly, honest wages remain.")
-	_text(left_leaf, "Guild work is risk-free, requires no equipment and continues while you are away.",
-		10, 98, 455, 86, 17, false, INK_SOFT, true)
+	var left := _mount_page(GUILDWORK_LEFT, left_leaf)
+	var right := _mount_page(GUILDWORK_RIGHT, right_leaf)
 	var can_take: bool = game.can_accept_guild_work() and game.missions.size() < game.expedition_slots
-	_text(left_leaf, "OFFICE PAPERWORK", 10, 208, 425, 30, 18, true)
-	_text(left_leaf, "Three minutes  •  Earn 9 G  •  No workers needed",
-		10, 246, 461, 28, 15, false, INK_SOFT)
-	_book_button(left_leaf, "Accept Office Work", 11, 292, 314, 44,
-		_guild_work.bind(""), can_take)
-	_label_rule(left_leaf, 10, 359, 451)
-	_text(left_leaf, "CONTRACTOR LABOR", 10, 375, 438, 26, 18, true)
-	_text(left_leaf, "Two and a half minutes  •  Earn 18 G",
-		10, 410, 455, 27, 15, false, INK_SOFT)
-	_text_button(left_leaf, "Return to Harlow Mines  →", 10, 465, 330, 34,
-		_turn_to.bind("harlow"))
-	_page_heading(right_leaf, "Assign a Safe Job", "A small but guaranteed payment.")
-	var workers := _scroll(right_leaf, 5, 88, 479, 310)
+	var office := left.get_node("AcceptOffice") as Button
+	office.disabled = not can_take
+	office.pressed.connect(_guild_work.bind(""))
+	(left.get_node("ReturnHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
+	var workers := right.get_node("Workers/Items") as VBoxContainer
 	var count: int = 0
 	for member in game.available_guild_workers():
 		var row := _record(workers, 72, 444)
@@ -438,19 +415,16 @@ func _draw_guild_jobs() -> void:
 		_book_button(row, "ASSIGN", 320, 14, 112, 42,
 			_guild_work.bind(str(member["id"])), can_take)
 		count += 1
-	if count == 0:
-		_text(right_leaf, "No available mercenaries. You can still complete office paperwork alone.",
-			10, 114, 450, 89, 17, false, INK_SOFT, true)
-	_text(right_leaf, "Eligibility: below 120 G cash and 250 G in net worth.",
-		10, 426, 458, 67, 15, false, INK_SOFT, true)
+	(right.get_node("NoWorkers") as Label).visible = count == 0
 
 func _choose_report(index: int) -> void:
 	selected_report_index = index
 	_refresh()
 
 func _draw_history() -> void:
-	_page_heading(left_leaf, "After-action Reports", "Good fortune and costly lessons alike.")
-	var records := _scroll(left_leaf, 5, 83, 491, 420)
+	var left := _mount_page(CHRONICLE_LEFT, left_leaf)
+	var right := _mount_page(CHRONICLE_RIGHT, right_leaf)
+	var records := left.get_node("Reports/Items") as VBoxContainer
 	for i in range(game.reports.size()):
 		var entry: Dictionary = game.reports[i]
 		var row := _record(records, 74, 459)
@@ -462,40 +436,38 @@ func _draw_history() -> void:
 			10, 39, 290, 24, 14, false, BLUE if bool(entry.get("won", false)) else OXBLOOD)
 		_text_button(row, "READ", 342, 17, 109, 39,
 			_choose_report.bind(i), i == selected_report_index)
-	if game.reports.is_empty():
-		_text(left_leaf, "No field reports have been filed yet.",
-			11, 110, 453, 59, 17, false, INK_SOFT, true)
-		_book_button(left_leaf, "Inspect Contracts", 10, 192, 283, 44,
-			_turn_to.bind("harlow"))
-	_page_heading(right_leaf, "Return & Losses", "The firm's permanent record.")
-	if game.reports.is_empty():
-		_text(right_leaf, "Reports are filed here when field teams return.",
-			10, 109, 448, 73, 17, false, INK_SOFT, true)
+	var empty: bool = game.reports.is_empty()
+	_page_visibility(left, ["NoReports", "InspectContracts"], empty)
+	(left.get_node("InspectContracts") as Button).pressed.connect(_turn_to.bind("harlow"))
+	(right.get_node("NoReports") as Label).visible = empty
+	_page_visibility(right, ["ReportTitle", "OutcomeCaption", "OutcomeValue", "OutcomeRule",
+		"RecoveredCaption", "RecoveredValue", "RecoveredRule",
+		"CostsCaption", "CostsValue", "CostsRule",
+		"CasualtiesCaption", "CasualtiesValue", "CasualtiesRule",
+		"EventLogTitle", "Events"], not empty)
+	if empty:
 		return
 	var idx: int = clampi(selected_report_index, 0, game.reports.size() - 1)
 	var report: Dictionary = game.reports[idx]
-	_text(right_leaf, str(report.get("region", "Unknown expedition")),
-		8, 91, 445, 39, 21, true)
-	_field(right_leaf, "Outcome", "Success" if bool(report.get("won", false)) else "Failed",
-		149)
-	_field(right_leaf, "Gold recovered", _money(int(report.get("cash", 0))), 195)
-	_field(right_leaf, "Mission costs", _money(int(report.get("cost", 0))), 241)
+	(right.get_node("ReportTitle") as Label).text = str(report.get("region", "Unknown expedition"))
+	_page_value(right, "Outcome", "Success" if bool(report.get("won", false)) else "Failed")
+	_page_value(right, "Recovered", _money(int(report.get("cash", 0))))
+	_page_value(right, "Costs", _money(int(report.get("cost", 0))))
 	var deaths: Array = report.get("casualties", [])
-	_field(right_leaf, "Casualties", str(deaths.size()), 287)
-	_text(right_leaf, "EVENT LOG", 9, 341, 447, 27, 16, true, BLUE)
-	var events := _scroll(right_leaf, 6, 371, 477, 135)
+	_page_value(right, "Casualties", str(deaths.size()))
+	var events := right.get_node("Events/Items") as VBoxContainer
 	for event in report.get("events", []):
 		var note := _record(events, 60, 444)
-		_text(note, str(event), 8, 3, 428, 54,
-			13, false, INK_SOFT, true)
+		_text(note, str(event), 8, 3, 428, 54, 13, false, INK_SOFT, true)
 	if (report.get("events", []) as Array).is_empty():
 		var blank := _record(events, 57, 444)
 		_text(blank, _loot_text(report.get("loot", {})), 8, 7, 427, 45,
 			14, false, INK_SOFT, true)
 
 func _draw_regions() -> void:
-	_page_heading(left_leaf, "Open Assignments", "Some routes remain under old dispatch rules.")
-	var regions := _scroll(left_leaf, 4, 89, 490, 403)
+	var left := _mount_page(REGIONS_LEFT, left_leaf)
+	var right := _mount_page(REGIONS_RIGHT, right_leaf)
+	var regions := left.get_node("Regions/Items") as VBoxContainer
 	for region in MoneyMercsState.REGIONS:
 		var entry := _record(regions, 107, 464)
 		var id: String = str(region["id"])
@@ -504,24 +476,26 @@ func _draw_regions() -> void:
 			14, false, INK_SOFT)
 		_text_button(entry, "INSPECT  →", 314, 69, 138, 32,
 			_select_region.bind(id), selected_region == id)
-	_page_heading(right_leaf, "Dispatch Order", "Review required supplies and threat level.")
 	var site: Dictionary = {}
-	for r in MoneyMercsState.REGIONS:
-		if str(r["id"]) == selected_region:
-			site = r
+	for region in MoneyMercsState.REGIONS:
+		if str(region["id"]) == selected_region:
+			site = region
 	if site.is_empty():
+		_page_visibility(right, ["SiteName", "ThreatCaption", "ThreatValue", "ThreatRule",
+			"SuppliesCaption", "SuppliesValue", "SuppliesRule",
+			"ReputationCaption", "ReputationValue", "ReputationRule",
+			"SiteTagline", "DispatchCrew", "GoHarlow"], false)
 		return
-	_text(right_leaf, str(site["name"]), 10, 89, 445, 59, 20, true, INK, true)
-	_field(right_leaf, "Threat rating", str(site.get("threat", 0)), 165)
-	_field(right_leaf, "Supply cost", _money(int(site.get("supplies", 0))), 219)
-	_field(right_leaf, "Required reputation", str(site.get("rep", 0)), 273)
-	_text(right_leaf, str(site.get("tagline", "")), 12, 335, 454, 66,
-		16, false, INK_SOFT, true)
+	(right.get_node("SiteName") as Label).text = str(site["name"])
+	_page_value(right, "Threat", str(site.get("threat", 0)))
+	_page_value(right, "Supplies", _money(int(site.get("supplies", 0))))
+	_page_value(right, "Reputation", str(site.get("rep", 0)))
+	(right.get_node("SiteTagline") as Label).text = str(site.get("tagline", ""))
 	var can_start: bool = game.free_crew() > 0 and game.reputation >= int(site.get("rep", 0)) and game.missions.size() < game.expedition_slots
-	_book_button(right_leaf, "Dispatch Crew", 12, 427, 280, 45,
-		_old_dispatch.bind(str(site["id"])), can_start)
-	_text_button(right_leaf, "Harlow Mines  →", 14, 483, 245, 33,
-		_turn_to.bind("harlow"))
+	var dispatch := right.get_node("DispatchCrew") as Button
+	dispatch.disabled = not can_start
+	dispatch.pressed.connect(_old_dispatch.bind(str(site["id"])))
+	(right.get_node("GoHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:

@@ -1,0 +1,155 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
+[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
+
+[sub_resource type="SystemFont" id="body"]
+font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+
+[sub_resource type="SystemFont" id="heading"]
+font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+
+[sub_resource type="ShaderMaterial" id="burgundy"]
+shader = ExtResource("shader")
+
+[node name="GuildWorkLeft" type="Control"]
+offset_right = 520
+offset_bottom = 520
+mouse_filter = 1
+
+[node name="Heading" type="Label" parent="."]
+offset_left = 6
+offset_top = 1
+offset_right = 470
+offset_bottom = 38
+text = "Reliable Contracts"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="HeadingNote" type="Label" parent="."]
+offset_left = 7
+offset_top = 38
+offset_right = 471
+offset_bottom = 62
+text = "When the mines go badly, honest wages remain."
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="HeadingRule" type="ColorRect" parent="."]
+offset_left = 5
+offset_top = 68
+offset_right = 471
+offset_bottom = 70
+color = Color(0.600000, 0.458824, 0.388235, 0.450000)
+mouse_filter = 2
+
+[node name="Intro" type="Label" parent="."]
+offset_left = 10
+offset_top = 98
+offset_right = 465
+offset_bottom = 184
+text = "Guild work is risk-free, requires no equipment and continues while you are away."
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+autowrap_mode = 3
+
+[node name="OfficeTitle" type="Label" parent="."]
+offset_left = 10
+offset_top = 208
+offset_right = 435
+offset_bottom = 238
+text = "OFFICE PAPERWORK"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="OfficeTerms" type="Label" parent="."]
+offset_left = 10
+offset_top = 246
+offset_right = 471
+offset_bottom = 274
+text = "Three minutes  •  Earn 9 G  •  No workers needed"
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="AcceptOffice" parent="." instance=ExtResource("button")]
+offset_left = 11
+offset_top = 292
+offset_right = 325
+offset_bottom = 336
+text = "Accept Office Work"
+material = SubResource("burgundy")
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 16
+
+[node name="SectionRule" type="ColorRect" parent="."]
+offset_left = 10
+offset_top = 359
+offset_right = 461
+offset_bottom = 361
+color = Color(0.600000, 0.458824, 0.388235, 0.450000)
+mouse_filter = 2
+
+[node name="LaborTitle" type="Label" parent="."]
+offset_left = 10
+offset_top = 375
+offset_right = 448
+offset_bottom = 401
+text = "CONTRACTOR LABOR"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="LaborTerms" type="Label" parent="."]
+offset_left = 10
+offset_top = 410
+offset_right = 465
+offset_bottom = 437
+text = "Two and a half minutes  •  Earn 18 G"
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="ReturnHarlow" parent="." instance=ExtResource("textbutton")]
+offset_left = 10
+offset_top = 465
+offset_right = 340
+offset_bottom = 499
+text = "Return to Harlow Mines  →"
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
