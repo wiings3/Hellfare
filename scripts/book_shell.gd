@@ -29,7 +29,7 @@ const CHAPTER_TAB_ICONS := [
 ]
 # Center on the rectangular body of each tab, NOT its extended arrow tip.
 # Measured against the BookUI sprite and the in-game tab screenshot.
-const TAB_ICON_FIRST_CENTER := Vector2(177, 214)
+const TAB_ICON_FIRST_CENTER := Vector2(179, 209)
 const TAB_ICON_STEP_Y := 90.0
 const TAB_ICON_DRAW_SIZE := Vector2(40, 40)
 const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
@@ -432,4 +432,3 @@ func _animate_turn(generation: int, frames: Array[Texture2D]) -> void:
 		await get_tree().create_timer(0.037).timeout
 	if generation == current_flip:
 		flip_art.visible = false
-
