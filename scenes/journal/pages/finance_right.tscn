@@ -1,0 +1,77 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
+[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
+
+[sub_resource type="SystemFont" id="body"]
+font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+
+[sub_resource type="SystemFont" id="heading"]
+font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+
+[sub_resource type="ShaderMaterial" id="burgundy"]
+shader = ExtResource("shader")
+
+[node name="FinanceRight" type="Control"]
+offset_right = 486
+offset_bottom = 520
+mouse_filter = 1
+
+[node name="Heading" type="Label" parent="."]
+offset_left = 6
+offset_top = 1
+offset_right = 470
+offset_bottom = 38
+text = "Storehouse Register"
+theme_override_fonts/font = SubResource("heading")
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="HeadingNote" type="Label" parent="."]
+offset_left = 7
+offset_top = 38
+offset_right = 471
+offset_bottom = 62
+text = "Commodities held by the company."
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+
+[node name="HeadingRule" type="ColorRect" parent="."]
+offset_left = 5
+offset_top = 68
+offset_right = 471
+offset_bottom = 70
+color = Color(0.600000, 0.458824, 0.388235, 0.450000)
+mouse_filter = 2
+
+[node name="Stores" parent="." instance=ExtResource("scroll")]
+offset_left = 4
+offset_top = 91
+offset_right = 482
+offset_bottom = 429
+
+[node name="FooterNote" type="Label" parent="."]
+offset_left = 10
+offset_top = 446
+offset_right = 473
+offset_bottom = 507
+text = "Remember: running out of liquid gold doesn't mean your company has no assets."
+theme_override_fonts/font = SubResource("body")
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
+vertical_alignment = 1
+clip_text = true
+mouse_filter = 2
+texture_filter = 2
+autowrap_mode = 3

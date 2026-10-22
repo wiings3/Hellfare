@@ -4,6 +4,10 @@ extends "res://scripts/book_shell.gd"
 
 const JOURNAL_SCROLL := preload("res://scenes/journal/widgets/journal_scroll.tscn")
 const JOURNAL_RECORD := preload("res://scenes/journal/widgets/journal_record.tscn")
+const COMPANY_LEFT := preload("res://scenes/journal/pages/company_left.tscn")
+const COMPANY_RIGHT := preload("res://scenes/journal/pages/company_right.tscn")
+const FINANCE_LEFT := preload("res://scenes/journal/pages/finance_left.tscn")
+const FINANCE_RIGHT := preload("res://scenes/journal/pages/finance_right.tscn")
 
 func _ready() -> void:
 	page = "hq"
@@ -84,6 +88,15 @@ func _record(parent: Node, height: int, width: int = 465) -> Control:
 	contents.custom_minimum_size = Vector2(width, height)
 	return contents
 
+# Add a hand-authored page directly into its fixed editor leaf region.
+func _mount_page(scene: PackedScene, leaf: Control) -> Control:
+	var root := scene.instantiate() as Control
+	leaf.add_child(root)
+	return root
+
+func _page_value(root: Control, key: String, value: String) -> void:
+	(root.get_node(key + "Value") as Label).text = value
+
 func _page_heading(parent: Node, heading_text: String, small: String = "") -> void:
 	_text(parent, heading_text, 6, 1, 464, 37, 22, true)
 	if not small.is_empty():
@@ -96,35 +109,33 @@ func _field(parent: Node, caption: String, value: String, y: int) -> void:
 	_label_rule(parent, 8, y + 35, 464)
 
 func _draw_company() -> void:
-	_page_heading(left_leaf, "Guild Balance Sheet", "An honest account of the company.")
-	_field(left_leaf, "Cash in treasury", _money(game.gold), 88)
-	_field(left_leaf, "Total company value", _money(game.wealth()), 141)
-	_field(left_leaf, "Contractors employed", str(game.crew.size()), 194)
-	_field(left_leaf, "Ready for work", str(game.free_crew()), 247)
-	_field(left_leaf, "Outstanding debt", _money(game.relief_debt), 300)
-	_book_button(left_leaf, "Review Harlow Mines", 20, 371, 300, 42,
-		_turn_to.bind("harlow"))
-	_text(left_leaf, "The company grows by earning its way back.", 22, 441, 462, 48,
-		16, false, INK_SOFT, true)
-	_page_heading(right_leaf, "Today's Business", "Your field teams and their reports.")
-	_field(right_leaf, "Active expeditions", str(game.missions.size()), 89)
-	_field(right_leaf, "Reputation", str(game.reputation), 141)
-	_text(right_leaf, "MOST RECENT REPORT", 9, 214, 457, 24, 15, true, BLUE)
-	if game.reports.is_empty():
-		_text(right_leaf, "No completed expeditions are in the journal yet.",
-			10, 249, 460, 60, 17, false, INK_SOFT, true)
-	else:
-		var last: Dictionary = game.reports[0]
-		_text(right_leaf, str(last.get("region", "Unnamed expedition")),
-			10, 249, 442, 28, 20, true)
-		_text(right_leaf, "Returned safely" if bool(last.get("won", false)) else "Costly return",
-			10, 287, 444, 26, 16, false, OXBLOOD if not bool(last.get("won", false)) else BLUE)
-		_text(right_leaf, _loot_text(last.get("loot", {})), 10, 320, 440, 56,
-			15, false, INK_SOFT, true)
-	_book_button(right_leaf, "Read the Chronicle", 16, 383, 275, 42,
-		_turn_to.bind("ledger"))
-	_text_button(right_leaf, "Safe Guild Work  →", 18, 447, 235, 36,
-		_turn_to.bind("guildwork"))
+	var left := _mount_page(COMPANY_LEFT, left_leaf)
+	var right := _mount_page(COMPANY_RIGHT, right_leaf)
+	_page_value(left, "Gold", _money(game.gold))
+	_page_value(left, "Worth", _money(game.wealth()))
+	_page_value(left, "Crew", str(game.crew.size()))
+	_page_value(left, "Ready", str(game.free_crew()))
+	_page_value(left, "Debt", _money(game.relief_debt))
+	(left.get_node("OpenHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
+	_page_value(right, "Expeditions", str(game.missions.size()))
+	_page_value(right, "Reputation", str(game.reputation))
+	var empty: bool = game.reports.is_empty()
+	(right.get_node("EmptyReport") as Label).visible = empty
+	var report_name := right.get_node("ReportName") as Label
+	var report_outcome := right.get_node("ReportOutcome") as Label
+	var report_loot := right.get_node("ReportLoot") as Label
+	report_name.visible = not empty
+	report_outcome.visible = not empty
+	report_loot.visible = not empty
+	if not empty:
+		var recent: Dictionary = game.reports[0]
+		report_name.text = str(recent.get("region", "Unnamed expedition"))
+		var won: bool = bool(recent.get("won", false))
+		report_outcome.text = "Returned safely" if won else "Costly return"
+		report_outcome.add_theme_color_override("font_color", BLUE if won else OXBLOOD)
+		report_loot.text = _loot_text(recent.get("loot", {}))
+	(right.get_node("OpenChronicle") as Button).pressed.connect(_turn_to.bind("ledger"))
+	(right.get_node("OpenGuildWork") as Button).pressed.connect(_turn_to.bind("guildwork"))
 
 func _draw_harlow() -> void:
 	_page_heading(left_leaf, "I. Site Intelligence", "Scouting is safe. Expeditions are not.")
@@ -374,18 +385,16 @@ func _draw_exchange() -> void:
 		462, 29, 13, false, INK_LIGHT)
 
 func _draw_accounts() -> void:
-	_page_heading(left_leaf, "Company Balance", "Gold is the working capital of your guild.")
-	_field(left_leaf, "Gold on hand", _money(game.gold), 87)
-	_field(left_leaf, "Appraised net worth", _money(game.wealth()), 142)
-	_field(left_leaf, "Equipment valuation", _money(game.owned_equipment_value()), 197)
-	_field(left_leaf, "Outstanding loans", _money(game.relief_debt), 252)
-	_field(left_leaf, "Guild reputation", str(game.reputation), 307)
-	_book_button(left_leaf, "Visit the Exchange", 9, 393, 279, 44, _turn_to.bind("market"))
-	_text(left_leaf, "Stored ore and weapons raise your company's value; they do not pay wages until sold.",
-		10, 451, 471, 66, 15, false, INK_SOFT, true)
-	_page_heading(right_leaf, "Storehouse Register", "Commodities held by the company.")
-	var stores := _scroll(right_leaf, 4, 91, 478, 338)
-	var owned: int = 0
+	var left := _mount_page(FINANCE_LEFT, left_leaf)
+	var right := _mount_page(FINANCE_RIGHT, right_leaf)
+	_page_value(left, "Gold", _money(game.gold))
+	_page_value(left, "Worth", _money(game.wealth()))
+	_page_value(left, "Equipment", _money(game.owned_equipment_value()))
+	_page_value(left, "Debt", _money(game.relief_debt))
+	_page_value(left, "Reputation", str(game.reputation))
+	(left.get_node("OpenExchange") as Button).pressed.connect(_turn_to.bind("market"))
+	var stores := right.get_node("Stores/Items") as VBoxContainer
+	var owned := 0
 	for id in MoneyMercsState.RESOURCE_ORDER:
 		var quantity: int = int(game.resources.get(str(id), 0))
 		if quantity <= 0:
@@ -400,8 +409,6 @@ func _draw_accounts() -> void:
 		var blank := _record(stores, 74, 450)
 		_text(blank, "Nothing stored in the warehouse.", 10, 13, 420, 46,
 			16, false, INK_SOFT)
-	_text(right_leaf, "Remember: running out of liquid gold doesn't mean your company has no assets.",
-		10, 446, 463, 61, 15, false, INK_SOFT, true)
 
 func _draw_guild_jobs() -> void:
 	_page_heading(left_leaf, "Reliable Contracts", "When the mines go badly, honest wages remain.")
