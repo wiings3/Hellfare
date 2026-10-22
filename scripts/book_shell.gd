@@ -17,6 +17,19 @@ const SELECTED_TAB_BOOKS := [
 	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/7.png")
 ]
 const PHYSICAL_TAB_PAGES := ["hq", "harlow", "roster", "market", "finance", "ledger"]
+# The six 16x16 icons correspond to the real tab order.
+# Expeditions uses a compass for logging, foraging, dungeon runs, etc.
+const CHAPTER_TAB_ICONS := [
+	preload("res://assets/ui/tab_icons/company.png"),
+	preload("res://assets/ui/tab_icons/expeditions.png"),
+	preload("res://assets/ui/tab_icons/personnel.png"),
+	preload("res://assets/ui/tab_icons/exchange.png"),
+	preload("res://assets/ui/tab_icons/finances.png"),
+	preload("res://assets/ui/tab_icons/chronicle.png")
+]
+const TAB_ICON_FIRST_CENTER := Vector2(184, 212)
+const TAB_ICON_STEP_Y := 90.0
+const TAB_ICON_DRAW_SIZE := Vector2(32, 32)
 const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
 const BUTTON_HOVER := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png")
 const PALETTE_SHADER := preload("res://assets/ui/book_burgundy.gdshader")
@@ -40,6 +53,7 @@ var right_leaf: Control
 var flip_art: TextureRect
 var book_art: TextureRect
 var tab_overlay: TextureRect
+var tab_icons_layer: Control
 var tab_book_textures: Array[Texture2D] = []
 var tab_strip_textures: Array[Texture2D] = []
 var title_label: Label
@@ -129,7 +143,7 @@ func _build_shell() -> void:
 	header_wealth = worth_label
 	header_jobs = missions_label
 	notice = notification
-	# Six side tabs supplied with the book art. Labels are legible at 720p.
+	# Six physical side tabs with custom icons and invisible hitboxes.
 	# Invisible clickable shapes cover each tab and its extended arrow tip.
 	tab_host = _region(stage, 151, 182, 84, 515)
 	# Page turns use the pack's own animation frames when clicked.
@@ -155,7 +169,27 @@ func _build_shell() -> void:
 	tab_overlay.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	tab_overlay.material = palette_material
 	tab_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	stage.add_child(tab_overlay)
+	# Keep icons above page-turn sprites, without covering tab hitboxes.
+	# This separate layer persists when _refresh() rebuilds the buttons.
+	tab_icons_layer = Control.new()
+	tab_icons_layer.name = "ChapterIcons"
+	tab_icons_layer.size = stage.size
+	tab_icons_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	stage.add_child(tab_icons_layer)
+	for index in range(CHAPTER_TAB_ICONS.size()):
+		var icon := TextureRect.new()
+		icon.name = "TabIcon" + str(index)
+		icon.texture = CHAPTER_TAB_ICONS[index]
+		icon.position = TAB_ICON_FIRST_CENTER + Vector2(0, float(index) * TAB_ICON_STEP_Y) - TAB_ICON_DRAW_SIZE * 0.5
+		icon.size = TAB_ICON_DRAW_SIZE
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_SCALE
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Already in our gold, burgundy and parchment palette: no shader.
+		tab_icons_layer.add_child(icon)
 
 func _fit_layout() -> void:
 	if not is_instance_valid(stage):

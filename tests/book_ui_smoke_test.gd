@@ -34,6 +34,19 @@ func _verify() -> void:
 	assert(is_equal_approx(view.tab_overlay.size.x,
 		1326.0 * 51.0 / 710.0))
 	assert(view.tab_overlay.size.y == 870)
+	# All six icon textures are true 16x16 PNGs above the page-turn art.
+	assert(view.tab_icons_layer.get_child_count() == 6)
+	assert(view.tab_icons_layer.get_index() > view.tab_overlay.get_index())
+	assert(view.tab_icons_layer.mouse_filter == Control.MOUSE_FILTER_IGNORE)
+	var icon_names: Array[String] = ["company", "expeditions", "personnel", "exchange", "finances", "chronicle"]
+	for i in range(6):
+		var icon: TextureRect = view.tab_icons_layer.get_node("TabIcon" + str(i))
+		assert(icon.texture.get_size() == Vector2(16, 16))
+		assert(icon.texture.resource_path.ends_with("/tab_icons/" + icon_names[i] + ".png"))
+		assert(icon.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST)
+		assert(icon.mouse_filter == Control.MOUSE_FILTER_IGNORE)
+		assert(icon.position == Vector2(168, 196 + 90 * i))
+		assert(icon.size == Vector2(32, 32))
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
 	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.ends_with("/2.png"))
@@ -91,8 +104,11 @@ func _verify() -> void:
 	assert(view.page == "harlow")
 	assert(view.flip_art.visible)
 	# The icon-free tab strip is a later sibling and stays drawn over flips.
+
 	assert(view.tab_overlay.visible)
 	assert(view.tab_overlay.get_index() > view.flip_art.get_index())
+	assert(view.tab_icons_layer.visible)
+	assert(view.tab_icons_layer.get_index() > view.tab_overlay.get_index())
 	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.ends_with("/3.png"))
 	await create_timer(0.5).timeout
 	assert(not view.flip_art.visible)
