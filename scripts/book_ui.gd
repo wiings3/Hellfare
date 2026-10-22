@@ -2,7 +2,6 @@ extends "res://scripts/book_shell.gd"
 ## Active book screens. Page content and interactions only.
 ## Shared book art, tab animation, input hitboxes, and drawing primitives live in book_shell.gd.
 
-const JOURNAL_RECORD := preload("res://scenes/journal/widgets/journal_record.tscn")
 const COMPANY_LEFT := preload("res://scenes/journal/pages/company_left.tscn")
 const COMPANY_RIGHT := preload("res://scenes/journal/pages/company_right.tscn")
 const FINANCE_LEFT := preload("res://scenes/journal/pages/finance_left.tscn")
@@ -24,6 +23,21 @@ const PERSONNEL_RECRUITS_LEFT := preload("res://scenes/journal/pages/personnel_r
 const PERSONNEL_RECRUITS_RIGHT := preload("res://scenes/journal/pages/personnel_recruits_right.tscn")
 const PERSONNEL_ARMORY_LEFT := preload("res://scenes/journal/pages/personnel_armory_left.tscn")
 const PERSONNEL_ARMORY_RIGHT := preload("res://scenes/journal/pages/personnel_armory_right.tscn")
+const ROW_HARLOW_CREW := preload("res://scenes/journal/rows/harlow_crew.tscn")
+const ROW_EMPLOYEE := preload("res://scenes/journal/rows/employee.tscn")
+const ROW_CANDIDATE := preload("res://scenes/journal/rows/candidate.tscn")
+const ROW_ARMORY_CREW := preload("res://scenes/journal/rows/armory_crew.tscn")
+const ROW_STASH := preload("res://scenes/journal/rows/stash.tscn")
+const ROW_EMPTY_STASH := preload("res://scenes/journal/rows/empty_stash.tscn")
+const ROW_CATALOG := preload("res://scenes/journal/rows/catalog.tscn")
+const ROW_MARKET := preload("res://scenes/journal/rows/market.tscn")
+const ROW_GUILD_WORKER := preload("res://scenes/journal/rows/guild_worker.tscn")
+const ROW_REPORT := preload("res://scenes/journal/rows/report.tscn")
+const ROW_REGION := preload("res://scenes/journal/rows/region.tscn")
+const ROW_WAREHOUSE := preload("res://scenes/journal/rows/warehouse.tscn")
+const ROW_EMPTY_WAREHOUSE := preload("res://scenes/journal/rows/empty_warehouse.tscn")
+const ROW_EVENT := preload("res://scenes/journal/rows/event.tscn")
+const ROW_EMPTY_EVENT := preload("res://scenes/journal/rows/empty_event.tscn")
 
 func _ready() -> void:
 	page = "hq"
@@ -87,15 +101,28 @@ func _on_clock() -> void:
 		notification.visible = false
 
 # Variable-length lists use editable row and scroll PackedScenes.
-func _record(parent: Node, height: int, width: int = 465) -> Control:
-	var frame := JOURNAL_RECORD.instantiate() as PanelContainer
-	frame.custom_minimum_size = Vector2(width, height)
-	parent.add_child(frame)
-	var contents := frame.get_node("Content") as Control
-	contents.custom_minimum_size = Vector2(width, height)
-	return contents
+# Variable-length collections instance editable row scenes instead of
+# creating labels and placing controls in GDScript.
+func _make_row(scene: PackedScene, list: VBoxContainer) -> Control:
+	var record := scene.instantiate() as PanelContainer
+	list.add_child(record)
+	return record.get_node("Content") as Control
 
-# Add a hand-authored page directly into its fixed editor leaf region.
+func _row_text(row: Control, node_name: String, content: String) -> Label:
+	var field := row.get_node(node_name) as Label
+	field.text = content
+	return field
+
+func _row_button(row: Control, node_name: String, title: String, action: Callable,
+		enabled: bool = true, active: bool = false, primary: bool = false) -> Button:
+	var btn := row.get_node(node_name) as Button
+	btn.text = title
+	btn.disabled = not enabled
+	if not primary:
+		btn.add_theme_color_override("font_color", BLUE if active else INK)
+	btn.pressed.connect(action)
+	return btn
+
 func _mount_page(scene: PackedScene, leaf: Control) -> Control:
 	var root := scene.instantiate() as Control
 	leaf.add_child(root)
@@ -172,16 +199,14 @@ func _draw_harlow() -> void:
 	for merc in game.available_guild_workers():
 		if str(merc.get("role", "")) not in ["Miner", "Guard"]:
 			continue
-		var entry := _record(roster, 61, 449)
+		var entry := _make_row(ROW_HARLOW_CREW, roster)
 		var id: String = str(merc["id"])
 		var assigned: bool = selected_crew.has(id)
-		_text(entry, "%s  (%s)" % [str(merc["name"]), str(merc["role"])],
-			8, 4, 275, 27, 17, true)
-		_text(entry, "Health %d%%   •   Gear %d/2" % [
-			int(merc.get("health", 100)), _equipped_count(merc)],
-			8, 32, 288, 22, 13, false, INK_SOFT)
-		_book_button(entry, "REMOVE" if assigned else "ASSIGN", 313, 10, 122, 42,
-			_toggle_crew.bind(not assigned, id))
+		_row_text(entry, "Name", "%s  (%s)" % [str(merc["name"]), str(merc["role"])])
+		_row_text(entry, "Details", "Health %d%%   •   Gear %d/2" % [
+			int(merc.get("health", 100)), _equipped_count(merc)])
+		_row_button(entry, "Assign", "REMOVE" if assigned else "ASSIGN",
+			_toggle_crew.bind(not assigned, id), true, false, true)
 	var ids: Array[String] = _selected_available()
 	var stats: Dictionary = game.harlow_crew_stats(ids, tactic)
 	var stance := right.get_node("Stance") as OptionButton
@@ -231,13 +256,11 @@ func _draw_employees() -> void:
 		selected_merc = str(game.crew[0]["id"])
 	for person in game.crew:
 		var id: String = str(person["id"])
-		var row := _record(roster, 75, 462)
-		_text(row, str(person["name"]), 10, 5, 242, 29, 18, true,
-			BLUE if id == selected_merc else INK)
-		_text(row, "%s  •  %d%% health" % [str(person["role"]), int(person.get("health", 100))],
-			11, 39, 274, 25, 14, false, INK_SOFT)
-		_text_button(row, "VIEW  →", 334, 16, 119, 39,
-			_focus_person.bind(id), id == selected_merc)
+		var row := _make_row(ROW_EMPLOYEE, roster)
+		var name_label := _row_text(row, "Name", str(person["name"]))
+		name_label.add_theme_color_override("font_color", BLUE if id == selected_merc else INK)
+		_row_text(row, "Details", "%s  •  %d%% health" % [str(person["role"]), int(person.get("health", 100))])
+		_row_button(row, "View", "VIEW  →", _focus_person.bind(id), true, id == selected_merc)
 	var empty_crew: bool = game.crew.is_empty()
 	(left.get_node("EmptyCrew") as Label).visible = empty_crew
 	var recruit := left.get_node("Recruit") as Button
@@ -272,14 +295,12 @@ func _draw_recruitment() -> void:
 	var right := _mount_page(PERSONNEL_RECRUITS_RIGHT, right_leaf)
 	var offers := left.get_node("Offers/Items") as VBoxContainer
 	for candidate in game.recruitment_board():
-		var record := _record(offers, 87, 462)
-		_text(record, str(candidate["name"]), 8, 7, 266, 30, 19, true)
-		_text(record, "%s  •  Skill %d  •  Wage %d G" % [
-			str(candidate["role"]), int(candidate["skill"]), int(candidate["wage"])],
-			9, 37, 320, 24, 14, false, INK_SOFT)
-		var hire_button := _text_button(record, "HIRE %d G" % int(candidate["hire"]),
-			320, 22, 142, 41, _hire.bind(str(candidate["id"])))
-		hire_button.disabled = game.gold < int(candidate["hire"])
+		var record := _make_row(ROW_CANDIDATE, offers)
+		_row_text(record, "Name", str(candidate["name"]))
+		_row_text(record, "Details", "%s  •  Skill %d  •  Wage %d G" % [
+			str(candidate["role"]), int(candidate["skill"]), int(candidate["wage"])])
+		_row_button(record, "Hire", "HIRE %d G" % int(candidate["hire"]),
+			_hire.bind(str(candidate["id"])), game.gold >= int(candidate["hire"]))
 	_page_value(right, "Treasury", _money(game.gold))
 	_page_value(right, "Workers", str(game.crew.size()))
 
@@ -290,27 +311,23 @@ func _draw_armory_page() -> void:
 		selected_merc = str(game.crew[0]["id"])
 	var crew_picker := left.get_node("CrewPicker/Items") as VBoxContainer
 	for person in game.crew:
-		var row := _record(crew_picker, 60, 459)
+		var row := _make_row(ROW_ARMORY_CREW, crew_picker)
 		var id: String = str(person["id"])
-		_text(row, "%s / %s" % [str(person["name"]), str(person["role"])],
-			7, 9, 303, 34, 16, true)
-		_text_button(row, "SELECT", 335, 10, 118, 39,
-			_choose_worker.bind(id), id == selected_merc)
+		_row_text(row, "Name", "%s / %s" % [str(person["name"]), str(person["role"])])
+		_row_button(row, "Select", "SELECT", _choose_worker.bind(id), true, id == selected_merc)
 	var stash := left.get_node("Stash/Items") as VBoxContainer
 	var owner: Dictionary = game.merc_by_id(selected_merc)
 	for item in game.equipment_inventory:
 		var definition: Dictionary = game.item_definition(str(item.get("key", "")))
-		var row := _record(stash, 59, 462)
-		_text(row, str(definition.get("name", "Unknown")), 9, 4, 244, 28, 16, true)
-		_text(row, "Owned  /  %s" % str(definition.get("slot", "tool")), 9, 28, 277, 22, 13, false, INK_SOFT)
-		var equip_button := _text_button(row, "EQUIP", 278, 8, 89, 40,
-			_equip.bind(selected_merc, str(item.get("uid", ""))))
-		equip_button.disabled = owner.is_empty() or not game.is_available(owner) or not MercsV05.validate_role(str(item.get("key", "")), owner)
-		_text_button(row, "SELL", 375, 8, 83, 40,
-			_sell_equipment.bind(str(item.get("uid", ""))))
+		var row := _make_row(ROW_STASH, stash)
+		_row_text(row, "Name", str(definition.get("name", "Unknown")))
+		_row_text(row, "Details", "Owned  /  %s" % str(definition.get("slot", "tool")))
+		var can_equip: bool = not owner.is_empty() and game.is_available(owner) and MercsV05.validate_role(str(item.get("key", "")), owner)
+		_row_button(row, "Equip", "EQUIP", _equip.bind(selected_merc, str(item.get("uid", ""))), can_equip)
+		_row_button(row, "Sell", "SELL", _sell_equipment.bind(str(item.get("uid", ""))))
 	if game.equipment_inventory.is_empty():
-		var empty := _record(stash, 63, 460)
-		_text(empty, "No equipment in storage.", 10, 12, 431, 39, 16, false, INK_SOFT)
+		var empty := _make_row(ROW_EMPTY_STASH, stash)
+		_row_text(empty, "Note", "No equipment in storage.")
 	var has_owner: bool = not owner.is_empty()
 	_page_visibility(right, ["Outfitting", "Tool", "Armor", "RemoveTool", "RemoveArmor"], has_owner)
 	if has_owner:
@@ -326,12 +343,10 @@ func _draw_armory_page() -> void:
 	var catalog := right.get_node("Catalog/Items") as VBoxContainer
 	for key in MercsV05.ITEMS:
 		var definition: Dictionary = MercsV05.ITEMS[key]
-		var row := _record(catalog, 63, 444)
-		_text(row, str(definition.get("name", "")), 7, 4, 273, 28, 16, true)
-		_text(row, "%s  •  %s" % [str(definition.get("role", "")), str(definition.get("slot", ""))],
-			8, 29, 281, 21, 13, false, INK_SOFT)
-		_text_button(row, "%d G" % int(definition["cost"]), 310, 10, 126, 40,
-			_buy_equipment.bind(str(key)))
+		var row := _make_row(ROW_CATALOG, catalog)
+		_row_text(row, "Name", str(definition.get("name", "")))
+		_row_text(row, "Details", "%s  •  %s" % [str(definition.get("role", "")), str(definition.get("slot", ""))])
+		_row_button(row, "Price", "%d G" % int(definition["cost"]), _buy_equipment.bind(str(key)))
 
 func _choose_commodity(id: String) -> void:
 	selected_market_item = id
@@ -343,16 +358,14 @@ func _draw_exchange() -> void:
 	var stock := left.get_node("Stock/Items") as VBoxContainer
 	for id in MoneyMercsState.RESOURCE_ORDER:
 		var key: String = str(id)
-		var row := _record(stock, 61, 462)
-		if key == selected_market_item:
-			_tint(row, 0, 0, 462, 61, Color("#762c37", 0.10))
-		_text(row, str(MoneyMercsState.RESOURCE_NAMES[key]), 9, 6, 296, 27,
-			17, true, BLUE if selected_market_item == key else INK)
-		_text(row, "Stored: %d    |    Sell: %d G" % [
-			int(game.resources.get(key, 0)), game.sell_price(key)],
-			9, 31, 290, 22, 14, false, INK_SOFT)
-		_text_button(row, "INSPECT  →", 316, 12, 141, 39,
-			_choose_commodity.bind(key), selected_market_item == key)
+		var row := _make_row(ROW_MARKET, stock)
+		var selected: bool = key == selected_market_item
+		(row.get_node("Selected") as ColorRect).visible = selected
+		var name := _row_text(row, "Name", str(MoneyMercsState.RESOURCE_NAMES[key]))
+		name.add_theme_color_override("font_color", BLUE if selected else INK)
+		_row_text(row, "Details", "Stored: %d    |    Sell: %d G" % [
+			int(game.resources.get(key, 0)), game.sell_price(key)])
+		_row_button(row, "Inspect", "INSPECT  →", _choose_commodity.bind(key), true, selected)
 	var name: String = str(MoneyMercsState.RESOURCE_NAMES.get(selected_market_item, "Unknown item"))
 	(right.get_node("ItemName") as Label).text = name
 	(right.get_node("ItemDesc") as Label).text = str(MoneyMercsState.RESOURCE_DESC.get(selected_market_item, ""))
@@ -385,16 +398,13 @@ func _draw_accounts() -> void:
 		var quantity: int = int(game.resources.get(str(id), 0))
 		if quantity <= 0:
 			continue
-		var line := _record(stores, 49, 452)
-		_text(line, str(MoneyMercsState.RESOURCE_NAMES.get(str(id), str(id))),
-			11, 8, 285, 29, 17, true)
-		_text(line, str(quantity) + " owned", 320, 8, 123, 29,
-			15, false, INK_SOFT)
+		var line := _make_row(ROW_WAREHOUSE, stores)
+		_row_text(line, "Name", str(MoneyMercsState.RESOURCE_NAMES.get(str(id), str(id))))
+		_row_text(line, "Count", str(quantity) + " owned")
 		owned += 1
 	if owned == 0:
-		var blank := _record(stores, 74, 450)
-		_text(blank, "Nothing stored in the warehouse.", 10, 13, 420, 46,
-			16, false, INK_SOFT)
+		var blank := _make_row(ROW_EMPTY_WAREHOUSE, stores)
+		_row_text(blank, "Note", "Nothing stored in the warehouse.")
 
 func _draw_guild_jobs() -> void:
 	var left := _mount_page(GUILDWORK_LEFT, left_leaf)
@@ -407,13 +417,10 @@ func _draw_guild_jobs() -> void:
 	var workers := right.get_node("Workers/Items") as VBoxContainer
 	var count: int = 0
 	for member in game.available_guild_workers():
-		var row := _record(workers, 72, 444)
-		var who: String = str(member.get("name", "Contractor"))
-		_text(row, who, 10, 5, 276, 32, 17, true)
-		_text(row, "No injury or equipment risk", 10, 34, 292, 22,
-			14, false, INK_SOFT)
-		_book_button(row, "ASSIGN", 320, 14, 112, 42,
-			_guild_work.bind(str(member["id"])), can_take)
+		var row := _make_row(ROW_GUILD_WORKER, workers)
+		_row_text(row, "Name", str(member.get("name", "Contractor")))
+		_row_text(row, "Details", "No injury or equipment risk")
+		_row_button(row, "Assign", "ASSIGN", _guild_work.bind(str(member["id"])), can_take, false, true)
 		count += 1
 	(right.get_node("NoWorkers") as Label).visible = count == 0
 
@@ -427,15 +434,12 @@ func _draw_history() -> void:
 	var records := left.get_node("Reports/Items") as VBoxContainer
 	for i in range(game.reports.size()):
 		var entry: Dictionary = game.reports[i]
-		var row := _record(records, 74, 459)
-		if i == selected_report_index:
-			_tint(row, 0, 0, 459, 74, Color("#762c37", 0.10))
-		_text(row, str(entry.get("region", "Unknown assignment")),
-			9, 7, 302, 30, 17, true)
-		_text(row, "Completed" if bool(entry.get("won", false)) else "Costly return",
-			10, 39, 290, 24, 14, false, BLUE if bool(entry.get("won", false)) else OXBLOOD)
-		_text_button(row, "READ", 342, 17, 109, 39,
-			_choose_report.bind(i), i == selected_report_index)
+		var row := _make_row(ROW_REPORT, records)
+		(row.get_node("Selected") as ColorRect).visible = i == selected_report_index
+		_row_text(row, "Name", str(entry.get("region", "Unknown assignment")))
+		var outcome := _row_text(row, "Outcome", "Completed" if bool(entry.get("won", false)) else "Costly return")
+		outcome.add_theme_color_override("font_color", BLUE if bool(entry.get("won", false)) else OXBLOOD)
+		_row_button(row, "Read", "READ", _choose_report.bind(i), true, i == selected_report_index)
 	var empty: bool = game.reports.is_empty()
 	_page_visibility(left, ["NoReports", "InspectContracts"], empty)
 	(left.get_node("InspectContracts") as Button).pressed.connect(_turn_to.bind("harlow"))
@@ -457,25 +461,22 @@ func _draw_history() -> void:
 	_page_value(right, "Casualties", str(deaths.size()))
 	var events := right.get_node("Events/Items") as VBoxContainer
 	for event in report.get("events", []):
-		var note := _record(events, 60, 444)
-		_text(note, str(event), 8, 3, 428, 54, 13, false, INK_SOFT, true)
+		var note := _make_row(ROW_EVENT, events)
+		_row_text(note, "Note", str(event))
 	if (report.get("events", []) as Array).is_empty():
-		var blank := _record(events, 57, 444)
-		_text(blank, _loot_text(report.get("loot", {})), 8, 7, 427, 45,
-			14, false, INK_SOFT, true)
+		var blank := _make_row(ROW_EMPTY_EVENT, events)
+		_row_text(blank, "Note", _loot_text(report.get("loot", {})))
 
 func _draw_regions() -> void:
 	var left := _mount_page(REGIONS_LEFT, left_leaf)
 	var right := _mount_page(REGIONS_RIGHT, right_leaf)
 	var regions := left.get_node("Regions/Items") as VBoxContainer
 	for region in MoneyMercsState.REGIONS:
-		var entry := _record(regions, 107, 464)
+		var entry := _make_row(ROW_REGION, regions)
 		var id: String = str(region["id"])
-		_text(entry, str(region["name"]), 9, 4, 442, 33, 18, true)
-		_text(entry, str(region.get("tagline", "")), 9, 37, 440, 28,
-			14, false, INK_SOFT)
-		_text_button(entry, "INSPECT  →", 314, 69, 138, 32,
-			_select_region.bind(id), selected_region == id)
+		_row_text(entry, "Name", str(region["name"]))
+		_row_text(entry, "Tagline", str(region.get("tagline", "")))
+		_row_button(entry, "Inspect", "INSPECT  →", _select_region.bind(id), true, selected_region == id)
 	var site: Dictionary = {}
 	for region in MoneyMercsState.REGIONS:
 		if str(region["id"]) == selected_region:

@@ -3,15 +3,8 @@ extends "res://scripts/game_actions.gd"
 ## Rebuild around the licensed BookUI sprites already supplied in assets/BookUI.
 ## No flattened interface image: each page remains live and interactive.
 
-const JOURNAL_LABEL := preload("res://scenes/journal/widgets/journal_label.tscn")
-const JOURNAL_RULE := preload("res://scenes/journal/widgets/journal_rule.tscn")
-const JOURNAL_TINT := preload("res://scenes/journal/widgets/journal_tint.tscn")
-const JOURNAL_BUTTON := preload("res://scenes/journal/widgets/journal_button.tscn")
-const JOURNAL_TEXT_BUTTON := preload("res://scenes/journal/widgets/journal_text_button.tscn")
 
 const SOURCE := "res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/"
-const DESK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Book Desk/1.png")
-const OPEN_BOOK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/1.png")
 # The pack supplies one open-book image per physical tab, with that tab
 # extended as an arrow. These are the actual selected/hover art states.
 const SELECTED_TAB_BOOKS := [
@@ -23,24 +16,7 @@ const SELECTED_TAB_BOOKS := [
 	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/7.png")
 ]
 const PHYSICAL_TAB_PAGES := ["hq", "harlow", "roster", "market", "finance", "ledger"]
-# Six hand-pixeled native 24x24 icons. No AI-image downsampling or smearing.
-# Expeditions uses a compass for logging, foraging, dungeon runs, etc.
-const CHAPTER_TAB_ICONS := [
-	preload("res://assets/ui/tab_icons/company.png"),
-	preload("res://assets/ui/tab_icons/expeditions.png"),
-	preload("res://assets/ui/tab_icons/personnel.png"),
-	preload("res://assets/ui/tab_icons/exchange.png"),
-	preload("res://assets/ui/tab_icons/finances.png"),
-	preload("res://assets/ui/tab_icons/chronicle.png")
-]
-# Center on the rectangular body of each tab, NOT its extended arrow tip.
-# Measured against the BookUI sprite and the in-game tab screenshot.
-const TAB_ICON_FIRST_CENTER := Vector2(179, 209)
-const TAB_ICON_STEP_Y := 90.0
-const TAB_ICON_DRAW_SIZE := Vector2(40, 40)
-const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
-const BUTTON_HOVER := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png")
-const PALETTE_SHADER := preload("res://assets/ui/book_burgundy.gdshader")
+# Tab icons and positions are editor-owned in journal_shell.tscn.
 const BOOK_REGION := Rect2(80, 200, 710, 465)
 # The flip animation is a full-book sprite WITHOUT tabs. Repaint this narrow
 # tab-and-edge strip above it so tabs never duck behind the turning parchment.
@@ -129,111 +105,12 @@ func _fit_layout() -> void:
 	stage.scale = Vector2(factor, factor)
 	stage.position = (viewport - Vector2(1600, 900) * factor) * 0.5
 
-func _book_image(parent: Node, full: Texture2D, x: float, y: float, w: float, h: float) -> TextureRect:
-	var crop := AtlasTexture.new()
-	crop.atlas = full
-	crop.region = BOOK_REGION
-	var image := TextureRect.new()
-	image.texture = crop
-	image.position = Vector2(x, y)
-	image.size = Vector2(w, h)
-	image.stretch_mode = TextureRect.STRETCH_SCALE
-	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	image.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	image.material = palette_material
-	parent.add_child(image)
-	return image
-
 func _tab_strip_texture(full: Texture2D) -> AtlasTexture:
 	var crop := AtlasTexture.new()
 	crop.atlas = full
 	crop.region = TAB_STRIP_REGION
 	return crop
 
-func _region(parent: Node, x: float, y: float, w: float, h: float) -> Control:
-	var box := Control.new()
-	box.position = Vector2(x, y)
-	box.size = Vector2(w, h)
-	box.clip_contents = true
-	parent.add_child(box)
-	return box
-
-func _text(parent: Node, message: String, x: float, y: float, w: float, h: float,
-		size: int = 18, header: bool = false, color: Color = INK,
-		wrap_text: bool = false) -> Label:
-	var label := JOURNAL_LABEL.instantiate() as Label
-	label.position = Vector2(x, y)
-	label.size = Vector2(w, h)
-	label.text = message
-	var font: Font = heading_font if header else body_font
-	label.add_theme_font_override("font", font)
-	var actual: int = size + 1 if size <= 16 else size
-	if wrap_text:
-		# A short journal annotation must fit the page vertically, not be clipped mid-sentence.
-		while actual > 13 and font.get_multiline_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, w - 14, actual).y > h - 4:
-			actual -= 1
-	else:
-		while actual > 13 and font.get_string_size(message, HORIZONTAL_ALIGNMENT_LEFT, -1, actual).x > w - 12:
-			actual -= 1
-	label.add_theme_font_size_override("font_size", actual)
-	label.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	label.add_theme_color_override("font_color", color)
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if wrap_text else TextServer.AUTOWRAP_OFF
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.clip_text = true
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(label)
-	return label
-
-func _label_rule(parent: Node, x: float, y: float, w: float) -> void:
-	var line := JOURNAL_RULE.instantiate() as ColorRect
-	line.position = Vector2(x, y)
-	line.size = Vector2(w, 2)
-	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(line)
-
-func _tint(parent: Node, x: float, y: float, w: float, h: float, color: Color = SHADE) -> void:
-	var surface := JOURNAL_TINT.instantiate() as ColorRect
-	surface.position = Vector2(x, y)
-	surface.size = Vector2(w, h)
-	surface.color = color
-	surface.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(surface)
-
-func _book_button(parent: Node, value: String, x: float, y: float, w: float, h: float,
-		action: Callable, enabled: bool = true, secondary: bool = false) -> Button:
-	var btn := JOURNAL_BUTTON.instantiate() as Button
-	btn.text = value
-	btn.position = Vector2(x, y)
-	btn.size = Vector2(w, h)
-	btn.disabled = not enabled
-	btn.add_theme_font_override("font", body_font)
-	btn.add_theme_font_size_override("font_size", 16 if h >= 38 else 14)
-	btn.material = palette_material
-	btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	if secondary:
-		btn.modulate = Color("#b2bec3")
-	btn.pressed.connect(action)
-	parent.add_child(btn)
-	return btn
-
-func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: float,
-		action: Callable, active: bool = false) -> Button:
-	var btn := JOURNAL_TEXT_BUTTON.instantiate() as Button
-	btn.text = value
-	btn.position = Vector2(x, y)
-	btn.size = Vector2(w, h)
-	btn.flat = true
-	btn.add_theme_font_override("font", body_font)
-	btn.add_theme_font_size_override("font_size", 15)
-	btn.add_theme_color_override("font_color", BLUE if active else INK)
-	btn.pressed.connect(action)
-	parent.add_child(btn)
-	return btn
-
-# An icon is selected by switching the book to the corresponding included
-# sprite, not by painting a rectangle on top of its tab.
 func _show_tab_art(index: int) -> void:
 	if not is_instance_valid(book_art) or tab_book_textures.is_empty():
 		return
