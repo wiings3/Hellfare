@@ -8,7 +8,7 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	var view: Control = load("res://scenes/main.tscn").instantiate()
+	var view: Control = load("res://scenes/journal/widgets/main.tscn").instantiate()
 	root.add_child(view)
 	assert(view.game != null)
 	view.game.reset_company()

@@ -4,7 +4,7 @@ func _initialize() -> void:
 	call_deferred("_capture")
 
 func _capture() -> void:
-	var packed: PackedScene = load("res://scenes/main.tscn")
+	var packed: PackedScene = load("res://scenes/journal/widgets/main.tscn")
 	var instance: Control = packed.instantiate()
 	root.add_child(instance)
 	instance.game.reset_company()
