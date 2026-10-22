@@ -1,0 +1,37 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png" id="button_normal"]
+[ext_resource type="Texture2D" path="res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/6.png" id="button_hover"]
+
+[sub_resource type="StyleBoxTexture" id="normal"]
+texture = ExtResource("button_normal")
+texture_margin_left = 12.0
+texture_margin_top = 9.0
+texture_margin_right = 12.0
+texture_margin_bottom = 9.0
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[sub_resource type="StyleBoxTexture" id="hover"]
+texture = ExtResource("button_hover")
+texture_margin_left = 12.0
+texture_margin_top = 9.0
+texture_margin_right = 12.0
+texture_margin_bottom = 9.0
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+
+[node name="JournalButton" type="Button"]
+texture_filter = 1
+theme_override_colors/font_color = Color(0.937255, 0.886275, 0.811765, 1)
+theme_override_colors/font_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/font_disabled_color = Color(0.764706, 0.662745, 0.627451, 1)
+theme_override_styles/normal = SubResource("normal")
+theme_override_styles/hover = SubResource("hover")
+theme_override_styles/pressed = SubResource("hover")
+theme_override_styles/disabled = SubResource("normal")
+theme_override_styles/focus = SubResource("hover")

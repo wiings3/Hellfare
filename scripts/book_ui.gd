@@ -2,6 +2,9 @@ extends "res://scripts/book_shell.gd"
 ## Active book screens. Page content and interactions only.
 ## Shared book art, tab animation, input hitboxes, and drawing primitives live in book_shell.gd.
 
+const JOURNAL_SCROLL := preload("res://scenes/journal/widgets/journal_scroll.tscn")
+const JOURNAL_RECORD := preload("res://scenes/journal/widgets/journal_record.tscn")
+
 func _ready() -> void:
 	page = "hq"
 	super._ready()
@@ -14,8 +17,6 @@ func _refresh() -> void:
 	missions_label.text = "%d / %d  IN THE FIELD" % [game.missions.size(), game.expedition_slots]
 	_clear(left_leaf)
 	_clear(right_leaf)
-	_clear(tab_host)
-	_render_tabs()
 	_restore_tab_art()
 	var headings: Dictionary = {
 		"hq": ["Company Records", "Keeping the guild solvent"],
@@ -65,37 +66,22 @@ func _on_clock() -> void:
 		clear_notice_at = 0
 		notification.visible = false
 
+# Variable-length lists use editable row and scroll PackedScenes.
 func _scroll(parent: Node, x: float, y: float, w: float, h: float) -> VBoxContainer:
-	var wrapper := ScrollContainer.new()
+	var wrapper := JOURNAL_SCROLL.instantiate() as ScrollContainer
 	wrapper.position = Vector2(x, y)
 	wrapper.size = Vector2(w, h)
-	wrapper.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	wrapper.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	parent.add_child(wrapper)
-	var content := VBoxContainer.new()
-	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var content := wrapper.get_node("Items") as VBoxContainer
 	content.custom_minimum_size.x = w - 21
-	content.add_theme_constant_override("separation", 8)
-	wrapper.add_child(content)
 	return content
 
 func _record(parent: Node, height: int, width: int = 465) -> Control:
-	var frame := PanelContainer.new()
+	var frame := JOURNAL_RECORD.instantiate() as PanelContainer
 	frame.custom_minimum_size = Vector2(width, height)
-	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("#946e57", 0.10)
-	style.border_color = Color("#715a49", 0.21)
-	style.border_width_bottom = 1
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	frame.add_theme_stylebox_override("panel", style)
 	parent.add_child(frame)
-	var contents := Control.new()
+	var contents := frame.get_node("Content") as Control
 	contents.custom_minimum_size = Vector2(width, height)
-	frame.add_child(contents)
 	return contents
 
 func _page_heading(parent: Node, heading_text: String, small: String = "") -> void:

@@ -3,6 +3,12 @@ extends "res://scripts/game_actions.gd"
 ## Rebuild around the licensed BookUI sprites already supplied in assets/BookUI.
 ## No flattened interface image: each page remains live and interactive.
 
+const JOURNAL_LABEL := preload("res://scenes/journal/widgets/journal_label.tscn")
+const JOURNAL_RULE := preload("res://scenes/journal/widgets/journal_rule.tscn")
+const JOURNAL_TINT := preload("res://scenes/journal/widgets/journal_tint.tscn")
+const JOURNAL_BUTTON := preload("res://scenes/journal/widgets/journal_button.tscn")
+const JOURNAL_TEXT_BUTTON := preload("res://scenes/journal/widgets/journal_text_button.tscn")
+
 const SOURCE := "res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/"
 const DESK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Book Desk/1.png")
 const OPEN_BOOK := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/1.png")
@@ -75,123 +81,45 @@ var view_count: int = 0
 var tab_host: Control
 var palette_material: ShaderMaterial
 
+# The entire fixed journal layout now lives in an editable PackedScene:
+# res://scenes/journal/journal_shell.tscn. The script only binds live data
+# and wires actions to the pre-existing editor nodes.
 func _build_shell() -> void:
-	stage = Control.new()
-	stage.name = "GuildmastersLogbook"
-	stage.size = Vector2(1600, 900)
-	stage.mouse_filter = Control.MOUSE_FILTER_PASS
-	stage.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	add_child(stage)
-	body_font = SystemFont.new()
-	body_font.font_names = PackedStringArray(["Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif"])
-	heading_font = SystemFont.new()
-	heading_font.font_names = PackedStringArray(["Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif"])
-	palette_material = ShaderMaterial.new()
-	palette_material.shader = PALETTE_SHADER
-	resized.connect(_fit_layout)
-	_fit_layout()
-
-	# Fill transparent pixels around the desk with matching walnut instead
-	# of exposing the engine's gray clear color.
-	var backing := ColorRect.new()
-	backing.color = Color("#443e3a")
-	backing.position = Vector2.ZERO
-	backing.size = Vector2(1600, 900)
-	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stage.add_child(backing)
-	# The desk is a legitimate BookUI illustration, not a generated backdrop.
-	# The desk is nine-sliced, not cropped or distorted: corners and screws
-	# keep their original proportions; only the plain wood planks expand.
-	var desk := NinePatchRect.new()
-	desk.texture = DESK
-	desk.position = Vector2.ZERO
-	desk.size = Vector2(1600, 900)
-	desk.patch_margin_left = 110
-	desk.patch_margin_right = 110
-	desk.patch_margin_top = 96
-	desk.patch_margin_bottom = 96
-	desk.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	desk.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stage.add_child(desk)
-	# Cropping transparent margins keeps the book itself large and crisp.
-	book_art = _book_image(stage, OPEN_BOOK, 144, 30, 1326, 870)
-	# Crop the seven sheets identically once; switching never shifts or
-	# repaints the underlying parchment and decorative border.
+	stage = get_node("GuildmastersLogbook") as Control
+	book_art = stage.get_node("Book") as TextureRect
+	title_label = stage.get_node("Title") as Label
+	subheading = stage.get_node("Subtitle") as Label
+	right_heading = stage.get_node("RightHeading") as Label
+	money_label = stage.get_node("Gold") as Label
+	worth_label = stage.get_node("Worth") as Label
+	missions_label = stage.get_node("Jobs") as Label
+	notification = stage.get_node("Notice") as Label
+	left_leaf = stage.get_node("LeftLeaf") as Control
+	right_leaf = stage.get_node("RightLeaf") as Control
+	tab_host = stage.get_node("ChapterTabHost") as Control
+	flip_art = stage.get_node("PageFlip") as TextureRect
+	tab_overlay = stage.get_node("PinnedBookTabs") as TextureRect
+	tab_icons_layer = stage.get_node("ChapterIcons") as Control
+	palette_material = book_art.material as ShaderMaterial
+	body_font = subheading.get_theme_font("font") as SystemFont
+	heading_font = title_label.get_theme_font("font") as SystemFont
+	header_gold = money_label
+	header_wealth = worth_label
+	header_jobs = missions_label
+	notice = notification
+	tab_book_textures.clear()
+	tab_strip_textures.clear()
 	tab_book_textures.append(book_art.texture)
-	tab_strip_textures.append(_tab_strip_texture(OPEN_BOOK))
+	tab_strip_textures.append(tab_overlay.texture)
 	for sheet: Texture2D in SELECTED_TAB_BOOKS:
 		var cropped := AtlasTexture.new()
 		cropped.atlas = sheet
 		cropped.region = BOOK_REGION
 		tab_book_textures.append(cropped)
 		tab_strip_textures.append(_tab_strip_texture(sheet))
-	_text(stage, "MONEY MERCS   /   GUILDMASTER'S JOURNAL", 244, 100, 497, 24, 16, true, INK_SOFT)
-	title_label = _text(stage, "Company Records", 241, 141, 500, 42, 28, true)
-	subheading = _text(stage, "Every coin and every loss accounted for", 241, 179, 500, 24, 16, false, INK_SOFT)
-	_label_rule(stage, 241, 208, 498)
-	right_heading = _text(stage, "CURRENT ACCOUNTS", 891, 147, 465, 27, 19, true)
-	money_label = _text(stage, "", 894, 178, 201, 29, 17, true, BLUE)
-	worth_label = _text(stage, "", 1111, 178, 245, 29, 17, true, BLUE)
-	missions_label = _text(stage, "", 1095, 111, 260, 23, 14, false, INK_SOFT)
-	_label_rule(stage, 890, 208, 464)
-	left_leaf = _region(stage, 235, 212, 520, 520)
-	right_leaf = _region(stage, 886, 212, 486, 520)
-	
-	
-	notification = _text(stage, "", 295, 22, 1045, 29, 16, false, PALE)
-	notification.visible = false
-	# Inherited controller integration: keeps legacy actions and CI navigation.
-	header_gold = money_label
-	header_wealth = worth_label
-	header_jobs = missions_label
-	notice = notification
-	# Six physical side tabs with custom icons and invisible hitboxes.
-	# Invisible clickable shapes cover each tab and its extended arrow tip.
-	tab_host = _region(stage, 151, 182, 84, 515)
-	# Page turns use the pack's own animation frames when clicked.
-	flip_art = TextureRect.new()
-	flip_art.position = Vector2(144, 30)
-	flip_art.size = Vector2(1326, 870)
-	flip_art.stretch_mode = TextureRect.STRETCH_SCALE
-	flip_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	flip_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	flip_art.visible = false
-	flip_art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	flip_art.material = palette_material
-	stage.add_child(flip_art)
-	# A duplicate of *only* the tab strip is drawn above the page-turn sprite.
-	# The rest of the book remains underneath the page animation.
-	tab_overlay = TextureRect.new()
-	tab_overlay.name = "PinnedBookTabs"
-	tab_overlay.texture = tab_strip_textures[0]
-	tab_overlay.position = Vector2(144, 30)
-	tab_overlay.size = Vector2(1326.0 * TAB_STRIP_REGION.size.x / BOOK_REGION.size.x, 870)
-	tab_overlay.stretch_mode = TextureRect.STRETCH_SCALE
-	tab_overlay.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tab_overlay.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	tab_overlay.material = palette_material
-	tab_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	stage.add_child(tab_overlay)
-	# Keep icons above page-turn sprites, without covering tab hitboxes.
-	# This separate layer persists when _refresh() rebuilds the buttons.
-	tab_icons_layer = Control.new()
-	tab_icons_layer.name = "ChapterIcons"
-	tab_icons_layer.size = stage.size
-	tab_icons_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stage.add_child(tab_icons_layer)
-	for index in range(CHAPTER_TAB_ICONS.size()):
-		var icon := TextureRect.new()
-		icon.name = "TabIcon" + str(index)
-		icon.texture = CHAPTER_TAB_ICONS[index]
-		icon.position = TAB_ICON_FIRST_CENTER + Vector2(0, float(index) * TAB_ICON_STEP_Y) - TAB_ICON_DRAW_SIZE * 0.5
-		icon.size = TAB_ICON_DRAW_SIZE
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_SCALE
-		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		# Already in our gold, burgundy and parchment palette: no shader.
-		tab_icons_layer.add_child(icon)
+	_render_tabs()
+	resized.connect(_fit_layout)
+	_fit_layout()
 
 func _fit_layout() -> void:
 	if not is_instance_valid(stage):
@@ -234,7 +162,7 @@ func _region(parent: Node, x: float, y: float, w: float, h: float) -> Control:
 func _text(parent: Node, message: String, x: float, y: float, w: float, h: float,
 		size: int = 18, header: bool = false, color: Color = INK,
 		wrap_text: bool = false) -> Label:
-	var label := Label.new()
+	var label := JOURNAL_LABEL.instantiate() as Label
 	label.position = Vector2(x, y)
 	label.size = Vector2(w, h)
 	label.text = message
@@ -259,53 +187,31 @@ func _text(parent: Node, message: String, x: float, y: float, w: float, h: float
 	return label
 
 func _label_rule(parent: Node, x: float, y: float, w: float) -> void:
-	var line := ColorRect.new()
+	var line := JOURNAL_RULE.instantiate() as ColorRect
 	line.position = Vector2(x, y)
 	line.size = Vector2(w, 2)
-	line.color = Color("#997563", 0.45)
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(line)
 
 func _tint(parent: Node, x: float, y: float, w: float, h: float, color: Color = SHADE) -> void:
-	var surface := ColorRect.new()
+	var surface := JOURNAL_TINT.instantiate() as ColorRect
 	surface.position = Vector2(x, y)
 	surface.size = Vector2(w, h)
 	surface.color = color
 	surface.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(surface)
 
-func _button_style(texture: Texture2D) -> StyleBoxTexture:
-	var style := StyleBoxTexture.new()
-	style.texture = texture
-	style.texture_margin_left = 12
-	style.texture_margin_right = 12
-	style.texture_margin_top = 9
-	style.texture_margin_bottom = 9
-	style.content_margin_left = 8
-	style.content_margin_right = 8
-	style.content_margin_top = 4
-	style.content_margin_bottom = 4
-	return style
-
 func _book_button(parent: Node, value: String, x: float, y: float, w: float, h: float,
 		action: Callable, enabled: bool = true, secondary: bool = false) -> Button:
-	var btn := Button.new()
+	var btn := JOURNAL_BUTTON.instantiate() as Button
 	btn.text = value
 	btn.position = Vector2(x, y)
 	btn.size = Vector2(w, h)
 	btn.disabled = not enabled
 	btn.add_theme_font_override("font", body_font)
 	btn.add_theme_font_size_override("font_size", 16 if h >= 38 else 14)
-	btn.add_theme_color_override("font_color", PALE)
-	btn.add_theme_color_override("font_hover_color", Color.WHITE)
-	btn.add_theme_color_override("font_disabled_color", Color("#c3a9a0"))
 	btn.material = palette_material
 	btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	btn.add_theme_stylebox_override("normal", _button_style(BUTTON_NORMAL))
-	btn.add_theme_stylebox_override("hover", _button_style(BUTTON_HOVER))
-	btn.add_theme_stylebox_override("pressed", _button_style(BUTTON_HOVER))
-	btn.add_theme_stylebox_override("disabled", _button_style(BUTTON_NORMAL))
-	btn.add_theme_stylebox_override("focus", _button_style(BUTTON_HOVER))
 	if secondary:
 		btn.modulate = Color("#b2bec3")
 	btn.pressed.connect(action)
@@ -314,7 +220,7 @@ func _book_button(parent: Node, value: String, x: float, y: float, w: float, h: 
 
 func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: float,
 		action: Callable, active: bool = false) -> Button:
-	var btn := Button.new()
+	var btn := JOURNAL_TEXT_BUTTON.instantiate() as Button
 	btn.text = value
 	btn.position = Vector2(x, y)
 	btn.size = Vector2(w, h)
@@ -322,16 +228,6 @@ func _text_button(parent: Node, value: String, x: float, y: float, w: float, h: 
 	btn.add_theme_font_override("font", body_font)
 	btn.add_theme_font_size_override("font_size", 15)
 	btn.add_theme_color_override("font_color", BLUE if active else INK)
-	btn.add_theme_color_override("font_hover_color", BLUE_LIGHT)
-	btn.add_theme_color_override("font_pressed_color", BLUE)
-	btn.add_theme_color_override("font_disabled_color", Color("#866a5e"))
-	var transparent := StyleBoxFlat.new()
-	transparent.bg_color = Color.TRANSPARENT
-	var hover := StyleBoxFlat.new()
-	hover.bg_color = Color("#762c37", 0.13)
-	btn.add_theme_stylebox_override("normal", transparent)
-	btn.add_theme_stylebox_override("hover", hover)
-	btn.add_theme_stylebox_override("pressed", hover)
 	btn.pressed.connect(action)
 	parent.add_child(btn)
 	return btn
@@ -360,41 +256,16 @@ func _restore_tab_art() -> void:
 func _preview_tab(index: int) -> void:
 	_show_tab_art(index)
 
+# Connect the six real Button nodes supplied by journal_shell.tscn.
+# Their art, exact positions, hitboxes and focus styles are editor-owned.
 func _render_tabs() -> void:
-	# The six REAL pixel-art page tabs are the six navigation controls.
-	# No duplicate navigation bars or floating labels on the desk.
-	var entries: Array = [
-		["hq", "Company records", "Company overview, profit and losses"],
-		["harlow", "Contracts", "Scout Harlow Mines and fund field work"],
-		["roster", "Personnel", "Hire, equip and manage contractors"],
-		["market", "Exchange", "Buy and sell the guild's resources"],
-		["finance", "Finances", "Review cash and total company value"],
-		["ledger", "Chronicle", "Read expedition reports and casualties"]
-	]
-	for index in range(entries.size()):
-		var entry: Array = entries[index]
-		var target: String = str(entry[0])
-		# The six tabs in the sprite are spaced 48 source pixels apart, or ~90 stage pixels.
-		var y: float = float(index) * 90.0
-		var click := Button.new()
-		click.name = "ChapterTab" + str(index)
-		click.text = ""
-		click.tooltip_text = "%s\n%s" % [str(entry[1]), str(entry[2])]
-		click.position = Vector2(2, y)
-		click.size = Vector2(80, 60)
-		click.focus_mode = Control.FOCUS_ALL
-		click.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-		# Every button state is invisible. The sheet artwork IS the button state.
-		# A StyleBoxEmpty also prevents Godot from drawing its usual focus outline.
-		var invisible := StyleBoxEmpty.new()
-		for state in ["normal", "hover", "pressed", "focus", "disabled"]:
-			click.add_theme_stylebox_override(state, invisible)
+	for index in range(PHYSICAL_TAB_PAGES.size()):
+		var click := tab_host.get_node("ChapterTab" + str(index)) as Button
 		click.mouse_entered.connect(_preview_tab.bind(index))
 		click.mouse_exited.connect(_restore_tab_art)
 		click.focus_entered.connect(_preview_tab.bind(index))
 		click.focus_exited.connect(_restore_tab_art)
-		click.pressed.connect(_turn_to.bind(target))
-		tab_host.add_child(click)
+		click.pressed.connect(_turn_to.bind(str(PHYSICAL_TAB_PAGES[index])))
 
 func _turn_to(destination: String) -> void:
 	if page == destination:

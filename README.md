@@ -29,14 +29,22 @@ Navigation uses the pack's actual tab art and flip animations. Pixel art is near
 
 The prior `scripts/guildhall_ui.gd` and `scripts/ledger_ui.gd` remain as historical UI implementations. Neither is in the current game's inheritance chain. `scenes/main.tscn` loads `scripts/book_ui.gd`. The refactor preserves the existing game-state API and save-file format.
 
+## Editor-node UI migration
+
+The fixed Guildmaster's Journal is editable in `scenes/journal/journal_shell.tscn`, instanced by `scenes/main.tscn`. Its desk, book, title/status labels, six clickable tabs, icon positions, page-turn layer and content regions are saved Godot nodes—not built in GDScript. Open the journal scene directly to move those controls.
+
+Reusable UI elements are also editor scenes in `scenes/journal/widgets/`: label, divider, highlight, book button, text button, scroll list and record row. Dynamic content instantiates these scenes so their styles can be changed in the editor without adjusting code.
+
+**Migration status:** the fixed journal shell and shared widget types have moved into scenes. **Individual page composition and live data bindings still run in `scripts/book_ui.gd`.** They have deliberately not been moved in this stage because a full page rewrite would risk changing button behavior, scroll content and data flow without Godot runtime validation. Do not mistake this stage for the completed all-pages migration.
+
 ## Where to make changes (current architecture)
 
 The game intentionally uses a small number of focused scripts rather than a framework:
 
 | File | Responsibility |
 | --- | --- |
-| `scripts/book_ui.gd` | Content and interactions of the active journal pages |
-| `scripts/book_shell.gd` | Shared book artwork, tabs, navigation animation, visual widgets |
+| `scripts/book_ui.gd` | Dynamic content and interactions of the current journal pages |
+| `scripts/book_shell.gd` | Node lookups, tab callbacks, page flips and editor widget instancing; positions of fixed controls belong in `journal_shell.tscn` |
 | `scripts/game_actions.gd` | Buttons-to-gameplay actions, selection state and game clock |
 | `scripts/game_state.gd` | Harlow mine scouting, dispatch, rotation and resolution (public `MoneyMercsState`) |
 | `scripts/company_state_base.gd` | Company state, saves, employees, equipment, money, trading, other jobs |

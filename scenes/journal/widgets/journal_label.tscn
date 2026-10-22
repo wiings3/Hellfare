@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[node name="JournalLabel" type="Label"]
+vertical_alignment = 1
+clip_text = true
+texture_filter = 2
+mouse_filter = 2
