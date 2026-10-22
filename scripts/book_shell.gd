@@ -27,7 +27,9 @@ const CHAPTER_TAB_ICONS := [
 	preload("res://assets/ui/tab_icons/finances.png"),
 	preload("res://assets/ui/tab_icons/chronicle.png")
 ]
-const TAB_ICON_FIRST_CENTER := Vector2(184, 212)
+# Center on the rectangular body of each tab, NOT its extended arrow tip.
+# Measured against the BookUI sprite and the in-game tab screenshot.
+const TAB_ICON_FIRST_CENTER := Vector2(177, 214)
 const TAB_ICON_STEP_Y := 90.0
 const TAB_ICON_DRAW_SIZE := Vector2(40, 40)
 const BUTTON_NORMAL := preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Content/5 Buttons/5.png")
