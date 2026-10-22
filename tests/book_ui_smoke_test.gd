@@ -45,7 +45,9 @@ func _verify() -> void:
 		assert(icon.texture.resource_path.ends_with("/tab_icons/" + icon_names[i] + ".png"))
 		assert(icon.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST)
 		assert(icon.mouse_filter == Control.MOUSE_FILTER_IGNORE)
-		assert(icon.position == Vector2(164, 192 + 90 * i))
+		# Pixel icons sit in the fixed rectangular tab body; arrow tips
+		# extending during hover/selection must not shift their anchors.
+		assert(icon.position == Vector2(157, 194 + 90 * i))
 		assert(icon.size == Vector2(40, 40))
 	assert((view.book_art.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
 	assert((view.tab_overlay.texture as AtlasTexture).atlas.resource_path.contains("/Without icons/"))
