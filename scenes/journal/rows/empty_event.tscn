@@ -1,5 +1,8 @@
 [gd_scene load_steps=8 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
 [ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
@@ -8,39 +11,32 @@
 bg_color = Color(0.580392, 0.431373, 0.341176, 0.10)
 border_color = Color(0.443137, 0.352941, 0.286275, 0.21)
 border_width_bottom = 1
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-
-[sub_resource type="SystemFont" id="body"]
-font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
-[sub_resource type="SystemFont" id="heading"]
-font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+content_margin_left = 0
+content_margin_top = 0
+content_margin_right = 0
+content_margin_bottom = 0
 
 [sub_resource type="ShaderMaterial" id="burgundy"]
 shader = ExtResource("shader")
 
 [node name="EmptyEventRow" type="PanelContainer"]
-custom_minimum_size = Vector2(444, 57)
+custom_minimum_size = Vector2(1, 231)
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("record_style")
 
 [node name="Content" type="Control" parent="."]
-custom_minimum_size = Vector2(444, 57)
+custom_minimum_size = Vector2(1, 231)
 
 [node name="Note" type="Label" parent="Content"]
-offset_left = 8
-offset_top = 7
-offset_right = 435
-offset_bottom = 52
+offset_left = 4
+offset_top = 4
+offset_right = 226
+offset_bottom = 27
 text = ""
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 autowrap_mode = 3

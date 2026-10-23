@@ -1,237 +1,223 @@
 [gd_scene load_steps=8 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
 [ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
 
-[sub_resource type="SystemFont" id="body"]
-font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
-[sub_resource type="SystemFont" id="heading"]
-font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
 [sub_resource type="ShaderMaterial" id="burgundy"]
 shader = ExtResource("shader")
 
 [node name="ExchangeRight" type="Control"]
-offset_right = 486
-offset_bottom = 520
+offset_right = 253
+offset_bottom = 270
 mouse_filter = 1
 
 [node name="Heading" type="Label" parent="."]
-offset_left = 6
+offset_left = 3
 offset_top = 1
-offset_right = 470
-offset_bottom = 38
+offset_right = 244
+offset_bottom = 20
 text = "The Exchange Desk"
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("font_title")
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="HeadingNote" type="Label" parent="."]
-offset_left = 7
-offset_top = 38
-offset_right = 471
-offset_bottom = 62
+offset_left = 4
+offset_top = 20
+offset_right = 245
+offset_bottom = 32
 text = "All prices settled in gold."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 5
-offset_top = 68
-offset_right = 471
-offset_bottom = 70
+offset_left = 3
+offset_top = 35
+offset_right = 245
+offset_bottom = 36
 color = Color(0.600000, 0.458824, 0.388235, 0.450000)
 mouse_filter = 2
 
 [node name="ItemName" type="Label" parent="."]
-offset_left = 9
-offset_top = 91
-offset_right = 466
-offset_bottom = 134
+offset_left = 5
+offset_top = 47
+offset_right = 242
+offset_bottom = 70
 text = ""
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 24
+theme_override_fonts/font = ExtResource("font_title")
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="ItemDesc" type="Label" parent="."]
-offset_left = 10
-offset_top = 139
-offset_right = 467
-offset_bottom = 213
+offset_left = 5
+offset_top = 72
+offset_right = 243
+offset_bottom = 111
 text = ""
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 autowrap_mode = 3
 
 [node name="QuantityCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 228
-offset_right = 253
-offset_bottom = 254
+offset_left = 5
+offset_top = 119
+offset_right = 132
+offset_bottom = 132
 text = "Quantity owned"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="QuantityValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 228
-offset_right = 474
-offset_bottom = 257
+offset_left = 140
+offset_top = 119
+offset_right = 246
+offset_bottom = 134
 text = ""
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="QuantityRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 263
-offset_right = 472
-offset_bottom = 265
+offset_left = 4
+offset_top = 137
+offset_right = 245
+offset_bottom = 138
 color = Color(0.600000, 0.458824, 0.388235, 0.450000)
 mouse_filter = 2
 
 [node name="SellsForCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 279
-offset_right = 253
-offset_bottom = 305
+offset_left = 5
+offset_top = 145
+offset_right = 132
+offset_bottom = 159
 text = "Merchant sells for"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="SellsForValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 279
-offset_right = 474
-offset_bottom = 308
+offset_left = 140
+offset_top = 145
+offset_right = 246
+offset_bottom = 160
 text = ""
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="SellsForRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 314
-offset_right = 472
-offset_bottom = 316
+offset_left = 4
+offset_top = 163
+offset_right = 245
+offset_bottom = 164
 color = Color(0.600000, 0.458824, 0.388235, 0.450000)
 mouse_filter = 2
 
 [node name="BuysForCaption" type="Label" parent="."]
-offset_left = 9
-offset_top = 329
-offset_right = 253
-offset_bottom = 355
+offset_left = 5
+offset_top = 171
+offset_right = 132
+offset_bottom = 185
 text = "Merchant buys for"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="BuysForValue" type="Label" parent="."]
-offset_left = 270
-offset_top = 329
-offset_right = 474
-offset_bottom = 358
+offset_left = 140
+offset_top = 171
+offset_right = 246
+offset_bottom = 186
 text = ""
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 18
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="BuysForRule" type="ColorRect" parent="."]
-offset_left = 8
-offset_top = 364
-offset_right = 472
-offset_bottom = 366
+offset_left = 4
+offset_top = 189
+offset_right = 245
+offset_bottom = 190
 color = Color(0.600000, 0.458824, 0.388235, 0.450000)
 mouse_filter = 2
 
 [node name="BuyOne" parent="." instance=ExtResource("button")]
-offset_left = 10
-offset_top = 387
-offset_right = 212
-offset_bottom = 432
+offset_left = 5
+offset_top = 201
+offset_right = 110
+offset_bottom = 225
 text = "Buy One"
 material = SubResource("burgundy")
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 
 [node name="SellOne" parent="." instance=ExtResource("button")]
-offset_left = 224
-offset_top = 387
-offset_right = 424
-offset_bottom = 432
+offset_left = 116
+offset_top = 201
+offset_right = 220
+offset_bottom = 225
 text = "Sell One"
 material = SubResource("burgundy")
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 
 [node name="SellAll" parent="." instance=ExtResource("textbutton")]
-offset_left = 13
-offset_top = 446
-offset_right = 354
-offset_bottom = 482
-text = "Sell all in storage  →"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+offset_left = 7
+offset_top = 232
+offset_right = 184
+offset_bottom = 251
+text = "Sell all in storage  >"
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 
 [node name="MarketNote" type="Label" parent="."]
-offset_left = 12
-offset_top = 489
-offset_right = 474
-offset_bottom = 518
+offset_left = 6
+offset_top = 254
+offset_right = 246
+offset_bottom = 269
 text = "Markets between players are not implemented yet."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.482353, 0.380392, 0.321569, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2

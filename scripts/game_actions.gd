@@ -71,7 +71,11 @@ func _nav_to(destination: String) -> void:
 	_refresh()
 
 func _notify(message: String) -> void:
-	notice.text = "✦   " + message
+	notice.text = message
+
+## Called every second when nothing structural changed; pages update timers in place.
+func _live_tick() -> void:
+	pass
 
 func _action(result: String) -> void:
 	_refresh()
@@ -233,9 +237,10 @@ func _on_clock() -> void:
 	if returned > 0:
 		_refresh()
 		_notify("%d field team(s) returned. See The Chronicle for full findings." % returned)
-	elif changed and page == "harlow":
+	elif changed:
 		_refresh()
-	# Refresh time text periodically when on Harlow without disturbing selection.
-	elif (page == "harlow" or page == "hq") and (int(Time.get_unix_time_from_system()) % 5 == 0):
-		_refresh()
+	else:
+		# Only timers and progress bars move; update them without rebuilding the
+		# page so open menus, hover states and scroll positions are preserved.
+		_live_tick()
 

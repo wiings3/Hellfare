@@ -1,93 +1,86 @@
 [gd_scene load_steps=8 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
 [ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
 
-[sub_resource type="SystemFont" id="body"]
-font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
-[sub_resource type="SystemFont" id="heading"]
-font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
 [sub_resource type="ShaderMaterial" id="burgundy"]
 shader = ExtResource("shader")
 
 [node name="GuildWorkRight" type="Control"]
-offset_right = 486
-offset_bottom = 520
+offset_right = 253
+offset_bottom = 270
 mouse_filter = 1
 
 [node name="Heading" type="Label" parent="."]
-offset_left = 6
+offset_left = 3
 offset_top = 1
-offset_right = 470
-offset_bottom = 38
+offset_right = 244
+offset_bottom = 20
 text = "Assign a Safe Job"
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("font_title")
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="HeadingNote" type="Label" parent="."]
-offset_left = 7
-offset_top = 38
-offset_right = 471
-offset_bottom = 62
+offset_left = 4
+offset_top = 20
+offset_right = 245
+offset_bottom = 32
 text = "A small but guaranteed payment."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 5
-offset_top = 68
-offset_right = 471
-offset_bottom = 70
+offset_left = 3
+offset_top = 35
+offset_right = 245
+offset_bottom = 36
 color = Color(0.600000, 0.458824, 0.388235, 0.450000)
 mouse_filter = 2
 
 [node name="Workers" parent="." instance=ExtResource("scroll")]
-offset_left = 5
-offset_top = 88
-offset_right = 484
-offset_bottom = 398
+offset_left = 3
+offset_top = 46
+offset_right = 252
+offset_bottom = 207
 
 [node name="NoWorkers" type="Label" parent="."]
-offset_left = 10
-offset_top = 114
-offset_right = 460
-offset_bottom = 203
+offset_left = 5
+offset_top = 59
+offset_right = 239
+offset_bottom = 106
 text = "No available mercenaries. You can still complete office paperwork alone."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 autowrap_mode = 3
 visible = false
 
 [node name="Eligibility" type="Label" parent="."]
-offset_left = 10
-offset_top = 426
-offset_right = 468
-offset_bottom = 493
+offset_left = 5
+offset_top = 222
+offset_right = 243
+offset_bottom = 256
 text = "Eligibility: below 120 G cash and 250 G in net worth."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 autowrap_mode = 3

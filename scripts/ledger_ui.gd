@@ -684,7 +684,7 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 		total_deposits += int(deposits[id])
 	var available: Array[String] = _selected_available()
 	var can_dispatch: bool = available.size() >= 1 and available.size() <= 3 and int(stats["miners"]) >= 1 and game.gold >= int(stats["wage"]) and total_deposits > 0 and game.missions.size() < game.expedition_slots
-	var go := _button("SIGN & FUND EXPEDITION   →", _dispatch_harlow, true)
+	var go := _button("SIGN & FUND EXPEDITION   >", _dispatch_harlow, true)
 	go.custom_minimum_size.y = 54
 	go.disabled = not can_dispatch
 	sidebar.add_child(go)
@@ -695,7 +695,7 @@ func _build_dispatch(parent: Node, has_report: bool) -> void:
 	if int(stats["guards"]) == 0 and not _selected_available().is_empty():
 		sidebar.add_child(_lab("NO GUARD / Your workers are especially vulnerable.", 12, Color("#a44039"), true))
 	if game.crew.size() <= 1 or game.gold < int(stats["wage"]):
-		sidebar.add_child(_button("NEED CAPITAL? GUILD WORK ORDERS  →", _nav_to.bind("hq"), false, true, true))
+		sidebar.add_child(_button("NEED CAPITAL? GUILD WORK ORDERS  >", _nav_to.bind("hq"), false, true, true))
 
 func _mini_stat(parent: Node, name: String, value: String, color: Color) -> void:
 	var card := _v(3)
@@ -797,11 +797,11 @@ func _draw_office() -> void:
 	var left := _panel(actions, true, 20)
 	left.add_child(_lab("HARLOW MINES", 25, C_INK))
 	left.add_child(_lab("A changing claim with ore deposits and dangerous residents. Scout it, equip a crew, and risk the expedition.", 14, C_PAPER_DIM, true))
-	left.add_child(_button("OPEN THE HARLOW DOSSIER  →", _nav_to.bind("harlow"), true))
+	left.add_child(_button("OPEN THE HARLOW DOSSIER  >", _nav_to.bind("harlow"), true))
 	var right := _panel(actions, false, 20)
 	right.add_child(_lab("CONTRACTOR RECRUITMENT", 25, C_IVORY))
 	right.add_child(_lab("A miner earns your gold. A guard keeps your miner alive. Neither is cheap to replace.", 14, C_DIM, true))
-	right.add_child(_button("RECRUIT A MERCENARY  →", _open_recruitment, true))
+	right.add_child(_button("RECRUIT A MERCENARY  >", _open_recruitment, true))
 	_section(body, "IV", "RECENT FIELD REPORTS")
 	if game.reports.is_empty():
 		var blank := _panel(body)
@@ -971,7 +971,7 @@ func _draw_armory(body: VBoxContainer) -> void:
 		expand.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(expand)
 		row.add_child(_chip(str(definition.get("slot", "tool"))))
-		var assign := _button("EQUIP  →", _equip.bind(selected_merc, uid), true, true)
+		var assign := _button("EQUIP  >", _equip.bind(selected_merc, uid), true, true)
 		assign.disabled = picked.is_empty() or not game.is_available(picked) or not MercsV05.validate_role(key, picked)
 		row.add_child(assign)
 		row.add_child(_button("SELL", _sell_equipment.bind(uid), false, true))
@@ -1081,7 +1081,7 @@ func _draw_contracts() -> void:
 		for merc in game.crew:
 			if game.is_available(merc) and chosen.size() < 2:
 				chosen.append(str(merc["id"]))
-		var send := _button("SEND AVAILABLE CREW  →", _old_dispatch.bind(str(region["id"])), true)
+		var send := _button("SEND AVAILABLE CREW  >", _old_dispatch.bind(str(region["id"])), true)
 		send.disabled = chosen.is_empty() or game.reputation < int(region["rep"]) or game.missions.size() >= game.expedition_slots
 		p.add_child(send)
 	_gap(body, 12)

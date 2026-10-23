@@ -1,13 +1,16 @@
 [gd_scene load_steps=2 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [sub_resource type="StyleBoxFlat" id="record_style"]
 bg_color = Color(0.580392, 0.431373, 0.341176, 0.10)
 border_color = Color(0.443137, 0.352941, 0.286275, 0.21)
 border_width_bottom = 1
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
+content_margin_left = 0
+content_margin_top = 0
+content_margin_right = 0
+content_margin_bottom = 0
 
 [node name="JournalRecord" type="PanelContainer"]
 size_flags_horizontal = 3

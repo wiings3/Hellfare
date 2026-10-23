@@ -1,89 +1,83 @@
 [gd_scene load_steps=8 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
 [ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
 
-[sub_resource type="SystemFont" id="body"]
-font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
-[sub_resource type="SystemFont" id="heading"]
-font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
 [sub_resource type="ShaderMaterial" id="burgundy"]
 shader = ExtResource("shader")
 
 [node name="ChronicleLeft" type="Control"]
-offset_right = 520
-offset_bottom = 520
+offset_right = 270
+offset_bottom = 270
 mouse_filter = 1
 
 [node name="Heading" type="Label" parent="."]
-offset_left = 6
+offset_left = 3
 offset_top = 1
-offset_right = 470
-offset_bottom = 38
+offset_right = 244
+offset_bottom = 20
 text = "After-action Reports"
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 22
+theme_override_fonts/font = ExtResource("font_title")
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="HeadingNote" type="Label" parent="."]
-offset_left = 7
-offset_top = 38
-offset_right = 471
-offset_bottom = 62
+offset_left = 4
+offset_top = 20
+offset_right = 245
+offset_bottom = 32
 text = "Good fortune and costly lessons alike."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 5
-offset_top = 68
-offset_right = 471
-offset_bottom = 70
+offset_left = 3
+offset_top = 35
+offset_right = 245
+offset_bottom = 36
 color = Color(0.600000, 0.458824, 0.388235, 0.450000)
 mouse_filter = 2
 
 [node name="Reports" parent="." instance=ExtResource("scroll")]
-offset_left = 5
-offset_top = 83
-offset_right = 496
-offset_bottom = 503
+offset_left = 3
+offset_top = 43
+offset_right = 258
+offset_bottom = 262
 
 [node name="NoReports" type="Label" parent="."]
-offset_left = 11
-offset_top = 110
-offset_right = 464
-offset_bottom = 169
+offset_left = 6
+offset_top = 57
+offset_right = 241
+offset_bottom = 88
 text = "No field reports have been filed yet."
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 autowrap_mode = 3
 visible = false
 
 [node name="InspectContracts" parent="." instance=ExtResource("button")]
-offset_left = 10
-offset_top = 192
-offset_right = 293
-offset_bottom = 236
+offset_left = 5
+offset_top = 100
+offset_right = 152
+offset_bottom = 123
 text = "Inspect Contracts"
 material = SubResource("burgundy")
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 16
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 visible = false

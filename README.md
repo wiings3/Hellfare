@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.8 — Guildmaster's Logbook (BookUI)**
+**Version 0.9 — Guildmaster's Logbook (BookUI redesign in progress)**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,17 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## V0.9 — Logbook UI redesign (in progress)
+
+The interface now renders as crisp pixel art at a **960x540 base resolution** (exactly 2x at 1080p). The book is drawn at one art pixel per stage unit, and all text uses two bundled pixel fonts (SIL Open Font License, in `assets/fonts/`): **Jacquard 12** for titles and **Jersey 10** for everything else. Nothing depends on the player's installed fonts any more.
+
+- **Theme:** `assets/ui/theme/money_mercs.tres` is the project theme. Buttons (with real hover, pressed and disabled states), panels, slots, bars and label styles are theme type variations such as `PaperButton`, `ToggleButton`, `CardButton`, `SlotPanel`, `InsetPanel`, `LabelCaption`, `LabelBig` and `LabelTitle`. Pick them from the *Theme Type Variation* field in the inspector.
+- **Art:** `assets/ui/book/` holds the BookUI sheets pre-recoloured to oxblood (the old runtime shader darkened the parchment). `assets/ui/kit/` holds the nine-patch frames, slots, bars and pips; `assets/ui/icons/` the item and role icons; `assets/ui/portraits/` placeholder busts. `tools/make_kit.py` and `tools/recolor.py` regenerate them.
+- **Widgets** (`scenes/journal/widgets/`): `section_header`, `stat_tile`, `item_slot`, `info_box`, `pip_row`, with inspector properties (`text`, `caption`, `value`, `icon`, `count`…) so they can be edited in the editor.
+- **Redesigned chapters:** Company (worth breakdown, crew/reputation/debt/equipment, warehouse slots, a guildmaster's note with the next step, teams in the field with live timers, latest report with loot and casualties) and Harlow Mines (site art and survey state, ore and threat intel, scout card with progress and training, crew slots, roster cards, standing-order toggles, forecast and a fund button that explains why it is unavailable).
+- Timers and progress bars update in place every second instead of rebuilding the page, so menus and hover states are not interrupted.
+- The remaining chapters were converted to the new scale and fonts and are next in line for the same redesign.
 
 ## V0.8 — The Guildmaster's Logbook (BookUI)
 

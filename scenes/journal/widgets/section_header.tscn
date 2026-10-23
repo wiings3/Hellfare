@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/section_header.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/kit/dot.png" id="2_dot"]
+
+[node name="SectionHeader" type="HBoxContainer"]
+theme_override_constants/separation = 4
+script = ExtResource("1_script")
+
+[node name="LineLeft" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.690196, 0.552941, 0.458824, 1)
+
+[node name="DotLeft" type="TextureRect" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("2_dot")
+stretch_mode = 3
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Section"
+horizontal_alignment = 1
+
+[node name="DotRight" type="TextureRect" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("2_dot")
+stretch_mode = 3
+
+[node name="LineRight" type="ColorRect" parent="."]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+color = Color(0.690196, 0.552941, 0.458824, 1)

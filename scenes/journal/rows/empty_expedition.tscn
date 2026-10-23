@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/kit/sign_plus.png" id="1_plus"]
+
+[node name="EmptyExpedition" type="PanelContainer"]
+theme_type_variation = &"EmptySlot"
+
+[node name="Row" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Sign" type="TextureRect" parent="Row"]
+modulate = Color(1, 1, 1, 0.6)
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("1_plus")
+stretch_mode = 3
+
+[node name="Text" type="VBoxContainer" parent="Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -3
+
+[node name="Title" type="Label" parent="Row/Text"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Open expedition slot"
+
+[node name="Hint" type="Label" parent="Row/Text"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "No team is out right now."
+
+[node name="Plan" type="Button" parent="Row"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Plan"

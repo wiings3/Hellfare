@@ -1,5 +1,8 @@
 [gd_scene load_steps=8 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
 [ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
@@ -8,72 +11,64 @@
 bg_color = Color(0.580392, 0.431373, 0.341176, 0.10)
 border_color = Color(0.443137, 0.352941, 0.286275, 0.21)
 border_width_bottom = 1
-content_margin_left = 0.0
-content_margin_top = 0.0
-content_margin_right = 0.0
-content_margin_bottom = 0.0
-
-[sub_resource type="SystemFont" id="body"]
-font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
-[sub_resource type="SystemFont" id="heading"]
-font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
+content_margin_left = 0
+content_margin_top = 0
+content_margin_right = 0
+content_margin_bottom = 0
 
 [sub_resource type="ShaderMaterial" id="burgundy"]
 shader = ExtResource("shader")
 
 [node name="StashRow" type="PanelContainer"]
-custom_minimum_size = Vector2(462, 59)
+custom_minimum_size = Vector2(1, 240)
 size_flags_horizontal = 3
 theme_override_styles/panel = SubResource("record_style")
 
 [node name="Content" type="Control" parent="."]
-custom_minimum_size = Vector2(462, 59)
+custom_minimum_size = Vector2(1, 240)
 
 [node name="Name" type="Label" parent="Content"]
-offset_left = 9
-offset_top = 4
-offset_right = 253
-offset_bottom = 32
+offset_left = 5
+offset_top = 2
+offset_right = 132
+offset_bottom = 17
 text = ""
-theme_override_fonts/font = SubResource("heading")
-theme_override_font_sizes/font_size = 17
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="Details" type="Label" parent="Content"]
-offset_left = 9
-offset_top = 28
-offset_right = 286
-offset_bottom = 50
+offset_left = 5
+offset_top = 15
+offset_right = 149
+offset_bottom = 26
 text = ""
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 14
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
 vertical_alignment = 1
 clip_text = true
 mouse_filter = 2
-texture_filter = 2
 
 [node name="Equip" parent="Content" instance=ExtResource("textbutton")]
-offset_left = 278
-offset_top = 8
-offset_right = 367
-offset_bottom = 48
+offset_left = 145
+offset_top = 4
+offset_right = 191
+offset_bottom = 25
 text = ""
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
 
 [node name="Sell" parent="Content" instance=ExtResource("textbutton")]
-offset_left = 375
-offset_top = 8
-offset_right = 458
-offset_bottom = 48
+offset_left = 195
+offset_top = 4
+offset_right = 238
+offset_bottom = 25
 text = ""
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)

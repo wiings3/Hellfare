@@ -1,0 +1,45 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/kit/sign_plus.png" id="1_plus"]
+
+[node name="CrewSlot" type="Button"]
+custom_minimum_size = Vector2(83, 70)
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_type_variation = &"SlotButton"
+
+[node name="Body" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = -3.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = -2
+alignment = 1
+
+[node name="Bust" type="TextureRect" parent="Body"]
+custom_minimum_size = Vector2(49, 40)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+texture = ExtResource("1_plus")
+stretch_mode = 3
+
+[node name="Name" type="Label" parent="Body"]
+layout_mode = 2
+text = "Empty"
+horizontal_alignment = 1
+text_overrun_behavior = 3
+
+[node name="Role" type="Label" parent="Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Add crew"
+horizontal_alignment = 1
+text_overrun_behavior = 3

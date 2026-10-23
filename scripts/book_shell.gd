@@ -1,35 +1,29 @@
 extends "res://scripts/game_actions.gd"
-## Active Guildmaster journal: book shell, art, shared drawing primitives and tabs.
-## Rebuild around the licensed BookUI sprites already supplied in assets/BookUI.
-## No flattened interface image: each page remains live and interactive.
+## Active Guildmaster journal: book shell, tabs, page turns and the desk header.
+## Layout lives in scenes/journal/journal_shell.tscn (960x540 stage, book at 1:1 art pixels).
+## The BookUI sheets are pre-recoloured to oxblood in assets/ui/book/ (see tools/make_kit.py),
+## so no runtime palette shader is needed and the parchment keeps its true colour.
 
-
-const SOURCE := "res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/"
-# The pack supplies one open-book image per physical tab, with that tab
-# extended as an arrow. These are the actual selected/hover art states.
-const SELECTED_TAB_BOOKS := [
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/2.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/3.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/4.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/5.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/6.png"),
-	preload("res://assets/BookUI/Pocket Inventory Series #7 Gems of Status v1.1/Sprites/Inventory Book/Side Tabs/Tabs/Without icons/7.png")
-]
+const TAB_SHEETS := "res://assets/ui/book/tabs/"
+const FLIP_FRAMES := "res://assets/ui/book/flip/"
+const FLIP_FRAME_COUNT := 9
 const PHYSICAL_TAB_PAGES := ["hq", "harlow", "roster", "market", "finance", "ledger"]
-# Tab icons and positions are editor-owned in journal_shell.tscn.
-const BOOK_REGION := Rect2(80, 200, 710, 465)
-# The flip animation is a full-book sprite WITHOUT tabs. Repaint this narrow
-# tab-and-edge strip above it so tabs never duck behind the turning parchment.
-# 51 source pixels cover both the resting tabs and their extended arrow tips.
-const TAB_STRIP_REGION := Rect2(80, 200, 51, 465)
-const INK := Color("#45362d")
-const INK_SOFT := Color("#624d43")
-const INK_LIGHT := Color("#7b6152")
-const BLUE := Color("#762c37")
-const BLUE_LIGHT := Color("#984251")
-const OXBLOOD := Color("#8d3339")
-const PALE := Color("#efe2cf")
-const SHADE := Color("#805349", 0.13)
+# The tab strip region of a book sheet, repainted above page-turn frames so the
+# chapter tabs never duck behind the turning parchment.
+const TAB_STRIP_REGION := Rect2(84, 276, 44, 286)
+const STAGE_SIZE := Vector2(960, 540)
+
+# Ink palette shared by page scripts (matches assets/ui/theme/money_mercs.tres).
+const INK := Color("#3d2824")
+const INK_SOFT := Color("#7a584a")
+const INK_FAINT := Color("#b08d75")
+const OXBLOOD := Color("#802c38")
+const GOOD := Color("#4a6a37")
+const PAPER_LIGHT := Color("#eedcc7")
+# Legacy names kept for older page code.
+const BLUE := OXBLOOD
+const BLUE_LIGHT := Color("#b04a52")
+const PALE := PAPER_LIGHT
 
 var stage: Control
 var left_leaf: Control
@@ -40,76 +34,71 @@ var tab_overlay: TextureRect
 var tab_icons_layer: Control
 var tab_book_textures: Array[Texture2D] = []
 var tab_strip_textures: Array[Texture2D] = []
+var flip_textures: Dictionary = {}
 var title_label: Label
-var subheading: Label
-var right_heading: Label
 var money_label: Label
 var worth_label: Label
 var missions_label: Label
-var notification: Label
-var body_font: SystemFont
-var heading_font: SystemFont
+var toast: PanelContainer
+var toast_label: Label
 var current_flip: int = 0
 var clear_notice_at: int = 0
 var selected_market_item: String = "copper"
 var selected_report_index: int = 0
-var view_count: int = 0
 var tab_host: Control
-var palette_material: ShaderMaterial
 
-# The entire fixed journal layout now lives in an editable PackedScene:
-# res://scenes/journal/journal_shell.tscn. The script only binds live data
-# and wires actions to the pre-existing editor nodes.
 func _build_shell() -> void:
 	stage = get_node("GuildmastersLogbook") as Control
 	book_art = stage.get_node("Book") as TextureRect
-	title_label = stage.get_node("Title") as Label
-	subheading = stage.get_node("Subtitle") as Label
-	right_heading = stage.get_node("RightHeading") as Label
-	money_label = stage.get_node("Gold") as Label
-	worth_label = stage.get_node("Worth") as Label
-	missions_label = stage.get_node("Jobs") as Label
-	notification = stage.get_node("Notice") as Label
+	title_label = stage.get_node("Header/Title") as Label
+	money_label = stage.get_node("Header/Purse/Row/Text/Gold") as Label
+	worth_label = stage.get_node("Header/Purse/Row/Text/Worth") as Label
+	missions_label = stage.get_node("Header/Field/Row/Text/Jobs") as Label
+	toast = stage.get_node("Toast") as PanelContainer
+	toast_label = stage.get_node("Toast/Message") as Label
 	left_leaf = stage.get_node("LeftLeaf") as Control
 	right_leaf = stage.get_node("RightLeaf") as Control
 	tab_host = stage.get_node("ChapterTabHost") as Control
 	flip_art = stage.get_node("PageFlip") as TextureRect
 	tab_overlay = stage.get_node("PinnedBookTabs") as TextureRect
 	tab_icons_layer = stage.get_node("ChapterIcons") as Control
-	palette_material = book_art.material as ShaderMaterial
-	body_font = subheading.get_theme_font("font") as SystemFont
-	heading_font = title_label.get_theme_font("font") as SystemFont
 	header_gold = money_label
 	header_wealth = worth_label
 	header_jobs = missions_label
-	notice = notification
+	notice = toast_label
 	tab_book_textures.clear()
 	tab_strip_textures.clear()
-	tab_book_textures.append(book_art.texture)
-	tab_strip_textures.append(tab_overlay.texture)
-	for sheet: Texture2D in SELECTED_TAB_BOOKS:
-		var cropped := AtlasTexture.new()
-		cropped.atlas = sheet
-		cropped.region = BOOK_REGION
-		tab_book_textures.append(cropped)
-		tab_strip_textures.append(_tab_strip_texture(sheet))
+	# Sheet 1 has no extended tab; sheets 2..7 extend tab 0..5.
+	for i in range(1, 8):
+		var sheet: Texture2D = load(TAB_SHEETS + str(i) + ".png")
+		tab_book_textures.append(sheet)
+		var strip := AtlasTexture.new()
+		strip.atlas = sheet
+		strip.region = TAB_STRIP_REGION
+		tab_strip_textures.append(strip)
+	for direction in ["page_flip_left", "page_flip_right"]:
+		var frames: Array[Texture2D] = []
+		for i in range(1, FLIP_FRAME_COUNT + 1):
+			var tex: Texture2D = load(FLIP_FRAMES + direction + "/" + str(i) + ".png")
+			if tex != null:
+				frames.append(tex)
+		flip_textures[direction] = frames
 	_render_tabs()
 	resized.connect(_fit_layout)
 	_fit_layout()
 
+## Centre the 960x540 stage. With the project's 960x540 base resolution and
+## "expand" aspect, the stage is always drawn at 1:1 stage units; wider or taller
+## windows only reveal more desk around it.
 func _fit_layout() -> void:
 	if not is_instance_valid(stage):
 		return
 	var viewport: Vector2 = get_viewport_rect().size
-	var factor: float = minf(viewport.x / 1600.0, viewport.y / 900.0)
+	var factor: float = minf(viewport.x / STAGE_SIZE.x, viewport.y / STAGE_SIZE.y)
+	if factor >= 1.0:
+		factor = floorf(factor)
 	stage.scale = Vector2(factor, factor)
-	stage.position = (viewport - Vector2(1600, 900) * factor) * 0.5
-
-func _tab_strip_texture(full: Texture2D) -> AtlasTexture:
-	var crop := AtlasTexture.new()
-	crop.atlas = full
-	crop.region = TAB_STRIP_REGION
-	return crop
+	stage.position = ((viewport - STAGE_SIZE * factor) * 0.5).floor()
 
 func _show_tab_art(index: int) -> void:
 	if not is_instance_valid(book_art) or tab_book_textures.is_empty():
@@ -122,7 +111,7 @@ func _show_tab_art(index: int) -> void:
 		tab_overlay.texture = tab_strip_textures[frame]
 
 func _active_tab_index() -> int:
-	# These secondary pages belong to the Contracts chapter.
+	# These secondary pages belong to the Expeditions chapter.
 	if page == "expeditions" or page == "guildwork":
 		return 1
 	return PHYSICAL_TAB_PAGES.find(page)
@@ -133,8 +122,6 @@ func _restore_tab_art() -> void:
 func _preview_tab(index: int) -> void:
 	_show_tab_art(index)
 
-# Connect the six real Button nodes supplied by journal_shell.tscn.
-# Their art, exact positions, hitboxes and focus styles are editor-owned.
 func _render_tabs() -> void:
 	for index in range(PHYSICAL_TAB_PAGES.size()):
 		var click := tab_host.get_node("ChapterTab" + str(index)) as Button
@@ -149,7 +136,7 @@ func _turn_to(destination: String) -> void:
 		return
 	var old: String = page
 	_nav_to(destination)
-	var direction: String = "Page Flip Right" if _tab_index(destination) >= _tab_index(old) else "Page Flip Left"
+	var direction: String = "page_flip_right" if _tab_index(destination) >= _tab_index(old) else "page_flip_left"
 	_start_page_flip(direction)
 
 func _tab_index(destination: String) -> int:
@@ -158,25 +145,17 @@ func _tab_index(destination: String) -> int:
 
 func _start_page_flip(direction: String) -> void:
 	current_flip += 1
-	var generation: int = current_flip
-	var frames: Array[Texture2D] = []
-	for i in range(1, 9):
-		var tex: Texture2D = load(SOURCE + "Inventory Book/Page Flip/Style 1/" + direction + "/" + str(i) + ".png")
-		if tex != null:
-			frames.append(tex)
+	var frames: Array = flip_textures.get(direction, [])
 	if frames.is_empty():
 		return
-	_animate_turn(generation, frames)
+	_animate_turn(current_flip, frames)
 
-func _animate_turn(generation: int, frames: Array[Texture2D]) -> void:
+func _animate_turn(generation: int, frames: Array) -> void:
 	for picture in frames:
 		if generation != current_flip or not is_instance_valid(flip_art):
 			return
-		var crop := AtlasTexture.new()
-		crop.atlas = picture
-		crop.region = BOOK_REGION
-		flip_art.texture = crop
+		flip_art.texture = picture
 		flip_art.visible = true
-		await get_tree().create_timer(0.037).timeout
+		await get_tree().create_timer(0.035).timeout
 	if generation == current_flip:
 		flip_art.visible = false

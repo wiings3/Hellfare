@@ -1,7 +1,9 @@
 [gd_scene format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [node name="JournalLabel" type="Label"]
 vertical_alignment = 1
 clip_text = true
-texture_filter = 2
 mouse_filter = 2

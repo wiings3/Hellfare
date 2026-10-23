@@ -1,58 +1,55 @@
 [gd_scene load_steps=8 format=3]
 
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]
+
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
 [ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
 
-[sub_resource type="SystemFont" id="body"]
-font_names = PackedStringArray("Palatino Linotype", "Book Antiqua", "Constantia", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
-[sub_resource type="SystemFont" id="heading"]
-font_names = PackedStringArray("Goudy Old Style", "Palatino Linotype", "Book Antiqua", "EB Garamond", "Georgia", "Noto Serif", "DejaVu Serif")
-
 [sub_resource type="ShaderMaterial" id="burgundy"]
 shader = ExtResource("shader")
 
 [node name="PersonnelTabs" type="Control"]
-offset_right = 520
-offset_bottom = 520
+offset_right = 270
+offset_bottom = 270
 mouse_filter = 2
 
 [node name="EmployeesTab" parent="." instance=ExtResource("textbutton")]
-offset_left = 2
+offset_left = 1
 offset_top = 0
-offset_right = 162
-offset_bottom = 38
+offset_right = 84
+offset_bottom = 20
 text = "EMPLOYEES"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
 
 [node name="RecruitmentTab" parent="." instance=ExtResource("textbutton")]
-offset_left = 171
+offset_left = 89
 offset_top = 0
-offset_right = 331
-offset_bottom = 38
+offset_right = 172
+offset_bottom = 20
 text = "RECRUITMENT"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
 
 [node name="ArmoryTab" parent="." instance=ExtResource("textbutton")]
-offset_left = 340
+offset_left = 177
 offset_top = 0
-offset_right = 500
-offset_bottom = 38
+offset_right = 260
+offset_bottom = 20
 text = "ARMORY"
-theme_override_fonts/font = SubResource("body")
-theme_override_font_sizes/font_size = 15
+theme_override_fonts/font = ExtResource("font_body")
+theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
 
 [node name="TabRule" type="ColorRect" parent="."]
-offset_left = 5
-offset_top = 44
-offset_right = 469
-offset_bottom = 46
+offset_left = 3
+offset_top = 23
+offset_right = 244
+offset_bottom = 24
 color = Color(0.6, 0.458824, 0.388235, 0.45)
 mouse_filter = 2
