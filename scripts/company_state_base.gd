@@ -593,6 +593,80 @@ func hall_tick(now: int = -1) -> Array:
 		save_game()
 	return events
 
+## Open a whisper about a chat post. Returns the negotiation, or null.
+func hall_whisper(message_id: int, now: int = -1) -> Haggle:
+	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	return hall.open_whisper(message_id, t)
+
+## The most the company could trade in an open whisper right now.
+func hall_whisper_limit(h: Haggle) -> int:
+	if h == null:
+		return 0
+	if h.they_sell:
+		return h.qty_max
+	if h.listing_id >= 0:
+		return mini(h.qty_max, int(hall.listing_by_id(h.listing_id).get("left", 0)))
+	return mini(h.qty_max, int(resources.get(h.good, 0)))
+
+## Offer `total` gold for `quantity` (or take their current price when `take_theirs`).
+## Returns {"ok", "result", "total", "line", "message"}; an accepted deal settles at once.
+func hall_negotiate(trader: String, quantity: int, total: int, take_theirs: bool = false, now: int = -1) -> Dictionary:
+	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	var h: Haggle = hall.whisper_with(trader)
+	if h == null or not h.is_open():
+		return {"ok": false, "message": "That conversation is over."}
+	var limit: int = hall_whisper_limit(h)
+	if quantity <= 0 or quantity > limit:
+		return {"ok": false, "message": "You can trade up to %d." % limit if limit > 0 else "You have nothing to trade with them."}
+	var price: int = h.quote(quantity) if take_theirs else total
+	if price <= 0:
+		return {"ok": false, "message": "Name a price."}
+	if h.they_sell and gold < price:
+		return {"ok": false, "message": "You need %d gold for that." % price}
+	var said: String = ("I'll take %d for %dg." % [quantity, price]) if take_theirs else ("%d for %dg?" % [quantity, price])
+	hall.whisper_line(h, true, said, t, quantity, price)
+	var reply: Dictionary = h.take(quantity) if take_theirs else h.offer(quantity, price)
+	hall.whisper_line(h, false, str(reply["line"]), t, quantity, int(reply["total"]))
+	reply["ok"] = true
+	reply["message"] = ""
+	if str(reply["result"]) == "accept":
+		reply["message"] = _hall_settle(h, quantity, int(reply["total"]), t)
+	return reply
+
+func hall_walk_away(trader: String, now: int = -1) -> void:
+	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	var h: Haggle = hall.whisper_with(trader)
+	if h != null and h.is_open():
+		hall.whisper_line(h, true, "Never mind, thanks.", t)
+		h.walk_away()
+
+func _hall_settle(h: Haggle, quantity: int, gross: int, t: int) -> String:
+	var unit_price: int = int(round(float(gross) / float(quantity)))
+	var name: String = str(RESOURCE_NAMES[h.good])
+	if h.they_sell:
+		gold -= gross
+		resources[h.good] = int(resources.get(h.good, 0)) + quantity
+		market.record_npc_trade(h.good, -quantity, t)
+		hall.take_from_post(h.post_id, quantity)
+		hall._post({"t": t, "from": h.trader, "kind": h.kind, "side": "deal_buy", "good": h.good, "qty": quantity, "price": unit_price, "total": gross, "left": 0})
+		save_game()
+		return "Bought %d %s from %s for %d gold." % [quantity, name, h.trader, gross]
+	var tax: int = maxi(1, int(round(float(gross) * TradeHall.TAX)))
+	if h.listing_id >= 0:
+		var listing: Dictionary = hall.listing_by_id(h.listing_id)
+		listing["left"] = int(listing["left"]) - quantity
+		if int(listing["left"]) <= 0:
+			hall.remove_listing(h.listing_id)
+	else:
+		resources[h.good] = int(resources.get(h.good, 0)) - quantity
+		hall.take_from_post(h.post_id, quantity)
+	gold += gross - tax
+	market.record_npc_trade(h.good, quantity, t)
+	_apply_relief_payment()
+	hall._post({"t": t, "from": h.trader, "kind": h.kind, "side": "deal_sell", "good": h.good, "qty": quantity, "price": unit_price, "total": gross, "left": 0})
+	save_game()
+	return "Sold %d %s to %s for %d gold (%d tax)." % [quantity, name, h.trader, gross - tax, tax]
+
 func item_definition(key: String) -> Dictionary:
 	return V05.ITEMS.get(key, {})
 

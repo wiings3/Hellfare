@@ -1,0 +1,281 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/pip_row.tscn" id="2_pip_row"]
+
+[node name="HallWhisper" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Whisper"
+
+[node name="Who" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Id" type="VBoxContainer" parent="Margin/Content/Who"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = -3
+
+[node name="Name" type="Label" parent="Margin/Content/Who/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Trader"
+text_overrun_behavior = 3
+
+[node name="Kind" type="Label" parent="Margin/Content/Who/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Haggler"
+
+[node name="Mood" type="VBoxContainer" parent="Margin/Content/Who"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 0
+tooltip_text = "How many more offers they will hear. Lowball offers use up two."
+mouse_filter = 1
+
+[node name="Caption" type="Label" parent="Margin/Content/Who/Mood"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Patience"
+horizontal_alignment = 2
+
+[node name="Pips" parent="Margin/Content/Who/Mood" instance=ExtResource("2_pip_row")]
+layout_mode = 2
+size_flags_horizontal = 8
+value = 3
+max_value = 5
+
+[node name="Back" type="Button" parent="Margin/Content/Who"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "< Stall"
+size_flags_vertical = 4
+tooltip_text = "Back to your stall. The conversation stays open."
+
+[node name="Deal" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"InsetPanel"
+
+[node name="Row" type="HBoxContainer" parent="Margin/Content/Deal"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Slot" type="PanelContainer" parent="Margin/Content/Deal/Row"]
+layout_mode = 2
+custom_minimum_size = Vector2(28, 28)
+size_flags_vertical = 4
+theme_type_variation = &"SlotPanel"
+
+[node name="Icon" type="TextureRect" parent="Margin/Content/Deal/Row/Slot"]
+layout_mode = 2
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Info" type="VBoxContainer" parent="Margin/Content/Deal/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -3
+
+[node name="Line" type="Label" parent="Margin/Content/Deal/Row/Info"]
+layout_mode = 2
+text = "Selling 40 Timber at 6g each"
+text_overrun_behavior = 3
+
+[node name="Note" type="Label" parent="Margin/Content/Deal/Row/Info"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Fair value 5 G each"
+text_overrun_behavior = 3
+
+[node name="Log" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Content/Log"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+horizontal_scroll_mode = 0
+
+[node name="Lines" type="VBoxContainer" parent="Margin/Content/Log/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Typing" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = ""
+
+[node name="Form" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Form"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="QtyRow" type="HBoxContainer" parent="Margin/Content/Form/Body"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Form/Body/QtyRow"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Quantity"
+custom_minimum_size = Vector2(50, 0)
+size_flags_vertical = 4
+
+[node name="Less10" type="Button" parent="Margin/Content/Form/Body/QtyRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-10"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="Less1" type="Button" parent="Margin/Content/Form/Body/QtyRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-1"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="Value" type="Label" parent="Margin/Content/Form/Body/QtyRow"]
+layout_mode = 2
+theme_type_variation = &"LabelBig"
+text = "0"
+custom_minimum_size = Vector2(44, 0)
+horizontal_alignment = 1
+size_flags_horizontal = 3
+
+[node name="More1" type="Button" parent="Margin/Content/Form/Body/QtyRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+1"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="More10" type="Button" parent="Margin/Content/Form/Body/QtyRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+10"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="Max" type="Button" parent="Margin/Content/Form/Body/QtyRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Max"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="OfferRow" type="HBoxContainer" parent="Margin/Content/Form/Body"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Form/Body/OfferRow"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Your offer"
+custom_minimum_size = Vector2(50, 0)
+size_flags_vertical = 4
+
+[node name="Less10" type="Button" parent="Margin/Content/Form/Body/OfferRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-10"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="Less1" type="Button" parent="Margin/Content/Form/Body/OfferRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-1"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="Value" type="Label" parent="Margin/Content/Form/Body/OfferRow"]
+layout_mode = 2
+theme_type_variation = &"LabelBig"
+text = "0"
+custom_minimum_size = Vector2(44, 0)
+horizontal_alignment = 1
+size_flags_horizontal = 3
+
+[node name="More1" type="Button" parent="Margin/Content/Form/Body/OfferRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+1"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="More10" type="Button" parent="Margin/Content/Form/Body/OfferRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+10"
+custom_minimum_size = Vector2(24, 18)
+
+[node name="Summary" type="Label" parent="Margin/Content/Form/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Actions" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Offer" type="Button" parent="Margin/Content/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Make offer"
+custom_minimum_size = Vector2(0, 22)
+size_flags_horizontal = 3
+
+[node name="Take" type="Button" parent="Margin/Content/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Take their price"
+custom_minimum_size = Vector2(0, 22)
+size_flags_horizontal = 3
+
+[node name="Leave" type="Button" parent="Margin/Content/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Walk away"
+custom_minimum_size = Vector2(0, 22)
+
+[node name="Outcome" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+visible = false

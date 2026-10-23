@@ -15,6 +15,7 @@ const EXCHANGE_TABS := preload("res://scenes/journal/pages/exchange_tabs.tscn")
 const HALL_LEFT := preload("res://scenes/journal/pages/hall_left.tscn")
 const HALL_RIGHT := preload("res://scenes/journal/pages/hall_right.tscn")
 const ROW_CHAT_LINE := preload("res://scenes/journal/rows/chat_line.tscn")
+const HALL_WHISPER := preload("res://scenes/journal/pages/hall_whisper.tscn")
 const GUILDWORK_LEFT := preload("res://scenes/journal/pages/guildwork_left.tscn")
 const GUILDWORK_RIGHT := preload("res://scenes/journal/pages/guildwork_right.tscn")
 const CHRONICLE_LEFT := preload("res://scenes/journal/pages/chronicle_left.tscn")
@@ -1072,6 +1073,14 @@ var stall_good: String = "timber"
 var stall_qty: int = 0
 var stall_price: int = 0
 var hall_shown_id: int = 0
+## The trader being whispered with ("" = the stall is shown), and the offer being drafted.
+var whisper_trader: String = ""
+var whisper_qty: int = 0
+var whisper_total: int = 0
+## While a trader is "typing", chat lines from this id on are held back.
+var whisper_hold: int = 0
+var hovered_meta: String = ""
+const WHISPER := Color("#7d4a6e")
 
 ## Runs every second from the clock: NPC chatter, and sales of the company's listings.
 func _hall_clock() -> void:
@@ -1085,6 +1094,8 @@ func _hall_clock() -> void:
 		if str(event["type"]) == "sale":
 			earned += int(event["gross"]) - int(event["tax"])
 			notes.append("%s bought %d %s" % [str(event["buyer"]), int(event["qty"]), name])
+		elif str(event["type"]) == "whisper":
+			notes.append("%s whispers you about your %s. Right-click their name in the Trade Hall" % [str(event["trader"]), name])
 		else:
 			notes.append("Your %s listing expired; %d returned to the warehouse" % [name, int(event["qty"])])
 	var text: String = "; ".join(notes) + "."
@@ -1104,27 +1115,52 @@ func _clock(t: int) -> String:
 func _hex(color: Color) -> String:
 	return "#" + color.to_html(false)
 
-## One chat message as BBCode. Item links carry "good|price" as their meta.
+## An item link: hover for the card, click to price the stall. Meta "item|good|price".
+func _item_link(good: String, price: int, qty: int = -1) -> String:
+	var shown: String = "[lb]%s[rb]" % _resource_name(good) + ("x%d" % qty if qty > 0 else "")
+	return "[url=item|%s|%d][color=%s]%s[/color][/url]" % [good, price, _hex(OXBLOOD), shown]
+
+## A trader's name: click or right-click to whisper. Meta "who|trader|message id".
+func _name_link(m: Dictionary, color: Color) -> String:
+	return "[url=who|%s|%d][color=%s]%s[/color][/url]" % [str(m["from"]), int(m["id"]), _hex(color), str(m["from"])]
+
+## One chat message as BBCode.
 func _chat_bbcode(m: Dictionary) -> String:
 	var good: String = str(m["good"])
-	var link: String = "[url=%s|%d][color=%s][lb]%s[rb]x%d[/color][/url]" % [good, int(m["price"]), _hex(OXBLOOD), _resource_name(good), int(m["qty"])]
+	var price: int = int(m["price"])
+	var link: String = _item_link(good, price, int(m["qty"]))
 	var who: String = str(m["from"])
 	var head: String = "[color=%s]%s[/color]  " % [_hex(INK_FAINT), _clock(int(m["t"]))]
+	var text: String = str(m.get("text", "")).replace("{item}", _item_link(good, price))
 	match str(m["side"]):
 		"bought":
-			return head + "[color=%s]%s bought %s from you at %dg each.[/color]" % [_hex(GOOD), who, link, int(m["price"])]
-		"wtb":
-			return head + "[color=%s]%s:[/color] WTB %s paying %dg each" % [_hex(INK_SOFT), who, link, int(m["price"])]
-	var name_color: Color = OXBLOOD if who == "You" else INK_SOFT
-	var tail: String = " or offer" if bool(m.get("offer", false)) else ""
-	return head + "[color=%s]%s:[/color] WTS %s %dg each%s" % [_hex(name_color), who, link, int(m["price"]), tail]
+			return head + "[color=%s]%s bought %s from you at %dg each.[/color]" % [_hex(GOOD), who, link, price]
+		"deal_buy":
+			return head + "[color=%s]You bought %s from %s for %dg.[/color]" % [_hex(GOOD), link, who, int(m.get("total", 0))]
+		"deal_sell":
+			return head + "[color=%s]You sold %s to %s for %dg.[/color]" % [_hex(GOOD), link, who, int(m.get("total", 0))]
+		"whisper_out":
+			return head + "[color=%s]To %s: %s[/color]" % [_hex(WHISPER), who, text]
+		"whisper_in":
+			return head + "[color=%s]From %s: %s[/color]" % [_hex(WHISPER), _name_link(m, WHISPER), text]
+	var gone: bool = who != "You" and int(m.get("left", 1)) <= 0
+	var body: String
+	if str(m["side"]) == "wtb":
+		body = "WTB %s paying %dg each" % [link, price]
+	else:
+		body = "WTS %s %dg each%s" % [link, price, " or offer" if bool(m.get("offer", false)) else ""]
+	var name: String = "[color=%s]You:[/color]" % _hex(OXBLOOD) if who == "You" else _name_link(m, INK_SOFT) + "[color=%s]:[/color]" % _hex(INK_SOFT)
+	if gone:
+		return head + "[color=%s][s]%s: %s[/s]  sold[/color]" % [_hex(INK_FAINT), who, body.replace(_hex(OXBLOOD), _hex(INK_FAINT))]
+	return head + name + " " + body
 
 func _add_chat_line(lines: VBoxContainer, m: Dictionary) -> void:
 	var line := ROW_CHAT_LINE.instantiate() as RichTextLabel
 	line.text = _chat_bbcode(m)
 	line.meta_hover_started.connect(_on_link_hover)
-	line.meta_hover_ended.connect(func(_meta: Variant) -> void: _hide_link_card())
+	line.meta_hover_ended.connect(_on_link_unhover)
 	line.meta_clicked.connect(_on_link_clicked)
+	line.gui_input.connect(_on_chat_input)
 	lines.add_child(line)
 
 func _scroll_to_end(scroll: ScrollContainer) -> void:
@@ -1133,14 +1169,32 @@ func _scroll_to_end(scroll: ScrollContainer) -> void:
 		scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
 
 func _on_link_hover(meta: Variant) -> void:
-	var parts: PackedStringArray = str(meta).split("|")
-	_show_link_card(parts[0])
+	hovered_meta = str(meta)
+	var parts: PackedStringArray = hovered_meta.split("|")
+	if parts[0] == "item" and parts.size() > 1:
+		_show_link_card(parts[1])
+
+func _on_link_unhover(_meta: Variant) -> void:
+	hovered_meta = ""
+	_hide_link_card()
 
 func _on_link_clicked(meta: Variant) -> void:
 	var parts: PackedStringArray = str(meta).split("|")
-	var price: int = int(parts[1]) if parts.size() > 1 else -1
 	_hide_link_card()
-	_stall_pick(parts[0], price)
+	if parts[0] == "who" and parts.size() > 2:
+		_open_whisper(parts[1], int(parts[2]))
+	elif parts[0] == "item" and parts.size() > 1:
+		_stall_pick(parts[1], int(parts[2]) if parts.size() > 2 else -1)
+
+## Right-clicking a trader's name opens a whisper, as in the old trade channels.
+func _on_chat_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_RIGHT:
+		return
+	var parts: PackedStringArray = hovered_meta.split("|")
+	if parts[0] == "who" and parts.size() > 2:
+		_hide_link_card()
+		_open_whisper(parts[1], int(parts[2]))
 
 func _link_card() -> PanelContainer:
 	return stage.get_node_or_null("LinkCard") as PanelContainer if is_instance_valid(stage) else null
@@ -1210,7 +1264,8 @@ func _hall_cancel(id: int) -> void:
 
 func _draw_hall() -> void:
 	var left := _mount_page(HALL_LEFT, left_leaf)
-	var right := _mount_page(HALL_RIGHT, right_leaf)
+	var whispering: bool = whisper_trader != "" and game.hall.whisper_with(whisper_trader) != null
+	var right := _mount_page(HALL_WHISPER if whispering else HALL_RIGHT, right_leaf)
 	var c := "Margin/Content/"
 	# The chat: every message so far, then new ones as they arrive.
 	(left.get_node(c + "Summary/Online") as Label).text = "%d traders online" % TradeHall.TRADERS.size()
@@ -1219,12 +1274,16 @@ func _draw_hall() -> void:
 	var lines := left.get_node(c + "Chat/Scroll/Lines") as VBoxContainer
 	hall_shown_id = 0
 	for m in game.hall.feed:
+		if whisper_hold > 0 and int(m["id"]) >= whisper_hold:
+			break
 		_add_chat_line(lines, m)
 		hall_shown_id = int(m["id"])
 	_scroll_to_end(scroll)
 	var follow := func() -> void:
 		var added: bool = false
 		for m in game.hall.feed:
+			if whisper_hold > 0 and int(m["id"]) >= whisper_hold:
+				break
 			if int(m["id"]) > hall_shown_id:
 				_add_chat_line(lines, m)
 				hall_shown_id = int(m["id"])
@@ -1239,8 +1298,172 @@ func _draw_hall() -> void:
 		if scroll.scroll_vertical >= int(bar.max_value - bar.page) - 24:
 			_scroll_to_end(scroll)
 	live_updaters.append(follow)
-	_draw_stall(right)
+	if whispering:
+		_draw_whisper(right)
+	else:
+		_draw_stall(right)
 	_mount_exchange_tabs()
+
+# --- Whispers --------------------------------------------------------------------
+
+func _open_whisper(trader: String, message_id: int) -> void:
+	if trader == "You":
+		return
+	var m: Dictionary = game.hall.message_by_id(message_id)
+	var h: Haggle = game.hall.whisper_with(trader)
+	if m.is_empty() or str(m["side"]) == "whisper_in" or str(m["side"]).begins_with("deal") or str(m["side"]) == "bought":
+		if h == null:
+			notification_text("%s has nothing on offer right now. Right-click one of their posts." % trader)
+			return
+	elif h == null or not h.is_open() or h.post_id != message_id:
+		h = game.hall_whisper(message_id)
+		if h == null:
+			notification_text("You can't whisper about that line.")
+			return
+		_hold_reply(game.hall.next_id - 1)
+	whisper_trader = trader
+	whisper_qty = maxi(0, game.hall_whisper_limit(h))
+	if h.they_sell:
+		whisper_qty = mini(whisper_qty, int(floor(float(game.gold) / maxf(1.0, h.ask))))
+	whisper_qty = maxi(whisper_qty, 1) if game.hall_whisper_limit(h) > 0 else 0
+	whisper_total = h.quote(maxi(whisper_qty, 1))
+	if page != "hall":
+		_nav_to("hall")
+	else:
+		_refresh()
+
+## Hold back chat lines from `first_id` on for a moment while the trader "types".
+func _hold_reply(first_id: int) -> void:
+	whisper_hold = first_id
+	var hold: int = first_id
+	await get_tree().create_timer(randf_range(0.9, 1.8)).timeout
+	if whisper_hold == hold:
+		whisper_hold = 0
+		if page == "hall":
+			_refresh()
+
+func _whisper_close() -> void:
+	whisper_trader = ""
+	_refresh()
+
+func _whisper_qty(delta: int, max_out: bool = false) -> void:
+	var h: Haggle = game.hall.whisper_with(whisper_trader)
+	if h == null:
+		return
+	var old: int = maxi(whisper_qty, 1)
+	var limit: int = game.hall_whisper_limit(h)
+	whisper_qty = limit if max_out else clampi(whisper_qty + delta, mini(1, limit), limit)
+	# Keep the same price per unit when the quantity changes.
+	whisper_total = maxi(1, int(round(float(whisper_total) / float(old) * float(maxi(whisper_qty, 1)))))
+	_refresh()
+
+func _whisper_total(delta: int) -> void:
+	whisper_total = maxi(1, whisper_total + delta)
+	_refresh()
+
+func _whisper_send(take_theirs: bool) -> void:
+	var first: int = game.hall.next_id
+	var reply: Dictionary = game.hall_negotiate(whisper_trader, whisper_qty, whisper_total, take_theirs)
+	if not bool(reply.get("ok", false)):
+		notification_text(str(reply.get("message", "")))
+		return
+	# The reply (and any deal line) appears after a short pause; your own line shows at once.
+	_hold_reply(first + 1)
+	var message: String = str(reply.get("message", ""))
+	_refresh()
+	if message != "":
+		await get_tree().create_timer(1.0).timeout
+		notification_text(message)
+
+func _whisper_leave() -> void:
+	game.hall_walk_away(whisper_trader)
+	whisper_trader = ""
+	_refresh()
+
+func _draw_whisper(right: Control) -> void:
+	var c := "Margin/Content/"
+	var h: Haggle = game.hall.whisper_with(whisper_trader)
+	var held: bool = whisper_hold > 0
+	(right.get_node(c + "Who/Id/Name") as Label).text = h.trader
+	var kind: Dictionary = TradeHall.KINDS.get(h.kind, {})
+	(right.get_node(c + "Who/Id/Kind") as Label).text = "%s  ·  %s" % [str(kind.get("label", "")), str(kind.get("note", ""))]
+	var pips := right.get_node(c + "Who/Mood/Pips")
+	pips.max_value = int(Haggle.KINDS[h.kind]["patience"])
+	pips.value = maxi(0, h.patience + (1 if held and h.is_open() else 0))
+	(right.get_node(c + "Who/Back") as Button).pressed.connect(_whisper_close)
+	# What is being traded.
+	(right.get_node(c + "Deal/Row/Slot/Icon") as TextureRect).texture = _item_icon(h.good)
+	var name: String = _resource_name(h.good)
+	var each: String = str(h.posted)
+	var line: String
+	if h.listing_id >= 0:
+		line = "Wants %d of your listed %s" % [h.qty_max, name]
+	elif h.they_sell:
+		line = "Selling %d %s at %sg each" % [h.qty_max, name, each]
+	else:
+		line = "Buying %d %s at %sg each" % [h.qty_max, name, each]
+	(right.get_node(c + "Deal/Row/Info/Line") as Label).text = line
+	(right.get_node(c + "Deal/Row/Info/Note") as Label).text = "Fair value %s each  ·  merchants pay %s" % [_money(int(round(game.hall.fair_value(h.good)))), _money(game.sell_price(h.good))]
+	# The conversation so far with this trader.
+	var log_lines := right.get_node(c + "Log/Scroll/Lines") as VBoxContainer
+	var shown: Array = []
+	for m in game.hall.feed:
+		if held and int(m["id"]) >= whisper_hold:
+			break
+		if str(m["from"]) == h.trader and (str(m["side"]).begins_with("whisper") or str(m["side"]).begins_with("deal")):
+			shown.append(m)
+	for m in shown.slice(maxi(0, shown.size() - 14)):
+		_add_chat_line(log_lines, m)
+	_scroll_to_end(right.get_node(c + "Log/Scroll") as ScrollContainer)
+	(right.get_node(c + "Typing") as Label).text = "%s is typing..." % h.trader if held else ""
+	# The offer being drafted.
+	var limit: int = game.hall_whisper_limit(h)
+	whisper_qty = clampi(whisper_qty, mini(1, limit), limit)
+	var f := c + "Form/Body/"
+	(right.get_node(f + "QtyRow/Value") as Label).text = str(whisper_qty)
+	for pair in [["Less10", -10], ["Less1", -1], ["More1", 1], ["More10", 10]]:
+		var b := right.get_node(f + "QtyRow/" + str(pair[0])) as Button
+		b.pressed.connect(_whisper_qty.bind(int(pair[1])))
+		b.disabled = (int(pair[1]) < 0 and whisper_qty <= 1) or (int(pair[1]) > 0 and whisper_qty >= limit)
+	var max_btn := right.get_node(f + "QtyRow/Max") as Button
+	max_btn.pressed.connect(_whisper_qty.bind(0, true))
+	max_btn.disabled = whisper_qty >= limit
+	(right.get_node(f + "OfferRow/Value") as Label).text = _money(whisper_total)
+	for pair in [["Less10", -10], ["Less1", -1], ["More1", 1], ["More10", 10]]:
+		var b := right.get_node(f + "OfferRow/" + str(pair[0])) as Button
+		b.pressed.connect(_whisper_total.bind(int(pair[1])))
+		b.disabled = int(pair[1]) < 0 and whisper_total + int(pair[1]) < 1
+	var theirs: int = h.quote(maxi(whisper_qty, 1))
+	var per: float = float(whisper_total) / float(maxi(whisper_qty, 1))
+	var summary: String = "%.1fg each. Their price: %s." % [per, _money(theirs) if not held else "..."]
+	if h.they_sell:
+		summary += " You have %s." % _money(game.gold)
+	else:
+		var tax: int = maxi(1, int(round(float(whisper_total) * TradeHall.TAX)))
+		summary += " After the 3%% tax you'd get %s." % _money(whisper_total - tax)
+	if limit <= 0:
+		summary = "You have no %s to sell them." % name
+	(right.get_node(f + "Summary") as Label).text = summary
+	var offer := right.get_node(c + "Actions/Offer") as Button
+	offer.pressed.connect(_whisper_send.bind(false))
+	offer.disabled = held or limit <= 0 or not h.is_open()
+	var take := right.get_node(c + "Actions/Take") as Button
+	take.text = "Take %s" % _money(theirs) if not held else "Take their price"
+	take.pressed.connect(_whisper_send.bind(true))
+	take.disabled = held or limit <= 0 or not h.is_open() or (h.they_sell and game.gold < theirs)
+	(right.get_node(c + "Actions/Leave") as Button).pressed.connect(_whisper_leave)
+	# When the conversation is over, say how it ended.
+	var outcome := right.get_node(c + "Outcome") as Label
+	if not h.is_open() and not held:
+		(right.get_node(c + "Form") as Control).visible = false
+		(right.get_node(c + "Actions") as Control).visible = false
+		outcome.visible = true
+		if h.status == "done":
+			outcome.text = "Deal done. Back to your stall when you're ready."
+			outcome.theme_type_variation = &"LabelGood"
+		else:
+			outcome.text = "%s has moved on. Find another trader in the chat." % h.trader
+			outcome.theme_type_variation = &"LabelAccent"
 
 func _draw_stall(right: Control) -> void:
 	var c := "Margin/Content/"

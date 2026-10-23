@@ -12,7 +12,11 @@ class_name TradeHall
 ##   at the merchants' resale price never sells, because buyers can get it there instead.
 ## - Fair value = the market's reference price x its saturation factor, so flooding the
 ##   merchants also cools the Hall, and Hall sales saturate the merchants in turn.
-## Stage 2 adds whispers and haggling; stage 3 adds the trade window.
+##
+## Stage 2 (whispers): any trader's post can be negotiated in a whisper (see Haggle), and
+## buyers whisper the company with offers on listings priced on the high side. Posts
+## track how much is left; a post traded out shows as sold. Whispers are not saved.
+## Stage 3 adds the trade window.
 
 const TAX := 0.03
 const POST_FEE := 2
@@ -26,6 +30,10 @@ const FILL_RATE := 0.15
 const MAX_CATCHUP := 24 * 3600
 ## Above this multiple of fair value nobody buys: the merchants sell for about that.
 const NO_SALE_RATIO := 1.30
+## Listings priced above this multiple of fair value draw whispered offers.
+const OFFER_ABOVE := 1.04
+const OFFER_RATE := 0.03
+const MAX_OPEN_OFFERS := 2
 
 const KINDS := {
 	"hawker": {"label": "Hawker", "note": "Posts often at fair prices."},
@@ -83,6 +91,8 @@ var next_id: int = 1
 var next_post_at: int = 0
 var last_fill_at: int = 0
 var rng := RandomNumberGenerator.new()
+## trader name -> Haggle, the open whispers. Not saved: a reload ends conversations.
+var whispers: Dictionary = {}
 
 func _init(market_model: MarketModel = null, good_keys: Array = []) -> void:
 	market = market_model
@@ -115,12 +125,14 @@ func reset() -> void:
 	next_id = 1
 	next_post_at = 0
 	last_fill_at = 0
+	whispers.clear()
 
 func _clean_message(m: Dictionary) -> Dictionary:
 	return {
 		"id": int(m.get("id", 0)), "t": int(m.get("t", 0)), "from": str(m.get("from", "")),
 		"kind": str(m.get("kind", "")), "side": str(m.get("side", "")), "good": str(m.get("good", "")),
 		"qty": int(m.get("qty", 0)), "price": int(m.get("price", 0)), "offer": bool(m.get("offer", false)),
+		"left": int(m.get("left", m.get("qty", 0))), "text": str(m.get("text", "")), "total": int(m.get("total", 0)),
 	}
 
 # --- Prices -------------------------------------------------------------------
@@ -134,7 +146,7 @@ func quotes(good: String) -> Dictionary:
 	var ask: int = -1
 	var bid: int = -1
 	for m in feed:
-		if str(m["good"]) != good or str(m["from"]) == "You":
+		if str(m["good"]) != good or str(m["from"]) == "You" or int(m.get("left", 0)) <= 0:
 			continue
 		if str(m["side"]) == "wts" and (ask < 0 or int(m["price"]) < ask):
 			ask = int(m["price"])
@@ -211,6 +223,9 @@ func _fill_step(t: int) -> Array:
 			events.append({"type": "expired", "good": listing["good"], "qty": int(listing["left"]), "t": t})
 			remove_listing(int(listing["id"]))
 			continue
+		if _maybe_offer(listing, t):
+			events.append({"type": "whisper", "trader": _last_offer_from, "good": listing["good"], "t": t})
+			continue
 		if rng.randf() >= fill_chance(str(listing["good"]), int(listing["price"]), t):
 			continue
 		var good: String = str(listing["good"])
@@ -262,7 +277,7 @@ func _npc_message(t: int) -> Dictionary:
 	var ratio: float = rng.randf_range(float(option[1]), float(option[2]))
 	var price: int = maxi(1, int(round(fair_value(good, t) * ratio)))
 	return {"t": t, "from": str(trader["name"]), "kind": kind, "side": side, "good": good,
-		"qty": qty, "price": price, "offer": kind == "haggler"}
+		"qty": qty, "price": price, "offer": kind == "haggler", "left": qty}
 
 func _pick_good(rare_only: bool) -> String:
 	var total: float = 0.0
@@ -295,6 +310,109 @@ func _post(message: Dictionary) -> void:
 	next_id += 1
 	if not message.has("offer"):
 		message["offer"] = false
+	if not message.has("left"):
+		message["left"] = int(message.get("qty", 0))
+	if not message.has("text"):
+		message["text"] = ""
 	feed.append(message)
 	while feed.size() > FEED_LIMIT:
 		feed.pop_front()
+
+# --- Whispers ------------------------------------------------------------------
+
+var _last_offer_from: String = ""
+
+func message_by_id(id: int) -> Dictionary:
+	for m in feed:
+		if int(m["id"]) == id:
+			return m
+	return {}
+
+func trader_kind(name: String) -> String:
+	for trader in TRADERS:
+		if str(trader["name"]) == name:
+			return str(trader["kind"])
+	return "hawker"
+
+func whisper_with(trader: String) -> Haggle:
+	return whispers.get(trader, null)
+
+## Open (or return) a whisper about a WTS / WTB post in the chat.
+func open_whisper(message_id: int, now: int) -> Haggle:
+	var m: Dictionary = message_by_id(message_id)
+	if m.is_empty() or str(m["from"]) == "You" or not str(m["side"]) in ["wts", "wtb"]:
+		return null
+	var trader: String = str(m["from"])
+	var current: Haggle = whispers.get(trader, null)
+	if current != null and current.is_open() and current.post_id == message_id:
+		return current
+	var h := Haggle.make(trader, str(m["kind"]), str(m["good"]), str(m["side"]) == "wts",
+		int(m["left"]), int(m["price"]), fair_value(str(m["good"]), now), rng)
+	h.post_id = message_id
+	whispers[trader] = h
+	var item_line: String = "Hi, about your {item}x%d?" % int(m["qty"])
+	whisper_line(h, true, item_line, now)
+	if int(m["left"]) <= 0:
+		h.status = "gone"
+		whisper_line(h, false, h.say("gone"), now)
+	else:
+		whisper_line(h, false, h.say("greet_sell" if h.they_sell else "greet_buy"), now)
+	return h
+
+## Post one whispered line into the chat. `outgoing` = written by the company.
+func whisper_line(h: Haggle, outgoing: bool, text: String, now: int, qty: int = -1, total: int = -1) -> void:
+	var n: int = qty if qty > 0 else h.qty_max
+	_post({"t": now, "from": h.trader, "kind": h.kind, "side": "whisper_out" if outgoing else "whisper_in",
+		"good": h.good, "qty": n, "price": int(round(h.ask)), "total": total if total >= 0 else h.quote(n), "text": text, "left": 0})
+
+func end_whisper(trader: String) -> void:
+	var h: Haggle = whispers.get(trader, null)
+	if h != null and h.is_open():
+		h.walk_away()
+
+## Units traded out of a chat post through a whisper.
+func take_from_post(post_id: int, qty: int) -> void:
+	var m: Dictionary = message_by_id(post_id)
+	if not m.is_empty():
+		m["left"] = maxi(0, int(m["left"]) - qty)
+
+func open_offer_count() -> int:
+	var n: int = 0
+	for trader in whispers:
+		var h: Haggle = whispers[trader]
+		if h.is_open() and h.listing_id >= 0:
+			n += 1
+	return n
+
+## Buyers whisper offers on listings priced above fair value instead of buying outright.
+func _maybe_offer(listing: Dictionary, t: int) -> bool:
+	var good: String = str(listing["good"])
+	var fair: float = fair_value(good, t)
+	if float(listing["price"]) <= fair * OFFER_ABOVE or open_offer_count() >= MAX_OPEN_OFFERS:
+		return false
+	for trader in whispers:
+		var open: Haggle = whispers[trader]
+		if open.is_open() and open.listing_id == int(listing["id"]):
+			return false
+	if rng.randf() >= OFFER_RATE:
+		return false
+	var buyer: Dictionary = _pick_buyer(good)
+	if whispers.has(str(buyer["name"])) and (whispers[str(buyer["name"])] as Haggle).is_open():
+		return false
+	var depth: float = float(MarketModel.DEPTH.get(good, 50.0))
+	var qty: int = mini(int(listing["left"]), rng.randi_range(int(ceil(depth / 10.0)), int(ceil(depth / 3.0))))
+	var bid: int = maxi(1, int(round(fair * rng.randf_range(0.94, 1.02))))
+	var h := Haggle.make(str(buyer["name"]), str(buyer["kind"]), good, false, qty, bid, fair, rng)
+	# Their ceiling per unit sits between fair value and the listing price.
+	h.reservation = clampf(fair * rng.randf_range(1.0, 1.12), float(bid), float(listing["price"]))
+	h.listing_id = int(listing["id"])
+	whispers[h.trader] = h
+	whisper_line(h, false, h.say("offer", qty), t, qty)
+	_last_offer_from = h.trader
+	return true
+
+func listing_by_id(id: int) -> Dictionary:
+	for l in listings:
+		if int(l["id"]) == id:
+			return l
+	return {}

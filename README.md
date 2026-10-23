@@ -15,6 +15,14 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.12 — Trade Hall stage 2: whispers and haggling
+
+- Click or right-click a trader's name in the chat to whisper them about that post. The right page becomes the whisper: their kind and patience pips, the post, the conversation, and a quantity and whole-lot offer ("30 for 503g?").
+- Each trader has a hidden walk-away price and limited patience (`scripts/haggle.gd`). Hagglers give up to about 16% and hear five offers; bargain sellers barely move and hear two. Counters close part of the gap each time; lowball offers (25% or more past their limit) cost double patience; when patience runs out they walk away.
+- Taking their price, or an offer they accept, settles at once (the trade window arrives in stage 3). You can now buy from WTS posts; selling into WTB posts pays the 3% tax. Traded-out posts show as sold.
+- Buyers whisper offers on your listings priced above fair value ("Would you take 185g for 40 of your [Timber]?"). Accepting sells straight from the listing.
+- Replies arrive after a short "typing" pause. Whispers are not saved; a reload ends open conversations.
+
 ## V0.11 — The Trade Hall (stage 1) and the pause menu
 
 - **Trade Hall** (Exchange chapter, second tab): a trade chat in the style of Dark and Darker's first trade channel. Fourteen NPC traders of six kinds (hawker, quartermaster, collector, flipper, bargain seller, haggler) post `WTS [Timber]x40 6g each` / `WTB` lines priced around each good's fair value.
@@ -22,7 +30,6 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 - **Your stall**: list goods from the warehouse (held in escrow), pay a 2 G post fee, and NPC buyers take fairly priced listings; a 3% tax comes off each sale. Up to 5 listings, 12 hours each; unsold goods return. Sales continue while the game is closed (up to a day of catch-up).
 - Fair value = the market's reference price x merchant saturation, so the Hall and the merchants stay linked. Model: `scripts/trade_hall.gd`.
 - **Pause menu**: Escape closes the journal onto its back cover with Resume, Settings (fullscreen, vsync, book animations) and Save and Quit. Settings are stored in `user://settings.cfg`.
-- Next: whispers and haggling (stage 2), then the trade window (stage 3).
 
 ## V0.10 — Trades, skills and a living market
 

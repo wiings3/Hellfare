@@ -193,6 +193,64 @@ func _verify() -> void:
 	view.game.hall_post("timber", 10, fair * 3, t0 + 6 * 3600)
 	view.game.hall_tick(t0 + 6 * 3600 + TradeHall.LISTING_SECONDS + 120)
 	check(view.game.hall.listings.is_empty() and int(view.game.resources["timber"]) == 20, "an unsold listing expires back to the warehouse")
+	# Whispers: open from a post, haggle, walk-aways, deals both ways, incoming offers.
+	var hall: TradeHall = view.game.hall
+	hall.rng.seed = 777
+	var t1: int = t0 + 20 * 3600
+	view.game.gold = 5000
+	hall._post({"t": t1, "from": "Marrow", "kind": "haggler", "side": "wts", "good": "copper", "qty": 30, "price": 30})
+	var post_a: int = hall.next_id - 1
+	view._nav_to("hall")
+	view._open_whisper("Marrow", post_a)
+	var talk: Haggle = hall.whisper_with("Marrow")
+	check(talk != null and talk.is_open() and talk.they_sell, "whisper opens from a post")
+	check(view.right_leaf.get_child(0).scene_file_path.ends_with("/hall_whisper.tscn"), "whisper page shown")
+	var rounds: int = 0
+	while talk.is_open() and rounds < 10:
+		view.game.hall_negotiate("Marrow", 30, 30, false, t1)
+		rounds += 1
+	check(talk.status == "gone" and rounds <= Haggle.KINDS["haggler"]["patience"], "lowballing runs out their patience")
+	view._whisper_close()
+	hall._post({"t": t1, "from": "Wren", "kind": "hawker", "side": "wts", "good": "copper", "qty": 20, "price": 25})
+	var post_b: int = hall.next_id - 1
+	var deal: Haggle = view.game.hall_whisper(post_b, t1)
+	var copper_before: int = int(view.game.resources["copper"])
+	var gold_b: int = view.game.gold
+	var price_b: int = deal.quote(20)
+	var bought: Dictionary = view.game.hall_negotiate("Wren", 20, 0, true, t1)
+	check(str(bought["result"]) == "accept" and view.game.gold == gold_b - price_b and int(view.game.resources["copper"]) == copper_before + 20, "taking their price buys the goods")
+	check(int(hall.message_by_id(post_b)["left"]) == 0, "a traded-out post is marked sold")
+	hall._post({"t": t1, "from": "Hesk", "kind": "quartermaster", "side": "wtb", "good": "copper", "qty": 40, "price": 20})
+	var post_c: int = hall.next_id - 1
+	var sell_talk: Haggle = view.game.hall_whisper(post_c, t1)
+	check(view.game.hall_whisper_limit(sell_talk) == 20, "selling is limited to what the warehouse holds")
+	var gold_c: int = view.game.gold
+	var ask_total: int = sell_talk.limit(20)
+	var sold: Dictionary = view.game.hall_negotiate("Hesk", 20, ask_total, false, t1)
+	var tax_c: int = maxi(1, int(round(float(ask_total) * TradeHall.TAX)))
+	check(str(sold["result"]) == "accept" and view.game.gold == gold_c + ask_total - tax_c, "selling into a WTB post pays out after tax")
+	check(int(view.game.resources["copper"]) == copper_before, "sold goods leave the warehouse")
+	# A listing priced on the high side draws whispered offers.
+	view.game.resources["timber"] = 60
+	var fair_t: float = hall.fair_value("timber", t1)
+	view.game.hall_post("timber", 60, int(ceil(fair_t * 1.2)) + 1, t1)
+	var offered: String = ""
+	var t2: int = t1
+	while offered == "" and t2 < t1 + 6 * 3600:
+		t2 += 600
+		for event in view.game.hall_tick(t2):
+			if str(event["type"]) == "whisper":
+				offered = str(event["trader"])
+	check(offered != "", "buyers whisper offers on high-priced listings")
+	if offered != "":
+		var incoming: Haggle = hall.whisper_with(offered)
+		var listed_before: int = hall.listed_units("timber")
+		var gold_d: int = view.game.gold
+		var take_qty: int = mini(incoming.qty_max, view.game.hall_whisper_limit(incoming))
+		var their: int = incoming.quote(take_qty)
+		view.game.hall_negotiate(offered, take_qty, 0, true, t2)
+		check(hall.listed_units("timber") == listed_before - take_qty, "accepting an offer sells from the listing")
+		check(view.game.gold == gold_d + their - maxi(1, int(round(float(their) * TradeHall.TAX))), "offer pays out after tax")
 	view._nav_to("market")
 	# Harlow: unsurveyed, crew selection, fund state.
 	view._nav_to("hq")

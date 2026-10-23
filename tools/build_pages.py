@@ -526,7 +526,7 @@ def trade_hall():
     s.node(C + "/Chat", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
     s.node(C + "/Chat/Scroll", "ScrollContainer", {"custom_minimum_size": (0, 60), "horizontal_scroll_mode": 0})
     s.node(C + "/Chat/Scroll/Lines", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 2})
-    label(s, C + "/Footer", "Hover an item for its card. Click it to price your own listing.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    label(s, C + "/Footer", "Hover an item for its card. Right-click a name to whisper.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "hall_left.tscn")
 
     s = page("HallRight")
@@ -563,6 +563,50 @@ def trade_hall():
     scroll(s, C + "/Listings", 40)
     label(s, C + "/Empty", "Nothing listed. Goods you post are held here until they sell.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "hall_right.tscn")
+
+
+def hall_whisper():
+    """Right page of the Trade Hall while whispering with a trader."""
+    s = page("HallWhisper")
+    header(s, C + "/Header", "Whisper")
+    s.node(C + "/Who", "HBoxContainer", {"theme_override_constants/separation": 6})
+    s.node(C + "/Who/Id", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -3})
+    label(s, C + "/Who/Id/Name", "Trader", "LabelTitle", {"text_overrun_behavior": 3})
+    label(s, C + "/Who/Id/Kind", "Haggler", "LabelCaption")
+    s.node(C + "/Who/Mood", "VBoxContainer", {"size_flags_vertical": 4, "theme_override_constants/separation": 0, "tooltip_text": "How many more offers they will hear. Lowball offers use up two.", "mouse_filter": 1})
+    label(s, C + "/Who/Mood/Caption", "Patience", "LabelCaption", {"horizontal_alignment": 2})
+    s.inst(C + "/Who/Mood/Pips", PIPS, {"size_flags_horizontal": 8, "value": 3, "max_value": 5})
+    button(s, C + "/Who/Back", "< Stall", "PaperButton", {"size_flags_vertical": 4, "tooltip_text": "Back to your stall. The conversation stays open."})
+    s.node(C + "/Deal", "PanelContainer", {"theme_type_variation": Raw('&"InsetPanel"')})
+    s.node(C + "/Deal/Row", "HBoxContainer", {"theme_override_constants/separation": 6})
+    s.node(C + "/Deal/Row/Slot", "PanelContainer", {"custom_minimum_size": (28, 28), "size_flags_vertical": 4, "theme_type_variation": Raw('&"SlotPanel"')})
+    s.node(C + "/Deal/Row/Slot/Icon", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
+    s.node(C + "/Deal/Row/Info", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": -3})
+    label(s, C + "/Deal/Row/Info/Line", "Selling 40 Timber at 6g each", None, {"text_overrun_behavior": 3})
+    label(s, C + "/Deal/Row/Info/Note", "Fair value 5 G each", "LabelCaption", {"text_overrun_behavior": 3})
+    s.node(C + "/Log", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
+    s.node(C + "/Log/Scroll", "ScrollContainer", {"custom_minimum_size": (0, 40), "horizontal_scroll_mode": 0})
+    s.node(C + "/Log/Scroll/Lines", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 2})
+    label(s, C + "/Typing", "", "LabelMuted")
+    s.node(C + "/Form", "PanelContainer")
+    s.node(C + "/Form/Body", "VBoxContainer", {"theme_override_constants/separation": 3})
+    for row, caption, buttons in [("Qty", "Quantity", [("Less10", "-10"), ("Less1", "-1"), ("Value", None), ("More1", "+1"), ("More10", "+10"), ("Max", "Max")]),
+                                  ("Offer", "Your offer", [("Less10", "-10"), ("Less1", "-1"), ("Value", None), ("More1", "+1"), ("More10", "+10")])]:
+        base = C + "/Form/Body/%sRow" % row
+        s.node(base, "HBoxContainer", {"theme_override_constants/separation": 3})
+        label(s, base + "/Caption", caption, "LabelCaption", {"custom_minimum_size": (50, 0), "size_flags_vertical": 4})
+        for name, text in buttons:
+            if text is None:
+                label(s, base + "/" + name, "0", "LabelBig", {"custom_minimum_size": (44, 0), "horizontal_alignment": 1, "size_flags_horizontal": 3})
+            else:
+                button(s, base + "/" + name, text, "PaperButton", {"custom_minimum_size": (24, 18)})
+    label(s, C + "/Form/Body/Summary", "", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Actions", "HBoxContainer", {"theme_override_constants/separation": 4})
+    button(s, C + "/Actions/Offer", "Make offer", None, {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3})
+    button(s, C + "/Actions/Take", "Take their price", "PaperButton", {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3})
+    button(s, C + "/Actions/Leave", "Walk away", "PaperButton", {"custom_minimum_size": (0, 22)})
+    label(s, C + "/Outcome", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3, "visible": False})
+    s.save(P + "hall_whisper.tscn")
 
 
 if __name__ == "__main__":
