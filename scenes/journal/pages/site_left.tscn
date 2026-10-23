@@ -1,0 +1,145 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/pip_row.tscn" id="2_pip_row"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="3_stat_tile"]
+
+[node name="SiteLeft" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "The Site"
+
+[node name="Site" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 132)
+theme_type_variation = &"SlotPanel"
+
+[node name="Art" type="TextureRect" parent="Margin/Content/Site"]
+layout_mode = 2
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Badge" type="PanelContainer" parent="Margin/Content/Site"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_type_variation = &"GoldPanel"
+
+[node name="Text" type="Label" parent="Margin/Content/Site/Badge"]
+layout_mode = 2
+text = "Logging 1+"
+
+[node name="Tagline" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Intel" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Yields" type="VBoxContainer" parent="Margin/Content/Intel"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Caption" type="Label" parent="Margin/Content/Intel/Yields"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Each worker brings back"
+
+[node name="Slots" type="HBoxContainer" parent="Margin/Content/Intel/Yields"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Threat" type="PanelContainer" parent="Margin/Content/Intel"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Intel/Threat"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Caption" type="Label" parent="Margin/Content/Intel/Threat/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Threat"
+
+[node name="Name" type="Label" parent="Margin/Content/Intel/Threat/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = "None"
+text_overrun_behavior = 3
+
+[node name="Danger" parent="Margin/Content/Intel/Threat/Body" instance=ExtResource("2_pip_row")]
+layout_mode = 2
+value = 0
+max_value = 4
+tooltip_text = "Danger level"
+
+[node name="Notes" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = ""
+autowrap_mode = 3
+
+[node name="Facts" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Duration" parent="Margin/Content/Facts" instance=ExtResource("3_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Trip"
+value = "0"
+tooltip_text = "Under Balanced orders. Cautious takes longer, Deep Push is quicker."
+
+[node name="Supplies" parent="Margin/Content/Facts" instance=ExtResource("3_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Supplies"
+value = "0"
+tooltip_text = "Paid up front on top of wages."
+
+[node name="Xp" parent="Margin/Content/Facts" instance=ExtResource("3_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Experience"
+value = "0"
+tooltip_text = "Trade experience each worker earns per trip."
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Footer" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+
+[node name="Back" type="Button" parent="Margin/Content/Footer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TextButton"
+text = "<  All expeditions"

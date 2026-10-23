@@ -8,6 +8,8 @@ const ITEMS := {
 	"reinforced_pick": {"name": "Reinforced Pickaxe", "slot": "tool", "role": "Miner", "cost": 105, "mining": 2, "guard": 0, "protection": 0},
 	"rusted_sword": {"name": "Rusted Sword", "slot": "tool", "role": "Guard", "cost": 30, "mining": 0, "guard": 1, "protection": 0},
 	"steel_sword": {"name": "Steel Sword", "slot": "tool", "role": "Guard", "cost": 125, "mining": 0, "guard": 3, "protection": 0},
+	"hand_axe": {"name": "Hand Axe", "slot": "tool", "role": "Woodcutter", "cost": 26, "mining": 0, "guard": 0, "protection": 0, "logging": 1},
+	"felling_axe": {"name": "Felling Axe", "slot": "tool", "role": "Woodcutter", "cost": 98, "mining": 0, "guard": 0, "protection": 0, "logging": 2},
 	"leather": {"name": "Leather Armor", "slot": "armor", "role": "Any", "cost": 38, "mining": 0, "guard": 0, "protection": 1},
 	"chainmail": {"name": "Chainmail", "slot": "armor", "role": "Any", "cost": 138, "mining": 0, "guard": 0, "protection": 3}
 }
@@ -26,12 +28,13 @@ static func generate_board(epoch: int) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(77933 + epoch * 99437)
 	var board: Array[Dictionary] = []
-	for i in range(6):
-		# At least two affordable entry-level replacements, always available.
-		var role: String = "Miner" if i % 2 == 0 else "Guard"
-		var tier: int = 0 if i < 2 else (1 if i < 4 else 2)
+	var roles: Array[String] = ["Woodcutter", "Miner", "Guard"]
+	for i in range(7):
+		# One affordable entry-level hire of every role is always available.
+		var role: String = roles[i % 3]
+		var tier: int = 0 if i < 3 else (1 if i < 6 else 2)
 		var skill: int = 10 + tier * 7 + rng.randi_range(0, 5)
-		var hire_price: int = 48 + tier * 92 + rng.randi_range(0, 22) + (10 if role == "Guard" else 0)
+		var hire_price: int = 48 + tier * 92 + rng.randi_range(0, 22) + (10 if role == "Guard" else 0) - (8 if role == "Woodcutter" else 0)
 		var name: String = str(FIRST_NAMES[rng.randi_range(0, FIRST_NAMES.size() - 1)]) + " " + str(LAST_NAMES[rng.randi_range(0, LAST_NAMES.size() - 1)])
 		board.append({
 			"id": "candidate_%d_%d" % [epoch, i], "name": name,
@@ -46,6 +49,7 @@ static func equipment_stats(merc: Dictionary) -> Dictionary:
 	var mining := 0
 	var guard := 0
 	var protection := 0
+	var logging := 0
 	var equipment: Dictionary = merc.get("equipment", {})
 	for slot in ["tool", "armor"]:
 		var item: Dictionary = equipment.get(slot, {})
@@ -56,9 +60,10 @@ static func equipment_stats(merc: Dictionary) -> Dictionary:
 		mining += int(definition.get("mining", 0))
 		guard += int(definition.get("guard", 0))
 		protection += int(definition.get("protection", 0))
+		logging += int(definition.get("logging", 0))
 	# Legacy tier still has value, without creating a phantom physical item.
 	var legacy: int = int(merc.get("gear", 0))
-	return {"mining": mining, "guard": guard, "protection": protection + legacy}
+	return {"mining": mining, "guard": guard, "protection": protection + legacy, "logging": logging}
 
 static func item_name(item: Dictionary) -> String:
 	return str(ITEMS.get(str(item.get("key", "")), {}).get("name", "Unknown item"))

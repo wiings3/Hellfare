@@ -371,6 +371,9 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 	# Short-term v0.5 arrangement: percentage of found coins, NOT
 	# entire unsold haul. Prevents negative balances on lucky item drops.
 	var commission: int = mini(coins, int(ceil(float(coins) * float(mission["share"]))))
+	var value: int = coins - commission + find_value
+	for ore in loot:
+		value += int(loot[ore]) * sell_price(str(ore), int(loot[ore]))
 	gold += coins - commission
 	_apply_relief_payment()
 	reputation += 3 if success else 1
@@ -381,7 +384,218 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 		"time": int(mission["finish"]), "casualties": casualties,
 		"injured": wounded, "lost_items": lost_items, "found_items": finds,
 		"events": events, "partial": not success and not loot.is_empty(),
-		"rotation": int(mission["rotation"]), "extracted": loot.duplicate(true)
+		"rotation": int(mission["rotation"]), "extracted": loot.duplicate(true),
+		"value": value, "trade": "mining", "site": "harlow"
+	})
+	if reports.size() > 35:
+		reports.resize(35)
+
+
+# --- Generic trade sites (data in sites.gd) -------------------------------------
+
+func _tool_bonus(merc: Dictionary, trade: String) -> int:
+	var stats: Dictionary = V05.equipment_stats(merc)
+	return int(stats.get(trade, 0))
+
+func _crew(ids: Array[String]) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for id in ids:
+		var merc: Dictionary = merc_by_id(id)
+		if not merc.is_empty() and is_available(merc):
+			result.append(merc)
+	return result
+
+## Everything the planner shows before committing: haul, value, cost, profit, risk.
+func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dictionary:
+	var site: Dictionary = TradeSites.by_id(site_id)
+	var workers: Array[Dictionary] = _crew(ids)
+	var trade: String = str(site.get("trade", "logging"))
+	var order: Dictionary = TradeSites.orders(approach)
+	var guards: int = 0
+	var best_level: int = 0
+	var best_combat: int = 1
+	var wages: int = 0
+	var share: float = 0.0
+	var units: Dictionary = {}
+	for merc in workers:
+		var level: int = TradeSkills.level_of(merc, trade)
+		best_level = maxi(best_level, level)
+		best_combat = maxi(best_combat, TradeSkills.level_of(merc, "combat"))
+		var guard: bool = str(merc.get("role", "")) == "Guard"
+		if guard:
+			guards += 1
+		var effort: float = 0.5 if guard else 1.0
+		for good in site.get("yields", {}):
+			units[good] = float(units.get(good, 0.0)) + TradeSites.worker_yield(site["yields"][good], level, _tool_bonus(merc, trade)) * effort * float(order["yield"])
+		for good in site.get("side", {}):
+			units[good] = float(units.get(good, 0.0)) + TradeSites.worker_yield(site["side"][good], 1, 0) * float(order["yield"])
+		var t: Dictionary = terms(merc)
+		wages += int(t["wage"])
+		share += float(t["cut"])
+	if not workers.is_empty():
+		share = share / float(workers.size())
+	var value: float = 0.0
+	for good in units:
+		var kept: float = float(units[good]) * (1.0 - share)
+		value += kept * float(sell_price(str(good), int(round(kept))))
+	var rare: Dictionary = site.get("rare", {})
+	if not rare.is_empty() and not workers.is_empty():
+		value += float(rare["chance"]) * float(rare["count"]) * float(sell_price(str(rare["good"])))
+	var protect: float = TradeSites.protection(guards, best_combat)
+	var injury: float = float(site.get("injury", 0.0)) * float(order["risk"]) * (1.0 - protect)
+	var death: float = float(site.get("death", 0.0)) * float(order["risk"]) * (1.0 - protect)
+	var cost: int = int(site.get("supplies", 0)) + wages
+	return {
+		"site": site_id, "trade": trade, "workers": workers.size(), "guards": guards,
+		"best_level": best_level, "meets_level": best_level >= int(site.get("level", 1)),
+		"units": units, "share": share, "value": int(round(value)), "cost": cost,
+		"profit": int(round(value)) - cost, "injury": injury, "death": death,
+		"duration": int(round(float(site.get("duration", 60)) * float(order["duration"]))),
+		"xp": int(round(float(site.get("xp", 20)) * float(order["xp"]))),
+	}
+
+func site_dispatch(site_id: String, ids: Array[String], approach: String) -> String:
+	var site: Dictionary = TradeSites.by_id(site_id)
+	if site.is_empty() or site.has("special"):
+		return "That site is not available."
+	if not TACTICS.has(approach):
+		return "Unrecognized standing orders."
+	if ids.is_empty() or ids.size() > 3:
+		return "Choose between one and three workers."
+	if missions.size() >= expedition_slots:
+		return "No expedition slots are free."
+	for id in ids:
+		var merc: Dictionary = merc_by_id(id)
+		if merc.is_empty() or not is_available(merc):
+			return "A selected mercenary is unavailable."
+		if int(merc.get("health", 100)) < 25:
+			return "%s is too injured for work." % str(merc["name"])
+	var plan: Dictionary = site_forecast(site_id, ids, approach)
+	if not bool(plan["meets_level"]):
+		return "%s needs a crew member with %s level %d." % [str(site["name"]), TradeSkills.NAMES.get(str(site["trade"]), "trade"), int(site["level"])]
+	if gold < int(plan["cost"]):
+		return "Insufficient gold for wages and supplies."
+	gold -= int(plan["cost"])
+	var now := int(Time.get_unix_time_from_system())
+	var key := "job_%d" % next_mission_id
+	next_mission_id += 1
+	for id in ids:
+		merc_by_id(id)["mission_id"] = key
+	missions.append({
+		"id": key, "site": site_id, "region": "site", "trade": str(site["trade"]),
+		"ids": ids.duplicate(), "tactic": approach, "cost": int(plan["cost"]),
+		"share": float(plan["share"]), "injury": float(plan["injury"]), "death": float(plan["death"]),
+		"xp": int(plan["xp"]), "seed": randi(), "started": now, "finish": now + int(plan["duration"])
+	})
+	save_game()
+	return "The crew set out for %s." % str(site["name"])
+
+func _site_finish(mission: Dictionary) -> void:
+	var site: Dictionary = TradeSites.by_id(str(mission.get("site", "")))
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(mission.get("seed", 1))
+	var trade: String = str(mission.get("trade", site.get("trade", "logging")))
+	var order: Dictionary = TradeSites.orders(str(mission.get("tactic", "Balanced")))
+	var site_name: String = str(site.get("name", "the site"))
+	var events: Array[String] = []
+	var casualties: Array[String] = []
+	var wounded: Array[String] = []
+	var lost_items: Array[String] = []
+	var finds: Array[String] = []
+	var raw: Dictionary = {}
+	var survivors: int = 0
+	events.append("The crew set out for %s with %s orders." % [site_name, str(mission.get("tactic", "Balanced")).to_lower()])
+	var threat: Dictionary = site.get("threat", {})
+	for merc_id in mission.get("ids", []):
+		var id: String = str(merc_id)
+		var worker: Dictionary = merc_by_id(id)
+		if worker.is_empty():
+			continue
+		var guard: bool = str(worker.get("role", "")) == "Guard"
+		var death_chance: float = float(mission.get("death", 0.0)) * (1.1 if guard else 1.0)
+		if rng.randf() < death_chance:
+			casualties.append(str(worker["name"]))
+			retired_ids.append(id)
+			var equipped: Dictionary = worker.get("equipment", {})
+			for slot in ["tool", "armor"]:
+				var item: Dictionary = equipped.get(slot, {})
+				if not item.is_empty():
+					lost_items.append("%s — %s" % [str(worker["name"]), V05.item_name(item)])
+			var memorial: Array = harlow.get("fallen", [])
+			memorial.push_front({"name": str(worker["name"]), "equipment": equipped.duplicate(true),
+				"region": site_name, "time": int(mission["finish"])})
+			harlow["fallen"] = memorial
+			crew.erase(worker)
+			continue
+		survivors += 1
+		worker["mission_id"] = ""
+		if rng.randf() < float(mission.get("injury", 0.0)):
+			worker["health"] = maxi(20, int(worker.get("health", 100)) - rng.randi_range(8, 25))
+			wounded.append(str(worker["name"]))
+		var level: int = TradeSkills.level_of(worker, trade)
+		var effort: float = 0.5 if guard else 1.0
+		var tool: int = _tool_bonus(worker, trade)
+		for good in site.get("yields", {}):
+			var span: Array = site["yields"][good]
+			var amount: float = float(rng.randi_range(int(span[0]), int(span[1]))) * (1.0 + TradeSites.LEVEL_YIELD_BONUS * float(level - 1)) + float(tool)
+			raw[good] = int(raw.get(good, 0)) + int(round(amount * effort * float(order["yield"])))
+		for good in site.get("side", {}):
+			var span: Array = site["side"][good]
+			raw[good] = int(raw.get(good, 0)) + int(round(float(rng.randi_range(int(span[0]), int(span[1]))) * float(order["yield"])))
+		var xp: int = int(mission.get("xp", 20))
+		var gained: int = TradeSkills.grant(worker, trade, xp)
+		if gained > 0:
+			events.append("%s reached %s %d." % [str(worker["name"]), TradeSkills.NAMES.get(trade, trade), TradeSkills.level_of(worker, trade)])
+		if guard and int(threat.get("danger", 0)) > 0:
+			if TradeSkills.grant(worker, "combat", int(xp * 0.6)) > 0:
+				events.append("%s reached Combat %d." % [str(worker["name"]), TradeSkills.level_of(worker, "combat")])
+	if int(threat.get("danger", 0)) > 0 and (not wounded.is_empty() or not casualties.is_empty()):
+		events.append("%s found the crew." % str(threat.get("name", "Trouble")))
+	if not casualties.is_empty():
+		events.append("%s did not come back. Their gear was lost." % ", ".join(casualties))
+	if not wounded.is_empty():
+		events.append("%s returned injured." % ", ".join(wounded))
+	# The crew keeps its agreed share of the haul.
+	var loot: Dictionary = {}
+	var kept_by_crew: Array[String] = []
+	for good in raw:
+		var total: int = int(raw[good])
+		if total <= 0:
+			continue
+		var crew_cut: int = int(round(float(total) * float(mission.get("share", 0.0))))
+		if crew_cut > 0:
+			kept_by_crew.append("%d %s" % [crew_cut, str(RESOURCE_NAMES.get(good, good))])
+		loot[good] = total - crew_cut
+	var rare: Dictionary = site.get("rare", {})
+	if survivors > 0 and not rare.is_empty() and rng.randf() < float(rare["chance"]):
+		var good: String = str(rare["good"])
+		loot[good] = int(loot.get(good, 0)) + int(rare.get("count", 1))
+		finds.append(str(RESOURCE_NAMES.get(good, good)))
+		events.append("A rare find: %s." % str(rare.get("note", good)))
+	var hauled: Array[String] = []
+	var value: int = 0
+	for good in loot:
+		if int(loot[good]) <= 0:
+			continue
+		resources[good] = int(resources.get(good, 0)) + int(loot[good])
+		hauled.append("%d %s" % [int(loot[good]), str(RESOURCE_NAMES.get(good, good))])
+		value += int(loot[good]) * sell_price(str(good), int(loot[good]))
+	if survivors == 0:
+		events.append("Nothing was brought back.")
+	elif not hauled.is_empty():
+		events.append("They brought back %s." % ", ".join(hauled))
+	if not kept_by_crew.is_empty():
+		events.append("The crew kept their share: %s." % ", ".join(kept_by_crew))
+	var success: bool = survivors > 0 and casualties.is_empty()
+	reputation += 1 if success else 0
+	_apply_relief_payment()
+	reports.push_front({
+		"region": site_name, "site": str(mission.get("site", "")), "trade": trade,
+		"won": success, "loot": loot, "cash": 0, "commission": 0, "cost": int(mission.get("cost", 0)),
+		"value": value, "tactic": str(mission.get("tactic", "Balanced")), "crew": mission.get("ids", []),
+		"time": int(mission["finish"]), "casualties": casualties, "injured": wounded,
+		"lost_items": lost_items, "found_items": finds, "events": events,
+		"partial": not success and not loot.is_empty()
 	})
 	if reports.size() > 35:
 		reports.resize(35)

@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.9 — Guildmaster's Logbook (BookUI redesign)**
+**Version 0.10 — Trades, skills and a living market**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,15 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## V0.10 — Trades, skills and a living market
+
+- **Market model** (`scripts/market.gd`): each good has a reference price (base price, six-hour drift, demand events with news). NPC merchants buy at about 75% and sell at about 130% of it. Selling floods them and lowers their price; buying makes goods scarce. The effect fades with a 12-hour half-life. Prices are sampled hourly and after each trade, and the Exchange shows the history, saturation and the day's news.
+- **Trade skills** (`scripts/skills.gd`): every mercenary has Logging, Mining, Foraging and Combat levels (1 to 50) that grow with experience. Hiring role sets the starting speciality. Older saves are migrated automatically.
+- **Sites** (`scripts/sites.gd`): expedition sites are data. Logging launches with Mossward Copse (level 1, safe) and Old Oakwood (level 8, wolves, rare relic). Harlow Mines is listed as the first mining site. The planner shows expected haul, expected profit and risk before you commit.
+- **Expeditions chapter**: a board of every trade and site plus the company's best level in each trade, and a site spread modelled on Harlow. Woodcutters, hand axes and felling axes join the recruitment board and armory.
+- Expedition profit now counts the goods brought home at the merchant price, not just loose coin.
+- `tools/balance_logging.gd` simulates hundreds of trips per crew and order type (it resets the save, so it requires `MM_ALLOW_RESET=1`).
 
 ## V0.9 — Logbook UI redesign
 

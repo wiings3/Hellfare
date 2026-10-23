@@ -64,9 +64,9 @@ theme_override_constants/separation = 4
 [node name="Recovered" parent="Margin/Content/Money" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Recovered"
+caption = "Haul value"
 value = "0"
-tooltip_text = "Coin brought back after the crew's share."
+tooltip_text = "Coin plus goods at the merchant price on return, after the crew's share."
 
 [node name="Costs" parent="Margin/Content/Money" instance=ExtResource("2_stat_tile")]
 layout_mode = 2

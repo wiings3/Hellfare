@@ -7,7 +7,7 @@ const V05 = preload("res://scripts/v05_rules.gd")
 const SAVE_PATH := "user://money_mercs_save.json"
 const RESOURCE_ORDER := ["copper", "iron", "timber", "herbs", "silver", "crystal", "relic", "sovereign"]
 const RESOURCE_NAMES := {
-	"copper": "Copper Ore", "iron": "Iron Ore", "timber": "Oldgrowth Timber", "herbs": "Moonleaf", "silver": "Silver", 
+	"copper": "Copper Ore", "iron": "Iron Ore", "timber": "Timber", "herbs": "Moonleaf", "silver": "Silver", 
 	"crystal": "Azure Crystal", "relic": "Ancient Relic", "sovereign": "Sovereign Orb"
 }
 const RESOURCE_DESC := {
@@ -20,7 +20,7 @@ const RESOURCE_DESC := {
 	"relic": "Recovered from forgotten sites. Used by master craftsmen.",
 	"sovereign": "The rarest currency. Required for a mythical-tier equipment upgrade."
 }
-const BASE_PRICE := {"copper": 20, "iron": 17, "timber": 4, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
+const BASE_PRICE := {"copper": 20, "iron": 17, "timber": 6, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
 
 const RECRUITS := [
 	{"id": "garrick", "name": "Garrick", "role": "Miner", "title": "The Quarry Hand", "skill": 11, "hire": 70, "wage": 9, "share": 0.09},
@@ -56,6 +56,7 @@ var missions: Array[Dictionary] = []
 var reports: Array[Dictionary] = []
 var next_mission_id: int = 1
 var last_notice: String = ""
+var market: MarketModel = MarketModel.new(BASE_PRICE)
 
 func _init() -> void:
 	for id in RESOURCE_ORDER:
@@ -104,6 +105,8 @@ func load_game() -> void:
 	for merc in crew:
 		if not merc.has("equipment"):
 			merc["equipment"] = {"tool": {}, "armor": {}}
+		TradeSkills.ensure(merc)
+	market.load_dict(state.get("market", {}))
 	last_notice = "Company records restored."
 
 func save_game() -> void:
@@ -117,7 +120,8 @@ func save_game() -> void:
 		"resources": resources, "crew": crew, "missions": missions, "reports": reports,
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt,
-		"relief_count": relief_count, "retired_ids": retired_ids
+		"relief_count": relief_count, "retired_ids": retired_ids,
+		"market": market.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
 
@@ -182,6 +186,7 @@ func hire(id: String) -> String:
 	merc["xp"] = 0
 	merc["contract"] = "Balanced"
 	merc["mission_id"] = ""
+	merc["skills"] = TradeSkills.starting_skills(str(merc.get("role", "")), int(merc.get("skill", 10)))
 	gold -= int(merc["hire"])
 	crew.append(merc)
 	save_game()
@@ -366,7 +371,9 @@ func complete_due(now: int = -1) -> int:
 		var mission: Dictionary = missions[i]
 		if int(mission["finish"]) > now:
 			continue
-		if str(mission.get("region", "")) == "harlow":
+		if mission.has("site"):
+			_site_finish(mission)
+		elif str(mission.get("region", "")) == "harlow":
 			_harlow_finish(mission)
 		elif str(mission.get("region", "")) == "guild_work":
 			_finish_guild_work(mission)
@@ -499,17 +506,21 @@ func _finish(mission: Dictionary) -> void:
 	if reports.size() > 35:
 		reports.resize(35)
 
+## Fair reference value of a good today (see MarketModel).
 func price(item: String) -> int:
-	var base: int = int(BASE_PRICE.get(item, 1))
-	var market_period: int = int(Time.get_unix_time_from_system() / 21600.0)
-	var fluctuation: int = posmod(item.hash() + market_period * 17, 25) - 12
-	return maxi(1, int(round(float(base) * (1.0 + float(fluctuation) / 100.0))))
+	return market.reference_price(item)
 
-func sell_price(item: String) -> int:
-	return maxi(1, int(floor(float(price(item)) * 0.90)))
+## What an NPC merchant pays per unit when the company sells `quantity`.
+func sell_price(item: String, quantity: int = 1) -> int:
+	return market.npc_buy_price(item, quantity)
 
-func buy_price(item: String) -> int:
-	return maxi(1, int(ceil(float(price(item)) * 1.12)))
+## What an NPC merchant charges per unit when the company buys `quantity`.
+func buy_price(item: String, quantity: int = 1) -> int:
+	return market.npc_sell_price(item, quantity)
+
+## Record hourly price samples; called from the game clock.
+func market_tick() -> void:
+	market.sample_all(RESOURCE_ORDER)
 
 func trade(item: String, buy: bool, quantity: int) -> String:
 	if not BASE_PRICE.has(item) or quantity <= 0:
@@ -517,18 +528,20 @@ func trade(item: String, buy: bool, quantity: int) -> String:
 	if buy:
 		if item == "relic" or item == "sovereign":
 			return "Ancient Relics and Sovereign Orbs cannot be bought from NPC merchants."
-		var cost: int = buy_price(item) * quantity
+		var cost: int = buy_price(item, quantity) * quantity
 		if gold < cost:
 			return "You need %d gold for this purchase." % cost
 		gold -= cost
 		resources[item] = int(resources.get(item, 0)) + quantity
+		market.record_npc_trade(item, -quantity)
 		save_game()
 		return "Purchased %d %s for %d gold." % [quantity, str(RESOURCE_NAMES[item]), cost]
 	if int(resources.get(item, 0)) < quantity:
 		return "You don't have that many resources."
-	var revenue: int = sell_price(item) * quantity
+	var revenue: int = sell_price(item, quantity) * quantity
 	resources[item] = int(resources[item]) - quantity
 	gold += revenue
+	market.record_npc_trade(item, quantity)
 	_apply_relief_payment()
 	save_game()
 	return "Sold %d %s for %d gold." % [quantity, str(RESOURCE_NAMES[item]), revenue]
@@ -676,6 +689,7 @@ func reset_company() -> void:
 	relief_debt = 0
 	relief_count = 0
 	retired_ids.clear()
+	market.reset()
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
 	save_game()
@@ -684,4 +698,7 @@ func reset_company() -> void:
 # Called from generic expedition completion; implemented by MoneyMercsState.
 func _harlow_finish(_mission: Dictionary) -> void:
 	push_error("CompanyStateBase needs a Harlow expedition resolver.")
+
+func _site_finish(_mission: Dictionary) -> void:
+	push_error("CompanyStateBase needs a site expedition resolver.")
 

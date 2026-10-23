@@ -88,7 +88,9 @@ func _verify() -> void:
 	# Every chapter mounts its scenes.
 	var scene_by_chapter := {
 		"harlow": ["harlow_left", "harlow_right"],
-		"expeditions": ["regions_left", "regions_right"],
+		"expeditions": ["board_left", "board_right"],
+		"contracts": ["regions_left", "regions_right"],
+		"site": ["site_left", "site_right"],
 		"roster": ["personnel_employed_left", "personnel_employed_right"],
 		"market": ["exchange_left", "exchange_right"],
 		"finance": ["finance_left", "finance_right"],
@@ -121,8 +123,34 @@ func _verify() -> void:
 	check((view.left_leaf.get_child(0).get_node("Margin/Content/Ledger/Rows/Total/Value") as Label).text == view._money(view.game.wealth()), "finance worth matches")
 	view._nav_to("ledger")
 	check((view.left_leaf.get_child(0).get_node("Margin/Content/Empty") as Control).visible == view.game.reports.is_empty(), "chronicle empty state")
-	view._nav_to("expeditions")
+	view._nav_to("contracts")
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count() == MoneyMercsState.REGIONS.size() + 1, "contract cards")
+	# Logging: the board lists the copse; the site planner forecasts a profit for a woodcutter.
+	view._nav_to("expeditions")
+	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/board_left.tscn"), "expedition board")
+	var cutter: Dictionary = {}
+	for candidate in view.game.recruitment_board():
+		if str(candidate["role"]) == "Woodcutter":
+			cutter = candidate
+			break
+	check(not cutter.is_empty(), "a woodcutter is always on the board")
+	view.game.gold = 900
+	view._hire(str(cutter["id"]))
+	check(TradeSkills.level_of(view.game.merc_by_id(str(cutter["id"])), "logging") >= 1, "new woodcutter has logging skill")
+	view.selected_site = "mossward_copse"
+	view._nav_to("site")
+	view._toggle_crew(true, str(cutter["id"]))
+	var sr: Control = view.right_leaf.get_child(0)
+	check(not (sr.get_node("Margin/Content/Fund") as Button).disabled, "copse can be funded with a woodcutter")
+	check(int(view.game.site_forecast("mossward_copse", view._selected_available(), "Balanced")["profit"]) > 0, "copse forecast is profitable")
+	view._dispatch_site()
+	check(view.game.missions.size() == 1 and str(view.game.missions[0].get("site", "")) == "mossward_copse", "copse expedition dispatched")
+	view.game.complete_due(int(Time.get_unix_time_from_system()) + 10000)
+	check(int(view.game.resources.get("timber", 0)) > 0, "timber delivered")
+	check(int(view.game.reports[0].get("value", 0)) > 0, "report records haul value")
+	var before_price: int = view.game.sell_price("timber")
+	view.game.trade("timber", false, int(view.game.resources["timber"]))
+	check(view.game.sell_price("timber") <= before_price, "selling saturates the merchants")
 	view._nav_to("market")
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count() == MoneyMercsState.RESOURCE_ORDER.size(), "market rows")
 	view._choose_commodity("iron")

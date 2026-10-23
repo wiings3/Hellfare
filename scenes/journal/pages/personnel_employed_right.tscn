@@ -97,9 +97,9 @@ tooltip_text = "Raises expedition success. Grows with experience."
 [node name="Experience" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Experience"
+caption = "Main trade"
 value = "0"
-tooltip_text = "Earned on expeditions. Adds to effective skill."
+tooltip_text = "Level in the trade this mercenary was hired for."
 
 [node name="Wage" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
@@ -144,6 +144,66 @@ mouse_default_cursor_shape = 2
 theme_type_variation = &"PaperButton"
 text = "Treat"
 tooltip_text = "Pay a healer to restore full health."
+
+[node name="Skills" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+tooltip_text = "Trade levels rise with experience. Higher levels haul more and unlock better sites."
+mouse_filter = 1
+
+[node name="Logging" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Logging"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Logging 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Logging"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Mining" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Mining"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Mining 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Mining"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Combat" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Combat"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Combat 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Combat"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
 
 [node name="GearHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2

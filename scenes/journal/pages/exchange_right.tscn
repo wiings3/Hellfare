@@ -107,6 +107,35 @@ text = ""
 size_flags_horizontal = 3
 autowrap_mode = 3
 
+[node name="History" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"InsetPanel"
+tooltip_text = "What merchants have paid for one, sampled every hour and after each trade."
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/History"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
+[node name="Top" type="HBoxContainer" parent="Margin/Content/History/Body"]
+layout_mode = 2
+
+[node name="Caption" type="Label" parent="Margin/Content/History/Body/Top"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Merchant price, last 48 samples"
+size_flags_horizontal = 3
+
+[node name="Range" type="Label" parent="Margin/Content/History/Body/Top"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+
+[node name="Bars" type="HBoxContainer" parent="Margin/Content/History/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 30)
+theme_override_constants/separation = 1
+alignment = 2
+
 [node name="Desk" type="PanelContainer" parent="Margin/Content"]
 layout_mode = 2
 
@@ -179,5 +208,5 @@ mouse_filter = 2
 
 [node name="Note" parent="Margin/Content" instance=ExtResource("3_info_box")]
 layout_mode = 2
-text = "Sales go straight to the treasury. Rare goods are worth holding when prices dip."
+text = "Selling many at once floods the merchants and lowers their price; it recovers within a day."
 icon_kind = "coin"
