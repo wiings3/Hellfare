@@ -513,7 +513,7 @@ def link_card():
     for name, caption in [("Fair", "Fair value"), ("MerchantBuys", "Merchants pay"), ("MerchantSells", "Merchants sell"), ("HallAsk", "Lowest ask in chat"), ("HallBid", "Highest bid in chat"), ("Owned", "In your warehouse")]:
         label(s, "Margin/Body/Rows/%sCaption" % name, caption, "LabelCaption", {"size_flags_horizontal": 3})
         label(s, "Margin/Body/Rows/%s" % name, "-", None, {"horizontal_alignment": 2})
-    label(s, "Margin/Body/Hint", "Click to price your own listing.", "LabelMuted", {"horizontal_alignment": 1})
+    label(s, "Margin/Body/Hint", "Shift+click to link it in a message.", "LabelMuted", {"horizontal_alignment": 1})
     s.save("scenes/journal/widgets/link_card.tscn")
 
 
@@ -522,91 +522,121 @@ def trade_hall():
     header(s, C + "/Header", "Trade Chat")
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Online", "14 traders online", "LabelCaption", {"size_flags_horizontal": 3})
-    label(s, C + "/Summary/Fees", "Tax 3%  ·  Post fee 2 G", "LabelCaption", {"tooltip_text": "A 3% tax is taken from each sale. Posting a listing costs a small fee.", "mouse_filter": 1})
+    label(s, C + "/Summary/Fees", "Trade tax 3%", "LabelCaption", {"tooltip_text": "A 3% tax comes off gold you receive in a trade.", "mouse_filter": 1})
     s.node(C + "/Chat", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
     s.node(C + "/Chat/Scroll", "ScrollContainer", {"custom_minimum_size": (0, 60), "horizontal_scroll_mode": 0})
     s.node(C + "/Chat/Scroll/Lines", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 2})
-    label(s, C + "/Footer", "Hover an item for its card. Right-click a name to whisper.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.node(C + "/Composer", "VBoxContainer", {"theme_override_constants/separation": 2})
+    s.node(C + "/Composer/Preview", "RichTextLabel", {"visible": False, "mouse_filter": 1, "bbcode_enabled": True, "fit_content": True,
+        "scroll_active": False, "autowrap_mode": 3, "meta_underlined": False, "text": ""})
+    s.node(C + "/Composer/Row", "HBoxContainer", {"theme_override_constants/separation": 3})
+    s.node(C + "/Composer/Row/Input", "LineEdit", {"custom_minimum_size": (0, 20), "size_flags_horizontal": 3,
+        "placeholder_text": "Say something in trade chat...", "max_length": 120, "context_menu_enabled": False, "caret_blink": True})
+    button(s, C + "/Composer/Row/Send", "Send", None, {"custom_minimum_size": (44, 20)})
+    label(s, C + "/Footer", "Shift+click items to link them. Right-click a name to message.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "hall_left.tscn")
 
     s = page("HallRight")
-    grp = s.sub("goods", "ButtonGroup", {})
-    header(s, C + "/Header", "Your Stall")
-    s.node(C + "/Goods", "HBoxContainer", {"theme_override_constants/separation": 3, "alignment": 1})
-    for i in range(8):
-        base = C + "/Goods/Good%d" % i
-        button(s, base, "", "SlotButton", {"custom_minimum_size": (28, 28), "toggle_mode": True, "button_group": grp})
-        s.node(base + "/Icon", "TextureRect", {"layout_mode": 1, "anchors_preset": 8, "anchor_left": 0.5, "anchor_top": 0.5, "anchor_right": 0.5, "anchor_bottom": 0.5,
-            "offset_left": -8.0, "offset_top": -8.0, "offset_right": 8.0, "offset_bottom": 8.0, "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2, "stretch_mode": 3})
-        label(s, base + "/Count", "0", "SlotCount", {"layout_mode": 1, "anchors_preset": 3, "anchor_left": 1.0, "anchor_top": 1.0, "anchor_right": 1.0, "anchor_bottom": 1.0,
-            "offset_left": -20.0, "offset_top": -11.0, "offset_right": -2.0, "offset_bottom": 1.0, "grow_horizontal": 0, "grow_vertical": 0, "horizontal_alignment": 2, "mouse_filter": 2})
-    s.node(C + "/Picked", "HBoxContainer")
-    label(s, C + "/Picked/Name", "Timber", "LabelTitle", {"size_flags_horizontal": 3})
-    label(s, C + "/Picked/Held", "You hold 0", "LabelCaption", {"size_flags_vertical": 4})
-    s.node(C + "/Form", "PanelContainer")
-    s.node(C + "/Form/Body", "VBoxContainer", {"theme_override_constants/separation": 4})
-    for row, caption, buttons in [("Qty", "Quantity", [("Less10", "-10"), ("Less1", "-1"), ("Value", None), ("More1", "+1"), ("More10", "+10"), ("All", "All")]),
-                                  ("Price", "Price each", [("Less1", "-1"), ("Value", None), ("More1", "+1"), ("Fair", "Fair")])]:
-        base = C + "/Form/Body/%sRow" % row
-        s.node(base, "HBoxContainer", {"theme_override_constants/separation": 3})
-        label(s, base + "/Caption", caption, "LabelCaption", {"custom_minimum_size": (54, 0), "size_flags_vertical": 4})
-        for name, text in buttons:
-            if text is None:
-                label(s, base + "/" + name, "0", "LabelBig", {"custom_minimum_size": (40, 0), "horizontal_alignment": 1, "size_flags_horizontal": 3})
-            else:
-                button(s, base + "/" + name, text, "PaperButton", {"custom_minimum_size": (24, 18)})
-    label(s, C + "/Form/Body/Guide", "", "LabelCaption", {"autowrap_mode": 3})
-    label(s, C + "/Form/Body/Odds", "", "LabelAccent", {"autowrap_mode": 3})
-    label(s, C + "/Form/Body/Total", "", None, {"autowrap_mode": 3})
-    button(s, C + "/Post", "Post to the Hall", None, {"custom_minimum_size": (0, 24)})
-    header(s, C + "/ListingsHeader", "Listings")
-    scroll(s, C + "/Listings", 40)
-    label(s, C + "/Empty", "Nothing listed. Goods you post are held here until they sell.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    header(s, C + "/Header", "Inventory")
+    label(s, C + "/Caption", "Shift+click to link an item in chat. During a trade, click to put it in.", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Goods", "GridContainer", {"columns": 8, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3})
+    header(s, C + "/GearHeader", "Spare gear")
+    s.node(C + "/GearScroll", "ScrollContainer", {"custom_minimum_size": (0, 31), "horizontal_scroll_mode": 0})
+    s.node(C + "/GearScroll/Gear", "GridContainer", {"size_flags_horizontal": 3, "columns": 8, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3})
+    label(s, C + "/GearEmpty", "No spare gear. Gear in the armory storeroom shows here.", "LabelMuted", {"autowrap_mode": 3})
+    header(s, C + "/MessagesHeader", "Messages")
+    scroll(s, C + "/Messages", 40)
+    label(s, C + "/MessagesEmpty", "No conversations yet. Right-click a name in the chat to message a trader.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.node(C + "/Blocked", "HBoxContainer", {"visible": False})
+    label(s, C + "/Blocked/Text", "Blocked: 0", "LabelCaption", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "text_overrun_behavior": 3})
+    button(s, C + "/Blocked/Unblock", "Unblock all", "PaperButton")
     s.save(P + "hall_right.tscn")
 
 
-def hall_whisper():
-    """Right page of the Trade Hall while whispering with a trader."""
-    s = page("HallWhisper")
-    header(s, C + "/Header", "Whisper")
-    s.node(C + "/Who", "HBoxContainer", {"theme_override_constants/separation": 6})
-    s.node(C + "/Who/Id", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -3})
-    label(s, C + "/Who/Id/Name", "Trader", "LabelTitle", {"text_overrun_behavior": 3})
-    label(s, C + "/Who/Id/Kind", "Haggler", "LabelCaption")
-    s.node(C + "/Who/Mood", "VBoxContainer", {"size_flags_vertical": 4, "theme_override_constants/separation": 0, "tooltip_text": "How many more offers they will hear. Lowball offers use up two.", "mouse_filter": 1})
-    label(s, C + "/Who/Mood/Caption", "Patience", "LabelCaption", {"horizontal_alignment": 2})
-    s.inst(C + "/Who/Mood/Pips", PIPS, {"size_flags_horizontal": 8, "value": 3, "max_value": 5})
-    button(s, C + "/Who/Back", "< Stall", "PaperButton", {"size_flags_vertical": 4, "tooltip_text": "Back to your stall. The conversation stays open."})
-    s.node(C + "/Deal", "PanelContainer", {"theme_type_variation": Raw('&"InsetPanel"')})
-    s.node(C + "/Deal/Row", "HBoxContainer", {"theme_override_constants/separation": 6})
-    s.node(C + "/Deal/Row/Slot", "PanelContainer", {"custom_minimum_size": (28, 28), "size_flags_vertical": 4, "theme_type_variation": Raw('&"SlotPanel"')})
-    s.node(C + "/Deal/Row/Slot/Icon", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
-    s.node(C + "/Deal/Row/Info", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": -3})
-    label(s, C + "/Deal/Row/Info/Line", "Selling 40 Timber at 6g each", None, {"text_overrun_behavior": 3})
-    label(s, C + "/Deal/Row/Info/Note", "Fair value 5 G each", "LabelCaption", {"text_overrun_behavior": 3})
-    s.node(C + "/Log", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
-    s.node(C + "/Log/Scroll", "ScrollContainer", {"custom_minimum_size": (0, 40), "horizontal_scroll_mode": 0})
-    s.node(C + "/Log/Scroll/Lines", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 2})
-    label(s, C + "/Typing", "", "LabelMuted")
-    s.node(C + "/Form", "PanelContainer")
-    s.node(C + "/Form/Body", "VBoxContainer", {"theme_override_constants/separation": 3})
-    for row, caption, buttons in [("Qty", "Quantity", [("Less10", "-10"), ("Less1", "-1"), ("Value", None), ("More1", "+1"), ("More10", "+10"), ("Max", "Max")]),
-                                  ("Offer", "Your offer", [("Less10", "-10"), ("Less1", "-1"), ("Value", None), ("More1", "+1"), ("More10", "+10")])]:
-        base = C + "/Form/Body/%sRow" % row
-        s.node(base, "HBoxContainer", {"theme_override_constants/separation": 3})
-        label(s, base + "/Caption", caption, "LabelCaption", {"custom_minimum_size": (50, 0), "size_flags_vertical": 4})
-        for name, text in buttons:
-            if text is None:
-                label(s, base + "/" + name, "0", "LabelBig", {"custom_minimum_size": (44, 0), "horizontal_alignment": 1, "size_flags_horizontal": 3})
-            else:
-                button(s, base + "/" + name, text, "PaperButton", {"custom_minimum_size": (24, 18)})
-    label(s, C + "/Form/Body/Summary", "", "LabelCaption", {"autowrap_mode": 3})
-    s.node(C + "/Actions", "HBoxContainer", {"theme_override_constants/separation": 4})
-    button(s, C + "/Actions/Offer", "Make offer", None, {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3})
-    button(s, C + "/Actions/Take", "Take their price", "PaperButton", {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3})
-    button(s, C + "/Actions/Leave", "Walk away", "PaperButton", {"custom_minimum_size": (0, 22)})
-    label(s, C + "/Outcome", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3, "visible": False})
-    s.save(P + "hall_whisper.tscn")
+def inventory_slot():
+    s = Scene("InventorySlot", "Button", {"custom_minimum_size": (29, 29), "mouse_default_cursor_shape": 2, "theme_type_variation": Raw('&"SlotButton"'), "toggle_mode": True})
+    s.node("Icon", "TextureRect", {"layout_mode": 1, "anchors_preset": 8, "anchor_left": 0.5, "anchor_top": 0.5, "anchor_right": 0.5, "anchor_bottom": 0.5,
+        "offset_left": -8.0, "offset_top": -8.0, "offset_right": 8.0, "offset_bottom": 8.0, "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2, "stretch_mode": 3})
+    label(s, "Count", "", "SlotCount", {"layout_mode": 1, "anchors_preset": 3, "anchor_left": 1.0, "anchor_top": 1.0, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "offset_left": -24.0, "offset_top": -11.0, "offset_right": -2.0, "offset_bottom": 1.0, "grow_horizontal": 0, "grow_vertical": 0, "horizontal_alignment": 2, "mouse_filter": 2})
+    s.save(R + "inventory_slot.tscn")
+
+
+def chat_tab():
+    s = Scene("ChatTab", "Button", {"custom_minimum_size": (0, 16), "mouse_default_cursor_shape": 2, "theme_type_variation": Raw('&"ToggleButton"'), "toggle_mode": True, "text": "Name", "text_overrun_behavior": 3})
+    s.save(R + "chat_tab.tscn")
+
+
+def trade_row():
+    s = Scene("TradeRow", "HBoxContainer", {"theme_override_constants/separation": 3})
+    s.node("Slot", "PanelContainer", {"custom_minimum_size": (20, 20), "theme_type_variation": Raw('&"SlotPanel"')})
+    s.node("Slot/Icon", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3, "expand_mode": 1, "custom_minimum_size": (14, 14)})
+    label(s, "Name", "Item", None, {"size_flags_horizontal": 3, "size_flags_vertical": 4, "text_overrun_behavior": 3})
+    for name, text in [("Less10", "-10"), ("Less1", "-1")]:
+        button(s, name, text, "PaperButton", {"custom_minimum_size": (20, 16), "size_flags_vertical": 4})
+    label(s, "Qty", "x1", None, {"custom_minimum_size": (24, 0), "horizontal_alignment": 1, "size_flags_vertical": 4})
+    for name, text in [("More1", "+1"), ("More10", "+10")]:
+        button(s, name, text, "PaperButton", {"custom_minimum_size": (20, 16), "size_flags_vertical": 4})
+    button(s, "Remove", "x", "PaperButton", {"custom_minimum_size": (16, 16), "size_flags_vertical": 4, "tooltip_text": "Take it back out."})
+    s.save(R + "trade_row.tscn")
+
+
+def pm_window():
+    """Floating private-message window (lives in the journal shell)."""
+    s = Scene("PMWindow", "PanelContainer", {"visible": False, "layout_mode": 3, "anchors_preset": 0, "offset_left": 560.0, "offset_top": 262.0, "offset_right": 820.0, "offset_bottom": 486.0, "script": Res("res://scripts/ui/floating_window.gd")})
+    s.node("Margin", "MarginContainer", {"theme_override_constants/margin_left": 2, "theme_override_constants/margin_top": 0, "theme_override_constants/margin_right": 2, "theme_override_constants/margin_bottom": 2})
+    s.node("Margin/Body", "VBoxContainer", {"theme_override_constants/separation": 3})
+    s.node("Margin/Body/TitleBar", "HBoxContainer", {"mouse_filter": 0, "mouse_default_cursor_shape": 13, "theme_override_constants/separation": 4})
+    label(s, "Margin/Body/TitleBar/Title", "Messages", "LabelTitle", {"size_flags_horizontal": 3, "mouse_filter": 2})
+    label(s, "Margin/Body/TitleBar/Kind", "", "LabelCaption", {"size_flags_vertical": 4, "mouse_filter": 2})
+    button(s, "Margin/Body/TitleBar/Close", "x", "PaperButton", {"custom_minimum_size": (16, 16), "size_flags_vertical": 4, "tooltip_text": "Close. Conversations are kept."})
+    s.node("Margin/Body/Tabs", "HBoxContainer", {"theme_override_constants/separation": 2})
+    s.node("Margin/Body/Log", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
+    s.node("Margin/Body/Log/Scroll", "ScrollContainer", {"custom_minimum_size": (0, 40), "horizontal_scroll_mode": 0})
+    s.node("Margin/Body/Log/Scroll/Lines", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 2})
+    label(s, "Margin/Body/Status", "", "LabelMuted", {"autowrap_mode": 3})
+    s.node("Margin/Body/Preview", "RichTextLabel", {"visible": False, "mouse_filter": 1, "bbcode_enabled": True, "fit_content": True,
+        "scroll_active": False, "autowrap_mode": 3, "meta_underlined": False, "text": ""})
+    s.node("Margin/Body/Row", "HBoxContainer", {"theme_override_constants/separation": 3})
+    s.node("Margin/Body/Row/Input", "LineEdit", {"custom_minimum_size": (0, 20), "size_flags_horizontal": 3,
+        "placeholder_text": "Message...", "max_length": 160, "context_menu_enabled": False, "caret_blink": True})
+    button(s, "Margin/Body/Row/Send", "Send", None, {"custom_minimum_size": (40, 20)})
+    s.save("scenes/journal/widgets/pm_window.tscn")
+
+
+def trade_window():
+    """Floating trade window (lives in the journal shell)."""
+    s = Scene("TradeWindow", "PanelContainer", {"visible": False, "layout_mode": 3, "anchors_preset": 0, "offset_left": 196.0, "offset_top": 118.0, "offset_right": 486.0, "offset_bottom": 398.0, "script": Res("res://scripts/ui/floating_window.gd")})
+    s.node("Margin", "MarginContainer", {"theme_override_constants/margin_left": 2, "theme_override_constants/margin_top": 0, "theme_override_constants/margin_right": 2, "theme_override_constants/margin_bottom": 2})
+    s.node("Margin/Body", "VBoxContainer", {"theme_override_constants/separation": 4})
+    s.node("Margin/Body/TitleBar", "HBoxContainer", {"mouse_filter": 0, "mouse_default_cursor_shape": 13})
+    label(s, "Margin/Body/TitleBar/Title", "Trade", "LabelTitle", {"size_flags_horizontal": 3, "mouse_filter": 2})
+    label(s, "Margin/Body/Deal", "", "LabelCaption", {"autowrap_mode": 3})
+    for side, title in [("Mine", "You give"), ("Theirs", "They give")]:
+        base = "Margin/Body/%s" % side
+        s.node(base, "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
+        s.node(base + "/Body", "VBoxContainer", {"theme_override_constants/separation": 2})
+        s.node(base + "/Body/Head", "HBoxContainer")
+        label(s, base + "/Body/Head/Title", title, "LabelAccent", {"size_flags_horizontal": 3})
+        label(s, base + "/Body/Head/Ready", "Not ready", "LabelMuted")
+        s.node(base + "/Body/Items", "VBoxContainer", {"theme_override_constants/separation": 2})
+        label(s, base + "/Body/Empty", "Nothing yet.", "LabelMuted")
+        s.node(base + "/Body/Gold", "HBoxContainer", {"theme_override_constants/separation": 3})
+        s.node(base + "/Body/Gold/Coin", "TextureRect", {"texture": Res("res://assets/ui/icons/gold.png"), "custom_minimum_size": (14, 14), "expand_mode": 1, "stretch_mode": 5, "size_flags_vertical": 4})
+        label(s, base + "/Body/Gold/Caption", "Gold", "LabelCaption", {"size_flags_vertical": 4})
+        if side == "Mine":
+            for name, text in [("Less", "-10")]:
+                button(s, base + "/Body/Gold/" + name, text, "PaperButton", {"custom_minimum_size": (22, 16), "size_flags_vertical": 4})
+            s.node(base + "/Body/Gold/Amount", "LineEdit", {"custom_minimum_size": (56, 18), "size_flags_horizontal": 3, "text": "0", "placeholder_text": "0", "max_length": 7, "context_menu_enabled": False, "alignment": 2})
+            for name, text in [("More", "+10")]:
+                button(s, base + "/Body/Gold/" + name, text, "PaperButton", {"custom_minimum_size": (22, 16), "size_flags_vertical": 4})
+        else:
+            label(s, base + "/Body/Gold/Amount", "0", None, {"size_flags_horizontal": 3, "horizontal_alignment": 2})
+    label(s, "Margin/Body/Hint", "Click goods or gear in your inventory to put them in.", "LabelMuted", {"autowrap_mode": 3})
+    s.node("Margin/Body/Actions", "HBoxContainer", {"theme_override_constants/separation": 4})
+    button(s, "Margin/Body/Actions/Accept", "Accept", None, {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3})
+    button(s, "Margin/Body/Actions/Cancel", "Cancel", "PaperButton", {"custom_minimum_size": (0, 22)})
+    s.save("scenes/journal/widgets/trade_window.tscn")
 
 
 if __name__ == "__main__":

@@ -40,8 +40,8 @@ size_flags_horizontal = 3
 [node name="Fees" type="Label" parent="Margin/Content/Summary"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Tax 3%  ·  Post fee 2 G"
-tooltip_text = "A 3% tax is taken from each sale. Posting a listing costs a small fee."
+text = "Trade tax 3%"
+tooltip_text = "A 3% tax comes off gold you receive in a trade."
 mouse_filter = 1
 
 [node name="Chat" type="PanelContainer" parent="Margin/Content"]
@@ -59,9 +59,43 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 2
 
+[node name="Composer" type="VBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Preview" type="RichTextLabel" parent="Margin/Content/Composer"]
+layout_mode = 2
+visible = false
+mouse_filter = 1
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+meta_underlined = false
+text = ""
+
+[node name="Row" type="HBoxContainer" parent="Margin/Content/Composer"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Input" type="LineEdit" parent="Margin/Content/Composer/Row"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 20)
+size_flags_horizontal = 3
+placeholder_text = "Say something in trade chat..."
+max_length = 120
+context_menu_enabled = false
+caret_blink = true
+
+[node name="Send" type="Button" parent="Margin/Content/Composer/Row"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Send"
+custom_minimum_size = Vector2(44, 20)
+
 [node name="Footer" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Hover an item for its card. Right-click a name to whisper."
+text = "Shift+click items to link them. Right-click a name to message."
 horizontal_alignment = 1
 autowrap_mode = 3

@@ -134,5 +134,5 @@ horizontal_alignment = 2
 [node name="Hint" type="Label" parent="Margin/Body"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Click to price your own listing."
+text = "Shift+click to link it in a message."
 horizontal_alignment = 1

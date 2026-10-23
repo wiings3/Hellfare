@@ -62,6 +62,7 @@ var hall: TradeHall = TradeHall.new(market, RESOURCE_ORDER)
 func _init() -> void:
 	for id in RESOURCE_ORDER:
 		resources[id] = 0
+	hall.item_name = item_ref_name
 	load_game()
 
 func load_game() -> void:
@@ -109,6 +110,10 @@ func load_game() -> void:
 		TradeSkills.ensure(merc)
 	market.load_dict(state.get("market", {}))
 	hall.load_dict(state.get("hall", {}))
+	# Listings no longer exist: goods left in them go back to the warehouse.
+	for listing in hall.legacy_listings:
+		resources[str(listing["good"])] = int(resources.get(str(listing["good"]), 0)) + int(listing["left"])
+	hall.legacy_listings.clear()
 	last_notice = "Company records restored."
 
 func save_game() -> void:
@@ -550,122 +555,133 @@ func trade(item: String, buy: bool, quantity: int) -> String:
 
 # --- Trade Hall -----------------------------------------------------------------
 
-## Post a listing: the goods go into escrow and the post fee is paid now.
-func hall_post(item: String, quantity: int, unit_price: int, now: int = -1) -> String:
-	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
-	if not BASE_PRICE.has(item) or quantity <= 0 or unit_price <= 0:
-		return "Choose a good, a quantity and a price."
-	if not hall.can_post():
-		return "You already have %d listings up. Cancel one first." % TradeHall.MAX_LISTINGS
-	if int(resources.get(item, 0)) < quantity:
-		return "You don't have that many %s." % str(RESOURCE_NAMES[item])
-	if gold < TradeHall.POST_FEE:
-		return "You need %d gold for the post fee." % TradeHall.POST_FEE
-	resources[item] = int(resources[item]) - quantity
-	gold -= TradeHall.POST_FEE
-	hall.add_listing(item, quantity, unit_price, t)
-	save_game()
-	return "Posted %d %s at %d G each. Paid the %d G post fee." % [quantity, str(RESOURCE_NAMES[item]), unit_price, TradeHall.POST_FEE]
+## Display name for an item ref: a good key, or "gear:<item key>".
+func item_ref_name(ref: String) -> String:
+	if ref.begins_with("gear:"):
+		return str(item_definition(ref.substr(5)).get("name", "Gear"))
+	return str(RESOURCE_NAMES.get(ref, ref.capitalize()))
 
-## Take a listing down; unsold goods return to the warehouse. The fee is not refunded.
-func hall_cancel(listing_id: int) -> String:
-	var listing: Dictionary = hall.remove_listing(listing_id)
-	if listing.is_empty():
-		return "That listing is gone."
-	var item: String = str(listing["good"])
-	resources[item] = int(resources.get(item, 0)) + int(listing["left"])
-	save_game()
-	return "Took down the listing. %d %s returned to the warehouse." % [int(listing["left"]), str(RESOURCE_NAMES[item])]
+## Spare gear in the storeroom, uid -> item key.
+func storeroom_keys() -> Dictionary:
+	var keys: Dictionary = {}
+	for item in equipment_inventory:
+		keys[str(item.get("uid", ""))] = str(item.get("key", ""))
+	return keys
 
-## Advance the Trade Hall and settle sales and expired listings. Returns the events.
+func hall_say(text: String, links: Array, now: int = -1) -> String:
+	return hall.say(text, links, now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+## Block or unblock a trader; the list is saved.
+func hall_block(trader: String, on: bool = true) -> void:
+	if on:
+		hall.block(trader)
+	else:
+		hall.unblock(trader)
+	save_game()
+
+func hall_pm(trader: String, text: String, links: Array, now: int = -1) -> String:
+	return hall.pm(trader, text, links, now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+## Advance the Hall. Trades complete here once both sides are ready.
 func hall_tick(now: int = -1) -> Array:
 	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
 	var events: Array = hall.tick(t)
-	for event in events:
-		var item: String = str(event["good"])
-		if str(event["type"]) == "sale":
-			gold += int(event["gross"]) - int(event["tax"])
-			market.record_npc_trade(item, int(event["qty"]), int(event["t"]))
-		elif str(event["type"]) == "expired":
-			resources[item] = int(resources.get(item, 0)) + int(event["qty"])
-	if not events.is_empty():
-		_apply_relief_payment()
-		save_game()
+	if hall.session != null and hall.session.is_open() and hall.session.my_ready and hall.session.their_ready:
+		var trader: String = hall.session.trader
+		var result: String = trade_complete(t)
+		events.append({"type": "trade_done" if result.begins_with("Traded") else "trade_failed", "trader": trader, "message": result})
 	return events
 
-## Open a whisper about a chat post. Returns the negotiation, or null.
-func hall_whisper(message_id: int, now: int = -1) -> Haggle:
-	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
-	return hall.open_whisper(message_id, t)
-
-## The most the company could trade in an open whisper right now.
-func hall_whisper_limit(h: Haggle) -> int:
-	if h == null:
-		return 0
-	if h.they_sell:
-		return h.qty_max
-	if h.listing_id >= 0:
-		return mini(h.qty_max, int(hall.listing_by_id(h.listing_id).get("left", 0)))
-	return mini(h.qty_max, int(resources.get(h.good, 0)))
-
-## Offer `total` gold for `quantity` (or take their current price when `take_theirs`).
-## Returns {"ok", "result", "total", "line", "message"}; an accepted deal settles at once.
-func hall_negotiate(trader: String, quantity: int, total: int, take_theirs: bool = false, now: int = -1) -> Dictionary:
-	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
-	var h: Haggle = hall.whisper_with(trader)
-	if h == null or not h.is_open():
-		return {"ok": false, "message": "That conversation is over."}
-	var limit: int = hall_whisper_limit(h)
-	if quantity <= 0 or quantity > limit:
-		return {"ok": false, "message": "You can trade up to %d." % limit if limit > 0 else "You have nothing to trade with them."}
-	var price: int = h.quote(quantity) if take_theirs else total
-	if price <= 0:
-		return {"ok": false, "message": "Name a price."}
-	if h.they_sell and gold < price:
-		return {"ok": false, "message": "You need %d gold for that." % price}
-	var said: String = ("I'll take %d for %dg." % [quantity, price]) if take_theirs else ("%d for %dg?" % [quantity, price])
-	hall.whisper_line(h, true, said, t, quantity, price)
-	var reply: Dictionary = h.take(quantity) if take_theirs else h.offer(quantity, price)
-	hall.whisper_line(h, false, str(reply["line"]), t, quantity, int(reply["total"]))
-	reply["ok"] = true
-	reply["message"] = ""
-	if str(reply["result"]) == "accept":
-		reply["message"] = _hall_settle(h, quantity, int(reply["total"]), t)
-	return reply
-
-func hall_walk_away(trader: String, now: int = -1) -> void:
-	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
-	var h: Haggle = hall.whisper_with(trader)
-	if h != null and h.is_open():
-		hall.whisper_line(h, true, "Never mind, thanks.", t)
-		h.walk_away()
-
-func _hall_settle(h: Haggle, quantity: int, gross: int, t: int) -> String:
-	var unit_price: int = int(round(float(gross) / float(quantity)))
-	var name: String = str(RESOURCE_NAMES[h.good])
-	if h.they_sell:
-		gold -= gross
-		resources[h.good] = int(resources.get(h.good, 0)) + quantity
-		market.record_npc_trade(h.good, -quantity, t)
-		hall.take_from_post(h.post_id, quantity)
-		hall._post({"t": t, "from": h.trader, "kind": h.kind, "side": "deal_buy", "good": h.good, "qty": quantity, "price": unit_price, "total": gross, "left": 0})
-		save_game()
-		return "Bought %d %s from %s for %d gold." % [quantity, name, h.trader, gross]
-	var tax: int = maxi(1, int(round(float(gross) * TradeHall.TAX)))
-	if h.listing_id >= 0:
-		var listing: Dictionary = hall.listing_by_id(h.listing_id)
-		listing["left"] = int(listing["left"]) - quantity
-		if int(listing["left"]) <= 0:
-			hall.remove_listing(h.listing_id)
+## Put goods from the warehouse into the company's side of the trade (sets the amount).
+func trade_set_goods(good: String, quantity: int, now: int = -1) -> void:
+	var s: TradeSession = hall.session
+	if s == null or not s.is_open() or not BASE_PRICE.has(good):
+		return
+	var amount: int = clampi(quantity, 0, int(resources.get(good, 0)))
+	if amount <= 0:
+		s.mine_goods.erase(good)
 	else:
-		resources[h.good] = int(resources.get(h.good, 0)) - quantity
-		hall.take_from_post(h.post_id, quantity)
-	gold += gross - tax
-	market.record_npc_trade(h.good, quantity, t)
+		s.mine_goods[good] = amount
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+func trade_toggle_gear(uid: String, now: int = -1) -> void:
+	var s: TradeSession = hall.session
+	if s == null or not s.is_open() or not storeroom_keys().has(uid):
+		return
+	if s.mine_gear.has(uid):
+		s.mine_gear.erase(uid)
+	else:
+		s.mine_gear.append(uid)
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+func trade_set_gold(amount: int, now: int = -1) -> void:
+	var s: TradeSession = hall.session
+	if s == null or not s.is_open():
+		return
+	s.mine_gold = clampi(amount, 0, maxi(0, gold))
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+## The company presses Accept. If its side falls short of the deal, the trader says so.
+func trade_ready(now: int = -1) -> void:
+	var s: TradeSession = hall.session
+	if s == null or not s.is_open():
+		return
+	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	s.my_ready = true
+	if not s.covers_deal(storeroom_keys()):
+		hall.trade_short(t)
+
+func trade_cancel(now: int = -1) -> void:
+	hall.trade_cancel(now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+## Swap both sides. Gold the company receives is taxed 3%.
+func trade_complete(now: int = -1) -> String:
+	var s: TradeSession = hall.session
+	if s == null or not s.is_open():
+		return "No trade is open."
+	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	var keys: Dictionary = storeroom_keys()
+	for good in s.mine_goods:
+		if int(resources.get(good, 0)) < int(s.mine_goods[good]):
+			s.changed()
+			return "You no longer have that many %s." % item_ref_name(str(good))
+	for uid in s.mine_gear:
+		if not keys.has(uid):
+			s.changed()
+			return "That gear is no longer in the storeroom."
+	if gold < s.mine_gold:
+		s.changed()
+		return "You don't have %d gold." % s.mine_gold
+	# The company's side leaves.
+	gold -= s.mine_gold
+	for good in s.mine_goods:
+		resources[good] = int(resources[good]) - int(s.mine_goods[good])
+		market.record_npc_trade(str(good), int(s.mine_goods[good]), t)
+	for uid in s.mine_gear:
+		for i in range(equipment_inventory.size()):
+			if str(equipment_inventory[i].get("uid", "")) == uid:
+				equipment_inventory.remove_at(i)
+				break
+	# The trader's side arrives.
+	var tax: int = int(round(float(s.their_gold) * TradeHall.TAX)) if s.their_gold > 0 else 0
+	gold += s.their_gold - tax
+	for good in s.their_goods:
+		resources[good] = int(resources.get(good, 0)) + int(s.their_goods[good])
+		market.record_npc_trade(str(good), -int(s.their_goods[good]), t)
+	for key in s.their_gear:
+		equipment_inventory.append(make_item(str(key)))
+	var trader: String = s.trader
+	var got: Array[String] = []
+	for good in s.their_goods:
+		got.append("%d %s" % [int(s.their_goods[good]), item_ref_name(str(good))])
+	for key in s.their_gear:
+		got.append(item_ref_name("gear:" + str(key)))
+	if s.their_gold > 0:
+		got.append("%d gold (%d tax)" % [s.their_gold - tax, tax])
+	hall.trade_finished(t)
 	_apply_relief_payment()
-	hall._post({"t": t, "from": h.trader, "kind": h.kind, "side": "deal_sell", "good": h.good, "qty": quantity, "price": unit_price, "total": gross, "left": 0})
 	save_game()
-	return "Sold %d %s to %s for %d gold (%d tax)." % [quantity, name, h.trader, gross - tax, tax]
+	return "Traded with %s. Received %s." % [trader, ", ".join(got) if not got.is_empty() else "nothing"]
 
 func item_definition(key: String) -> Dictionary:
 	return V05.ITEMS.get(key, {})
@@ -772,11 +788,11 @@ func _apply_relief_payment() -> void:
 	gold -= paid
 	relief_debt -= paid
 
-## Merchant value of the warehouse plus goods listed in the Trade Hall.
+## Merchant value of the warehouse.
 func goods_value() -> int:
 	var total: int = 0
 	for item in RESOURCE_ORDER:
-		total += (int(resources.get(item, 0)) + hall.listed_units(item)) * sell_price(item)
+		total += int(resources.get(item, 0)) * sell_price(item)
 	return total
 
 func wealth() -> int:

@@ -1,0 +1,199 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/floating_window.gd" id="1_floating_window"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/gold.png" id="2_gold"]
+
+[node name="TradeWindow" type="PanelContainer"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 196.0
+offset_top = 118.0
+offset_right = 486.0
+offset_bottom = 398.0
+script = ExtResource("1_floating_window")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="Body" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleBar" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+mouse_filter = 0
+mouse_default_cursor_shape = 13
+
+[node name="Title" type="Label" parent="Margin/Body/TitleBar"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Trade"
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Deal" type="Label" parent="Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Mine" type="PanelContainer" parent="Margin/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Body" type="VBoxContainer" parent="Margin/Body/Mine"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Head" type="HBoxContainer" parent="Margin/Body/Mine/Body"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/Body/Mine/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = "You give"
+size_flags_horizontal = 3
+
+[node name="Ready" type="Label" parent="Margin/Body/Mine/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Not ready"
+
+[node name="Items" type="VBoxContainer" parent="Margin/Body/Mine/Body"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Empty" type="Label" parent="Margin/Body/Mine/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nothing yet."
+
+[node name="Gold" type="HBoxContainer" parent="Margin/Body/Mine/Body"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Coin" type="TextureRect" parent="Margin/Body/Mine/Body/Gold"]
+layout_mode = 2
+texture = ExtResource("2_gold")
+custom_minimum_size = Vector2(14, 14)
+expand_mode = 1
+stretch_mode = 5
+size_flags_vertical = 4
+
+[node name="Caption" type="Label" parent="Margin/Body/Mine/Body/Gold"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Gold"
+size_flags_vertical = 4
+
+[node name="Less" type="Button" parent="Margin/Body/Mine/Body/Gold"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-10"
+custom_minimum_size = Vector2(22, 16)
+size_flags_vertical = 4
+
+[node name="Amount" type="LineEdit" parent="Margin/Body/Mine/Body/Gold"]
+layout_mode = 2
+custom_minimum_size = Vector2(56, 18)
+size_flags_horizontal = 3
+text = "0"
+placeholder_text = "0"
+max_length = 7
+context_menu_enabled = false
+alignment = 2
+
+[node name="More" type="Button" parent="Margin/Body/Mine/Body/Gold"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+10"
+custom_minimum_size = Vector2(22, 16)
+size_flags_vertical = 4
+
+[node name="Theirs" type="PanelContainer" parent="Margin/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Body" type="VBoxContainer" parent="Margin/Body/Theirs"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Head" type="HBoxContainer" parent="Margin/Body/Theirs/Body"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Margin/Body/Theirs/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = "They give"
+size_flags_horizontal = 3
+
+[node name="Ready" type="Label" parent="Margin/Body/Theirs/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Not ready"
+
+[node name="Items" type="VBoxContainer" parent="Margin/Body/Theirs/Body"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Empty" type="Label" parent="Margin/Body/Theirs/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nothing yet."
+
+[node name="Gold" type="HBoxContainer" parent="Margin/Body/Theirs/Body"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Coin" type="TextureRect" parent="Margin/Body/Theirs/Body/Gold"]
+layout_mode = 2
+texture = ExtResource("2_gold")
+custom_minimum_size = Vector2(14, 14)
+expand_mode = 1
+stretch_mode = 5
+size_flags_vertical = 4
+
+[node name="Caption" type="Label" parent="Margin/Body/Theirs/Body/Gold"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Gold"
+size_flags_vertical = 4
+
+[node name="Amount" type="Label" parent="Margin/Body/Theirs/Body/Gold"]
+layout_mode = 2
+text = "0"
+size_flags_horizontal = 3
+horizontal_alignment = 2
+
+[node name="Hint" type="Label" parent="Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Click goods or gear in your inventory to put them in."
+autowrap_mode = 3
+
+[node name="Actions" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Accept" type="Button" parent="Margin/Body/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Accept"
+custom_minimum_size = Vector2(0, 22)
+size_flags_horizontal = 3
+
+[node name="Cancel" type="Button" parent="Margin/Body/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Cancel"
+custom_minimum_size = Vector2(0, 22)

@@ -1,0 +1,108 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/floating_window.gd" id="1_floating_window"]
+
+[node name="PMWindow" type="PanelContainer"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 560.0
+offset_top = 262.0
+offset_right = 820.0
+offset_bottom = 486.0
+script = ExtResource("1_floating_window")
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="Body" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="TitleBar" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+mouse_filter = 0
+mouse_default_cursor_shape = 13
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="Margin/Body/TitleBar"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Messages"
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Kind" type="Label" parent="Margin/Body/TitleBar"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Close" type="Button" parent="Margin/Body/TitleBar"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "x"
+custom_minimum_size = Vector2(16, 16)
+size_flags_vertical = 4
+tooltip_text = "Close. Conversations are kept."
+
+[node name="Tabs" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Log" type="PanelContainer" parent="Margin/Body"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/Body/Log"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+horizontal_scroll_mode = 0
+
+[node name="Lines" type="VBoxContainer" parent="Margin/Body/Log/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Status" type="Label" parent="Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = ""
+autowrap_mode = 3
+
+[node name="Preview" type="RichTextLabel" parent="Margin/Body"]
+layout_mode = 2
+visible = false
+mouse_filter = 1
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+meta_underlined = false
+text = ""
+
+[node name="Row" type="HBoxContainer" parent="Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Input" type="LineEdit" parent="Margin/Body/Row"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 20)
+size_flags_horizontal = 3
+placeholder_text = "Message..."
+max_length = 160
+context_menu_enabled = false
+caret_blink = true
+
+[node name="Send" type="Button" parent="Margin/Body/Row"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Send"
+custom_minimum_size = Vector2(40, 20)

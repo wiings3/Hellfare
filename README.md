@@ -15,6 +15,18 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.13 — The Trade Hall as a real trade chat
+
+Replaces the listings (V0.11) and the whisper page (V0.12). NPC traders stand in for players until the game goes online; the chat, messages and trade window stay the same.
+
+- **Type your own posts.** The left page is the trade chat with a message box. Shift+click an item in your inventory (right page: warehouse goods and spare gear) to link it as a hoverable `[Item]`, then write what you like, e.g. `WTS [Steel Sword] +20% CRIT, 150g`. Enter or Send posts; an 8-second cooldown and a repeat check stop spam. Enter on the page jumps into the box; Escape leaves it.
+- **Right-click (or click) a name** for Message / Block. Blocked traders' posts and messages are hidden; the block list is saved.
+- **Private messages** open in a small draggable window with a tab per conversation. NPC traders read what you write (`ChatParse`: prices like `6g ea`, `150`, `1.5k`, lots like `20 for 110g`, quantities, yes / no, "trade") and haggle with the rules in `scripts/haggle.gd`. They may be slow, may not answer at all, and their posts sell out whether or not you message.
+- **Your posts get answers.** NPCs skim your post and may message you if the price interests them (or ask "How much for the [Timber]?" if you gave none).
+- **Trade window.** Once you agree a price the trader sends a trade request. Put your side in yourself (click goods or gear in the inventory, set the gold); the trader readies up only when your side covers the deal. Both accept and it goes through; 3% tax on gold you receive. Gear can be bought and sold this way.
+- Old saves: goods sitting in V0.11 listings go back to the warehouse on load.
+- Code: `scripts/trade_hall.gd` (chat, NPC behaviour), `scripts/chat_parse.gd`, `scripts/haggle.gd`, `scripts/trade_session.gd`, `scripts/hall_view.gd` (page and window bindings), scenes `pages/hall_left|right.tscn`, `widgets/pm_window.tscn`, `widgets/trade_window.tscn`, `NamePopup` in the shell.
+
 ## V0.12 — Trade Hall stage 2: whispers and haggling
 
 - Click or right-click a trader's name in the chat to whisper them about that post. The right page becomes the whisper: their kind and patience pips, the post, the conversation, and a quantity and whole-lot offer ("30 for 503g?").

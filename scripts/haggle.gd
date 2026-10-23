@@ -1,7 +1,9 @@
 extends RefCounted
 class_name Haggle
-## One whispered negotiation with an NPC trader about a single post or listing.
-## Offers are for a whole lot ("40 for 185g?"), so even cheap goods have room to haggle.
+## One private-message negotiation with an NPC trader about one item (a good or a piece
+## of gear). Offers are for a whole lot ("40 for 185g?"), so cheap goods can be haggled.
+## Status: "open" while talking, "agreed" once a price is settled (the trade window then
+## completes it), "done" after the trade, "gone" when they walked away.
 ##
 ## Every trader has a hidden walk-away price per unit (their "reservation") and limited
 ## patience.
@@ -63,11 +65,51 @@ const LINES := {
 		"any": ["Forget it. Good luck.", "I'll find someone else.", "We're done here."],
 	},
 	"gone": {
-		"any": ["Sorry, they're already gone."],
+		"any": ["Sorry, sold it already.", "Gone, sorry. Someone beat you to it."],
 	},
-	"offer": {
-		"flipper": ["Your {item} is just sitting there. {total}g for {qty}, right now?"],
-		"any": ["Would you take {total}g for {qty} of your {item}?", "Interested in your {item}. {total}g for {qty}?"],
+	"quote": {
+		"haggler": ["{each}g each, {total}g for {qty}. Make me an offer."],
+		"any": ["{total}g for {qty}.", "{each}g each. {total}g for {qty}."],
+	},
+	"quote_one": {
+		"any": ["{total}g for it.", "{total}g, it's a good one."],
+	},
+	"interested_sell": {
+		"quartermaster": ["Saw your {item}. I'll give {total}g for {qty}."],
+		"collector": ["Your {item} caught my eye. {total}g for {qty}?"],
+		"flipper": ["{total}g for {qty} of your {item}, right now?"],
+		"any": ["Still got the {item}? {total}g for {qty}?", "Interested in your {item}. {total}g for {qty}?"],
+	},
+	"take_yours": {
+		"any": ["I'll take {qty} {item} at your price. {total}g, deal?", "Your {item}, {qty} for {total}g like you posted? I'm in."],
+	},
+	"how_much": {
+		"any": ["How much for the {item}?", "Price on the {item}?", "What do you want for the {item}?"],
+	},
+	"interested_buy": {
+		"bargain": ["Got {qty} {item}, {total}g and they're yours."],
+		"any": ["I have {qty} {item}. {total}g?", "Saw your post. {qty} {item} for {total}g?"],
+	},
+	"trade_request": {
+		"any": ["Sending you a trade request.", "Sending the trade now.", "Trade incoming."],
+	},
+	"short": {
+		"any": ["That's short. We said {qty} for {total}g.", "Not what we agreed: {qty} for {total}g."],
+	},
+	"trade_done": {
+		"any": ["Pleasure doing business.", "Good trade. Safe travels.", "Thanks!"],
+	},
+	"trade_cancel": {
+		"any": ["Changed your mind? Say \"trade\" if you want it.", "No trade then?"],
+	},
+	"what": {
+		"any": ["What are you after?", "Hm? What do you need?"],
+	},
+	"decline_ok": {
+		"any": ["No worries.", "Alright, another time.", "Fair enough."],
+	},
+	"no_more": {
+		"any": ["I said we're done.", "Not interested anymore."],
 	},
 }
 
@@ -87,6 +129,11 @@ var reservation: float = 0.0
 var patience: int = 3
 var status: String = "open"
 var rng: RandomNumberGenerator
+## Settled terms once both sides agree.
+var agreed_qty: int = 0
+var agreed_total: int = 0
+## Display name of the item, used in lines as [Name].
+var item_name: String = ""
 
 static func make(trader_name: String, trader_kind: String, good_key: String, selling: bool, quantity: int, price: int, fair: float, random: RandomNumberGenerator) -> Haggle:
 	var h := Haggle.new()
@@ -110,6 +157,14 @@ static func make(trader_name: String, trader_kind: String, good_key: String, sel
 func is_open() -> bool:
 	return status == "open"
 
+func is_agreed() -> bool:
+	return status == "agreed"
+
+func _agree(qty: int, total: int) -> void:
+	status = "agreed"
+	agreed_qty = qty
+	agreed_total = total
+
 ## Their current price for `qty` units, in whole gold (rounded in their favour).
 func quote(qty: int) -> int:
 	return _total(ask, qty)
@@ -129,7 +184,7 @@ func offer(qty: int, total: int) -> Dictionary:
 		return {"result": "leave", "total": quote(qty), "line": say("leave", qty)}
 	var acceptable: bool = total >= limit(qty) if they_sell else total <= limit(qty)
 	if acceptable:
-		status = "done"
+		_agree(qty, total)
 		return {"result": "accept", "total": total, "line": say("accept", qty, total)}
 	var unit: float = float(total) / float(maxi(qty, 1))
 	var insulting: bool = unit < reservation * (1.0 - INSULT) if they_sell else unit > reservation / (1.0 - INSULT)
@@ -148,7 +203,7 @@ func offer(qty: int, total: int) -> Dictionary:
 func take(qty: int) -> Dictionary:
 	if not is_open():
 		return {"result": "leave", "total": quote(qty), "line": say("leave", qty)}
-	status = "done"
+	_agree(qty, quote(qty))
 	return {"result": "accept", "total": quote(qty), "line": say("accept", qty)}
 
 func walk_away() -> void:
@@ -161,4 +216,5 @@ func say(moment: String, qty: int = -1, total: int = -1) -> String:
 	var options: Array = table.get(kind, table.get("any", [""]))
 	var line: String = str(options[rng.randi_range(0, options.size() - 1)]) if rng != null else str(options[0])
 	var each: String = str(int(round(ask))) if is_equal_approx(ask, round(ask)) else "%.1f" % ask
-	return line.replace("{total}", str(total if total >= 0 else quote(n))).replace("{qty}", str(n)).replace("{each}", each)
+	var named: String = "[%s]" % item_name if item_name != "" else "it"
+	return line.replace("{total}", str(total if total >= 0 else quote(n))).replace("{qty}", str(n)).replace("{each}", each).replace("{item}", named)

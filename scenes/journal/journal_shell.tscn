@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://by6klxuxek6c1"]
+[gd_scene load_steps=17 format=3 uid="uid://by6klxuxek6c1"]
 
 [ext_resource type="Texture2D" uid="uid://03hskmpl7e6m" path="res://assets/ui/book/tabs/1.png" id="book"]
 [ext_resource type="Texture2D" uid="uid://t61vjtyty58h" path="res://assets/ui/tab_icons/chronicle.png" id="chronicle"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://bikhqe8615yop" path="res://assets/ui/kit/ornament.png" id="ornament"]
 [ext_resource type="PackedScene" path="res://scenes/journal/pause_menu.tscn" id="pause"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/link_card.tscn" id="linkcard"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/pm_window.tscn" id="pmwindow"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/trade_window.tscn" id="tradewindow"]
 [ext_resource type="Texture2D" uid="uid://nrj7sru86b3a" path="res://assets/ui/tab_icons/personnel.png" id="personnel"]
 
 [sub_resource type="AtlasTexture" id="tab_strip"]
@@ -347,9 +349,31 @@ text = "Notice"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="PMWindow" parent="." instance=ExtResource("pmwindow")]
+layout_mode = 0
+offset_left = 560.0
+offset_top = 262.0
+offset_right = 820.0
+offset_bottom = 486.0
+
+[node name="TradeWindow" parent="." instance=ExtResource("tradewindow")]
+layout_mode = 0
+offset_left = 196.0
+offset_top = 118.0
+offset_right = 486.0
+offset_bottom = 398.0
+
+[node name="NamePopup" type="PopupMenu" parent="."]
+size = Vector2i(84, 52)
+item_count = 2
+item_0/text = "Message"
+item_0/id = 0
+item_1/text = "Block"
+item_1/id = 1
+
 [node name="LinkCard" parent="." instance=ExtResource("linkcard")]
 layout_mode = 0
 
 [node name="PauseMenu" parent="." instance=ExtResource("pause")]
 layout_mode = 0
-book_nodes = Array[NodePath]([NodePath("../Book"), NodePath("../LeftLeaf"), NodePath("../RightLeaf"), NodePath("../PageFlip"), NodePath("../PinnedBookTabs"), NodePath("../ChapterIcons"), NodePath("../ChapterTabHost")])
+book_nodes = Array[NodePath]([NodePath("../Book"), NodePath("../LeftLeaf"), NodePath("../RightLeaf"), NodePath("../PageFlip"), NodePath("../PinnedBookTabs"), NodePath("../ChapterIcons"), NodePath("../ChapterTabHost"), NodePath("../PMWindow"), NodePath("../TradeWindow"), NodePath("../LinkCard")])

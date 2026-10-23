@@ -155,102 +155,99 @@ func _verify() -> void:
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count() == MoneyMercsState.RESOURCE_ORDER.size(), "market rows")
 	view._choose_commodity("iron")
 	check((view.right_leaf.get_child(0).get_node("Margin/Content/Head/Id/Name") as Label).text == "Iron Ore", "trade desk follows selection")
-	# Trade Hall: chat, posting into escrow, cancel, sales with tax, expiry, saving.
+	# Trade Hall: typed chat, cooldown, links, NPC messages, trades with tax, gear, blocking.
+	var hall: TradeHall = view.game.hall
+	hall.rng.seed = 4242
 	view._nav_to("hall")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/hall_left.tscn"), "trade hall page")
 	check(view._active_tab_index() == 3, "trade hall sits under the Exchange tab")
 	var t0: int = int(Time.get_unix_time_from_system())
 	view.game.hall_tick(t0)
-	check(not view.game.hall.feed.is_empty(), "NPC traders post in the chat")
+	check(not hall.feed.is_empty(), "NPC traders post in the chat")
 	view._live_tick()
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/Chat/Scroll/Lines").get_child_count() > 0, "chat lines drawn")
 	view._show_link_card("timber")
 	check(view._link_card().visible, "hovering an item link shows its card")
 	view._hide_link_card()
-	view.game.resources["timber"] = 50
-	var gold_before: int = view.game.gold
-	var fair: int = int(round(view.game.hall.fair_value("timber", t0)))
-	view.game.hall_post("timber", 30, maxi(1, fair - 1), t0)
-	check(int(view.game.resources["timber"]) == 20 and view.game.gold == gold_before - TradeHall.POST_FEE, "posting escrows goods and charges the fee")
-	check(view.game.hall.listings.size() == 1 and view.game.hall.listed_units("timber") == 30, "listing recorded")
-	var reloaded := MoneyMercsState.new()
-	check(reloaded.hall.listings.size() == 1 and reloaded.hall.listed_units("timber") == 30, "listings survive a save and load")
-	var cancel_id: int = int(view.game.hall.listings[0]["id"])
-	view.game.hall_cancel(cancel_id)
-	check(int(view.game.resources["timber"]) == 50 and view.game.hall.listings.is_empty(), "cancelling returns the goods")
-	view.game.hall.rng.seed = 12345
-	view.game.hall_post("timber", 30, maxi(1, fair - 1), t0)
-	var gold_mid: int = view.game.gold
-	var sold_gross: int = 0
-	var sold_tax: int = 0
-	for event in view.game.hall_tick(t0 + 6 * 3600):
-		if str(event["type"]) == "sale":
-			sold_gross += int(event["gross"])
-			sold_tax += int(event["tax"])
-	check(sold_gross > 0 and view.game.hall.listings.is_empty(), "a fairly priced listing sells")
-	check(view.game.gold == gold_mid + sold_gross - sold_tax, "sale pays out after the tax")
-	check(sold_tax >= int(floor(float(sold_gross) * TradeHall.TAX)), "3% tax taken")
-	view.game.hall_post("timber", 10, fair * 3, t0 + 6 * 3600)
-	view.game.hall_tick(t0 + 6 * 3600 + TradeHall.LISTING_SECONDS + 120)
-	check(view.game.hall.listings.is_empty() and int(view.game.resources["timber"]) == 20, "an unsold listing expires back to the warehouse")
-	# Whispers: open from a post, haggle, walk-aways, deals both ways, incoming offers.
-	var hall: TradeHall = view.game.hall
-	hall.rng.seed = 777
-	var t1: int = t0 + 20 * 3600
-	view.game.gold = 5000
-	hall._post({"t": t1, "from": "Marrow", "kind": "haggler", "side": "wts", "good": "copper", "qty": 30, "price": 30})
-	var post_a: int = hall.next_id - 1
-	view._nav_to("hall")
-	view._open_whisper("Marrow", post_a)
-	var talk: Haggle = hall.whisper_with("Marrow")
-	check(talk != null and talk.is_open() and talk.they_sell, "whisper opens from a post")
-	check(view.right_leaf.get_child(0).scene_file_path.ends_with("/hall_whisper.tscn"), "whisper page shown")
-	var rounds: int = 0
-	while talk.is_open() and rounds < 10:
-		view.game.hall_negotiate("Marrow", 30, 30, false, t1)
-		rounds += 1
-	check(talk.status == "gone" and rounds <= Haggle.KINDS["haggler"]["patience"], "lowballing runs out their patience")
-	view._whisper_close()
-	hall._post({"t": t1, "from": "Wren", "kind": "hawker", "side": "wts", "good": "copper", "qty": 20, "price": 25})
-	var post_b: int = hall.next_id - 1
-	var deal: Haggle = view.game.hall_whisper(post_b, t1)
-	var copper_before: int = int(view.game.resources["copper"])
-	var gold_b: int = view.game.gold
-	var price_b: int = deal.quote(20)
-	var bought: Dictionary = view.game.hall_negotiate("Wren", 20, 0, true, t1)
-	check(str(bought["result"]) == "accept" and view.game.gold == gold_b - price_b and int(view.game.resources["copper"]) == copper_before + 20, "taking their price buys the goods")
-	check(int(hall.message_by_id(post_b)["left"]) == 0, "a traded-out post is marked sold")
-	hall._post({"t": t1, "from": "Hesk", "kind": "quartermaster", "side": "wtb", "good": "copper", "qty": 40, "price": 20})
-	var post_c: int = hall.next_id - 1
-	var sell_talk: Haggle = view.game.hall_whisper(post_c, t1)
-	check(view.game.hall_whisper_limit(sell_talk) == 20, "selling is limited to what the warehouse holds")
-	var gold_c: int = view.game.gold
-	var ask_total: int = sell_talk.limit(20)
-	var sold: Dictionary = view.game.hall_negotiate("Hesk", 20, ask_total, false, t1)
-	var tax_c: int = maxi(1, int(round(float(ask_total) * TradeHall.TAX)))
-	check(str(sold["result"]) == "accept" and view.game.gold == gold_c + ask_total - tax_c, "selling into a WTB post pays out after tax")
-	check(int(view.game.resources["copper"]) == copper_before, "sold goods leave the warehouse")
-	# A listing priced on the high side draws whispered offers.
+	# Parsing reads prices and quantities the way traders write them.
+	check(ChatParse.intent("WTS [Iron Sword] +20% CRIT, 150g") == "sell" and int(ChatParse.money("WTS [Iron Sword] +20% CRIT, 150g")[0]["value"]) == 150, "reads a typed price, not the stat")
+	check(ChatParse.qty_after_link("WTS [Timber]x40 6g each", "Timber") == 40 and bool(ChatParse.price_after_link("WTS [Timber]x40 6g each", "Timber")["each"]), "reads quantity and per-unit price")
+	check(ChatParse.lot("20 for 110g?") == {"qty": 20, "total": 110}, "reads a lot offer")
+	check(ChatParse.says_yes("ok deal") and ChatParse.says_no("no thanks") and not ChatParse.says_yes("no thanks"), "reads yes and no")
+	# Shift+click linking puts [Item] into the message box with a live link.
+	var hv: HallView = view._hall()
+	hv.link_target = "chat"
+	hv.link_item("timber")
+	check(hv.composer.text.find("[Timber]") >= 0 and hv.composer_links.size() == 1, "shift+click links an item into the message")
+	hv.composer.text = "WTS " + hv.composer.text + "x40 6g each"
+	hv.composer_text = hv.composer.text
 	view.game.resources["timber"] = 60
-	var fair_t: float = hall.fair_value("timber", t1)
-	view.game.hall_post("timber", 60, int(ceil(fair_t * 1.2)) + 1, t1)
-	var offered: String = ""
-	var t2: int = t1
-	while offered == "" and t2 < t1 + 6 * 3600:
-		t2 += 600
-		for event in view.game.hall_tick(t2):
-			if str(event["type"]) == "whisper":
-				offered = str(event["trader"])
-	check(offered != "", "buyers whisper offers on high-priced listings")
-	if offered != "":
-		var incoming: Haggle = hall.whisper_with(offered)
-		var listed_before: int = hall.listed_units("timber")
-		var gold_d: int = view.game.gold
-		var take_qty: int = mini(incoming.qty_max, view.game.hall_whisper_limit(incoming))
-		var their: int = incoming.quote(take_qty)
-		view.game.hall_negotiate(offered, take_qty, 0, true, t2)
-		check(hall.listed_units("timber") == listed_before - take_qty, "accepting an offer sells from the listing")
-		check(view.game.gold == gold_d + their - maxi(1, int(round(float(their) * TradeHall.TAX))), "offer pays out after tax")
+	hv.send_chat()
+	var mine_post: Dictionary = hall.feed.back()
+	check(str(mine_post["side"]) == "say" and (mine_post["links"] as Array).size() == 1, "typed post with its link is in the chat")
+	check(view.game.hall_say("again", [], int(Time.get_unix_time_from_system())) != "", "posting has a cooldown")
+	var t1: int = t0 + 100
+	check(view.game.hall_say("same", [], t1) == "" and view.game.hall_say("same", [], t1 + TradeHall.SAY_COOLDOWN + 1) != "", "repeating a post is refused")
+	# An NPC buyer messages about the timber; agreeing leads to a trade request.
+	hall.pending.clear()
+	hall.deals.clear()
+	hall._npc_opener("Hesk", "timber", false, 40, 6.0, hall.fair("timber", t1), t1)
+	var t2: int = t1 + 60
+	var got_pm: bool = false
+	for event in view.game.hall_tick(t2):
+		got_pm = got_pm or (str(event["type"]) == "pm" and str(event["trader"]) == "Hesk")
+	check(got_pm and not hall.conversation("Hesk").is_empty(), "an NPC messages about the linked item")
+	var deal: Haggle = hall.deals["Hesk"]
+	check(not deal.they_sell and deal.is_open(), "the NPC is negotiating to buy")
+	check(view.game.hall_pm("Hesk", "ok deal", [], t2) == "", "the company replies by message")
+	var requested: bool = false
+	for event in view.game.hall_tick(t2 + 30):
+		requested = requested or str(event["type"]) == "trade_request"
+	check(deal.is_agreed() and requested and hall.session != null, "agreeing brings a trade request")
+	# The trader only readies once the company's side covers the deal.
+	var gold_before: int = view.game.gold
+	view.game.trade_set_goods("timber", deal.agreed_qty - 1, t2 + 30)
+	view.game.trade_ready(t2 + 30)
+	view.game.hall_tick(t2 + 40)
+	check(hall.session != null and not hall.session.their_ready, "a short side is not accepted")
+	view.game.trade_set_goods("timber", deal.agreed_qty, t2 + 40)
+	view.game.trade_ready(t2 + 40)
+	var traded: bool = false
+	for event in view.game.hall_tick(t2 + 45):
+		traded = traded or str(event["type"]) == "trade_done"
+	var tax_paid: int = int(round(float(deal.agreed_total) * TradeHall.TAX))
+	check(traded and view.game.gold == gold_before + deal.agreed_total - tax_paid, "the trade pays out after the 3% tax")
+	check(int(view.game.resources["timber"]) == 60 - deal.agreed_qty, "the goods leave the warehouse")
+	# Buying gear from an NPC post: message, agree, pay, receive the item.
+	var t3: int = t2 + 200
+	hall._post({"t": t3, "from": "Dunny", "kind": "bargain", "side": "wts", "good": "gear:steel_sword", "qty": 1, "price": 100})
+	view.game.gold = 1000
+	hall.rng.seed = 9
+	var replied: bool = false
+	var attempts: int = 0
+	while not replied and attempts < 6:
+		hall.deals.erase("Dunny")
+		view.game.hall_pm("Dunny", "I'll take it for 100g", [], t3)
+		for event in view.game.hall_tick(t3 + 60):
+			replied = replied or str(event["type"]) == "pm"
+		attempts += 1
+		t3 += 61
+	check(replied, "the trader answers a message about their post")
+	var sword_deal: Haggle = hall.deals["Dunny"]
+	check(sword_deal.they_sell and sword_deal.is_agreed(), "offering their price strikes a deal")
+	view.game.hall_tick(t3 + 60)
+	check(hall.session != null and hall.session.their_gear.has("steel_sword"), "their side holds the sword")
+	var gear_before: int = view.game.equipment_inventory.size()
+	view.game.trade_set_gold(sword_deal.agreed_total, t3 + 60)
+	view.game.trade_ready(t3 + 60)
+	view.game.hall_tick(t3 + 70)
+	check(view.game.equipment_inventory.size() == gear_before + 1 and view.game.gold == 1000 - sword_deal.agreed_total, "buying gear by trade")
+	# Blocking hides a trader and stops their messages.
+	view.game.hall_block("Marrow")
+	check(hall.is_blocked("Marrow"), "block works")
+	var reloaded := MoneyMercsState.new()
+	check(reloaded.hall.is_blocked("Marrow"), "the block list is saved")
+	view.game.hall_block("Marrow", false)
 	view._nav_to("market")
 	# Harlow: unsurveyed, crew selection, fund state.
 	view._nav_to("hq")
