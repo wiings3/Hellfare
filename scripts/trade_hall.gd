@@ -396,6 +396,16 @@ func _npc_answer(h: Haggle, text: String, now: int) -> void:
 		qty = ChatParse.quantity(text)
 	qty = clampi(qty, 1, h.qty_max)
 	var figures: Array = ChatParse.money(text)
+	# "deal, 40" or "ok 20" means a quantity at their price, not 40 gold. Only figures
+	# marked as gold ("40g", "40 each", "1.5k") are read as prices next to a yes.
+	if lot.is_empty() and (ChatParse.says_yes(text) or ChatParse.wants_trade(text)):
+		var priced: bool = false
+		for f in figures:
+			priced = priced or bool(f["gold"]) or bool(f["each"])
+		if not priced:
+			if not figures.is_empty():
+				qty = clampi(int(figures[0]["value"]), 1, h.qty_max)
+			figures = []
 	var reply: Dictionary = {}
 	if not lot.is_empty():
 		reply = h.offer(qty, int(lot["total"]))

@@ -145,7 +145,7 @@ func _on_clock() -> void:
 # --- Shared helpers ---------------------------------------------------------
 
 func _now() -> int:
-	return int(Time.get_unix_time_from_system())
+	return GameClock.now()
 
 func _mount_page(scene: PackedScene, leaf: Control) -> Control:
 	var root := scene.instantiate() as Control

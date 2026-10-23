@@ -77,7 +77,7 @@ func reset() -> void:
 # --- Prices -------------------------------------------------------------------
 
 func _now(now: int) -> int:
-	return now if now >= 0 else int(Time.get_unix_time_from_system())
+	return now if now >= 0 else GameClock.now()
 
 ## Slow deterministic drift, -12% .. +12%, changing every six hours.
 func drift(good: String, now: int = -1) -> float:

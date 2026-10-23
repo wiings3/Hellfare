@@ -48,7 +48,7 @@ func _game() -> MoneyMercsState:
 	return ui.game
 
 func _now() -> int:
-	return int(Time.get_unix_time_from_system())
+	return GameClock.now()
 
 func _pm_window() -> PanelContainer:
 	return ui.stage.get_node("PMWindow") as PanelContainer

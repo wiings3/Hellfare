@@ -15,7 +15,7 @@ const HARLOW_ENEMIES := [
 
 func harlow_sync(now: int = -1) -> bool:
 	if now < 0:
-		now = int(Time.get_unix_time_from_system())
+		now = GameClock.now()
 	var rotation: int = int(now / HARLOW_ROTATION_SECONDS)
 	var changed := false
 	if int(harlow.get("rotation", -1)) != rotation:
@@ -74,7 +74,7 @@ func harlow_sync(now: int = -1) -> bool:
 
 func harlow_rotation_remaining(now: int = -1) -> int:
 	if now < 0:
-		now = int(Time.get_unix_time_from_system())
+		now = GameClock.now()
 	return HARLOW_ROTATION_SECONDS - (now % HARLOW_ROTATION_SECONDS)
 
 func harlow_scout_seconds() -> int:
@@ -89,7 +89,7 @@ func harlow_send_scout() -> String:
 		return "Your scout is already surveying Harlow Mines."
 	if not (harlow.get("report", {}) as Dictionary).is_empty():
 		return "Your scout already reported on this rotation."
-	harlow["scout_finish"] = int(Time.get_unix_time_from_system()) + harlow_scout_seconds()
+	harlow["scout_finish"] = GameClock.now() + harlow_scout_seconds()
 	save_game()
 	return "Scout dispatched. The report will arrive even if you close the game."
 
@@ -156,7 +156,7 @@ func harlow_dispatch(ids: Array[String], approach: String) -> String:
 	if remaining <= 0:
 		return "Harlow Mines have been exhausted this rotation."
 	gold -= int(stats["wage"])
-	var now := int(Time.get_unix_time_from_system())
+	var now := GameClock.now()
 	var key := "job_%d" % next_mission_id
 	next_mission_id += 1
 	var share := 0.0
@@ -476,7 +476,7 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 	if gold < int(plan["cost"]):
 		return "Insufficient gold for wages and supplies."
 	gold -= int(plan["cost"])
-	var now := int(Time.get_unix_time_from_system())
+	var now := GameClock.now()
 	var key := "job_%d" % next_mission_id
 	next_mission_id += 1
 	for id in ids:

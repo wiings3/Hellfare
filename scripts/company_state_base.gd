@@ -56,6 +56,9 @@ var missions: Array[Dictionary] = []
 var reports: Array[Dictionary] = []
 var next_mission_id: int = 1
 var last_notice: String = ""
+## False while the economy simulator runs: nothing is read from or written to the save.
+static var persist: bool = true
+
 var market: MarketModel = MarketModel.new(BASE_PRICE)
 var hall: TradeHall = TradeHall.new(market, RESOURCE_ORDER)
 
@@ -66,7 +69,7 @@ func _init() -> void:
 	load_game()
 
 func load_game() -> void:
-	if not FileAccess.file_exists(SAVE_PATH):
+	if not persist or not FileAccess.file_exists(SAVE_PATH):
 		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if file == null:
@@ -117,6 +120,8 @@ func load_game() -> void:
 	last_notice = "Company records restored."
 
 func save_game() -> void:
+	if not persist:
+		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		last_notice = "Unable to save company data."
@@ -158,7 +163,7 @@ func recruitment_board() -> Array[Dictionary]:
 	for candidate in RECRUITS:
 		if str(candidate["role"]) != "Scout" and merc_by_id(str(candidate["id"])).is_empty() and not _is_retired(candidate):
 			result.append(candidate.duplicate(true))
-	var epoch: int = int(Time.get_unix_time_from_system() / 1800.0)
+	var epoch: int = int(GameClock.now() / 1800.0)
 	for candidate in V05.generate_board(epoch):
 		if merc_by_id(str(candidate["id"])).is_empty() and not _is_retired(candidate):
 			result.append(candidate)
@@ -352,7 +357,7 @@ func dispatch(region_id: String, ids: Array[String], tactic: String) -> String:
 	if gold < cost:
 		return "Requires %d gold upfront for wages and supplies." % cost
 	gold -= cost
-	var now: int = int(Time.get_unix_time_from_system())
+	var now: int = GameClock.now()
 	var mission_id := "job_%d" % next_mission_id
 	next_mission_id += 1
 	var party_cut: float = 0.0
@@ -372,7 +377,7 @@ func dispatch(region_id: String, ids: Array[String], tactic: String) -> String:
 
 func complete_due(now: int = -1) -> int:
 	if now < 0:
-		now = int(Time.get_unix_time_from_system())
+		now = GameClock.now()
 	var completed: int = 0
 	for i in range(missions.size() - 1, -1, -1):
 		var mission: Dictionary = missions[i]
@@ -423,7 +428,7 @@ func start_guild_work(worker_id: String = "") -> String:
 		if worker.is_empty() or not is_available(worker):
 			return "This contractor cannot accept a guild work order."
 	var office: bool = worker_id.is_empty()
-	var now: int = int(Time.get_unix_time_from_system())
+	var now: int = GameClock.now()
 	var task_id: String = "job_%d" % next_mission_id
 	next_mission_id += 1
 	if not office:
@@ -569,11 +574,11 @@ func storeroom_keys() -> Dictionary:
 	return keys
 
 func hall_say(text: String, links: Array, now: int = -1) -> String:
-	return hall.say(text, links, now if now >= 0 else int(Time.get_unix_time_from_system()))
+	return hall.say(text, links, now if now >= 0 else GameClock.now())
 
 ## Send a trader a trade request (they accept once a price is agreed).
 func hall_request_trade(trader: String, now: int = -1) -> String:
-	return hall.request_trade(trader, now if now >= 0 else int(Time.get_unix_time_from_system()))
+	return hall.request_trade(trader, now if now >= 0 else GameClock.now())
 
 ## Block or unblock a trader; the list is saved.
 func hall_block(trader: String, on: bool = true) -> void:
@@ -584,11 +589,11 @@ func hall_block(trader: String, on: bool = true) -> void:
 	save_game()
 
 func hall_pm(trader: String, text: String, links: Array, now: int = -1) -> String:
-	return hall.pm(trader, text, links, now if now >= 0 else int(Time.get_unix_time_from_system()))
+	return hall.pm(trader, text, links, now if now >= 0 else GameClock.now())
 
 ## Advance the Hall. Trades complete here once both sides are ready.
 func hall_tick(now: int = -1) -> Array:
-	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	var t: int = now if now >= 0 else GameClock.now()
 	var events: Array = hall.tick(t)
 	if hall.session != null and hall.session.is_open() and hall.session.both_accepted():
 		var trader: String = hall.session.trader
@@ -610,7 +615,7 @@ func trade_set_goods(good: String, quantity: int, now: int = -1) -> void:
 		s.mine_goods.erase(good)
 	else:
 		s.mine_goods[good] = amount
-	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else GameClock.now())
 
 func trade_toggle_gear(uid: String, now: int = -1) -> void:
 	var s: TradeSession = hall.session
@@ -620,36 +625,36 @@ func trade_toggle_gear(uid: String, now: int = -1) -> void:
 		s.mine_gear.erase(uid)
 	else:
 		s.mine_gear.append(uid)
-	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else GameClock.now())
 
 func trade_set_gold(amount: int, now: int = -1) -> void:
 	var s: TradeSession = hall.session
 	if not trade_editable():
 		return
 	s.mine_gold = clampi(amount, 0, maxi(0, gold))
-	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else GameClock.now())
 
 ## Step 1: lock the company's side. If it falls short of the deal, the trader says so.
 func trade_lock(now: int = -1) -> void:
-	hall.trade_lock(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+	hall.trade_lock(storeroom_keys(), now if now >= 0 else GameClock.now())
 
 ## Unlocking (to change something) clears both sides' locks.
 func trade_unlock(now: int = -1) -> void:
-	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else GameClock.now())
 
 ## Step 2: accept, once both sides are locked and the pause has passed.
 func trade_accept(now: int = -1) -> bool:
-	return hall.trade_accept(now if now >= 0 else int(Time.get_unix_time_from_system()))
+	return hall.trade_accept(now if now >= 0 else GameClock.now())
 
 func trade_cancel(now: int = -1) -> void:
-	hall.trade_cancel(now if now >= 0 else int(Time.get_unix_time_from_system()))
+	hall.trade_cancel(now if now >= 0 else GameClock.now())
 
 ## Swap both sides. Gold the company receives is taxed 3%.
 func trade_complete(now: int = -1) -> String:
 	var s: TradeSession = hall.session
 	if s == null or not s.is_open():
 		return "No trade is open."
-	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	var t: int = now if now >= 0 else GameClock.now()
 	var keys: Dictionary = storeroom_keys()
 	for good in s.mine_goods:
 		if int(resources.get(good, 0)) < int(s.mine_goods[good]):
