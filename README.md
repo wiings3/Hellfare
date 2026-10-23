@@ -15,6 +15,15 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.11 — The Trade Hall (stage 1) and the pause menu
+
+- **Trade Hall** (Exchange chapter, second tab): a trade chat in the style of Dark and Darker's first trade channel. Fourteen NPC traders of six kinds (hawker, quartermaster, collector, flipper, bargain seller, haggler) post `WTS [Timber]x40 6g each` / `WTB` lines priced around each good's fair value.
+- Hover an item link for its item card (fair value, merchant prices, best ask and bid in chat, warehouse count). Click it to price your own listing.
+- **Your stall**: list goods from the warehouse (held in escrow), pay a 2 G post fee, and NPC buyers take fairly priced listings; a 3% tax comes off each sale. Up to 5 listings, 12 hours each; unsold goods return. Sales continue while the game is closed (up to a day of catch-up).
+- Fair value = the market's reference price x merchant saturation, so the Hall and the merchants stay linked. Model: `scripts/trade_hall.gd`.
+- **Pause menu**: Escape closes the journal onto its back cover with Resume, Settings (fullscreen, vsync, book animations) and Save and Quit. Settings are stored in `user://settings.cfg`.
+- Next: whispers and haggling (stage 2), then the trade window (stage 3).
+
 ## V0.10 — Trades, skills and a living market
 
 - **Market model** (`scripts/market.gd`): each good has a reference price (base price, six-hour drift, demand events with news). NPC merchants buy at about 75% and sell at about 130% of it. Selling floods them and lowers their price; buying makes goods scarce. The effect fades with a 12-hour half-life. Prices are sampled hourly and after each trade, and the Exchange shows the history, saturation and the day's news.

@@ -1,0 +1,12 @@
+[gd_scene load_steps=1 format=3]
+
+[node name="ChatLine" type="RichTextLabel"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 1
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+meta_underlined = false
+text = "[color=#7a584a]12:00[/color]  Trader: WTS [Timber]x40 6g each"

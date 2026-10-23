@@ -357,6 +357,8 @@ content_margin_bottom = 1.0
 [resource]
 default_font = ExtResource("f_body")
 default_font_size = 10
+RichTextLabel/colors/default_color = Color(0.239216, 0.156863, 0.141176, 1)
+RichTextLabel/constants/line_separation = 1
 BarFrame/base_type = &"PanelContainer"
 BarFrame/styles/panel = SubResource("bar_frame")
 CardButton/base_type = &"Button"

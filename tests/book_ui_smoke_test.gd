@@ -155,6 +155,45 @@ func _verify() -> void:
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count() == MoneyMercsState.RESOURCE_ORDER.size(), "market rows")
 	view._choose_commodity("iron")
 	check((view.right_leaf.get_child(0).get_node("Margin/Content/Head/Id/Name") as Label).text == "Iron Ore", "trade desk follows selection")
+	# Trade Hall: chat, posting into escrow, cancel, sales with tax, expiry, saving.
+	view._nav_to("hall")
+	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/hall_left.tscn"), "trade hall page")
+	check(view._active_tab_index() == 3, "trade hall sits under the Exchange tab")
+	var t0: int = int(Time.get_unix_time_from_system())
+	view.game.hall_tick(t0)
+	check(not view.game.hall.feed.is_empty(), "NPC traders post in the chat")
+	view._live_tick()
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Chat/Scroll/Lines").get_child_count() > 0, "chat lines drawn")
+	view._show_link_card("timber")
+	check(view._link_card().visible, "hovering an item link shows its card")
+	view._hide_link_card()
+	view.game.resources["timber"] = 50
+	var gold_before: int = view.game.gold
+	var fair: int = int(round(view.game.hall.fair_value("timber", t0)))
+	view.game.hall_post("timber", 30, maxi(1, fair - 1), t0)
+	check(int(view.game.resources["timber"]) == 20 and view.game.gold == gold_before - TradeHall.POST_FEE, "posting escrows goods and charges the fee")
+	check(view.game.hall.listings.size() == 1 and view.game.hall.listed_units("timber") == 30, "listing recorded")
+	var reloaded := MoneyMercsState.new()
+	check(reloaded.hall.listings.size() == 1 and reloaded.hall.listed_units("timber") == 30, "listings survive a save and load")
+	var cancel_id: int = int(view.game.hall.listings[0]["id"])
+	view.game.hall_cancel(cancel_id)
+	check(int(view.game.resources["timber"]) == 50 and view.game.hall.listings.is_empty(), "cancelling returns the goods")
+	view.game.hall.rng.seed = 12345
+	view.game.hall_post("timber", 30, maxi(1, fair - 1), t0)
+	var gold_mid: int = view.game.gold
+	var sold_gross: int = 0
+	var sold_tax: int = 0
+	for event in view.game.hall_tick(t0 + 6 * 3600):
+		if str(event["type"]) == "sale":
+			sold_gross += int(event["gross"])
+			sold_tax += int(event["tax"])
+	check(sold_gross > 0 and view.game.hall.listings.is_empty(), "a fairly priced listing sells")
+	check(view.game.gold == gold_mid + sold_gross - sold_tax, "sale pays out after the tax")
+	check(sold_tax >= int(floor(float(sold_gross) * TradeHall.TAX)), "3% tax taken")
+	view.game.hall_post("timber", 10, fair * 3, t0 + 6 * 3600)
+	view.game.hall_tick(t0 + 6 * 3600 + TradeHall.LISTING_SECONDS + 120)
+	check(view.game.hall.listings.is_empty() and int(view.game.resources["timber"]) == 20, "an unsold listing expires back to the warehouse")
+	view._nav_to("market")
 	# Harlow: unsurveyed, crew selection, fund state.
 	view._nav_to("hq")
 	view._turn_to("harlow")

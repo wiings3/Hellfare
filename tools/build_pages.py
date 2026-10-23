@@ -197,7 +197,7 @@ def personnel_armory():
 
 # --- Exchange ------------------------------------------------------------------
 def exchange():
-    s = page("ExchangeLeft")
+    s = page("ExchangeLeft", top=36)
     header(s, C + "/Header", "Goods")
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Shift", "Prices shift in 6h", "LabelCaption", {"size_flags_horizontal": 3, "tooltip_text": "Merchants reprice every six hours. Arrows compare today's price with the usual one.", "mouse_filter": 1})
@@ -479,7 +479,100 @@ def site_pages():
     s.save(P + "site_right.tscn")
 
 
+# --- Exchange tabs and the Trade Hall ------------------------------------------------
+def exchange_tabs():
+    s = Scene("ExchangeTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
+    grp = s.sub("tabs", "ButtonGroup", {})
+    s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
+    for name, text in [("MerchantsTab", "Merchants"), ("HallTab", "Trade Hall")]:
+        button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
+    s.save(P + "exchange_tabs.tscn")
+
+
+def chat_line():
+    s = Scene("ChatLine", "RichTextLabel", {"layout_mode": 2, "size_flags_horizontal": 3, "mouse_filter": 1,
+        "bbcode_enabled": True, "fit_content": True, "scroll_active": False, "autowrap_mode": 3,
+        "meta_underlined": False, "text": "[color=#7a584a]12:00[/color]  Trader: WTS [Timber]x40 6g each"})
+    s.save(R + "chat_line.tscn")
+
+
+def link_card():
+    """Floating item card shown when hovering an item link in the trade chat."""
+    s = Scene("LinkCard", "PanelContainer", {"visible": False, "custom_minimum_size": (176, 0), "mouse_filter": 2})
+    s.node("Margin", "MarginContainer", {"mouse_filter": 2, "theme_override_constants/margin_left": 2, "theme_override_constants/margin_top": 2,
+        "theme_override_constants/margin_right": 2, "theme_override_constants/margin_bottom": 2})
+    s.node("Margin/Body", "VBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 3})
+    s.node("Margin/Body/Head", "HBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 6})
+    s.node("Margin/Body/Head/Slot", "PanelContainer", {"custom_minimum_size": (28, 28), "mouse_filter": 2, "theme_type_variation": Raw('&"SlotPanel"')})
+    s.node("Margin/Body/Head/Slot/Icon", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
+    s.node("Margin/Body/Head/Id", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "mouse_filter": 2, "theme_override_constants/separation": -3})
+    label(s, "Margin/Body/Head/Id/Name", "Item", "LabelTitle")
+    label(s, "Margin/Body/Head/Id/Rarity", "Common", "LabelCaption")
+    label(s, "Margin/Body/Desc", "", "LabelMuted", {"autowrap_mode": 3, "custom_minimum_size": (172, 0)})
+    s.node("Margin/Body/Rows", "GridContainer", {"mouse_filter": 2, "columns": 2, "theme_override_constants/h_separation": 8, "theme_override_constants/v_separation": 0})
+    for name, caption in [("Fair", "Fair value"), ("MerchantBuys", "Merchants pay"), ("MerchantSells", "Merchants sell"), ("HallAsk", "Lowest ask in chat"), ("HallBid", "Highest bid in chat"), ("Owned", "In your warehouse")]:
+        label(s, "Margin/Body/Rows/%sCaption" % name, caption, "LabelCaption", {"size_flags_horizontal": 3})
+        label(s, "Margin/Body/Rows/%s" % name, "-", None, {"horizontal_alignment": 2})
+    label(s, "Margin/Body/Hint", "Click to price your own listing.", "LabelMuted", {"horizontal_alignment": 1})
+    s.save("scenes/journal/widgets/link_card.tscn")
+
+
+def trade_hall():
+    s = page("HallLeft", top=36)
+    header(s, C + "/Header", "Trade Chat")
+    s.node(C + "/Summary", "HBoxContainer")
+    label(s, C + "/Summary/Online", "14 traders online", "LabelCaption", {"size_flags_horizontal": 3})
+    label(s, C + "/Summary/Fees", "Tax 3%  ·  Post fee 2 G", "LabelCaption", {"tooltip_text": "A 3% tax is taken from each sale. Posting a listing costs a small fee.", "mouse_filter": 1})
+    s.node(C + "/Chat", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
+    s.node(C + "/Chat/Scroll", "ScrollContainer", {"custom_minimum_size": (0, 60), "horizontal_scroll_mode": 0})
+    s.node(C + "/Chat/Scroll/Lines", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 2})
+    label(s, C + "/Footer", "Hover an item for its card. Click it to price your own listing.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.save(P + "hall_left.tscn")
+
+    s = page("HallRight")
+    grp = s.sub("goods", "ButtonGroup", {})
+    header(s, C + "/Header", "Your Stall")
+    s.node(C + "/Goods", "HBoxContainer", {"theme_override_constants/separation": 3, "alignment": 1})
+    for i in range(8):
+        base = C + "/Goods/Good%d" % i
+        button(s, base, "", "SlotButton", {"custom_minimum_size": (28, 28), "toggle_mode": True, "button_group": grp})
+        s.node(base + "/Icon", "TextureRect", {"layout_mode": 1, "anchors_preset": 8, "anchor_left": 0.5, "anchor_top": 0.5, "anchor_right": 0.5, "anchor_bottom": 0.5,
+            "offset_left": -8.0, "offset_top": -8.0, "offset_right": 8.0, "offset_bottom": 8.0, "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2, "stretch_mode": 3})
+        label(s, base + "/Count", "0", "SlotCount", {"layout_mode": 1, "anchors_preset": 3, "anchor_left": 1.0, "anchor_top": 1.0, "anchor_right": 1.0, "anchor_bottom": 1.0,
+            "offset_left": -20.0, "offset_top": -11.0, "offset_right": -2.0, "offset_bottom": 1.0, "grow_horizontal": 0, "grow_vertical": 0, "horizontal_alignment": 2, "mouse_filter": 2})
+    s.node(C + "/Picked", "HBoxContainer")
+    label(s, C + "/Picked/Name", "Timber", "LabelTitle", {"size_flags_horizontal": 3})
+    label(s, C + "/Picked/Held", "You hold 0", "LabelCaption", {"size_flags_vertical": 4})
+    s.node(C + "/Form", "PanelContainer")
+    s.node(C + "/Form/Body", "VBoxContainer", {"theme_override_constants/separation": 4})
+    for row, caption, buttons in [("Qty", "Quantity", [("Less10", "-10"), ("Less1", "-1"), ("Value", None), ("More1", "+1"), ("More10", "+10"), ("All", "All")]),
+                                  ("Price", "Price each", [("Less1", "-1"), ("Value", None), ("More1", "+1"), ("Fair", "Fair")])]:
+        base = C + "/Form/Body/%sRow" % row
+        s.node(base, "HBoxContainer", {"theme_override_constants/separation": 3})
+        label(s, base + "/Caption", caption, "LabelCaption", {"custom_minimum_size": (54, 0), "size_flags_vertical": 4})
+        for name, text in buttons:
+            if text is None:
+                label(s, base + "/" + name, "0", "LabelBig", {"custom_minimum_size": (40, 0), "horizontal_alignment": 1, "size_flags_horizontal": 3})
+            else:
+                button(s, base + "/" + name, text, "PaperButton", {"custom_minimum_size": (24, 18)})
+    label(s, C + "/Form/Body/Guide", "", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/Form/Body/Odds", "", "LabelAccent", {"autowrap_mode": 3})
+    label(s, C + "/Form/Body/Total", "", None, {"autowrap_mode": 3})
+    button(s, C + "/Post", "Post to the Hall", None, {"custom_minimum_size": (0, 24)})
+    header(s, C + "/ListingsHeader", "Listings")
+    scroll(s, C + "/Listings", 40)
+    label(s, C + "/Empty", "Nothing listed. Goods you post are held here until they sell.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.save(P + "hall_right.tscn")
+
+
 if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1:
+        # Generate only the named builders, e.g.: python3 tools/build_pages.py trade_hall
+        for name in sys.argv[1:]:
+            globals()[name]()
+        print("generated", ", ".join(sys.argv[1:]))
+        raise SystemExit
     item_card()
     portrait_card()
     personnel_tabs()

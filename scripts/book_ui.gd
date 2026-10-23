@@ -11,6 +11,10 @@ const HARLOW_LEFT := preload("res://scenes/journal/pages/harlow_left.tscn")
 const HARLOW_RIGHT := preload("res://scenes/journal/pages/harlow_right.tscn")
 const EXCHANGE_LEFT := preload("res://scenes/journal/pages/exchange_left.tscn")
 const EXCHANGE_RIGHT := preload("res://scenes/journal/pages/exchange_right.tscn")
+const EXCHANGE_TABS := preload("res://scenes/journal/pages/exchange_tabs.tscn")
+const HALL_LEFT := preload("res://scenes/journal/pages/hall_left.tscn")
+const HALL_RIGHT := preload("res://scenes/journal/pages/hall_right.tscn")
+const ROW_CHAT_LINE := preload("res://scenes/journal/rows/chat_line.tscn")
 const GUILDWORK_LEFT := preload("res://scenes/journal/pages/guildwork_left.tscn")
 const GUILDWORK_RIGHT := preload("res://scenes/journal/pages/guildwork_right.tscn")
 const CHRONICLE_LEFT := preload("res://scenes/journal/pages/chronicle_left.tscn")
@@ -67,6 +71,7 @@ const PAGE_TITLES := {
 	"roster": "Personnel",
 	"guildwork": "Guild Work",
 	"market": "The Exchange",
+	"hall": "The Trade Hall",
 	"finance": "Treasury & Accounts",
 	"ledger": "The Chronicle",
 }
@@ -85,6 +90,7 @@ func _refresh() -> void:
 		return
 	_update_header()
 	live_updaters.clear()
+	_hide_link_card()
 	_clear(left_leaf)
 	_clear(right_leaf)
 	_restore_tab_art()
@@ -100,6 +106,7 @@ func _refresh() -> void:
 		"roster": _draw_people()
 		"guildwork": _draw_guild_jobs()
 		"market": _draw_exchange()
+		"hall": _draw_hall()
 		"finance": _draw_accounts()
 		"ledger": _draw_history()
 		_: _draw_company()
@@ -111,6 +118,7 @@ func _update_header() -> void:
 
 func _live_tick() -> void:
 	_update_header()
+	_hall_clock()
 	if _now() - market_sampled_at >= 60:
 		market_sampled_at = _now()
 		game.market_tick()
@@ -208,9 +216,7 @@ func _draw_company() -> void:
 	var c := "Margin/Content/"
 	# Worth and what it is made of.
 	var coin: int = maxi(0, game.gold)
-	var goods: int = 0
-	for key in MoneyMercsState.RESOURCE_ORDER:
-		goods += int(game.resources.get(str(key), 0)) * game.sell_price(str(key))
+	var goods: int = game.goods_value()
 	var gear: int = game.owned_equipment_value()
 	for merc in game.crew:
 		gear += int(merc.get("gear", 0)) * 60
@@ -1044,6 +1050,291 @@ func _draw_exchange() -> void:
 	if not event.is_empty():
 		note.text = "Market news: %s Lasts %s more." % [str(event["news"]), _duration(game.market.event_ends_in())]
 		note.icon_kind = "alert"
+	else:
+		note.text = "Merchants pay about 75% of fair value. Traders in the Trade Hall pay more, if you can wait for a buyer."
+	_mount_exchange_tabs()
+
+func _mount_exchange_tabs() -> void:
+	var tabs := _mount_page(EXCHANGE_TABS, left_leaf)
+	for tab in [["MerchantsTab", "market"], ["HallTab", "hall"]]:
+		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
+		btn.set_pressed_no_signal(page == str(tab[1]))
+		btn.pressed.connect(_nav_to.bind(str(tab[1])))
+
+# --- Trade Hall -----------------------------------------------------------------
+
+const RARITY := {
+	"copper": "Common", "iron": "Common", "timber": "Common", "herbs": "Common",
+	"silver": "Uncommon", "crystal": "Rare", "relic": "Very rare", "sovereign": "Legendary",
+}
+
+var stall_good: String = "timber"
+var stall_qty: int = 0
+var stall_price: int = 0
+var hall_shown_id: int = 0
+
+## Runs every second from the clock: NPC chatter, and sales of the company's listings.
+func _hall_clock() -> void:
+	var events: Array = game.hall_tick()
+	if events.is_empty():
+		return
+	var earned: int = 0
+	var notes: Array[String] = []
+	for event in events:
+		var name: String = _resource_name(str(event["good"]))
+		if str(event["type"]) == "sale":
+			earned += int(event["gross"]) - int(event["tax"])
+			notes.append("%s bought %d %s" % [str(event["buyer"]), int(event["qty"]), name])
+		else:
+			notes.append("Your %s listing expired; %d returned to the warehouse" % [name, int(event["qty"])])
+	var text: String = "; ".join(notes) + "."
+	if earned > 0:
+		text = "Trade Hall: %s +%s after tax." % [text.trim_suffix("."), _money(earned)]
+	notification_text(text)
+	if page in ["hall", "market", "hq", "finance"]:
+		_refresh()
+	else:
+		_update_header()
+
+func _clock(t: int) -> String:
+	var bias: int = int(Time.get_time_zone_from_system().get("bias", 0))
+	var d: Dictionary = Time.get_time_dict_from_unix_time(t + bias * 60)
+	return "%02d:%02d" % [int(d["hour"]), int(d["minute"])]
+
+func _hex(color: Color) -> String:
+	return "#" + color.to_html(false)
+
+## One chat message as BBCode. Item links carry "good|price" as their meta.
+func _chat_bbcode(m: Dictionary) -> String:
+	var good: String = str(m["good"])
+	var link: String = "[url=%s|%d][color=%s][lb]%s[rb]x%d[/color][/url]" % [good, int(m["price"]), _hex(OXBLOOD), _resource_name(good), int(m["qty"])]
+	var who: String = str(m["from"])
+	var head: String = "[color=%s]%s[/color]  " % [_hex(INK_FAINT), _clock(int(m["t"]))]
+	match str(m["side"]):
+		"bought":
+			return head + "[color=%s]%s bought %s from you at %dg each.[/color]" % [_hex(GOOD), who, link, int(m["price"])]
+		"wtb":
+			return head + "[color=%s]%s:[/color] WTB %s paying %dg each" % [_hex(INK_SOFT), who, link, int(m["price"])]
+	var name_color: Color = OXBLOOD if who == "You" else INK_SOFT
+	var tail: String = " or offer" if bool(m.get("offer", false)) else ""
+	return head + "[color=%s]%s:[/color] WTS %s %dg each%s" % [_hex(name_color), who, link, int(m["price"]), tail]
+
+func _add_chat_line(lines: VBoxContainer, m: Dictionary) -> void:
+	var line := ROW_CHAT_LINE.instantiate() as RichTextLabel
+	line.text = _chat_bbcode(m)
+	line.meta_hover_started.connect(_on_link_hover)
+	line.meta_hover_ended.connect(func(_meta: Variant) -> void: _hide_link_card())
+	line.meta_clicked.connect(_on_link_clicked)
+	lines.add_child(line)
+
+func _scroll_to_end(scroll: ScrollContainer) -> void:
+	await get_tree().process_frame
+	if is_instance_valid(scroll):
+		scroll.scroll_vertical = int(scroll.get_v_scroll_bar().max_value)
+
+func _on_link_hover(meta: Variant) -> void:
+	var parts: PackedStringArray = str(meta).split("|")
+	_show_link_card(parts[0])
+
+func _on_link_clicked(meta: Variant) -> void:
+	var parts: PackedStringArray = str(meta).split("|")
+	var price: int = int(parts[1]) if parts.size() > 1 else -1
+	_hide_link_card()
+	_stall_pick(parts[0], price)
+
+func _link_card() -> PanelContainer:
+	return stage.get_node_or_null("LinkCard") as PanelContainer if is_instance_valid(stage) else null
+
+func _hide_link_card() -> void:
+	var card := _link_card()
+	if card != null:
+		card.visible = false
+
+## Fill the floating item card for a good and show it beside the mouse.
+func _show_link_card(good: String) -> void:
+	var card := _link_card()
+	if card == null or not MoneyMercsState.BASE_PRICE.has(good):
+		return
+	var b := "Margin/Body/"
+	(card.get_node(b + "Head/Slot/Icon") as TextureRect).texture = _item_icon(good)
+	(card.get_node(b + "Head/Id/Name") as Label).text = _resource_name(good)
+	(card.get_node(b + "Head/Id/Rarity") as Label).text = str(RARITY.get(good, "Common"))
+	(card.get_node(b + "Desc") as Label).text = str(MoneyMercsState.RESOURCE_DESC.get(good, ""))
+	var quotes: Dictionary = game.hall.quotes(good)
+	var buyable: bool = good != "relic" and good != "sovereign"
+	var r := b + "Rows/"
+	(card.get_node(r + "Fair") as Label).text = _money(int(round(game.hall.fair_value(good))))
+	(card.get_node(r + "MerchantBuys") as Label).text = _money(game.sell_price(good))
+	(card.get_node(r + "MerchantSells") as Label).text = _money(game.buy_price(good)) if buyable else "Never"
+	(card.get_node(r + "HallAsk") as Label).text = _money(int(quotes["ask"])) if int(quotes["ask"]) > 0 else "-"
+	(card.get_node(r + "HallBid") as Label).text = _money(int(quotes["bid"])) if int(quotes["bid"]) > 0 else "-"
+	(card.get_node(r + "Owned") as Label).text = str(int(game.resources.get(good, 0)))
+	card.reset_size()
+	card.visible = true
+	var at: Vector2 = stage.get_local_mouse_position() + Vector2(12, 10)
+	var size: Vector2 = card.get_combined_minimum_size()
+	at.x = minf(at.x, STAGE_SIZE.x - size.x - 4.0)
+	if at.y + size.y > STAGE_SIZE.y - 4.0:
+		at.y = at.y - size.y - 20.0
+	card.position = at.floor()
+
+func _stall_pick(good: String, price: int = -1) -> void:
+	if not MoneyMercsState.BASE_PRICE.has(good):
+		return
+	stall_good = good
+	stall_qty = int(game.resources.get(good, 0))
+	stall_price = price if price > 0 else int(round(game.hall.fair_value(good)))
+	if page != "hall":
+		_nav_to("hall")
+	else:
+		_refresh()
+
+func _stall_qty(delta: int, all: bool = false) -> void:
+	var held: int = int(game.resources.get(stall_good, 0))
+	stall_qty = held if all else clampi(stall_qty + delta, 0, held)
+	_refresh()
+
+func _stall_price(delta: int, fair: bool = false) -> void:
+	stall_price = int(round(game.hall.fair_value(stall_good))) if fair else maxi(1, stall_price + delta)
+	_refresh()
+
+func _hall_post() -> void:
+	var result: String = game.hall_post(stall_good, stall_qty, stall_price)
+	stall_qty = mini(stall_qty, int(game.resources.get(stall_good, 0)))
+	_action(result)
+
+func _hall_cancel(id: int) -> void:
+	var result: String = game.hall_cancel(id)
+	stall_qty = int(game.resources.get(stall_good, 0))
+	_action(result)
+
+func _draw_hall() -> void:
+	var left := _mount_page(HALL_LEFT, left_leaf)
+	var right := _mount_page(HALL_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	# The chat: every message so far, then new ones as they arrive.
+	(left.get_node(c + "Summary/Online") as Label).text = "%d traders online" % TradeHall.TRADERS.size()
+	(left.get_node(c + "Summary/Fees") as Label).text = "Tax %d%%  ·  Post fee %s" % [int(round(TradeHall.TAX * 100.0)), _money(TradeHall.POST_FEE)]
+	var scroll := left.get_node(c + "Chat/Scroll") as ScrollContainer
+	var lines := left.get_node(c + "Chat/Scroll/Lines") as VBoxContainer
+	hall_shown_id = 0
+	for m in game.hall.feed:
+		_add_chat_line(lines, m)
+		hall_shown_id = int(m["id"])
+	_scroll_to_end(scroll)
+	var follow := func() -> void:
+		var added: bool = false
+		for m in game.hall.feed:
+			if int(m["id"]) > hall_shown_id:
+				_add_chat_line(lines, m)
+				hall_shown_id = int(m["id"])
+				added = true
+		if not added:
+			return
+		while lines.get_child_count() > TradeHall.FEED_LIMIT:
+			var old := lines.get_child(0)
+			lines.remove_child(old)
+			old.queue_free()
+		var bar := scroll.get_v_scroll_bar()
+		if scroll.scroll_vertical >= int(bar.max_value - bar.page) - 24:
+			_scroll_to_end(scroll)
+	live_updaters.append(follow)
+	_draw_stall(right)
+	_mount_exchange_tabs()
+
+func _draw_stall(right: Control) -> void:
+	var c := "Margin/Content/"
+	if not MoneyMercsState.BASE_PRICE.has(stall_good):
+		stall_good = "timber"
+	var held: int = int(game.resources.get(stall_good, 0))
+	stall_qty = clampi(stall_qty, 0, held)
+	if stall_price <= 0:
+		stall_price = int(round(game.hall.fair_value(stall_good)))
+	# Good picker: one slot per good, with the warehouse count.
+	for i in range(MoneyMercsState.RESOURCE_ORDER.size()):
+		var key: String = str(MoneyMercsState.RESOURCE_ORDER[i])
+		var btn := right.get_node(c + "Goods/Good%d" % i) as Button
+		(btn.get_node("Icon") as TextureRect).texture = _item_icon(key)
+		var count: int = int(game.resources.get(key, 0))
+		(btn.get_node("Count") as Label).text = str(count) if count > 0 else ""
+		btn.modulate.a = 1.0 if count > 0 or key == stall_good else 0.55
+		btn.tooltip_text = "%s: %d in the warehouse" % [_resource_name(key), count]
+		btn.set_pressed_no_signal(key == stall_good)
+		btn.pressed.connect(_stall_pick.bind(key, -1))
+	(right.get_node(c + "Picked/Name") as Label).text = _resource_name(stall_good)
+	(right.get_node(c + "Picked/Held") as Label).text = "You hold %d" % held
+	# Quantity and price steppers.
+	var f := c + "Form/Body/"
+	(right.get_node(f + "QtyRow/Value") as Label).text = str(stall_qty)
+	for pair in [["Less10", -10], ["Less1", -1], ["More1", 1], ["More10", 10]]:
+		var b := right.get_node(f + "QtyRow/" + str(pair[0])) as Button
+		b.pressed.connect(_stall_qty.bind(int(pair[1])))
+		b.disabled = (int(pair[1]) < 0 and stall_qty <= 0) or (int(pair[1]) > 0 and stall_qty >= held)
+	var all := right.get_node(f + "QtyRow/All") as Button
+	all.pressed.connect(_stall_qty.bind(0, true))
+	all.disabled = held <= 0 or stall_qty == held
+	(right.get_node(f + "PriceRow/Value") as Label).text = _money(stall_price)
+	(right.get_node(f + "PriceRow/Less1") as Button).pressed.connect(_stall_price.bind(-1))
+	(right.get_node(f + "PriceRow/Less1") as Button).disabled = stall_price <= 1
+	(right.get_node(f + "PriceRow/More1") as Button).pressed.connect(_stall_price.bind(1))
+	var fair_btn := right.get_node(f + "PriceRow/Fair") as Button
+	var fair: int = int(round(game.hall.fair_value(stall_good)))
+	fair_btn.pressed.connect(_stall_price.bind(0, true))
+	fair_btn.tooltip_text = "Set the price to today's fair value, %s." % _money(fair)
+	# Guidance: what the merchants and the chat say, and how fast it will sell.
+	var quotes: Dictionary = game.hall.quotes(stall_good)
+	var guide: Array[String] = ["Merchants pay " + _money(game.sell_price(stall_good, maxi(stall_qty, 1)))]
+	if int(quotes["ask"]) > 0:
+		guide.append("chat asks " + _money(int(quotes["ask"])))
+	if int(quotes["bid"]) > 0:
+		guide.append("bids " + _money(int(quotes["bid"])))
+	(right.get_node(f + "Guide") as Label).text = "  ·  ".join(guide)
+	var wait: int = game.hall.expected_wait(stall_good, stall_price)
+	var odds := right.get_node(f + "Odds") as Label
+	if wait < 0:
+		odds.text = "Too high. Merchants sell it for about this, so nobody will buy."
+		odds.theme_type_variation = &"LabelAccent"
+	else:
+		var minutes: int = maxi(1, int(round(float(wait) / 60.0)))
+		odds.text = "At this price a buyer comes along about every %s." % ("minute" if minutes == 1 else "%d minutes" % minutes)
+		odds.theme_type_variation = &"LabelGood" if stall_price <= fair else &"LabelCaption"
+	var gross: int = stall_qty * stall_price
+	var tax: int = maxi(1, int(round(float(gross) * TradeHall.TAX))) if gross > 0 else 0
+	var merchant_total: int = game.sell_price(stall_good, maxi(stall_qty, 1)) * stall_qty
+	var total := right.get_node(f + "Total") as Label
+	if stall_qty > 0:
+		total.text = "%d x %s = %s. After %s tax and the %s fee you get %s (merchants: %s)." % [
+			stall_qty, _money(stall_price), _money(gross), _money(tax), _money(TradeHall.POST_FEE),
+			_money(gross - tax - TradeHall.POST_FEE), _money(merchant_total)]
+	else:
+		total.text = "Choose how many to list." if held > 0 else "You have none of these to sell."
+	var post := right.get_node(c + "Post") as Button
+	post.pressed.connect(_hall_post)
+	post.disabled = stall_qty <= 0 or not game.hall.can_post() or game.gold < TradeHall.POST_FEE
+	if not game.hall.can_post():
+		post.tooltip_text = "You have %d listings up, the most allowed." % TradeHall.MAX_LISTINGS
+	# The company's listings.
+	right.get_node(c + "ListingsHeader").text = "Listings  %d/%d" % [game.hall.listings.size(), TradeHall.MAX_LISTINGS]
+	var list := right.get_node(c + "Listings/Items") as VBoxContainer
+	for listing in game.hall.listings:
+		var row := ROW_ITEM_CARD.instantiate()
+		list.add_child(row)
+		var good: String = str(listing["good"])
+		(row.get_node("Row/IconSlot/Icon") as TextureRect).texture = _item_icon(good)
+		(row.get_node("Row/Info/Name") as Label).text = "%s  %d/%d" % [_resource_name(good), int(listing["left"]), int(listing["qty"])]
+		var details := row.get_node("Row/Info/Details") as Label
+		var expires: int = int(listing["expires"])
+		var price_each: int = int(listing["price"])
+		var tick := func() -> void:
+			details.text = "%s each  ·  %s left" % [_money(price_each), _duration(maxi(0, expires - _now()))]
+		tick.call()
+		live_updaters.append(tick)
+		var cancel := row.get_node("Row/Primary") as Button
+		cancel.text = "Cancel"
+		cancel.tooltip_text = "Take it down. Unsold goods return to the warehouse; the fee is not refunded."
+		cancel.pressed.connect(_hall_cancel.bind(int(listing["id"])))
+	(right.get_node(c + "Empty") as Control).visible = game.hall.listings.is_empty()
+	(right.get_node(c + "Listings") as Control).visible = not game.hall.listings.is_empty()
 
 # --- Finances -----------------------------------------------------------------
 

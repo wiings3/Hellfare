@@ -120,6 +120,8 @@ func _active_tab_index() -> int:
 	# These secondary pages belong to the Expeditions chapter.
 	if page in ["harlow", "site", "contracts", "guildwork"]:
 		return 1
+	if page == "hall":
+		return 3
 	return PHYSICAL_TAB_PAGES.find(page)
 
 func _restore_tab_art() -> void:
@@ -146,7 +148,7 @@ func _turn_to(destination: String) -> void:
 	_start_page_flip(direction)
 
 func _tab_index(destination: String) -> int:
-	var keys: Array = ["hq", "expeditions", "site", "harlow", "contracts", "guildwork", "roster", "market", "finance", "ledger"]
+	var keys: Array = ["hq", "expeditions", "site", "harlow", "contracts", "guildwork", "roster", "market", "hall", "finance", "ledger"]
 	return keys.find(destination)
 
 func _start_page_flip(direction: String) -> void:

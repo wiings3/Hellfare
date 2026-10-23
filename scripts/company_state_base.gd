@@ -57,6 +57,7 @@ var reports: Array[Dictionary] = []
 var next_mission_id: int = 1
 var last_notice: String = ""
 var market: MarketModel = MarketModel.new(BASE_PRICE)
+var hall: TradeHall = TradeHall.new(market, RESOURCE_ORDER)
 
 func _init() -> void:
 	for id in RESOURCE_ORDER:
@@ -107,6 +108,7 @@ func load_game() -> void:
 			merc["equipment"] = {"tool": {}, "armor": {}}
 		TradeSkills.ensure(merc)
 	market.load_dict(state.get("market", {}))
+	hall.load_dict(state.get("hall", {}))
 	last_notice = "Company records restored."
 
 func save_game() -> void:
@@ -121,7 +123,7 @@ func save_game() -> void:
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt,
 		"relief_count": relief_count, "retired_ids": retired_ids,
-		"market": market.to_dict()
+		"market": market.to_dict(), "hall": hall.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
 
@@ -546,6 +548,51 @@ func trade(item: String, buy: bool, quantity: int) -> String:
 	save_game()
 	return "Sold %d %s for %d gold." % [quantity, str(RESOURCE_NAMES[item]), revenue]
 
+# --- Trade Hall -----------------------------------------------------------------
+
+## Post a listing: the goods go into escrow and the post fee is paid now.
+func hall_post(item: String, quantity: int, unit_price: int, now: int = -1) -> String:
+	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	if not BASE_PRICE.has(item) or quantity <= 0 or unit_price <= 0:
+		return "Choose a good, a quantity and a price."
+	if not hall.can_post():
+		return "You already have %d listings up. Cancel one first." % TradeHall.MAX_LISTINGS
+	if int(resources.get(item, 0)) < quantity:
+		return "You don't have that many %s." % str(RESOURCE_NAMES[item])
+	if gold < TradeHall.POST_FEE:
+		return "You need %d gold for the post fee." % TradeHall.POST_FEE
+	resources[item] = int(resources[item]) - quantity
+	gold -= TradeHall.POST_FEE
+	hall.add_listing(item, quantity, unit_price, t)
+	save_game()
+	return "Posted %d %s at %d G each. Paid the %d G post fee." % [quantity, str(RESOURCE_NAMES[item]), unit_price, TradeHall.POST_FEE]
+
+## Take a listing down; unsold goods return to the warehouse. The fee is not refunded.
+func hall_cancel(listing_id: int) -> String:
+	var listing: Dictionary = hall.remove_listing(listing_id)
+	if listing.is_empty():
+		return "That listing is gone."
+	var item: String = str(listing["good"])
+	resources[item] = int(resources.get(item, 0)) + int(listing["left"])
+	save_game()
+	return "Took down the listing. %d %s returned to the warehouse." % [int(listing["left"]), str(RESOURCE_NAMES[item])]
+
+## Advance the Trade Hall and settle sales and expired listings. Returns the events.
+func hall_tick(now: int = -1) -> Array:
+	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
+	var events: Array = hall.tick(t)
+	for event in events:
+		var item: String = str(event["good"])
+		if str(event["type"]) == "sale":
+			gold += int(event["gross"]) - int(event["tax"])
+			market.record_npc_trade(item, int(event["qty"]), int(event["t"]))
+		elif str(event["type"]) == "expired":
+			resources[item] = int(resources.get(item, 0)) + int(event["qty"])
+	if not events.is_empty():
+		_apply_relief_payment()
+		save_game()
+	return events
+
 func item_definition(key: String) -> Dictionary:
 	return V05.ITEMS.get(key, {})
 
@@ -651,10 +698,15 @@ func _apply_relief_payment() -> void:
 	gold -= paid
 	relief_debt -= paid
 
-func wealth() -> int:
-	var total: int = gold
+## Merchant value of the warehouse plus goods listed in the Trade Hall.
+func goods_value() -> int:
+	var total: int = 0
 	for item in RESOURCE_ORDER:
-		total += int(resources.get(item, 0)) * sell_price(item)
+		total += (int(resources.get(item, 0)) + hall.listed_units(item)) * sell_price(item)
+	return total
+
+func wealth() -> int:
+	var total: int = gold + goods_value()
 	for merc in crew:
 		total += int(merc.get("gear", 0)) * 60
 	total += owned_equipment_value()
@@ -690,6 +742,7 @@ func reset_company() -> void:
 	relief_count = 0
 	retired_ids.clear()
 	market.reset()
+	hall.reset()
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
 	save_game()
