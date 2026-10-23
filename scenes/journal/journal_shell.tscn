@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://by6klxuxek6c1"]
+[gd_scene load_steps=14 format=3 uid="uid://by6klxuxek6c1"]
 
 [ext_resource type="Texture2D" uid="uid://03hskmpl7e6m" path="res://assets/ui/book/tabs/1.png" id="book"]
 [ext_resource type="Texture2D" uid="uid://t61vjtyty58h" path="res://assets/ui/tab_icons/chronicle.png" id="chronicle"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://c3wdkvru8l3uc" path="res://assets/ui/tab_icons/expeditions.png" id="expeditions"]
 [ext_resource type="Texture2D" uid="uid://cikqiftynclg2" path="res://assets/ui/tab_icons/finances.png" id="finances"]
 [ext_resource type="Texture2D" uid="uid://bikhqe8615yop" path="res://assets/ui/kit/ornament.png" id="ornament"]
+[ext_resource type="PackedScene" path="res://scenes/journal/pause_menu.tscn" id="pause"]
 [ext_resource type="Texture2D" uid="uid://nrj7sru86b3a" path="res://assets/ui/tab_icons/personnel.png" id="personnel"]
 
 [sub_resource type="AtlasTexture" id="tab_strip"]
@@ -181,13 +182,11 @@ mouse_filter = 2
 
 [node name="TabIcon0" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
-offset_left = 1.0
-offset_top = 3.0
-offset_right = 23.0
-offset_bottom = 25.0
+offset_top = 2.0
+offset_right = 24.0
+offset_bottom = 26.0
 mouse_filter = 2
 texture = ExtResource("company")
-expand_mode = 1
 
 [node name="TabIcon1" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
@@ -200,29 +199,27 @@ texture = ExtResource("expeditions")
 
 [node name="TabIcon2" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
-offset_left = 2.0
-offset_top = 101.0
-offset_right = 23.0
-offset_bottom = 122.0
+offset_left = 1.0
+offset_top = 100.0
+offset_right = 25.0
+offset_bottom = 124.0
 mouse_filter = 2
 texture = ExtResource("personnel")
-expand_mode = 1
 
 [node name="TabIcon3" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
-offset_left = 3.0
-offset_top = 148.0
-offset_right = 23.0
-offset_bottom = 168.0
+offset_left = 1.0
+offset_top = 146.0
+offset_right = 25.0
+offset_bottom = 170.0
 mouse_filter = 2
 texture = ExtResource("exchange")
-expand_mode = 1
 
 [node name="TabIcon4" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
 offset_top = 194.0
-offset_right = 25.0
-offset_bottom = 219.0
+offset_right = 24.0
+offset_bottom = 218.0
 mouse_filter = 2
 texture = ExtResource("finances")
 
@@ -230,11 +227,10 @@ texture = ExtResource("finances")
 layout_mode = 0
 offset_left = 1.0
 offset_top = 243.0
-offset_right = 24.0
-offset_bottom = 266.0
+offset_right = 25.0
+offset_bottom = 267.0
 mouse_filter = 2
 texture = ExtResource("chronicle")
-expand_mode = 1
 
 [node name="ChapterTabHost" type="Control" parent="."]
 anchors_preset = 0
@@ -349,3 +345,7 @@ theme_type_variation = &"DeskLabel"
 text = "Notice"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PauseMenu" parent="." instance=ExtResource("pause")]
+layout_mode = 0
+book_nodes = Array[NodePath]([NodePath("../Book"), NodePath("../LeftLeaf"), NodePath("../RightLeaf"), NodePath("../PageFlip"), NodePath("../PinnedBookTabs"), NodePath("../ChapterIcons"), NodePath("../ChapterTabHost")])

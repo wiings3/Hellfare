@@ -61,8 +61,11 @@ func _build_shell() -> void:
 	right_leaf = stage.get_node("RightLeaf") as Control
 	tab_host = stage.get_node("ChapterTabHost") as Control
 	flip_art = stage.get_node("PageFlip") as TextureRect
-	pause_menu = stage.get_node("PauseMenu") as Control
-	pause_menu.quit_requested.connect(_save_and_quit)
+	pause_menu = stage.get_node_or_null("PauseMenu") as Control
+	if pause_menu == null:
+		push_warning("PauseMenu is missing from journal_shell.tscn; Escape will not open the menu.")
+	else:
+		pause_menu.quit_requested.connect(_save_and_quit)
 	tab_overlay = stage.get_node("PinnedBookTabs") as TextureRect
 	tab_icons_layer = stage.get_node("ChapterIcons") as Control
 	header_gold = money_label
