@@ -17,7 +17,7 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 
 ## V0.9 — Logbook UI redesign (in progress)
 
-The interface now renders as crisp pixel art at a **960x540 base resolution** (exactly 2x at 1080p). The book is drawn at one art pixel per stage unit, and all text uses two bundled pixel fonts (SIL Open Font License, in `assets/fonts/`): **Jacquard 12** for titles and **Jersey 10** for everything else. Nothing depends on the player's installed fonts any more.
+The interface now renders as crisp pixel art at a **960x540 base resolution** (exactly 2x at 1080p). The book is drawn at one art pixel per stage unit, and all text uses two bundled pixel fonts (SIL Open Font License, in `assets/fonts/`): **Jersey 15 and 20** for titles and **Jersey 10** for body text. Nothing depends on the player's installed fonts any more.
 
 - **Theme:** `assets/ui/theme/money_mercs.tres` is the project theme. Buttons (with real hover, pressed and disabled states), panels, slots, bars and label styles are theme type variations such as `PaperButton`, `ToggleButton`, `CardButton`, `SlotPanel`, `InsetPanel`, `LabelCaption`, `LabelBig` and `LabelTitle`. Pick them from the *Theme Type Variation* field in the inspector.
 - **Art:** `assets/ui/book/` holds the BookUI sheets pre-recoloured to oxblood (the old runtime shader darkened the parchment). `assets/ui/kit/` holds the nine-patch frames, slots, bars and pips; `assets/ui/icons/` the item and role icons; `assets/ui/portraits/` placeholder busts. `tools/make_kit.py` and `tools/recolor.py` regenerate them.

@@ -1,7 +1,8 @@
 [gd_resource type="Theme" load_steps=64 format=3]
 
 [ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="f_body"]
-[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="f_title"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="f_title"]
+[ext_resource type="FontFile" path="res://assets/fonts/Jersey20-Regular.ttf" id="f_title_big"]
 [ext_resource type="Texture2D" path="res://assets/ui/kit/card.png" id="t_card"]
 [ext_resource type="Texture2D" path="res://assets/ui/kit/inset.png" id="t_inset"]
 [ext_resource type="Texture2D" path="res://assets/ui/kit/card_alert.png" id="t_alert"]
@@ -406,8 +407,8 @@ DeskTitle/colors/font_color = Color(0.92549, 0.847059, 0.717647, 1)
 DeskTitle/colors/font_shadow_color = Color(0.0784314, 0.0392157, 0.0392157, 1)
 DeskTitle/constants/shadow_offset_x = 1
 DeskTitle/constants/shadow_offset_y = 1
-DeskTitle/font_sizes/font_size = 24
-DeskTitle/fonts/font = ExtResource("f_title")
+DeskTitle/font_sizes/font_size = 20
+DeskTitle/fonts/font = ExtResource("f_title_big")
 DeskValue/base_type = &"Label"
 DeskValue/colors/font_color = Color(0.952941, 0.807843, 0.47451, 1)
 DeskValue/font_sizes/font_size = 20
@@ -444,12 +445,12 @@ LabelMuted/base_type = &"Label"
 LabelMuted/colors/font_color = Color(0.580392, 0.454902, 0.384314, 1)
 LabelTitle/base_type = &"Label"
 LabelTitle/colors/font_color = Color(0.239216, 0.156863, 0.141176, 1)
-LabelTitle/font_sizes/font_size = 12
+LabelTitle/font_sizes/font_size = 15
 LabelTitle/fonts/font = ExtResource("f_title")
 LabelTitleBig/base_type = &"Label"
 LabelTitleBig/colors/font_color = Color(0.239216, 0.156863, 0.141176, 1)
-LabelTitleBig/font_sizes/font_size = 24
-LabelTitleBig/fonts/font = ExtResource("f_title")
+LabelTitleBig/font_sizes/font_size = 20
+LabelTitleBig/fonts/font = ExtResource("f_title_big")
 PanelContainer/styles/panel = SubResource("card")
 PaperButton/base_type = &"Button"
 PaperButton/colors/font_color = Color(0.239216, 0.156863, 0.141176, 1)

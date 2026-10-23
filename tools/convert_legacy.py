@@ -1,6 +1,6 @@
 """One-off migration of the pre-redesign journal scenes from the 1600x900 stage
 to the 960x540 stage with bundled pixel fonts. Layout numbers are scaled by K,
-SystemFont overrides are replaced with Jersey 10 / Jacquard 12 at crisp sizes,
+SystemFont overrides are replaced with Jersey 10 / Jersey 15 at crisp sizes,
 and linear texture filtering on labels is dropped."""
 import re, sys, os
 
@@ -10,7 +10,7 @@ SCALE_KEYS = ("offset_left", "offset_top", "offset_right", "offset_bottom",
               "theme_override_constants/separation")
 BORDER_KEYS = ("border_width_left", "border_width_top", "border_width_right", "border_width_bottom")
 BODY_EXT = '[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]'
-TITLE_EXT = '[ext_resource type="FontFile" path="res://assets/fonts/Jacquard12-Regular.ttf" id="font_title"]'
+TITLE_EXT = '[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="font_title"]'
 
 
 def scale(v):
