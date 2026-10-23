@@ -44,6 +44,8 @@ func _notification(what: int) -> void:
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	GameSettings.load_settings()
+	GameSettings.apply()
 	game = MoneyMercsState.new()
 	game.harlow_sync()
 	var returned: int = game.complete_due()

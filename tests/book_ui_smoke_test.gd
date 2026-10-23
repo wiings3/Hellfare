@@ -185,6 +185,28 @@ func _verify() -> void:
 	check(view.tab_overlay.visible and view.tab_icons_layer.visible, "tabs visible during flip")
 	await create_timer(0.6).timeout
 	check(not view.flip_art.visible, "page flip finished")
+	# Escape closes the journal onto its back cover with the pause menu.
+	var pause_menu: Control = journal.get_node("PauseMenu")
+	var escape := InputEventAction.new()
+	escape.action = "ui_cancel"
+	escape.pressed = true
+	Input.parse_input_event(escape)
+	await create_timer(1.0).timeout
+	check(pause_menu.visible and pause_menu.is_open(), "escape opens pause menu")
+	check(paused, "game paused behind the menu")
+	check(not view.book_art.visible and not view.left_leaf.visible and not view.tab_host.visible, "book hidden while closed")
+	check(pause_menu.get_node("Cover/Plate").visible, "bookplate shown on the cover")
+	pause_menu._show_settings(true)
+	check(pause_menu.settings_view.visible and not pause_menu.main_view.visible, "settings view")
+	Input.parse_input_event(escape)
+	await create_timer(0.1).timeout
+	check(pause_menu.main_view.visible and pause_menu.is_open(), "escape leaves settings first")
+	Input.parse_input_event(escape)
+	await create_timer(1.0).timeout
+	check(not pause_menu.visible and not pause_menu.is_open(), "escape resumes")
+	check(not paused, "game unpaused")
+	check(view.book_art.visible and view.left_leaf.visible and view.tab_host.visible, "book restored")
+	check(not view.flip_art.visible, "page flip stays hidden after resume")
 	# Every item the quartermaster sells must have an icon in the slots and lists.
 	for item_key in MercsV05.ITEMS.keys():
 		check(view._gear_icon(str(item_key)) != null, "icon for item " + str(item_key))
