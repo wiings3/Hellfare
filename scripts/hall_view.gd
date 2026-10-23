@@ -77,8 +77,16 @@ func _wire() -> void:
 	_wire_links(preview)
 	var trade := _trade_window()
 	var tb := "Margin/Body/"
+	(trade.get_node(tb + "Actions/Lock") as Button).pressed.connect(func() -> void:
+		var s: TradeSession = _game().hall.session
+		if s != null and s.my_locked:
+			_game().trade_unlock()
+		else:
+			_game().trade_lock()
+		_after_trade_edit())
 	(trade.get_node(tb + "Actions/Accept") as Button).pressed.connect(func() -> void:
-		_game().trade_ready()
+		if not _game().trade_accept():
+			ui.notification_text("Both sides must be locked first.")
 		_draw_trade(true))
 	(trade.get_node(tb + "Actions/Cancel") as Button).pressed.connect(func() -> void:
 		_game().trade_cancel()
@@ -599,6 +607,9 @@ func _toggle_in_trade(ref: String, uid: String) -> void:
 	if s == null or not s.is_open():
 		show_card(ref)
 		return
+	if not _game().trade_editable():
+		ui.notification_text("Unlock your side to change it.")
+		return
 	if ref.begins_with("gear:"):
 		_game().trade_toggle_gear(uid)
 	elif s.mine_goods.has(ref):
@@ -633,7 +644,9 @@ func _draw_trade(force: bool) -> void:
 		window.visible = false
 		_trade_seen = ""
 		return
-	var seen: String = "%s|%s|%s|%d|%s|%s|%s" % [s.trader, str(s.mine_goods), str(s.mine_gear), s.mine_gold, str(s.my_ready), str(s.their_ready), str(_game().gold)]
+	var wait: int = s.accept_wait(_now())
+	var seen: String = "%s|%s|%s|%d|%s|%s|%s|%s|%d|%s" % [s.trader, str(s.mine_goods), str(s.mine_gear), s.mine_gold,
+		str(s.my_locked), str(s.their_locked), str(s.my_accepted), str(s.their_accepted), wait, str(_game().gold)]
 	if not force and seen == _trade_seen and window.visible:
 		return
 	_trade_seen = seen
@@ -668,7 +681,15 @@ func _draw_trade(force: bool) -> void:
 	var gold := window.get_node(b + "Mine/Body/Gold/Amount") as LineEdit
 	if not gold.has_focus():
 		gold.text = str(s.mine_gold)
-	_ready_label(window.get_node(b + "Mine/Body/Head/Ready") as Label, s.my_ready)
+	_lock_label(window.get_node(b + "Mine/Body/Head/Ready") as Label, s.my_locked, s.my_accepted)
+	# A locked side can't be edited.
+	var editable: bool = not s.my_locked
+	for row in mine.get_children():
+		for button in ["Less10", "Less1", "More1", "More10", "Remove"]:
+			(row.get_node(button) as Button).disabled = not editable
+	gold.editable = editable
+	(window.get_node(b + "Mine/Body/Gold/Less") as Button).disabled = not editable
+	(window.get_node(b + "Mine/Body/Gold/More") as Button).disabled = not editable
 	# Their side.
 	var theirs := window.get_node(b + "Theirs/Body/Items") as VBoxContainer
 	ui._clear(theirs)
@@ -680,10 +701,18 @@ func _draw_trade(force: bool) -> void:
 	(window.get_node(b + "Theirs/Body/Head/Title") as Label).text = "%s gives" % s.trader
 	(window.get_node(b + "Theirs/Body/Gold/Amount") as Label).text = ui._money(s.their_gold)
 	(window.get_node(b + "Theirs/Body/Gold") as Control).visible = s.their_gold > 0
-	_ready_label(window.get_node(b + "Theirs/Body/Head/Ready") as Label, s.their_ready)
+	_lock_label(window.get_node(b + "Theirs/Body/Head/Ready") as Label, s.their_locked, s.their_accepted)
+	var lock := window.get_node(b + "Actions/Lock") as Button
+	lock.text = "Unlock" if s.my_locked else "Lock offer"
+	lock.disabled = s.my_accepted
 	var accept := window.get_node(b + "Actions/Accept") as Button
-	accept.text = "Accepted" if s.my_ready else "Accept"
-	accept.disabled = s.my_ready
+	if s.my_accepted:
+		accept.text = "Accepted"
+	elif wait > 0:
+		accept.text = "Accept (%d)" % wait
+	else:
+		accept.text = "Accept"
+	accept.disabled = s.my_accepted or wait != 0
 
 func _after_trade_edit() -> void:
 	_draw_trade(true)
@@ -700,6 +729,6 @@ func _trade_row(list: VBoxContainer, icon: Texture2D, name: String, qty: int, ed
 		(row.get_node(button) as Control).visible = editable
 	return row
 
-func _ready_label(label: Label, ready: bool) -> void:
-	label.text = "Ready" if ready else "Not ready"
-	label.theme_type_variation = &"LabelGood" if ready else &"LabelMuted"
+func _lock_label(label: Label, locked: bool, accepted: bool) -> void:
+	label.text = "Accepted" if accepted else ("Locked" if locked else "Not locked")
+	label.theme_type_variation = &"LabelGood" if accepted else (&"LabelAccent" if locked else &"LabelMuted")

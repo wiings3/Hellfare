@@ -489,13 +489,28 @@ func open_trade(trader: String) -> TradeSession:
 	session = TradeSession.open_for(h)
 	return session
 
-## After the company changes its side: the trader readies up shortly if it covers the deal.
-func trade_changed(gear_keys: Dictionary, now: int) -> void:
+## Any change to the company's side unlocks both sides.
+func trade_changed(_gear_keys: Dictionary, _now: int) -> void:
 	if session == null or not session.is_open():
 		return
 	session.changed()
+
+## The company locks its side. The trader locks too if it covers the deal, or says so.
+func trade_lock(gear_keys: Dictionary, now: int) -> void:
+	if session == null or not session.is_open() or session.my_locked:
+		return
+	session.my_locked = true
 	if session.covers_deal(gear_keys):
-		pending.append({"at": now + 1, "type": "npc_ready", "trader": session.trader})
+		pending.append({"at": now + rng.randi_range(1, 2), "type": "npc_lock", "trader": session.trader})
+	else:
+		trade_short(now)
+
+## The company accepts. Returns false if both sides are not locked or the pause has not passed.
+func trade_accept(now: int) -> bool:
+	if session == null or not session.is_open() or session.accept_wait(now) != 0:
+		return false
+	session.my_accepted = true
+	return true
 
 func trade_cancel(now: int) -> void:
 	if session == null:
@@ -529,7 +544,7 @@ func trade_finished(now: int) -> void:
 # --- The clock ----------------------------------------------------------------
 
 ## Advance the Hall to `now`: NPC chatter, posts selling out, and NPC replies and trade
-## requests whose moment has come. Returns {"type": "pm" | "trade_request" | "npc_ready",
+## requests whose moment has come. Returns {"type": "pm" | "trade_request" | "npc_lock" | "npc_accept",
 ## "trader"} events for the page to react to.
 func tick(now: int) -> Array:
 	_npc_posts(now)
@@ -552,10 +567,16 @@ func tick(now: int) -> Array:
 			"trade_request":
 				if open_trade(trader) != null:
 					events.append({"type": "trade_request", "trader": trader})
-			"npc_ready":
-				if session != null and session.is_open() and session.trader == trader:
-					session.their_ready = true
-					events.append({"type": "npc_ready", "trader": trader})
+			"npc_lock":
+				if session != null and session.is_open() and session.trader == trader and session.my_locked:
+					session.their_locked = true
+					session.locked_at = int(p["at"])
+					still.append({"at": int(p["at"]) + TradeSession.ACCEPT_DELAY + rng.randi_range(0, 1), "type": "npc_accept", "trader": trader})
+					events.append({"type": "npc_lock", "trader": trader})
+			"npc_accept":
+				if session != null and session.is_open() and session.trader == trader and session.accept_wait(int(p["at"])) == 0:
+					session.their_accepted = true
+					events.append({"type": "npc_accept", "trader": trader})
 	pending = still
 	return events
 

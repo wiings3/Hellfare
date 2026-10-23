@@ -618,7 +618,7 @@ def trade_window():
         s.node(base + "/Body", "VBoxContainer", {"theme_override_constants/separation": 2})
         s.node(base + "/Body/Head", "HBoxContainer")
         label(s, base + "/Body/Head/Title", title, "LabelAccent", {"size_flags_horizontal": 3})
-        label(s, base + "/Body/Head/Ready", "Not ready", "LabelMuted")
+        label(s, base + "/Body/Head/Ready", "Not locked", "LabelMuted")
         s.node(base + "/Body/Items", "VBoxContainer", {"theme_override_constants/separation": 2})
         label(s, base + "/Body/Empty", "Nothing yet.", "LabelMuted")
         s.node(base + "/Body/Gold", "HBoxContainer", {"theme_override_constants/separation": 3})
@@ -632,9 +632,12 @@ def trade_window():
                 button(s, base + "/Body/Gold/" + name, text, "PaperButton", {"custom_minimum_size": (22, 16), "size_flags_vertical": 4})
         else:
             label(s, base + "/Body/Gold/Amount", "0", None, {"size_flags_horizontal": 3, "horizontal_alignment": 2})
-    label(s, "Margin/Body/Hint", "Click goods or gear in your inventory to put them in.", "LabelMuted", {"autowrap_mode": 3})
+    label(s, "Margin/Body/Hint", "Click goods or gear in your inventory to put them in. Lock your side, then both accept. Any change unlocks both.", "LabelMuted", {"autowrap_mode": 3})
     s.node("Margin/Body/Actions", "HBoxContainer", {"theme_override_constants/separation": 4})
-    button(s, "Margin/Body/Actions/Accept", "Accept", None, {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3})
+    button(s, "Margin/Body/Actions/Lock", "Lock offer", "PaperButton", {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3,
+        "tooltip_text": "Lock your side so it can't change. Unlocking clears both locks."})
+    button(s, "Margin/Body/Actions/Accept", "Accept", None, {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3,
+        "tooltip_text": "Opens once both sides are locked. The trade goes through when both accept."})
     button(s, "Margin/Body/Actions/Cancel", "Cancel", "PaperButton", {"custom_minimum_size": (0, 22)})
     s.save("scenes/journal/widgets/trade_window.tscn")
 

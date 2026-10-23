@@ -3,9 +3,17 @@ class_name TradeSession
 ## One open trade window between the company and an NPC trader.
 ##
 ## The NPC puts in their side of the agreed deal. The player puts in their side by hand:
-## goods from the warehouse, spare gear and gold. Any change clears both "ready" marks.
-## The NPC marks ready only when the player's side covers the deal; the trade goes through
-## when both sides are ready. The company applies it (see CompanyStateBase.trade_*).
+## goods from the warehouse, spare gear and gold.
+##
+## Two-step confirm, against last-second swaps:
+## 1. Each side locks its offer. A locked side cannot be edited until it is unlocked.
+## 2. Once both are locked, and after ACCEPT_DELAY seconds, each side may accept.
+##    The trade goes through when both have accepted.
+## Any change to either side (including unlocking) clears every lock and acceptance.
+## The NPC locks only when the player's side covers the deal. The company applies the
+## trade (see CompanyStateBase.trade_*).
+
+const ACCEPT_DELAY := 2
 
 var trader: String = ""
 var deal: Haggle
@@ -17,8 +25,12 @@ var mine_gold: int = 0
 var their_goods: Dictionary = {}
 var their_gear: Array = []
 var their_gold: int = 0
-var my_ready: bool = false
-var their_ready: bool = false
+var my_locked: bool = false
+var their_locked: bool = false
+var my_accepted: bool = false
+var their_accepted: bool = false
+## When the second side locked; accepting opens ACCEPT_DELAY seconds later.
+var locked_at: int = 0
 ## "open", "done" or "cancelled".
 var status: String = "open"
 
@@ -40,8 +52,23 @@ func is_open() -> bool:
 	return status == "open"
 
 func changed() -> void:
-	my_ready = false
-	their_ready = false
+	my_locked = false
+	their_locked = false
+	my_accepted = false
+	their_accepted = false
+	locked_at = 0
+
+func both_locked() -> bool:
+	return my_locked and their_locked
+
+## Seconds until accepting opens, or -1 while either side is unlocked.
+func accept_wait(now: int) -> int:
+	if not both_locked():
+		return -1
+	return maxi(0, locked_at + ACCEPT_DELAY - now)
+
+func both_accepted() -> bool:
+	return my_accepted and their_accepted
 
 ## Does the company's side cover what was agreed?
 func covers_deal(gear_keys: Dictionary) -> bool:

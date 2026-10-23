@@ -586,16 +586,20 @@ func hall_pm(trader: String, text: String, links: Array, now: int = -1) -> Strin
 func hall_tick(now: int = -1) -> Array:
 	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
 	var events: Array = hall.tick(t)
-	if hall.session != null and hall.session.is_open() and hall.session.my_ready and hall.session.their_ready:
+	if hall.session != null and hall.session.is_open() and hall.session.both_accepted():
 		var trader: String = hall.session.trader
 		var result: String = trade_complete(t)
 		events.append({"type": "trade_done" if result.begins_with("Traded") else "trade_failed", "trader": trader, "message": result})
 	return events
 
 ## Put goods from the warehouse into the company's side of the trade (sets the amount).
+## Your side can only change while it is unlocked.
+func trade_editable() -> bool:
+	return hall.session != null and hall.session.is_open() and not hall.session.my_locked
+
 func trade_set_goods(good: String, quantity: int, now: int = -1) -> void:
 	var s: TradeSession = hall.session
-	if s == null or not s.is_open() or not BASE_PRICE.has(good):
+	if not trade_editable() or not BASE_PRICE.has(good):
 		return
 	var amount: int = clampi(quantity, 0, int(resources.get(good, 0)))
 	if amount <= 0:
@@ -606,7 +610,7 @@ func trade_set_goods(good: String, quantity: int, now: int = -1) -> void:
 
 func trade_toggle_gear(uid: String, now: int = -1) -> void:
 	var s: TradeSession = hall.session
-	if s == null or not s.is_open() or not storeroom_keys().has(uid):
+	if not trade_editable() or not storeroom_keys().has(uid):
 		return
 	if s.mine_gear.has(uid):
 		s.mine_gear.erase(uid)
@@ -616,20 +620,22 @@ func trade_toggle_gear(uid: String, now: int = -1) -> void:
 
 func trade_set_gold(amount: int, now: int = -1) -> void:
 	var s: TradeSession = hall.session
-	if s == null or not s.is_open():
+	if not trade_editable():
 		return
 	s.mine_gold = clampi(amount, 0, maxi(0, gold))
 	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
 
-## The company presses Accept. If its side falls short of the deal, the trader says so.
-func trade_ready(now: int = -1) -> void:
-	var s: TradeSession = hall.session
-	if s == null or not s.is_open():
-		return
-	var t: int = now if now >= 0 else int(Time.get_unix_time_from_system())
-	s.my_ready = true
-	if not s.covers_deal(storeroom_keys()):
-		hall.trade_short(t)
+## Step 1: lock the company's side. If it falls short of the deal, the trader says so.
+func trade_lock(now: int = -1) -> void:
+	hall.trade_lock(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+## Unlocking (to change something) clears both sides' locks.
+func trade_unlock(now: int = -1) -> void:
+	hall.trade_changed(storeroom_keys(), now if now >= 0 else int(Time.get_unix_time_from_system()))
+
+## Step 2: accept, once both sides are locked and the pause has passed.
+func trade_accept(now: int = -1) -> bool:
+	return hall.trade_accept(now if now >= 0 else int(Time.get_unix_time_from_system()))
 
 func trade_cancel(now: int = -1) -> void:
 	hall.trade_cancel(now if now >= 0 else int(Time.get_unix_time_from_system()))

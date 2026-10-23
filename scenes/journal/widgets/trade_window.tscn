@@ -63,7 +63,7 @@ size_flags_horizontal = 3
 [node name="Ready" type="Label" parent="Margin/Body/Mine/Body/Head"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Not ready"
+text = "Not locked"
 
 [node name="Items" type="VBoxContainer" parent="Margin/Body/Mine/Body"]
 layout_mode = 2
@@ -139,7 +139,7 @@ size_flags_horizontal = 3
 [node name="Ready" type="Label" parent="Margin/Body/Theirs/Body/Head"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Not ready"
+text = "Not locked"
 
 [node name="Items" type="VBoxContainer" parent="Margin/Body/Theirs/Body"]
 layout_mode = 2
@@ -177,12 +177,21 @@ horizontal_alignment = 2
 [node name="Hint" type="Label" parent="Margin/Body"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Click goods or gear in your inventory to put them in."
+text = "Click goods or gear in your inventory to put them in. Lock your side, then both accept. Any change unlocks both."
 autowrap_mode = 3
 
 [node name="Actions" type="HBoxContainer" parent="Margin/Body"]
 layout_mode = 2
 theme_override_constants/separation = 4
+
+[node name="Lock" type="Button" parent="Margin/Body/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Lock offer"
+custom_minimum_size = Vector2(0, 22)
+size_flags_horizontal = 3
+tooltip_text = "Lock your side so it can't change. Unlocking clears both locks."
 
 [node name="Accept" type="Button" parent="Margin/Body/Actions"]
 layout_mode = 2
@@ -190,6 +199,7 @@ mouse_default_cursor_shape = 2
 text = "Accept"
 custom_minimum_size = Vector2(0, 22)
 size_flags_horizontal = 3
+tooltip_text = "Opens once both sides are locked. The trade goes through when both accept."
 
 [node name="Cancel" type="Button" parent="Margin/Body/Actions"]
 layout_mode = 2

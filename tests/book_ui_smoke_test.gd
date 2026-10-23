@@ -204,16 +204,28 @@ func _verify() -> void:
 	for event in view.game.hall_tick(t2 + 30):
 		requested = requested or str(event["type"]) == "trade_request"
 	check(deal.is_agreed() and requested and hall.session != null, "agreeing brings a trade request")
-	# The trader only readies once the company's side covers the deal.
+	# Two-step confirm: lock, then accept. The trader only locks a side that covers the deal.
 	var gold_before: int = view.game.gold
 	view.game.trade_set_goods("timber", deal.agreed_qty - 1, t2 + 30)
-	view.game.trade_ready(t2 + 30)
+	view.game.trade_lock(t2 + 30)
 	view.game.hall_tick(t2 + 40)
-	check(hall.session != null and not hall.session.their_ready, "a short side is not accepted")
+	check(hall.session != null and hall.session.my_locked and not hall.session.their_locked, "a short side is not locked by the trader")
 	view.game.trade_set_goods("timber", deal.agreed_qty, t2 + 40)
-	view.game.trade_ready(t2 + 40)
+	check(int(hall.session.mine_goods["timber"]) == deal.agreed_qty - 1, "a locked side cannot be edited")
+	view.game.trade_unlock(t2 + 40)
+	check(not hall.session.my_locked, "unlocking")
+	view.game.trade_set_goods("timber", deal.agreed_qty, t2 + 40)
+	view.game.trade_lock(t2 + 40)
+	view.game.hall_tick(t2 + 43)
+	check(hall.session.both_locked(), "the trader locks a side that covers the deal")
+	check(not view.game.trade_accept(int(hall.session.locked_at)), "accepting waits a moment after both lock")
+	view.game.trade_unlock(int(hall.session.locked_at) + 1)
+	check(not hall.session.my_locked and not hall.session.their_locked, "any change unlocks both sides")
+	view.game.trade_lock(t2 + 50)
+	view.game.hall_tick(t2 + 53)
+	check(view.game.trade_accept(int(hall.session.locked_at) + TradeSession.ACCEPT_DELAY), "accept once both are locked and the pause has passed")
 	var traded: bool = false
-	for event in view.game.hall_tick(t2 + 45):
+	for event in view.game.hall_tick(t2 + 60):
 		traded = traded or str(event["type"]) == "trade_done"
 	var tax_paid: int = int(round(float(deal.agreed_total) * TradeHall.TAX))
 	check(traded and view.game.gold == gold_before + deal.agreed_total - tax_paid, "the trade pays out after the 3% tax")
@@ -239,7 +251,9 @@ func _verify() -> void:
 	check(hall.session != null and hall.session.their_gear.has("steel_sword"), "their side holds the sword")
 	var gear_before: int = view.game.equipment_inventory.size()
 	view.game.trade_set_gold(sword_deal.agreed_total, t3 + 60)
-	view.game.trade_ready(t3 + 60)
+	view.game.trade_lock(t3 + 60)
+	view.game.hall_tick(t3 + 63)
+	view.game.trade_accept(t3 + 63 + TradeSession.ACCEPT_DELAY)
 	view.game.hall_tick(t3 + 70)
 	check(view.game.equipment_inventory.size() == gear_before + 1 and view.game.gold == 1000 - sword_deal.agreed_total, "buying gear by trade")
 	# Blocking hides a trader and stops their messages.
