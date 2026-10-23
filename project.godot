@@ -20,6 +20,7 @@ config/icon="res://assets/icon.svg"
 
 window/size/viewport_width=960
 window/size/viewport_height=540
+window/size/borderless=true
 window/size/window_width_override=1920
 window/size/window_height_override=1080
 window/stretch/mode="canvas_items"
@@ -27,14 +28,13 @@ window/stretch/aspect="expand"
 
 [gui]
 
-theme/custom="res://assets/ui/theme/money_mercs.tres"
 theme/default_font_antialiasing=0
 theme/default_font_hinting=0
 theme/default_font_subpixel_positioning=0
+theme/custom="res://assets/ui/theme/money_mercs.tres"
 
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
-
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
