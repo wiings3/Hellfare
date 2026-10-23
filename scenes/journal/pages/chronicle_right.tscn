@@ -1,234 +1,132 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="font_title"]
-
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
-[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
-
-[sub_resource type="ShaderMaterial" id="burgundy"]
-shader = ExtResource("shader")
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="2_stat_tile"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="3_info_box"]
 
 [node name="ChronicleRight" type="Control"]
-offset_right = 253
-offset_bottom = 270
-mouse_filter = 1
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
 
-[node name="Heading" type="Label" parent="."]
-offset_left = 3
-offset_top = 1
-offset_right = 244
-offset_bottom = 20
-text = "Return & Losses"
-theme_override_fonts/font = ExtResource("font_title")
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Report"
+
+[node name="Head" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Seal" type="TextureRect" parent="Margin/Content/Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(24, 24)
+size_flags_vertical = 4
 mouse_filter = 2
+stretch_mode = 3
 
-[node name="HeadingNote" type="Label" parent="."]
-offset_left = 4
-offset_top = 20
-offset_right = 245
-offset_bottom = 32
-text = "The firm's permanent record."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Id" type="VBoxContainer" parent="Margin/Content/Head"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -2
 
-[node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 3
-offset_top = 35
-offset_right = 245
-offset_bottom = 36
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
+[node name="Place" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Place"
 
-[node name="NoReports" type="Label" parent="."]
-offset_left = 5
-offset_top = 57
-offset_right = 238
-offset_bottom = 95
-text = "Reports are filed here when field teams return."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-autowrap_mode = 3
-visible = false
-
-[node name="ReportTitle" type="Label" parent="."]
-offset_left = 4
-offset_top = 47
-offset_right = 236
-offset_bottom = 68
-text = ""
-theme_override_fonts/font = ExtResource("font_title")
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="OutcomeCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 77
-offset_right = 132
-offset_bottom = 91
+[node name="Outcome" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
 text = "Outcome"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
 
-[node name="OutcomeValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 77
-offset_right = 246
-offset_bottom = 93
+[node name="Money" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Recovered" parent="Margin/Content/Money" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Recovered"
+value = "0"
+tooltip_text = "Coin brought back after the crew's share."
+
+[node name="Costs" parent="Margin/Content/Money" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Costs"
+value = "0"
+
+[node name="Profit" parent="Margin/Content/Money" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Profit"
+value = "0"
+
+[node name="LootCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Goods recovered"
+
+[node name="Loot" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="NoLoot" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nothing recovered."
+
+[node name="CrewCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "The crew"
+
+[node name="Crew" type="VBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = -2
+
+[node name="Items" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
 text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+autowrap_mode = 3
 
-[node name="OutcomeRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 96
-offset_right = 245
-offset_bottom = 97
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
+[node name="EventsCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Field notes"
 
-[node name="RecoveredCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 101
-offset_right = 132
-offset_bottom = 115
-text = "Gold recovered"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Events" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
 
-[node name="RecoveredValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 101
-offset_right = 246
-offset_bottom = 116
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Events"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
 
-[node name="RecoveredRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 120
-offset_right = 245
-offset_bottom = 121
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="CostsCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 125
-offset_right = 132
-offset_bottom = 139
-text = "Mission costs"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="CostsValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 125
-offset_right = 246
-offset_bottom = 140
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="CostsRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 144
-offset_right = 245
-offset_bottom = 145
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="CasualtiesCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 149
-offset_right = 132
-offset_bottom = 163
-text = "Casualties"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="CasualtiesValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 149
-offset_right = 246
-offset_bottom = 164
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="CasualtiesRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 167
-offset_right = 245
-offset_bottom = 168
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="EventLogTitle" type="Label" parent="."]
-offset_left = 5
-offset_top = 177
-offset_right = 237
-offset_bottom = 191
-text = "EVENT LOG"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.462745, 0.172549, 0.215686, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="Events" parent="." instance=ExtResource("scroll")]
-offset_left = 3
-offset_top = 193
-offset_right = 251
-offset_bottom = 263
+[node name="Empty" parent="Margin/Content" instance=ExtResource("3_info_box")]
+layout_mode = 2
+visible = false
+text = "Select a report to read it."
+icon_kind = "home"

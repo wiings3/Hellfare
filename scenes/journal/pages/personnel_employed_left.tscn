@@ -1,62 +1,72 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="font_title"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
 
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
-[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
+[node name="PersonnelRosterLeft" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
 
-[sub_resource type="ShaderMaterial" id="burgundy"]
-shader = ExtResource("shader")
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
 
-[node name="PersonnelEmployedLeft" type="Control"]
-offset_right = 270
-offset_bottom = 270
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Roster"
+
+[node name="Summary" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+
+[node name="Count" type="Label" parent="Margin/Content/Summary"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "0 hired"
+size_flags_horizontal = 3
+
+[node name="Payroll" type="Label" parent="Margin/Content/Summary"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Payroll 0 G"
+tooltip_text = "What one expedition with every mercenary would cost in wages."
 mouse_filter = 1
 
-[node name="EmployedHeading" type="Label" parent="."]
-offset_left = 5
-offset_top = 30
-offset_right = 239
-offset_bottom = 44
-text = "UNDER CONTRACT"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="List" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
-[node name="Employed" parent="." instance=ExtResource("scroll")]
-offset_left = 2
-offset_top = 50
-offset_right = 258
-offset_bottom = 256
+[node name="Items" type="GridContainer" parent="Margin/Content/List"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+columns = 2
 
-[node name="EmptyCrew" type="Label" parent="."]
-offset_left = 5
-offset_top = 55
-offset_right = 238
-offset_bottom = 106
-text = "The payroll is empty. Recruit a miner or a guard to begin."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-autowrap_mode = 3
+[node name="Empty" parent="Margin/Content" instance=ExtResource("2_info_box")]
+layout_mode = 2
 visible = false
+text = "Nobody is on the payroll yet. Recruit a miner to start working Harlow Mines."
+icon_kind = "plus"
 
-[node name="Recruit" parent="." instance=ExtResource("button")]
-offset_left = 5
-offset_top = 116
-offset_right = 148
-offset_bottom = 139
-text = "Open Recruitment"
-material = SubResource("burgundy")
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
+[node name="Recruit" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Recruit mercenaries"
 visible = false
+size_flags_horizontal = 4

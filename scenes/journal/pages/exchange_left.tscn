@@ -1,57 +1,56 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=2 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="font_title"]
-
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
-[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
-
-[sub_resource type="ShaderMaterial" id="burgundy"]
-shader = ExtResource("shader")
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
 
 [node name="ExchangeLeft" type="Control"]
-offset_right = 270
-offset_bottom = 270
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Goods"
+
+[node name="Summary" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+
+[node name="Shift" type="Label" parent="Margin/Content/Summary"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Prices shift in 6h"
+size_flags_horizontal = 3
+tooltip_text = "Merchants reprice every six hours. Arrows compare today's price with the usual one."
 mouse_filter = 1
 
-[node name="Heading" type="Label" parent="."]
-offset_left = 3
-offset_top = 1
-offset_right = 244
-offset_bottom = 20
-text = "Merchant Stock"
-theme_override_fonts/font = ExtResource("font_title")
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Hint" type="Label" parent="Margin/Content/Summary"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Merchant pays"
 
-[node name="HeadingNote" type="Label" parent="."]
-offset_left = 4
-offset_top = 20
-offset_right = 245
-offset_bottom = 32
-text = "Select an item for its buying and selling price."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="List" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
 
-[node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 3
-offset_top = 35
-offset_right = 245
-offset_bottom = 36
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="Stock" parent="." instance=ExtResource("scroll")]
-offset_left = 3
-offset_top = 43
-offset_right = 258
-offset_bottom = 266
+[node name="Items" type="VBoxContainer" parent="Margin/Content/List"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3

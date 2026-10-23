@@ -1,68 +1,147 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="font_title"]
-
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
-[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
-
-[sub_resource type="ShaderMaterial" id="burgundy"]
-shader = ExtResource("shader")
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/item_slot.tscn" id="2_item_slot"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="3_info_box"]
 
 [node name="PersonnelArmoryLeft" type="Control"]
-offset_right = 270
-offset_bottom = 270
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Outfitting"
+
+[node name="Caption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Choose who to equip"
+
+[node name="Crew" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 33)
+horizontal_scroll_mode = 0
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Crew"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="LoadoutHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Loadout"
+
+[node name="Loadout" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Loadout"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Who" type="Label" parent="Margin/Content/Loadout/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Nobody selected"
+
+[node name="ToolRow" type="HBoxContainer" parent="Margin/Content/Loadout/Body"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Slot" parent="Margin/Content/Loadout/Body/ToolRow" instance=ExtResource("2_item_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(30, 30)
+
+[node name="Info" type="VBoxContainer" parent="Margin/Content/Loadout/Body/ToolRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -4
+
+[node name="Caption" type="Label" parent="Margin/Content/Loadout/Body/ToolRow/Info"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Tool"
+
+[node name="Name" type="Label" parent="Margin/Content/Loadout/Body/ToolRow/Info"]
+layout_mode = 2
+text = "Empty"
+text_overrun_behavior = 3
+
+[node name="Remove" type="Button" parent="Margin/Content/Loadout/Body/ToolRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Unequip"
+size_flags_vertical = 4
+
+[node name="ArmorRow" type="HBoxContainer" parent="Margin/Content/Loadout/Body"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Slot" parent="Margin/Content/Loadout/Body/ArmorRow" instance=ExtResource("2_item_slot")]
+layout_mode = 2
+custom_minimum_size = Vector2(30, 30)
+
+[node name="Info" type="VBoxContainer" parent="Margin/Content/Loadout/Body/ArmorRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -4
+
+[node name="Caption" type="Label" parent="Margin/Content/Loadout/Body/ArmorRow/Info"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Armor"
+
+[node name="Name" type="Label" parent="Margin/Content/Loadout/Body/ArmorRow/Info"]
+layout_mode = 2
+text = "Empty"
+text_overrun_behavior = 3
+
+[node name="Remove" type="Button" parent="Margin/Content/Loadout/Body/ArmorRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Unequip"
+size_flags_vertical = 4
+
+[node name="Bonus" type="Label" parent="Margin/Content/Loadout/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+tooltip_text = "Mining adds haul, guard protects the crew, protection lowers each wearer's risk."
 mouse_filter = 1
 
-[node name="ArmoryHeading" type="Label" parent="."]
-offset_left = 5
-offset_top = 29
-offset_right = 237
-offset_bottom = 46
-text = "THE QUARTERMASTER"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
-vertical_alignment = 1
-clip_text = true
+[node name="Empty" parent="Margin/Content" instance=ExtResource("3_info_box")]
+layout_mode = 2
+visible = false
+text = "Hire a mercenary before buying equipment for them."
+icon_kind = "plus"
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="ArmoryNote" type="Label" parent="."]
-offset_left = 5
-offset_top = 46
-offset_right = 240
-offset_bottom = 62
-text = "Choose a worker, then assign stored gear."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="CrewPicker" parent="." instance=ExtResource("scroll")]
-offset_left = 3
-offset_top = 68
-offset_right = 258
-offset_bottom = 158
-
-[node name="StashHeading" type="Label" parent="."]
-offset_left = 5
-offset_top = 165
-offset_right = 242
-offset_bottom = 179
-text = "UNASSIGNED EQUIPMENT"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="Stash" parent="." instance=ExtResource("scroll")]
-offset_left = 3
-offset_top = 181
-offset_right = 258
-offset_bottom = 262
+[node name="Tip" parent="Margin/Content" instance=ExtResource("3_info_box")]
+layout_mode = 2
+text = "Gear is company property. If its wearer dies in the field, the gear is lost with them."
+icon_kind = "alert"

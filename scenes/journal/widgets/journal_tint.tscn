@@ -1,5 +1,0 @@
-[gd_scene format=3]
-
-[node name="JournalTint" type="ColorRect"]
-mouse_filter = 2
-color = Color(0.501961, 0.32549, 0.286275, 0.13)

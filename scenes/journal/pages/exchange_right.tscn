@@ -1,223 +1,183 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="font_title"]
-
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
-[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
-
-[sub_resource type="ShaderMaterial" id="burgundy"]
-shader = ExtResource("shader")
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="2_stat_tile"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="3_info_box"]
 
 [node name="ExchangeRight" type="Control"]
-offset_right = 253
-offset_bottom = 270
-mouse_filter = 1
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
 
-[node name="Heading" type="Label" parent="."]
-offset_left = 3
-offset_top = 1
-offset_right = 244
-offset_bottom = 20
-text = "The Exchange Desk"
-theme_override_fonts/font = ExtResource("font_title")
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Trade"
+
+[node name="Head" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Slot" type="PanelContainer" parent="Margin/Content/Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(44, 44)
+theme_type_variation = &"SlotPanel"
+
+[node name="Center" type="CenterContainer" parent="Margin/Content/Head/Slot"]
+layout_mode = 2
 mouse_filter = 2
 
-[node name="HeadingNote" type="Label" parent="."]
-offset_left = 4
-offset_top = 20
-offset_right = 245
-offset_bottom = 32
-text = "All prices settled in gold."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
+[node name="Icon" type="TextureRect" parent="Margin/Content/Head/Slot/Center"]
+layout_mode = 2
+custom_minimum_size = Vector2(32, 32)
 mouse_filter = 2
+expand_mode = 1
 
-[node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 3
-offset_top = 35
-offset_right = 245
-offset_bottom = 36
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
+[node name="Id" type="VBoxContainer" parent="Margin/Content/Head"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -2
 
-[node name="ItemName" type="Label" parent="."]
-offset_left = 5
-offset_top = 47
-offset_right = 242
-offset_bottom = 70
+[node name="Name" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Item"
+
+[node name="Desc" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
 text = ""
-theme_override_fonts/font = ExtResource("font_title")
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="ItemDesc" type="Label" parent="."]
-offset_left = 5
-offset_top = 72
-offset_right = 243
-offset_bottom = 111
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
 autowrap_mode = 3
 
-[node name="QuantityCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 119
-offset_right = 132
-offset_bottom = 132
-text = "Quantity owned"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Prices" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="QuantityValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 119
-offset_right = 246
-offset_bottom = 134
+[node name="Sell" parent="Margin/Content/Prices" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "You sell for"
+value = "0"
+tooltip_text = "What a merchant pays you for one."
+
+[node name="Buy" parent="Margin/Content/Prices" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "You buy for"
+value = "0"
+tooltip_text = "What a merchant charges you for one."
+
+[node name="Owned" parent="Margin/Content/Prices" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Owned"
+value = "0"
+
+[node name="Market" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Trend" type="TextureRect" parent="Margin/Content/Market"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Text" type="Label" parent="Margin/Content/Market"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
 text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 
-[node name="QuantityRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 137
-offset_right = 245
-offset_bottom = 138
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
+[node name="Desk" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
 
-[node name="SellsForCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 145
-offset_right = 132
-offset_bottom = 159
-text = "Merchant sells for"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Desk"]
+layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="SellsForValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 145
-offset_right = 246
-offset_bottom = 160
+[node name="SellRow" type="HBoxContainer" parent="Margin/Content/Desk/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Margin/Content/Desk/Body/SellRow"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Sell"
+custom_minimum_size = Vector2(30, 0)
+
+[node name="One" type="Button" parent="Margin/Content/Desk/Body/SellRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Sell 1"
+size_flags_horizontal = 3
+
+[node name="Ten" type="Button" parent="Margin/Content/Desk/Body/SellRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Sell 10"
+size_flags_horizontal = 3
+
+[node name="All" type="Button" parent="Margin/Content/Desk/Body/SellRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Sell all"
+size_flags_horizontal = 3
+
+[node name="BuyRow" type="HBoxContainer" parent="Margin/Content/Desk/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Margin/Content/Desk/Body/BuyRow"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Buy"
+custom_minimum_size = Vector2(30, 0)
+
+[node name="One" type="Button" parent="Margin/Content/Desk/Body/BuyRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Buy 1"
+size_flags_horizontal = 3
+
+[node name="Ten" type="Button" parent="Margin/Content/Desk/Body/BuyRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Buy 10"
+size_flags_horizontal = 3
+
+[node name="Holding" type="Label" parent="Margin/Content/Desk/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
 text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="SellsForRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 163
-offset_right = 245
-offset_bottom = 164
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="BuysForCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 171
-offset_right = 132
-offset_bottom = 185
-text = "Merchant buys for"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="BuysForValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 171
-offset_right = 246
-offset_bottom = 186
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="BuysForRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 189
-offset_right = 245
-offset_bottom = 190
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="BuyOne" parent="." instance=ExtResource("button")]
-offset_left = 5
-offset_top = 201
-offset_right = 110
-offset_bottom = 225
-text = "Buy One"
-material = SubResource("burgundy")
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-
-[node name="SellOne" parent="." instance=ExtResource("button")]
-offset_left = 116
-offset_top = 201
-offset_right = 220
-offset_bottom = 225
-text = "Sell One"
-material = SubResource("burgundy")
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-
-[node name="SellAll" parent="." instance=ExtResource("textbutton")]
-offset_left = 7
-offset_top = 232
-offset_right = 184
-offset_bottom = 251
-text = "Sell all in storage  >"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-
-[node name="MarketNote" type="Label" parent="."]
-offset_left = 6
-offset_top = 254
-offset_right = 246
-offset_bottom = 269
-text = "Markets between players are not implemented yet."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.482353, 0.380392, 0.321569, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Note" parent="Margin/Content" instance=ExtResource("3_info_box")]
+layout_mode = 2
+text = "Sales go straight to the treasury. Rare goods are worth holding when prices dip."
+icon_kind = "coin"

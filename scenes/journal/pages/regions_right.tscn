@@ -1,201 +1,131 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="font_body"]
-[ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="font_title"]
-
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_button.tscn" id="button"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_text_button.tscn" id="textbutton"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/journal_scroll.tscn" id="scroll"]
-[ext_resource type="Shader" path="res://assets/ui/book_burgundy.gdshader" id="shader"]
-
-[sub_resource type="ShaderMaterial" id="burgundy"]
-shader = ExtResource("shader")
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="2_stat_tile"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/gold.png" id="3_gold"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/crystal.png" id="4_crystal"]
 
 [node name="RegionsRight" type="Control"]
-offset_right = 253
-offset_bottom = 270
-mouse_filter = 1
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
 
-[node name="Heading" type="Label" parent="."]
-offset_left = 3
-offset_top = 1
-offset_right = 244
-offset_bottom = 20
-text = "Dispatch Order"
-theme_override_fonts/font = ExtResource("font_title")
-theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
 
-[node name="HeadingNote" type="Label" parent="."]
-offset_left = 4
-offset_top = 20
-offset_right = 245
-offset_bottom = 32
-text = "Review required supplies and threat level."
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
 
-[node name="HeadingRule" type="ColorRect" parent="."]
-offset_left = 3
-offset_top = 35
-offset_right = 245
-offset_bottom = 36
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Contract"
 
-[node name="SiteName" type="Label" parent="."]
-offset_left = 5
-offset_top = 46
-offset_right = 237
-offset_bottom = 77
+[node name="Name" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Region"
+
+[node name="Tagline" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
 text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
 autowrap_mode = 3
 
-[node name="ThreatCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 86
-offset_right = 132
-offset_bottom = 99
-text = "Threat rating"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
+[node name="Stats" type="GridContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+columns = 2
 
-[node name="ThreatValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 86
-offset_right = 246
-offset_bottom = 101
+[node name="Threat" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Threat"
+value = "0"
+tooltip_text = "Higher threat means a stronger crew is needed."
+
+[node name="Duration" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Duration"
+value = "0"
+
+[node name="Supplies" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Supplies"
+value = "0"
+icon = ExtResource("3_gold")
+tooltip_text = "Paid up front, on top of wages."
+
+[node name="Reputation" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Reputation needed"
+value = "0"
+icon = ExtResource("4_crystal")
+
+[node name="LootCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Possible finds"
+
+[node name="Loot" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Finds" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
 text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="ThreatRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 104
-offset_right = 245
-offset_bottom = 105
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="SuppliesCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 114
-offset_right = 132
-offset_bottom = 127
-text = "Supply cost"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="SuppliesValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 114
-offset_right = 246
-offset_bottom = 129
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="SuppliesRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 132
-offset_right = 245
-offset_bottom = 133
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="ReputationCaption" type="Label" parent="."]
-offset_left = 5
-offset_top = 142
-offset_right = 132
-offset_bottom = 155
-text = "Required reputation"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="ReputationValue" type="Label" parent="."]
-offset_left = 140
-offset_top = 142
-offset_right = 246
-offset_bottom = 157
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
-
-[node name="ReputationRule" type="ColorRect" parent="."]
-offset_left = 4
-offset_top = 160
-offset_right = 245
-offset_bottom = 161
-color = Color(0.600000, 0.458824, 0.388235, 0.450000)
-mouse_filter = 2
-
-[node name="SiteTagline" type="Label" parent="."]
-offset_left = 6
-offset_top = 174
-offset_right = 242
-offset_bottom = 209
-text = ""
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.384314, 0.301961, 0.262745, 1.000000)
-vertical_alignment = 1
-clip_text = true
-mouse_filter = 2
 autowrap_mode = 3
 
-[node name="DispatchCrew" parent="." instance=ExtResource("button")]
-offset_left = 6
-offset_top = 222
-offset_right = 152
-offset_bottom = 245
-text = "Dispatch Crew"
-material = SubResource("burgundy")
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
+[node name="Focus" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = ""
+autowrap_mode = 3
 
-[node name="GoHarlow" parent="." instance=ExtResource("textbutton")]
-offset_left = 7
-offset_top = 251
-offset_right = 135
-offset_bottom = 268
-text = "Harlow Mines  >"
-theme_override_fonts/font = ExtResource("font_body")
-theme_override_font_sizes/font_size = 10
-theme_override_colors/font_color = Color(0.270588, 0.211765, 0.176471, 1.000000)
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Team" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+horizontal_alignment = 1
+
+[node name="Dispatch" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Dispatch crew"
+custom_minimum_size = Vector2(0, 26)
+
+[node name="Reason" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="GoHarlow" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Open Harlow Mines  >"
+visible = false
+size_flags_horizontal = 4

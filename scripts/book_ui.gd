@@ -29,20 +29,6 @@ const ROW_ROSTER_CARD := preload("res://scenes/journal/rows/roster_card.tscn")
 const ROW_EXPEDITION := preload("res://scenes/journal/rows/expedition_row.tscn")
 const ROW_EMPTY_EXPEDITION := preload("res://scenes/journal/rows/empty_expedition.tscn")
 const ITEM_SLOT := preload("res://scenes/journal/widgets/item_slot.tscn")
-const ROW_EMPLOYEE := preload("res://scenes/journal/rows/employee.tscn")
-const ROW_CANDIDATE := preload("res://scenes/journal/rows/candidate.tscn")
-const ROW_ARMORY_CREW := preload("res://scenes/journal/rows/armory_crew.tscn")
-const ROW_STASH := preload("res://scenes/journal/rows/stash.tscn")
-const ROW_EMPTY_STASH := preload("res://scenes/journal/rows/empty_stash.tscn")
-const ROW_CATALOG := preload("res://scenes/journal/rows/catalog.tscn")
-const ROW_MARKET := preload("res://scenes/journal/rows/market.tscn")
-const ROW_GUILD_WORKER := preload("res://scenes/journal/rows/guild_worker.tscn")
-const ROW_REPORT := preload("res://scenes/journal/rows/report.tscn")
-const ROW_REGION := preload("res://scenes/journal/rows/region.tscn")
-const ROW_WAREHOUSE := preload("res://scenes/journal/rows/warehouse.tscn")
-const ROW_EMPTY_WAREHOUSE := preload("res://scenes/journal/rows/empty_warehouse.tscn")
-const ROW_EVENT := preload("res://scenes/journal/rows/event.tscn")
-const ROW_EMPTY_EVENT := preload("res://scenes/journal/rows/empty_event.tscn")
 
 const BUSTS := {
 	"Miner": preload("res://assets/ui/portraits/miner_bust.png"),
@@ -58,8 +44,6 @@ const SIGN_CHECK := preload("res://assets/ui/kit/sign_check.png")
 const SIGN_CROSS := preload("res://assets/ui/kit/sign_cross.png")
 const ICON_FIELD := preload("res://assets/ui/tab_icons/expeditions.png")
 const ICON_GUILD := preload("res://assets/ui/tab_icons/company.png")
-## Pages that have not been redesigned yet sit slightly inset from the page edge.
-const LEGACY_PAGE_OFFSET := Vector2(10, 10)
 const PAGE_TITLES := {
 	"hq": "The Company",
 	"harlow": "Harlow Mines",
@@ -134,41 +118,6 @@ func _mount_page(scene: PackedScene, leaf: Control) -> Control:
 	var root := scene.instantiate() as Control
 	leaf.add_child(root)
 	return root
-
-## Pages still using the pre-redesign layout.
-func _mount_legacy(scene: PackedScene, leaf: Control) -> Control:
-	var root := _mount_page(scene, leaf)
-	root.position = LEGACY_PAGE_OFFSET
-	return root
-
-func _make_row(scene: PackedScene, list: VBoxContainer) -> Control:
-	var record := scene.instantiate() as PanelContainer
-	list.add_child(record)
-	return record.get_node("Content") as Control
-
-func _row_text(row: Control, node_name: String, content: String) -> Label:
-	var field := row.get_node(node_name) as Label
-	field.text = content
-	return field
-
-func _row_button(row: Control, node_name: String, title: String, action: Callable,
-		enabled: bool = true, active: bool = false, primary: bool = false) -> Button:
-	var btn := row.get_node(node_name) as Button
-	btn.text = title.replace(">", ">")
-	btn.disabled = not enabled
-	if not primary:
-		btn.theme_type_variation = &"PaperButton"
-		if active:
-			btn.add_theme_color_override("font_color", OXBLOOD)
-	btn.pressed.connect(action)
-	return btn
-
-func _page_value(root: Control, key: String, value: String) -> void:
-	(root.get_node(key + "Value") as Label).text = value
-
-func _page_visibility(root: Control, names: Array, shown: bool) -> void:
-	for path in names:
-		(root.get_node(path) as CanvasItem).visible = shown
 
 func _item_icon(key: String) -> Texture2D:
 	var path := "res://assets/ui/icons/%s.png" % key
@@ -633,19 +582,78 @@ func _bind_harlow_plan(right: Control) -> void:
 	reason.visible = not why.is_empty()
 	(right.get_node(c + "Warning") as Control).visible = not busy
 
-# --- Chapters not yet redesigned (converted legacy layouts) ----------------
+# --- Shared chapter helpers ----------------------------------------------------
+
+const ROW_LIST_CARD := preload("res://scenes/journal/rows/list_card.tscn")
+const ROW_ITEM_CARD := preload("res://scenes/journal/rows/item_card.tscn")
+const ROW_PORTRAIT_CARD := preload("res://scenes/journal/rows/portrait_card.tscn")
+const SEAL_OK := preload("res://assets/ui/kit/seal_ok.png")
+const SEAL_BAD := preload("res://assets/ui/kit/seal_bad.png")
+const TREND_UP := preload("res://assets/ui/kit/trend_up.png")
+const TREND_DOWN := preload("res://assets/ui/kit/trend_down.png")
+const ITEM_ICONS := {
+	"basic_pick": "pickaxe", "reinforced_pick": "pickaxe_reinforced",
+	"rusted_sword": "sword_rusted", "steel_sword": "sword_steel",
+	"leather": "armor_leather", "chainmail": "armor_iron",
+}
+const EMPTY_SLOT_ICONS := {
+	"tool": preload("res://assets/ui/icons/empty_glove.png"),
+	"armor": preload("res://assets/ui/icons/empty_armor.png"),
+}
+const CONTRACT_NOTES := {
+	"Balanced": "A standard wage and a modest share of each haul.",
+	"Guaranteed Wage": "A higher wage, but a smaller share of the haul.",
+	"Profit Share": "A low wage in exchange for a bigger cut of the haul.",
+}
+const ROLE_NOTES := {
+	"Miner": "Miners dig ore at Harlow Mines. Every expedition needs at least one.",
+	"Guard": "Guards cannot dig, but they protect the crew from the site's threat.",
+	"Scout": "Scouts travel ahead of the company. Harlow's survey is handled by the guild scout.",
+}
+
+var selected_candidate: String = ""
+
+func _gear_icon(key: String) -> Texture2D:
+	return _item_icon(str(ITEM_ICONS.get(key, "")))
+
+func _list_card(list: VBoxContainer, icon: Texture2D, title: String, details: String,
+		side_caption: String, side_value: String, selected: bool, action: Callable) -> Button:
+	var card := ROW_LIST_CARD.instantiate() as Button
+	list.add_child(card)
+	(card.get_node("Body/IconSlot/Icon") as TextureRect).texture = icon
+	(card.get_node("Body/Info/Name") as Label).text = title
+	(card.get_node("Body/Info/Details") as Label).text = details
+	(card.get_node("Body/Side/Caption") as Label).text = side_caption
+	(card.get_node("Body/Side/Caption") as Label).visible = not side_caption.is_empty()
+	(card.get_node("Body/Side/Value/Text") as Label).text = side_value
+	card.set_pressed_no_signal(selected)
+	card.pressed.connect(action)
+	return card
+
+func _merc_status(merc: Dictionary) -> Array:
+	## Returns [label, variation] describing what a mercenary is doing.
+	if not game.is_available(merc):
+		return ["In the field", &"LabelAccent"]
+	if int(merc.get("health", 100)) < 25:
+		return ["Too hurt to deploy", &"LabelAccent"]
+	if int(merc.get("health", 100)) < 100:
+		return ["Wounded", &"LabelAccent"]
+	return ["Ready", &"LabelGood"]
+
+func _set_bust(rect: TextureRect, role: String) -> void:
+	rect.texture = BUSTS.get(role, BUSTS["Scout"])
+
+# --- Personnel ----------------------------------------------------------------
 
 func _draw_people() -> void:
-	# Individual personnel spreads are scenes, sharing one editable tab bar.
 	match roster_tab:
-		"employed": _draw_employees()
 		"recruits": _draw_recruitment()
 		"armory": _draw_armory_page()
 		_: _draw_employees()
-	var tabs := _mount_legacy(PERSONNEL_TABS, left_leaf)
+	var tabs := _mount_page(PERSONNEL_TABS, left_leaf)
 	for tab in [["EmployeesTab", "employed"], ["RecruitmentTab", "recruits"], ["ArmoryTab", "armory"]]:
-		var btn := tabs.get_node(str(tab[0])) as Button
-		btn.add_theme_color_override("font_color", BLUE if roster_tab == str(tab[1]) else INK)
+		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
+		btn.set_pressed_no_signal(roster_tab == str(tab[1]) or (str(tab[1]) == "employed" and roster_tab not in ["recruits", "armory"]))
 		btn.pressed.connect(_set_roster_tab.bind(str(tab[1])))
 
 func _focus_person(id: String) -> void:
@@ -653,254 +661,645 @@ func _focus_person(id: String) -> void:
 	_refresh()
 
 func _draw_employees() -> void:
-	var left := _mount_legacy(PERSONNEL_EMPLOYEES_LEFT, left_leaf)
-	var right := _mount_legacy(PERSONNEL_EMPLOYEES_RIGHT, right_leaf)
-	var roster := left.get_node("Employed/Items") as VBoxContainer
-	if selected_merc.is_empty() and not game.crew.is_empty():
+	var left := _mount_page(PERSONNEL_EMPLOYEES_LEFT, left_leaf)
+	var right := _mount_page(PERSONNEL_EMPLOYEES_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	if (selected_merc.is_empty() or game.merc_by_id(selected_merc).is_empty()) and not game.crew.is_empty():
 		selected_merc = str(game.crew[0]["id"])
-	for person in game.crew:
-		var id: String = str(person["id"])
-		var row := _make_row(ROW_EMPLOYEE, roster)
-		var name_label := _row_text(row, "Name", str(person["name"]))
-		name_label.add_theme_color_override("font_color", BLUE if id == selected_merc else INK)
-		_row_text(row, "Details", "%s  •  %d%% health" % [str(person["role"]), int(person.get("health", 100))])
-		_row_button(row, "View", "VIEW  >", _focus_person.bind(id), true, id == selected_merc)
-	var empty_crew: bool = game.crew.is_empty()
-	(left.get_node("EmptyCrew") as Label).visible = empty_crew
-	var recruit := left.get_node("Recruit") as Button
-	recruit.visible = empty_crew
+	var grid := left.get_node(c + "List/Items") as GridContainer
+	var payroll: int = 0
+	for merc in game.crew:
+		var id: String = str(merc["id"])
+		var role: String = str(merc.get("role", ""))
+		payroll += int(game.terms(merc)["wage"])
+		var status: Array = _merc_status(merc)
+		var health: int = int(merc.get("health", 100))
+		var card := ROW_PORTRAIT_CARD.instantiate() as Button
+		grid.add_child(card)
+		_set_bust(card.get_node("Body/Bust") as TextureRect, role)
+		(card.get_node("Body/Name") as Label).text = str(merc["name"])
+		var role_label := card.get_node("Body/Role") as Label
+		role_label.text = "%s  ·  %s" % [role, str(status[0])]
+		if status[1] != &"LabelGood":
+			role_label.theme_type_variation = status[1]
+		var hp := card.get_node("Body/Health") as ProgressBar
+		hp.value = health
+		hp.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
+		card.tooltip_text = "%s  ·  Skill %d  ·  Health %d%%  ·  Gear %d/2" % [role, int(merc.get("skill", 0)), health, _equipped_count(merc)]
+		card.set_pressed_no_signal(id == selected_merc)
+		card.pressed.connect(_focus_person.bind(id))
+	var empty: bool = game.crew.is_empty()
+	(left.get_node(c + "Summary/Count") as Label).text = "%s  ·  %d ready" % ["%d hired" % game.crew.size(), game.free_crew()]
+	(left.get_node(c + "Summary/Payroll") as Label).text = "Payroll %s" % _money(payroll)
+	(left.get_node(c + "List") as Control).visible = not empty
+	(left.get_node(c + "Empty") as Control).visible = empty
+	var recruit := left.get_node(c + "Recruit") as Button
+	recruit.visible = empty
 	recruit.pressed.connect(_set_roster_tab.bind("recruits"))
-	var person: Dictionary = game.merc_by_id(selected_merc)
-	var no_selection: bool = person.is_empty()
-	(right.get_node("EmptyDossier") as Label).visible = no_selection
-	_page_visibility(right, ["PersonName", "OccupationCaption", "OccupationValue", "OccupationRule",
-		"SkillCaption", "SkillValue", "SkillRule", "HealthCaption", "HealthValue", "HealthRule",
-		"WageCaption", "WageValue", "WageRule", "Tool", "Armor",
-		"OpenArmory", "ChangeTerms", "Heal"], not no_selection)
-	if no_selection:
+	# Dossier.
+	var merc: Dictionary = game.merc_by_id(selected_merc)
+	var none: bool = merc.is_empty()
+	for child in (right.get_node("Margin/Content") as Control).get_children():
+		(child as CanvasItem).visible = (child.name == "Empty" or child.name == "Header") if none else child.name != "Empty"
+	if none:
 		return
-	(right.get_node("PersonName") as Label).text = str(person["name"])
-	_page_value(right, "Occupation", str(person["role"]))
-	_page_value(right, "Skill", str(int(person.get("skill", 0))))
-	_page_value(right, "Health", "%d%%" % int(person.get("health", 100)))
-	_page_value(right, "Wage", _money(int(person.get("wage", 0))))
-	var equipped: Dictionary = person.get("equipment", {})
-	(right.get_node("Tool") as Label).text = "TOOL: %s" % _equipment_name(equipped.get("tool", {}))
-	(right.get_node("Armor") as Label).text = "ARMOR: %s" % _equipment_name(equipped.get("armor", {}))
-	(right.get_node("OpenArmory") as Button).pressed.connect(_outfit.bind(selected_merc))
-	(right.get_node("ChangeTerms") as Button).pressed.connect(_terms.bind(selected_merc))
-	var heal := right.get_node("Heal") as Button
-	heal.visible = int(person.get("health", 100)) < 100
+	var role: String = str(merc.get("role", ""))
+	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, role)
+	(right.get_node(c + "Head/Id/Name") as Label).text = str(merc.get("name", ""))
+	(right.get_node(c + "Head/Id/Title") as Label).text = str(merc.get("title", "Contractor"))
+	(right.get_node(c + "Head/Id/Status/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
+	(right.get_node(c + "Head/Id/Status/Role") as Label).text = role
+	var status: Array = _merc_status(merc)
+	var state := right.get_node(c + "Head/Id/Status/State") as Label
+	state.text = "·  " + str(status[0])
+	state.theme_type_variation = status[1]
+	var terms: Dictionary = game.terms(merc)
+	right.get_node(c + "Stats/Skill").value = str(int(merc.get("skill", 0)))
+	right.get_node(c + "Stats/Experience").value = "%d xp" % int(merc.get("xp", 0))
+	right.get_node(c + "Stats/Wage").value = _money(int(terms["wage"]))
+	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(terms["cut"]) * 100.0))
+	var health: int = int(merc.get("health", 100))
+	var bar := right.get_node(c + "Health/Bar") as ProgressBar
+	bar.value = health
+	bar.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
+	(right.get_node(c + "Health/Value") as Label).text = "%d%%" % health
+	var heal := right.get_node(c + "Health/Heal") as Button
+	heal.visible = health < 100
 	if heal.visible:
+		var cost: int = maxi(12, int(ceil(float(100 - health) * 1.5)))
+		heal.text = "Treat  ·  %d G" % cost
+		heal.disabled = game.gold < cost or not game.is_available(merc)
 		heal.pressed.connect(_heal.bind(selected_merc))
+	var worn: Dictionary = merc.get("equipment", {})
+	for slot in ["tool", "armor"]:
+		var item: Dictionary = worn.get(slot, {})
+		var cap: String = slot.capitalize()
+		var slot_node := right.get_node(c + "Gear/%sSlot" % cap)
+		slot_node.icon = EMPTY_SLOT_ICONS[slot] if item.is_empty() else _gear_icon(str(item.get("key", "")))
+		slot_node.dim = item.is_empty()
+		(right.get_node(c + "Gear/%sInfo/Name" % cap) as Label).text = _equipment_name(item)
+	var contract: String = str(merc.get("contract", "Balanced"))
+	(right.get_node(c + "Contract/Body/Top/Text/Name") as Label).text = contract
+	(right.get_node(c + "Contract/Body/Explain") as Label).text = str(CONTRACT_NOTES.get(contract, ""))
+	var change := right.get_node(c + "Contract/Body/Top/Change") as Button
+	change.disabled = not game.is_available(merc)
+	change.pressed.connect(_terms.bind(selected_merc))
+	(right.get_node(c + "Actions/Armory") as Button).pressed.connect(_outfit.bind(selected_merc))
+
+func _choose_candidate(id: String) -> void:
+	selected_candidate = id
+	_refresh()
 
 func _draw_recruitment() -> void:
-	var left := _mount_legacy(PERSONNEL_RECRUITS_LEFT, left_leaf)
-	var right := _mount_legacy(PERSONNEL_RECRUITS_RIGHT, right_leaf)
-	var offers := left.get_node("Offers/Items") as VBoxContainer
-	for candidate in game.recruitment_board():
-		var record := _make_row(ROW_CANDIDATE, offers)
-		_row_text(record, "Name", str(candidate["name"]))
-		_row_text(record, "Details", "%s  •  Skill %d  •  Wage %d G" % [
-			str(candidate["role"]), int(candidate["skill"]), int(candidate["wage"])])
-		_row_button(record, "Hire", "HIRE %d G" % int(candidate["hire"]),
-			_hire.bind(str(candidate["id"])), game.gold >= int(candidate["hire"]))
-	_page_value(right, "Treasury", _money(game.gold))
-	_page_value(right, "Workers", str(game.crew.size()))
+	var left := _mount_page(PERSONNEL_RECRUITS_LEFT, left_leaf)
+	var right := _mount_page(PERSONNEL_RECRUITS_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var board: Array[Dictionary] = game.recruitment_board()
+	var chosen: Dictionary = {}
+	for candidate in board:
+		if str(candidate["id"]) == selected_candidate:
+			chosen = candidate
+	if chosen.is_empty() and not board.is_empty():
+		chosen = board[0]
+		selected_candidate = str(chosen["id"])
+	var list := left.get_node(c + "List/Items") as VBoxContainer
+	for candidate in board:
+		var role: String = str(candidate["role"])
+		var fee: int = int(candidate["hire"])
+		var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(candidate["name"]),
+			"%s  ·  Skill %d  ·  Wage %d G" % [role, int(candidate["skill"]), int(candidate["wage"])],
+			"Fee", _money(fee), str(candidate["id"]) == selected_candidate, _choose_candidate.bind(str(candidate["id"])))
+		if game.gold < fee:
+			(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelMuted"
+	(left.get_node(c + "Summary/Count") as Label).text = "%d waiting" % board.size()
+	var refresh := left.get_node(c + "Summary/Refresh") as Label
+	var tick := func() -> void:
+		refresh.text = "New applicants in " + _duration(1800 - _now() % 1800)
+	tick.call()
+	live_updaters.append(tick)
+	(left.get_node(c + "List") as Control).visible = not board.is_empty()
+	(left.get_node(c + "Empty") as Control).visible = board.is_empty()
+	var none: bool = chosen.is_empty()
+	for child in (right.get_node("Margin/Content") as Control).get_children():
+		(child as CanvasItem).visible = (child.name == "Empty" or child.name == "Header") if none else child.name != "Empty"
+	if none:
+		return
+	var role: String = str(chosen["role"])
+	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, role)
+	(right.get_node(c + "Head/Id/Name") as Label).text = str(chosen["name"])
+	(right.get_node(c + "Head/Id/Title") as Label).text = str(chosen.get("title", "Contractor"))
+	(right.get_node(c + "Head/Id/Status/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
+	(right.get_node(c + "Head/Id/Status/Role") as Label).text = role
+	right.get_node(c + "Stats/Skill").value = str(int(chosen["skill"]))
+	right.get_node(c + "Stats/Fee").value = _money(int(chosen["hire"]))
+	right.get_node(c + "Stats/Wage").value = _money(int(chosen["wage"]))
+	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(chosen.get("share", 0.1)) * 100.0))
+	right.get_node(c + "RoleNote").text = str(ROLE_NOTES.get(role, ""))
+	var fee: int = int(chosen["hire"])
+	var hire := right.get_node(c + "Hire") as Button
+	hire.text = "Hire %s  ·  %s" % [str(chosen["name"]).get_slice(" ", 0), _money(fee)]
+	hire.disabled = game.gold < fee
+	hire.pressed.connect(_hire.bind(str(chosen["id"])))
+	var reason := right.get_node(c + "Reason") as Label
+	reason.text = "Not enough gold: the fee is %s." % _money(fee) if game.gold < fee else ""
+	reason.visible = not reason.text.is_empty()
 
 func _draw_armory_page() -> void:
-	var left := _mount_legacy(PERSONNEL_ARMORY_LEFT, left_leaf)
-	var right := _mount_legacy(PERSONNEL_ARMORY_RIGHT, right_leaf)
-	if selected_merc.is_empty() and not game.crew.is_empty():
+	var left := _mount_page(PERSONNEL_ARMORY_LEFT, left_leaf)
+	var right := _mount_page(PERSONNEL_ARMORY_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	if (selected_merc.is_empty() or game.merc_by_id(selected_merc).is_empty()) and not game.crew.is_empty():
 		selected_merc = str(game.crew[0]["id"])
-	var crew_picker := left.get_node("CrewPicker/Items") as VBoxContainer
-	for person in game.crew:
-		var row := _make_row(ROW_ARMORY_CREW, crew_picker)
-		var id: String = str(person["id"])
-		_row_text(row, "Name", "%s / %s" % [str(person["name"]), str(person["role"])])
-		_row_button(row, "Select", "SELECT", _choose_worker.bind(id), true, id == selected_merc)
-	var stash := left.get_node("Stash/Items") as VBoxContainer
 	var owner: Dictionary = game.merc_by_id(selected_merc)
-	for item in game.equipment_inventory:
-		var definition: Dictionary = game.item_definition(str(item.get("key", "")))
-		var row := _make_row(ROW_STASH, stash)
-		_row_text(row, "Name", str(definition.get("name", "Unknown")))
-		_row_text(row, "Details", "Owned  /  %s" % str(definition.get("slot", "tool")))
-		var can_equip: bool = not owner.is_empty() and game.is_available(owner) and MercsV05.validate_role(str(item.get("key", "")), owner)
-		_row_button(row, "Equip", "EQUIP", _equip.bind(selected_merc, str(item.get("uid", ""))), can_equip)
-		_row_button(row, "Sell", "SELL", _sell_equipment.bind(str(item.get("uid", ""))))
-	if game.equipment_inventory.is_empty():
-		var empty := _make_row(ROW_EMPTY_STASH, stash)
-		_row_text(empty, "Note", "No equipment in storage.")
-	var has_owner: bool = not owner.is_empty()
-	_page_visibility(right, ["Outfitting", "Tool", "Armor", "RemoveTool", "RemoveArmor"], has_owner)
-	if has_owner:
-		(right.get_node("Outfitting") as Label).text = "OUTFITTING: %s" % str(owner.get("name", ""))
+	var picker := left.get_node(c + "Crew/Items") as VBoxContainer
+	for merc in game.crew:
+		var id: String = str(merc["id"])
+		var role: String = str(merc.get("role", ""))
+		var away: bool = not game.is_available(merc)
+		var card := _list_card(picker, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(merc["name"]),
+			role + ("  ·  in the field" if away else ""), "Gear", "%d/2" % _equipped_count(merc), id == selected_merc, _choose_worker.bind(id))
+		card.custom_minimum_size.y = 30
+	(left.get_node(c + "Crew") as Control).custom_minimum_size.y = mini(game.crew.size(), 3) * 33
+	var none: bool = owner.is_empty()
+	(left.get_node(c + "Empty") as Control).visible = game.crew.is_empty()
+	for path in ["Caption", "Crew", "LoadoutHeader", "Loadout", "Tip"]:
+		(left.get_node(c + path) as Control).visible = not game.crew.is_empty()
+	if not none:
+		var available: bool = game.is_available(owner)
+		(left.get_node(c + "Loadout/Body/Who") as Label).text = "%s  ·  %s" % [str(owner["name"]), str(owner.get("role", ""))]
 		var worn: Dictionary = owner.get("equipment", {})
 		for slot in ["tool", "armor"]:
-			var equipped: Dictionary = worn.get(slot, {})
-			(right.get_node(slot.capitalize()) as Label).text = "%s: %s" % [slot.capitalize(), _equipment_name(equipped)]
-			var remove := right.get_node("Remove" + slot.capitalize()) as Button
-			remove.visible = not equipped.is_empty()
-			if remove.visible:
-				remove.pressed.connect(_unequip.bind(selected_merc, slot))
-	var catalog := right.get_node("Catalog/Items") as VBoxContainer
+			var item: Dictionary = worn.get(slot, {})
+			var row := c + "Loadout/Body/%sRow/" % slot.capitalize()
+			var slot_node := left.get_node(row + "Slot")
+			slot_node.icon = EMPTY_SLOT_ICONS[slot] if item.is_empty() else _gear_icon(str(item.get("key", "")))
+			slot_node.dim = item.is_empty()
+			(left.get_node(row + "Info/Name") as Label).text = _equipment_name(item)
+			var remove := left.get_node(row + "Remove") as Button
+			remove.visible = not item.is_empty()
+			remove.disabled = not available
+			remove.pressed.connect(_unequip.bind(selected_merc, slot))
+		var stats: Dictionary = MercsV05.equipment_stats(owner)
+		(left.get_node(c + "Loadout/Body/Bonus") as Label).text = "Mining +%d  ·  Guard +%d  ·  Protection +%d" % [
+			int(stats["mining"]), int(stats["guard"]), int(stats["protection"])]
+	# Storeroom: loose gear, equip onto the selected mercenary or sell.
+	var store := right.get_node(c + "Store/Items") as VBoxContainer
+	for item in game.equipment_inventory:
+		var key: String = str(item.get("key", ""))
+		var definition: Dictionary = game.item_definition(key)
+		var card := ROW_ITEM_CARD.instantiate()
+		store.add_child(card)
+		(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _gear_icon(key)
+		(card.get_node("Row/Info/Name") as Label).text = str(definition.get("name", "Unknown"))
+		(card.get_node("Row/Info/Details") as Label).text = _gear_summary(definition)
+		var fits: bool = not none and game.is_available(owner) and MercsV05.validate_role(key, owner)
+		var equip := card.get_node("Row/Primary") as Button
+		equip.text = "Equip"
+		equip.disabled = not fits
+		equip.tooltip_text = "Equip on %s." % str(owner.get("name", "")) if fits else "Only a free %s can use this." % str(definition.get("role", "mercenary")).to_lower()
+		equip.pressed.connect(_equip.bind(selected_merc, str(item.get("uid", ""))))
+		var sell := card.get_node("Row/Secondary") as Button
+		sell.visible = true
+		var value: int = maxi(1, int(floor(float(definition.get("cost", 0)) * 0.65)))
+		sell.text = "Sell %d" % value
+		sell.tooltip_text = "Sell for %s (65%% of its price)." % _money(value)
+		sell.pressed.connect(_sell_equipment.bind(str(item.get("uid", ""))))
+	(right.get_node(c + "Store") as Control).visible = not game.equipment_inventory.is_empty()
+	(right.get_node(c + "StoreEmpty") as Control).visible = game.equipment_inventory.is_empty()
+	# Quartermaster: buy new gear (goes to the storeroom).
+	var shop := right.get_node(c + "Shop/Items") as VBoxContainer
 	for key in MercsV05.ITEMS:
 		var definition: Dictionary = MercsV05.ITEMS[key]
-		var row := _make_row(ROW_CATALOG, catalog)
-		_row_text(row, "Name", str(definition.get("name", "")))
-		_row_text(row, "Details", "%s  •  %s" % [str(definition.get("role", "")), str(definition.get("slot", ""))])
-		_row_button(row, "Price", "%d G" % int(definition["cost"]), _buy_equipment.bind(str(key)))
+		var card := ROW_ITEM_CARD.instantiate()
+		shop.add_child(card)
+		(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _gear_icon(str(key))
+		(card.get_node("Row/Info/Name") as Label).text = str(definition["name"])
+		(card.get_node("Row/Info/Details") as Label).text = _gear_summary(definition)
+		var buy := card.get_node("Row/Primary") as Button
+		buy.text = _money(int(definition["cost"]))
+		buy.disabled = game.gold < int(definition["cost"])
+		buy.tooltip_text = "Buy and place in the storeroom."
+		buy.pressed.connect(_buy_equipment.bind(str(key)))
+
+func _gear_summary(definition: Dictionary) -> String:
+	var bonus: Array[String] = []
+	for stat in ["mining", "guard", "protection"]:
+		if int(definition.get(stat, 0)) > 0:
+			bonus.append("+%d %s" % [int(definition[stat]), stat])
+	var who: String = "Anyone" if str(definition.get("role", "")) == "Any" else str(definition.get("role", "")) + "s"
+	return "%s  ·  %s" % [who, ", ".join(bonus)]
+
+# --- Exchange -----------------------------------------------------------------
 
 func _choose_commodity(id: String) -> void:
 	selected_market_item = id
 	_refresh()
 
 func _draw_exchange() -> void:
-	var left := _mount_legacy(EXCHANGE_LEFT, left_leaf)
-	var right := _mount_legacy(EXCHANGE_RIGHT, right_leaf)
-	var stock := left.get_node("Stock/Items") as VBoxContainer
+	var left := _mount_page(EXCHANGE_LEFT, left_leaf)
+	var right := _mount_page(EXCHANGE_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var list := left.get_node(c + "List/Items") as VBoxContainer
 	for id in MoneyMercsState.RESOURCE_ORDER:
 		var key: String = str(id)
-		var row := _make_row(ROW_MARKET, stock)
-		var selected: bool = key == selected_market_item
-		(row.get_node("Selected") as ColorRect).visible = selected
-		var name := _row_text(row, "Name", str(MoneyMercsState.RESOURCE_NAMES[key]))
-		name.add_theme_color_override("font_color", BLUE if selected else INK)
-		_row_text(row, "Details", "Stored: %d    |    Sell: %d G" % [
-			int(game.resources.get(key, 0)), game.sell_price(key)])
-		_row_button(row, "Inspect", "INSPECT  >", _choose_commodity.bind(key), true, selected)
-	var name: String = str(MoneyMercsState.RESOURCE_NAMES.get(selected_market_item, "Unknown item"))
-	(right.get_node("ItemName") as Label).text = name
-	(right.get_node("ItemDesc") as Label).text = str(MoneyMercsState.RESOURCE_DESC.get(selected_market_item, ""))
-	_page_value(right, "Quantity", str(game.resources.get(selected_market_item, 0)))
-	_page_value(right, "SellsFor", _money(game.buy_price(selected_market_item)))
-	_page_value(right, "BuysFor", _money(game.sell_price(selected_market_item)))
-	var buy_btn := right.get_node("BuyOne") as Button
-	buy_btn.disabled = game.gold < game.buy_price(selected_market_item)
-	buy_btn.pressed.connect(_trade.bind(selected_market_item, true, 1))
-	var sell_btn := right.get_node("SellOne") as Button
-	sell_btn.disabled = int(game.resources.get(selected_market_item, 0)) <= 0
-	sell_btn.pressed.connect(_trade.bind(selected_market_item, false, 1))
-	var sell_all := right.get_node("SellAll") as Button
-	sell_all.disabled = int(game.resources.get(selected_market_item, 0)) <= 0
-	sell_all.pressed.connect(_trade.bind(selected_market_item, false,
-		int(game.resources.get(selected_market_item, 0))))
+		var stored: int = int(game.resources.get(key, 0))
+		var card := _list_card(list, _item_icon(key), _resource_name(key),
+			"Stored %d" % stored if stored > 0 else "None stored", "", _money(game.sell_price(key)),
+			key == selected_market_item, _choose_commodity.bind(key))
+		var trend := card.get_node("Body/Side/Value/Trend") as TextureRect
+		var base: int = int(MoneyMercsState.BASE_PRICE.get(key, 1))
+		var now_price: int = game.price(key)
+		trend.visible = now_price != base
+		trend.texture = TREND_UP if now_price > base else TREND_DOWN
+		card.tooltip_text = "Usual price %d G, today %d G." % [base, now_price]
+	var shift := left.get_node(c + "Summary/Shift") as Label
+	var tick := func() -> void:
+		shift.text = "Prices shift in " + _duration(21600 - _now() % 21600)
+	tick.call()
+	live_updaters.append(tick)
+	# Trade desk for the selected good.
+	var key: String = selected_market_item
+	var owned: int = int(game.resources.get(key, 0))
+	var sell_price: int = game.sell_price(key)
+	var buy_price: int = game.buy_price(key)
+	(right.get_node(c + "Head/Slot/Center/Icon") as TextureRect).texture = _item_icon(key)
+	(right.get_node(c + "Head/Id/Name") as Label).text = _resource_name(key)
+	(right.get_node(c + "Head/Id/Desc") as Label).text = str(MoneyMercsState.RESOURCE_DESC.get(key, ""))
+	right.get_node(c + "Prices/Sell").value = _money(sell_price)
+	var buyable: bool = key != "relic" and key != "sovereign"
+	right.get_node(c + "Prices/Buy").value = _money(buy_price) if buyable else "Not sold"
+	right.get_node(c + "Prices/Owned").value = str(owned)
+	var base: int = int(MoneyMercsState.BASE_PRICE.get(key, 1))
+	var diff: int = int(round((float(game.price(key)) / float(base) - 1.0) * 100.0))
+	var trend := right.get_node(c + "Market/Trend") as TextureRect
+	trend.visible = diff != 0
+	trend.texture = TREND_UP if diff > 0 else TREND_DOWN
+	var market := right.get_node(c + "Market/Text") as Label
+	if diff > 0:
+		market.text = "%d%% above its usual price. A good time to sell." % diff
+	elif diff < 0:
+		market.text = "%d%% below its usual price. A good time to buy, a poor time to sell." % -diff
+	else:
+		market.text = "Trading at its usual price."
+	var desk := c + "Desk/Body/"
+	for pair in [["One", 1], ["Ten", 10]]:
+		var sell := right.get_node(desk + "SellRow/" + str(pair[0])) as Button
+		sell.disabled = owned < int(pair[1])
+		sell.tooltip_text = "+%s" % _money(sell_price * int(pair[1]))
+		sell.pressed.connect(_trade.bind(key, false, int(pair[1])))
+		var buy := right.get_node(desk + "BuyRow/" + str(pair[0])) as Button
+		buy.disabled = not buyable or game.gold < buy_price * int(pair[1])
+		buy.tooltip_text = "-%s" % _money(buy_price * int(pair[1])) if buyable else "Merchants never sell these. Find them in the field."
+		buy.pressed.connect(_trade.bind(key, true, int(pair[1])))
+	var sell_all := right.get_node(desk + "SellRow/All") as Button
+	sell_all.disabled = owned <= 0
+	sell_all.tooltip_text = "+%s" % _money(sell_price * owned)
+	sell_all.pressed.connect(_trade.bind(key, false, owned))
+	(right.get_node(desk + "Holding") as Label).text = "Your %d are worth %s today." % [owned, _money(owned * sell_price)] if owned > 0 else "You hold none."
+
+# --- Finances -----------------------------------------------------------------
 
 func _draw_accounts() -> void:
-	var left := _mount_legacy(FINANCE_LEFT, left_leaf)
-	var right := _mount_legacy(FINANCE_RIGHT, right_leaf)
-	_page_value(left, "Gold", _money(game.gold))
-	_page_value(left, "Worth", _money(game.wealth()))
-	_page_value(left, "Equipment", _money(game.owned_equipment_value()))
-	_page_value(left, "Debt", _money(game.relief_debt))
-	_page_value(left, "Reputation", str(game.reputation))
-	(left.get_node("OpenExchange") as Button).pressed.connect(_turn_to.bind("market"))
-	var stores := right.get_node("Stores/Items") as VBoxContainer
-	var owned := 0
+	var left := _mount_page(FINANCE_LEFT, left_leaf)
+	var right := _mount_page(FINANCE_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var goods: int = 0
+	for key in MoneyMercsState.RESOURCE_ORDER:
+		goods += int(game.resources.get(str(key), 0)) * game.sell_price(str(key))
+	var gear: int = game.owned_equipment_value()
+	for merc in game.crew:
+		gear += int(merc.get("gear", 0)) * 60
+	(left.get_node(c + "Hero/Text/Gold") as Label).text = _money(game.gold)
+	var rows := c + "Ledger/Rows/"
+	(left.get_node(rows + "Coin/Value") as Label).text = _money(game.gold)
+	(left.get_node(rows + "Goods/Value") as Label).text = _money(goods)
+	(left.get_node(rows + "Gear/Value") as Label).text = _money(gear)
+	(left.get_node(rows + "Debt/Value") as Label).text = "-" + _money(game.relief_debt) if game.relief_debt > 0 else "None"
+	(left.get_node(rows + "Total/Value") as Label).text = _money(game.wealth())
+	# Expedition capacity.
+	left.get_node(c + "Slots/Text/Pips").value = game.expedition_slots
+	(left.get_node(c + "Slots/Text/Caption") as Label).text = "Expedition slots  ·  %d of 3" % game.expedition_slots
+	var expand := left.get_node(c + "Slots/Expand") as Button
+	if game.expedition_slots >= 3:
+		expand.text = "Fully expanded"
+		expand.disabled = true
+	else:
+		var cost: int = 900 if game.expedition_slots == 1 else 4200
+		expand.text = "Expand  ·  %s" % _money(cost)
+		expand.disabled = game.gold < cost
+		expand.pressed.connect(func() -> void: _action(game.expand_operations()))
+	var payroll: int = 0
+	for merc in game.crew:
+		payroll += int(game.terms(merc)["wage"])
+	left.get_node(c + "Costs/Payroll").value = _money(payroll)
+	left.get_node(c + "Costs/Reputation").value = str(game.reputation)
+	# Guild relief and debt.
+	var relief := left.get_node(c + "Relief")
+	var relief_button := left.get_node(c + "ReliefButton") as Button
+	var can_request: bool = game.missions.is_empty() and game.gold < 28 and game.relief_debt < 440 and game.wealth() <= 250
+	if game.relief_debt > 0:
+		relief.visible = true
+		relief.text = "You owe the guild %s. It is repaid automatically from sales once the treasury holds more than 120 G." % _money(game.relief_debt)
+		relief.icon_kind = "alert"
+	elif can_request:
+		relief.visible = true
+		relief.text = "Too poor to fund an expedition? The guild will advance 90 G, repayable as 110 G, at a small cost in reputation."
+		relief.icon_kind = "coin"
+	relief_button.visible = can_request
+	relief_button.pressed.connect(func() -> void: _action(game.guild_relief()))
+	# Results chart from recent reports, oldest first.
+	var recent: Array = game.reports.slice(0, mini(12, game.reports.size()))
+	recent.reverse()
+	var bars := right.get_node(c + "Chart/Body/Plot/Bars") as HBoxContainer
+	var largest: int = 1
+	var earned: int = 0
+	var spent: int = 0
+	for report in recent:
+		largest = maxi(largest, absi(int(report.get("cash", 0)) - int(report.get("cost", 0))))
+		earned += int(report.get("cash", 0))
+		spent += int(report.get("cost", 0))
+	var half: float = 34.0
+	for report in recent:
+		var net: int = int(report.get("cash", 0)) - int(report.get("cost", 0))
+		var h: float = maxf(1.0, round(absf(float(net)) / float(largest) * half))
+		var column := VBoxContainer.new()
+		column.add_theme_constant_override("separation", 0)
+		column.custom_minimum_size = Vector2(12, 0)
+		column.mouse_filter = Control.MOUSE_FILTER_PASS
+		column.tooltip_text = "%s: %s%s" % [str(report.get("region", "")), "+" if net >= 0 else "", _money(net)]
+		var top := Control.new()
+		top.custom_minimum_size = Vector2(0, half - (h if net >= 0 else 0.0) + 2.0)
+		top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var bar := ColorRect.new()
+		bar.custom_minimum_size = Vector2(12, h)
+		bar.color = GOOD if net >= 0 else OXBLOOD
+		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		column.add_child(top)
+		column.add_child(bar)
+		bars.add_child(column)
+	(right.get_node(c + "Chart/Body/Caption") as Label).text = "No expeditions yet" if recent.is_empty() else "Last %s" % _plural(recent.size(), "expedition")
+	right.get_node(c + "Totals/Earned").value = _money(earned)
+	right.get_node(c + "Totals/Spent").value = _money(spent)
+	var net_tile := right.get_node(c + "Totals/Net")
+	net_tile.value = ("+" if earned - spent >= 0 else "") + _money(earned - spent)
+	net_tile.tone = "good" if earned - spent >= 0 else "accent"
+	# Warehouse valuation.
+	var stores := right.get_node(c + "Stores/Items") as VBoxContainer
+	var owned: int = 0
 	for id in MoneyMercsState.RESOURCE_ORDER:
-		var quantity: int = int(game.resources.get(str(id), 0))
+		var key: String = str(id)
+		var quantity: int = int(game.resources.get(key, 0))
 		if quantity <= 0:
 			continue
-		var line := _make_row(ROW_WAREHOUSE, stores)
-		_row_text(line, "Name", str(MoneyMercsState.RESOURCE_NAMES.get(str(id), str(id))))
-		_row_text(line, "Count", str(quantity) + " owned")
 		owned += 1
-	if owned == 0:
-		var blank := _make_row(ROW_EMPTY_WAREHOUSE, stores)
-		_row_text(blank, "Note", "Nothing stored in the warehouse.")
+		var card := _list_card(stores, _item_icon(key), _resource_name(key), "%d stored  ·  %s each" % [quantity, _money(game.sell_price(key))],
+			"", _money(quantity * game.sell_price(key)), false, _open_market.bind(key))
+		card.tooltip_text = "Open in the Exchange"
+	(right.get_node(c + "Stores") as Control).visible = owned > 0
+	(right.get_node(c + "StoresEmpty") as Control).visible = owned == 0
+
+func _open_market(key: String) -> void:
+	selected_market_item = key
+	_turn_to("market")
+
+# --- Guild work ---------------------------------------------------------------
 
 func _draw_guild_jobs() -> void:
-	var left := _mount_legacy(GUILDWORK_LEFT, left_leaf)
-	var right := _mount_legacy(GUILDWORK_RIGHT, right_leaf)
-	var can_take: bool = game.can_accept_guild_work() and game.missions.size() < game.expedition_slots
-	var office := left.get_node("AcceptOffice") as Button
+	var left := _mount_page(GUILDWORK_LEFT, left_leaf)
+	var right := _mount_page(GUILDWORK_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var slot_free: bool = game.missions.size() < game.expedition_slots
+	var can_take: bool = game.can_accept_guild_work() and slot_free
+	var rules := [
+		["Cash", game.gold < 120, "Treasury below 120 G  (now %s)" % _money(game.gold)],
+		["Worth", game.wealth() < 250, "Company worth below 250 G  (now %s)" % _money(game.wealth())],
+		["Slot", slot_free, "A free expedition slot"],
+	]
+	for rule in rules:
+		var row := c + "Rules/Body/" + str(rule[0]) + "/"
+		(left.get_node(row + "Mark") as TextureRect).texture = SIGN_CHECK if bool(rule[1]) else SIGN_CROSS
+		(left.get_node(row + "Text") as Label).text = str(rule[2])
+	var office := left.get_node(c + "Office/Row/Accept") as Button
 	office.disabled = not can_take
 	office.pressed.connect(_guild_work.bind(""))
-	(left.get_node("ReturnHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
-	var workers := right.get_node("Workers/Items") as VBoxContainer
+	(left.get_node(c + "ReturnHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
+	if not can_take:
+		var why: String = "Not available: " + ("every expedition slot is busy." if not slot_free else "the guild only helps companies below 120 G cash and 250 G worth.")
+		var caption := right.get_node(c + "Caption") as Label
+		caption.text = why
+		caption.theme_type_variation = &"LabelAccent"
+		caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var list := right.get_node(c + "List/Items") as VBoxContainer
 	var count: int = 0
 	for member in game.available_guild_workers():
-		var row := _make_row(ROW_GUILD_WORKER, workers)
-		_row_text(row, "Name", str(member.get("name", "Contractor")))
-		_row_text(row, "Details", "No injury or equipment risk")
-		_row_button(row, "Assign", "ASSIGN", _guild_work.bind(str(member["id"])), can_take, false, true)
+		var role: String = str(member.get("role", ""))
+		var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(member.get("name", "Contractor")),
+			role, "", "Assign" if can_take else "", false, _guild_work.bind(str(member["id"])))
+		card.toggle_mode = false
+		card.disabled = not can_take
+		(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelAccent"
 		count += 1
-	(right.get_node("NoWorkers") as Label).visible = count == 0
+	(right.get_node(c + "List") as Control).visible = count > 0
+	(right.get_node(c + "Empty") as Control).visible = count == 0
+
+# --- Chronicle ----------------------------------------------------------------
 
 func _choose_report(index: int) -> void:
 	selected_report_index = index
 	_refresh()
 
+func _report_outcome(report: Dictionary) -> String:
+	var won: bool = bool(report.get("won", false))
+	if won and not (report.get("casualties", []) as Array).is_empty():
+		return "Success, with losses"
+	if won:
+		return "Returned safely"
+	return "Partial haul" if bool(report.get("partial", false)) else "Failed"
+
+func _ago(stamp: int) -> String:
+	var seconds: int = maxi(0, _now() - stamp)
+	if seconds < 60:
+		return "just now"
+	if seconds >= 86400:
+		return "%dd ago" % int(seconds / 86400)
+	return _duration(seconds) + " ago"
+
 func _draw_history() -> void:
-	var left := _mount_legacy(CHRONICLE_LEFT, left_leaf)
-	var right := _mount_legacy(CHRONICLE_RIGHT, right_leaf)
-	var records := left.get_node("Reports/Items") as VBoxContainer
-	for i in range(game.reports.size()):
-		var entry: Dictionary = game.reports[i]
-		var row := _make_row(ROW_REPORT, records)
-		(row.get_node("Selected") as ColorRect).visible = i == selected_report_index
-		_row_text(row, "Name", str(entry.get("region", "Unknown assignment")))
-		var outcome := _row_text(row, "Outcome", "Completed" if bool(entry.get("won", false)) else "Costly return")
-		outcome.add_theme_color_override("font_color", BLUE if bool(entry.get("won", false)) else OXBLOOD)
-		_row_button(row, "Read", "READ", _choose_report.bind(i), true, i == selected_report_index)
+	var left := _mount_page(CHRONICLE_LEFT, left_leaf)
+	var right := _mount_page(CHRONICLE_RIGHT, right_leaf)
+	var c := "Margin/Content/"
 	var empty: bool = game.reports.is_empty()
-	_page_visibility(left, ["NoReports", "InspectContracts"], empty)
-	(left.get_node("InspectContracts") as Button).pressed.connect(_turn_to.bind("harlow"))
-	(right.get_node("NoReports") as Label).visible = empty
-	_page_visibility(right, ["ReportTitle", "OutcomeCaption", "OutcomeValue", "OutcomeRule",
-		"RecoveredCaption", "RecoveredValue", "RecoveredRule",
-		"CostsCaption", "CostsValue", "CostsRule",
-		"CasualtiesCaption", "CasualtiesValue", "CasualtiesRule",
-		"EventLogTitle", "Events"], not empty)
+	var list := left.get_node(c + "List/Items") as VBoxContainer
+	var safe: int = 0
+	for i in range(game.reports.size()):
+		var report: Dictionary = game.reports[i]
+		var won: bool = bool(report.get("won", false))
+		if won and (report.get("casualties", []) as Array).is_empty():
+			safe += 1
+		var net: int = int(report.get("cash", 0)) - int(report.get("cost", 0))
+		var card := _list_card(list, SEAL_OK if won else SEAL_BAD, str(report.get("region", "Expedition")),
+			"%s  ·  %s" % [_report_outcome(report), _ago(int(report.get("time", _now())))], "Profit",
+			("+" if net >= 0 else "") + _money(net), i == selected_report_index, _choose_report.bind(i))
+		(card.get_node("Body/Side/Value/Text") as Label).add_theme_color_override("font_color", GOOD if net >= 0 else OXBLOOD)
+	(left.get_node(c + "Summary") as Label).text = "%s  ·  %d returned without losses" % [_plural(game.reports.size(), "report"), safe]
+	(left.get_node(c + "Summary") as Control).visible = not empty
+	(left.get_node(c + "List") as Control).visible = not empty
+	(left.get_node(c + "Empty") as Control).visible = empty
+	var go := left.get_node(c + "GoHarlow") as Button
+	go.visible = empty
+	go.pressed.connect(_turn_to.bind("harlow"))
+	for child in (right.get_node("Margin/Content") as Control).get_children():
+		(child as CanvasItem).visible = (child.name == "Empty" or child.name == "Header") if empty else child.name != "Empty"
 	if empty:
 		return
-	var idx: int = clampi(selected_report_index, 0, game.reports.size() - 1)
-	var report: Dictionary = game.reports[idx]
-	(right.get_node("ReportTitle") as Label).text = str(report.get("region", "Unknown expedition"))
-	_page_value(right, "Outcome", "Success" if bool(report.get("won", false)) else "Failed")
-	_page_value(right, "Recovered", _money(int(report.get("cash", 0))))
-	_page_value(right, "Costs", _money(int(report.get("cost", 0))))
-	var deaths: Array = report.get("casualties", [])
-	_page_value(right, "Casualties", str(deaths.size()))
-	var events := right.get_node("Events/Items") as VBoxContainer
+	var report: Dictionary = game.reports[clampi(selected_report_index, 0, game.reports.size() - 1)]
+	var won: bool = bool(report.get("won", false))
+	(right.get_node(c + "Head/Seal") as TextureRect).texture = SIGN_CHECK if won else SIGN_CROSS
+	(right.get_node(c + "Head/Id/Place") as Label).text = str(report.get("region", "Expedition"))
+	var subtitle: String = "%s  ·  %s" % [_report_outcome(report), _ago(int(report.get("time", _now())))]
+	if report.has("tactic"):
+		subtitle += "  ·  " + str(report["tactic"])
+	(right.get_node(c + "Head/Id/Outcome") as Label).text = subtitle
+	var cash: int = int(report.get("cash", 0))
+	var cost: int = int(report.get("cost", 0))
+	right.get_node(c + "Money/Recovered").value = _money(cash)
+	right.get_node(c + "Money/Costs").value = _money(cost)
+	var profit := right.get_node(c + "Money/Profit")
+	profit.value = ("+" if cash - cost >= 0 else "") + _money(cash - cost)
+	profit.tone = "good" if cash - cost >= 0 else "accent"
+	var loot: Dictionary = report.get("loot", {})
+	var loot_row := right.get_node(c + "Loot") as HBoxContainer
+	for key in loot:
+		var slot := ITEM_SLOT.instantiate()
+		loot_row.add_child(slot)
+		slot.icon = _item_icon(str(key))
+		slot.count = int(loot[key])
+		slot.tooltip_text = "%d %s" % [int(loot[key]), _resource_name(str(key))]
+	loot_row.visible = not loot.is_empty()
+	(right.get_node(c + "NoLoot") as Control).visible = loot.is_empty()
+	# Crew fates.
+	var crew_box := right.get_node(c + "Crew") as VBoxContainer
+	var casualties: Array = report.get("casualties", [])
+	var injured: Array = report.get("injured", [])
+	var names: Array[String] = []
+	for id in report.get("crew", []):
+		var merc: Dictionary = game.merc_by_id(str(id))
+		names.append(str(merc.get("name", str(id).capitalize())))
+	for name in casualties:
+		if not names.has(str(name)):
+			names.append(str(name))
+	for name in names:
+		var line := Label.new()
+		if casualties.has(name):
+			line.text = "%s  -  killed" % name
+			line.theme_type_variation = &"LabelAccent"
+		elif injured.has(name):
+			line.text = "%s  -  injured" % name
+			line.theme_type_variation = &"LabelAccent"
+		else:
+			line.text = "%s  -  returned" % name
+			line.theme_type_variation = &"LabelGood"
+		crew_box.add_child(line)
+	(right.get_node(c + "CrewCaption") as Control).visible = not names.is_empty()
+	var items_note: Array[String] = []
+	for item in report.get("lost_items", []):
+		items_note.append("Lost: " + (MercsV05.item_name(item) if item is Dictionary else str(item)))
+	for item in report.get("found_items", []):
+		items_note.append("Found: " + (MercsV05.item_name(item) if item is Dictionary else str(item)))
+	var items_label := right.get_node(c + "Items") as Label
+	items_label.text = "\n".join(items_note)
+	items_label.visible = not items_note.is_empty()
+	var events := right.get_node(c + "Events/Items") as VBoxContainer
 	for event in report.get("events", []):
-		var note := _make_row(ROW_EVENT, events)
-		_row_text(note, "Note", str(event))
-	if (report.get("events", []) as Array).is_empty():
-		var blank := _make_row(ROW_EMPTY_EVENT, events)
-		_row_text(blank, "Note", _loot_text(report.get("loot", {})))
+		var note := Label.new()
+		note.text = "-  " + str(event)
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		note.custom_minimum_size = Vector2(200, 0)
+		events.add_child(note)
+	var has_events: bool = not (report.get("events", []) as Array).is_empty()
+	(right.get_node(c + "Events") as Control).visible = has_events
+	(right.get_node(c + "EventsCaption") as Control).visible = has_events
+
+# --- Regional contracts -------------------------------------------------------
 
 func _draw_regions() -> void:
-	var left := _mount_legacy(REGIONS_LEFT, left_leaf)
-	var right := _mount_legacy(REGIONS_RIGHT, right_leaf)
-	var regions := left.get_node("Regions/Items") as VBoxContainer
+	var left := _mount_page(REGIONS_LEFT, left_leaf)
+	var right := _mount_page(REGIONS_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var list := left.get_node(c + "List/Items") as VBoxContainer
+	var harlow := _list_card(list, ICON_FIELD, "Harlow Mines", "Scout, choose a crew and dig", "", "Open  >", false, _turn_to.bind("harlow"))
+	harlow.toggle_mode = false
 	for region in MoneyMercsState.REGIONS:
-		var entry := _make_row(ROW_REGION, regions)
 		var id: String = str(region["id"])
-		_row_text(entry, "Name", str(region["name"]))
-		_row_text(entry, "Tagline", str(region.get("tagline", "")))
-		_row_button(entry, "Inspect", "INSPECT  >", _select_region.bind(id), true, selected_region == id)
+		var rep: int = int(region.get("rep", 0))
+		var locked: bool = game.reputation < rep
+		var card := _list_card(list, ICON_FIELD, str(region["name"]), str(region.get("tagline", "")),
+			"Reputation" if locked else "", "%d needed" % rep if locked else _duration(int(region.get("time", 60))),
+			selected_region == id, _select_region.bind(id))
+		if locked:
+			(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelAccent"
 	var site: Dictionary = {}
 	for region in MoneyMercsState.REGIONS:
 		if str(region["id"]) == selected_region:
 			site = region
 	if site.is_empty():
-		_page_visibility(right, ["SiteName", "ThreatCaption", "ThreatValue", "ThreatRule",
-			"SuppliesCaption", "SuppliesValue", "SuppliesRule",
-			"ReputationCaption", "ReputationValue", "ReputationRule",
-			"SiteTagline", "DispatchCrew", "GoHarlow"], false)
-		return
-	(right.get_node("SiteName") as Label).text = str(site["name"])
-	_page_value(right, "Threat", str(site.get("threat", 0)))
-	_page_value(right, "Supplies", _money(int(site.get("supplies", 0))))
-	_page_value(right, "Reputation", str(site.get("rep", 0)))
-	(right.get_node("SiteTagline") as Label).text = str(site.get("tagline", ""))
-	var can_start: bool = game.free_crew() > 0 and game.reputation >= int(site.get("rep", 0)) and game.missions.size() < game.expedition_slots
-	var dispatch := right.get_node("DispatchCrew") as Button
-	dispatch.disabled = not can_start
+		site = MoneyMercsState.REGIONS[0]
+		selected_region = str(site["id"])
+	(right.get_node(c + "Name") as Label).text = str(site["name"])
+	(right.get_node(c + "Tagline") as Label).text = str(site.get("tagline", ""))
+	right.get_node(c + "Stats/Threat").value = str(int(site.get("threat", 0)))
+	right.get_node(c + "Stats/Duration").value = _duration(int(site.get("time", 60)))
+	right.get_node(c + "Stats/Supplies").value = _money(int(site.get("supplies", 0)))
+	var rep_tile := right.get_node(c + "Stats/Reputation")
+	rep_tile.value = "%d  (you %d)" % [int(site.get("rep", 0)), game.reputation]
+	rep_tile.tone = "accent" if game.reputation < int(site.get("rep", 0)) else "normal"
+	var loot_row := right.get_node(c + "Loot") as HBoxContainer
+	var loot: Dictionary = site.get("loot", {})
+	for key in loot:
+		var span: Array = loot[key]
+		var slot := ITEM_SLOT.instantiate()
+		loot_row.add_child(slot)
+		slot.icon = _item_icon(str(key))
+		slot.tooltip_text = "%s: %d to %d" % [_resource_name(str(key)), int(span[0]), int(span[1])]
+	var bonus: String = str(site.get("bonus", ""))
+	if not bonus.is_empty():
+		var rare := ITEM_SLOT.instantiate()
+		loot_row.add_child(rare)
+		rare.icon = _item_icon(bonus)
+		rare.theme_type_variation = &"GoldPanel"
+		rare.tooltip_text = "Rare find: %s (%d%% chance)" % [_resource_name(bonus), int(round(float(site.get("bonus_odds", 0.0)) * 100.0))]
+	var finds: Array[String] = []
+	for key in loot:
+		finds.append("%s %d-%d" % [_resource_name(str(key)), int(loot[key][0]), int(loot[key][1])])
+	if not bonus.is_empty():
+		finds.append("rare %s (%d%%)" % [_resource_name(bonus), int(round(float(site.get("bonus_odds", 0.0)) * 100.0))])
+	(right.get_node(c + "Finds") as Label).text = "  ·  ".join(finds)
+	(right.get_node(c + "Focus") as Label).text = "Suits %ss: they add the most strength here." % str(site.get("focus", "mercenary")).to_lower()
+	var team: Array[String] = []
+	var team_ids: Array[String] = []
+	for merc in game.crew:
+		if game.is_available(merc) and team.size() < 2:
+			team.append(str(merc["name"]))
+			team_ids.append(str(merc["id"]))
+	(right.get_node(c + "Team") as Label).text = "Sends your first free mercenaries: " + (", ".join(team) if not team.is_empty() else "none available")
+	var why: String = ""
+	if game.missions.size() >= game.expedition_slots:
+		why = "All expedition slots are busy."
+	elif team.is_empty():
+		why = "No mercenary is free."
+	elif game.reputation < int(site.get("rep", 0)):
+		why = "Needs %d reputation." % int(site.get("rep", 0))
+	var dispatch := right.get_node(c + "Dispatch") as Button
+	var total_cost: int = game.expedition_cost(site, team_ids) if not team_ids.is_empty() else int(site.get("supplies", 0))
+	dispatch.text = "Dispatch crew  ·  " + _money(total_cost)
+	dispatch.tooltip_text = "Supplies plus the crew's wages, paid up front."
+	if why.is_empty() and game.gold < total_cost:
+		why = "Not enough gold for supplies and wages."
+	dispatch.disabled = not why.is_empty()
 	dispatch.pressed.connect(_old_dispatch.bind(str(site["id"])))
-	(right.get_node("GoHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
+	var reason := right.get_node(c + "Reason") as Label
+	reason.text = why
+	reason.visible = not why.is_empty()
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:

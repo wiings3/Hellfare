@@ -1,0 +1,82 @@
+[gd_scene format=3]
+
+[node name="ListCard" type="Button"]
+custom_minimum_size = Vector2(0, 32)
+size_flags_horizontal = 3
+mouse_default_cursor_shape = 2
+theme_type_variation = &"CardButton"
+toggle_mode = true
+
+[node name="Body" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 3.0
+offset_right = -6.0
+offset_bottom = -3.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="IconSlot" type="PanelContainer" parent="Body"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"SlotPanel"
+
+[node name="Icon" type="TextureRect" parent="Body/IconSlot"]
+layout_mode = 2
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Info" type="VBoxContainer" parent="Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = -4
+
+[node name="Name" type="Label" parent="Body/Info"]
+layout_mode = 2
+text = "Name"
+text_overrun_behavior = 3
+
+[node name="Details" type="Label" parent="Body/Info"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Details"
+text_overrun_behavior = 3
+
+[node name="Side" type="VBoxContainer" parent="Body"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = -4
+
+[node name="Caption" type="Label" parent="Body/Side"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Caption"
+horizontal_alignment = 2
+
+[node name="Value" type="HBoxContainer" parent="Body/Side"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+alignment = 2
+
+[node name="Trend" type="TextureRect" parent="Body/Side/Value"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Text" type="Label" parent="Body/Side/Value"]
+layout_mode = 2
+text = "0 G"
+horizontal_alignment = 2
