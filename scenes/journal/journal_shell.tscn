@@ -1,6 +1,7 @@
-[gd_scene load_steps=16 format=3 uid="uid://by6klxuxek6c1"]
+[gd_scene load_steps=17 format=3 uid="uid://by6klxuxek6c1"]
 
 [ext_resource type="Texture2D" path="res://assets/ui/desk_background.png" id="desk"]
+[ext_resource type="PackedScene" path="res://scenes/journal/pause_menu.tscn" id="pause"]
 [ext_resource type="Texture2D" path="res://assets/ui/book/tabs/1.png" id="book"]
 [ext_resource type="Texture2D" path="res://assets/ui/kit/ornament.png" id="ornament"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/gold.png" id="coin"]
@@ -339,3 +340,7 @@ theme_type_variation = &"DeskLabel"
 text = "Notice"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PauseMenu" parent="." instance=ExtResource("pause")]
+layout_mode = 0
+book_nodes = Array[NodePath]([NodePath("../Book"), NodePath("../LeftLeaf"), NodePath("../RightLeaf"), NodePath("../PageFlip"), NodePath("../PinnedBookTabs"), NodePath("../ChapterIcons"), NodePath("../ChapterTabHost")])

@@ -46,6 +46,7 @@ var clear_notice_at: int = 0
 var selected_market_item: String = "copper"
 var selected_report_index: int = 0
 var tab_host: Control
+var pause_menu: Control
 
 func _build_shell() -> void:
 	stage = get_node("GuildmastersLogbook") as Control
@@ -60,6 +61,8 @@ func _build_shell() -> void:
 	right_leaf = stage.get_node("RightLeaf") as Control
 	tab_host = stage.get_node("ChapterTabHost") as Control
 	flip_art = stage.get_node("PageFlip") as TextureRect
+	pause_menu = stage.get_node("PauseMenu") as Control
+	pause_menu.quit_requested.connect(_save_and_quit)
 	tab_overlay = stage.get_node("PinnedBookTabs") as TextureRect
 	tab_icons_layer = stage.get_node("ChapterIcons") as Control
 	header_gold = money_label
@@ -146,7 +149,8 @@ func _tab_index(destination: String) -> int:
 func _start_page_flip(direction: String) -> void:
 	current_flip += 1
 	var frames: Array = flip_textures.get(direction, [])
-	if frames.is_empty():
+	if frames.is_empty() or not GameSettings.book_animations:
+		flip_art.visible = false
 		return
 	_animate_turn(current_flip, frames)
 
@@ -159,3 +163,7 @@ func _animate_turn(generation: int, frames: Array) -> void:
 		await get_tree().create_timer(0.035).timeout
 	if generation == current_flip:
 		flip_art.visible = false
+
+func _save_and_quit() -> void:
+	game.save_game()
+	get_tree().quit()
