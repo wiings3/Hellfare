@@ -43,6 +43,15 @@ text = ""
 size_flags_vertical = 4
 mouse_filter = 2
 
+[node name="Trade" type="Button" parent="Margin/Body/TitleBar"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Trade"
+custom_minimum_size = Vector2(34, 16)
+size_flags_vertical = 4
+tooltip_text = "Send a trade request. Agree on a price first."
+
 [node name="Close" type="Button" parent="Margin/Body/TitleBar"]
 layout_mode = 2
 mouse_default_cursor_shape = 2

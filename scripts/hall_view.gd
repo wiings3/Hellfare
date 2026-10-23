@@ -67,6 +67,7 @@ func _wire() -> void:
 	var pm := _pm_window()
 	var b := "Margin/Body/"
 	(pm.get_node(b + "TitleBar/Close") as Button).pressed.connect(func() -> void: pm.visible = false)
+	(pm.get_node(b + "TitleBar/Trade") as Button).pressed.connect(func() -> void: request_trade(pm_trader))
 	var input := pm.get_node(b + "Row/Input") as LineEdit
 	input.text_submitted.connect(func(_t: String) -> void: send_pm())
 	input.text_changed.connect(func(t: String) -> void: _on_typed(input, pm_links, pm.get_node(b + "Preview") as RichTextLabel, t))
@@ -367,7 +368,7 @@ func _open_popup(trader: String) -> void:
 	hide_card()
 	popup_trader = trader
 	var popup := _popup()
-	popup.set_item_text(1, "Unblock" if _game().hall.is_blocked(trader) else "Block")
+	popup.set_item_text(2, "Unblock" if _game().hall.is_blocked(trader) else "Block")
 	var at: Vector2 = ui.get_viewport().get_mouse_position()
 	popup.popup(Rect2i(Vector2i(at) + Vector2i(4, 4), Vector2i.ZERO))
 
@@ -375,6 +376,8 @@ func _on_popup(id: int) -> void:
 	var trader: String = popup_trader
 	if id == 0:
 		open_pm(trader, true)
+	elif id == 2:
+		request_trade(trader)
 	elif id == 1:
 		if _game().hall.is_blocked(trader):
 			_game().hall_block(trader, false)
@@ -533,6 +536,17 @@ func open_pm(trader: String, focus: bool = true) -> void:
 	if ui.page == "hall":
 		ui._refresh()
 
+## Send a trade request; the conversation opens so the answer can be read.
+func request_trade(trader: String) -> void:
+	var problem: String = _game().hall_request_trade(trader)
+	if problem != "":
+		ui.notification_text(problem)
+		return
+	if not _pm_window().visible or pm_trader != trader:
+		open_pm(trader, false)
+	else:
+		_draw_pm(true)
+
 func send_pm() -> void:
 	var input := _pm_window().get_node("Margin/Body/Row/Input") as LineEdit
 	var problem: String = _game().hall_pm(pm_trader, input.text, pm_links)
@@ -579,6 +593,9 @@ func _draw_pm(force: bool) -> void:
 	for line in lines:
 		var who: String = str(line["from"])
 		var head: String = "[color=%s]%s[/color]  " % [_hex(ui.INK_FAINT), _clock(int(line["t"]))]
+		if who == "system":
+			_add_line(log_lines, head + "[color=%s]%s[/color]" % [_hex(ui.INK_SOFT), _escape(str(line["text"]))])
+			continue
 		var name_part: String = "[color=%s]You:[/color]" % _hex(ui.OXBLOOD) if who == "you" else "[color=%s]%s:[/color]" % [_hex(WHISPER), who]
 		_add_line(log_lines, head + name_part + " " + _rich_text(str(line["text"]), line.get("links", [])))
 	if lines.is_empty():

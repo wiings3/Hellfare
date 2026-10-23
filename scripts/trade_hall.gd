@@ -290,7 +290,7 @@ func _pm_line(trader: String, from: String, text: String, links: Array, now: int
 	lines.append({"from": from, "text": text, "links": links, "t": now})
 	while lines.size() > PM_HISTORY:
 		lines.pop_front()
-	if from != "you":
+	if not from in ["you", "system"]:
 		unread[trader] = int(unread.get(trader, 0)) + 1
 
 ## Schedule an NPC line (and optional follow-up) after a typing pause.
@@ -478,6 +478,27 @@ func _npc_opener(trader: String, ref: String, player_buys: bool, qty: int, each:
 	_npc_say(trader, h.say(moment, their_qty), h, now, 6.0, 40.0)
 
 # --- Trades -----------------------------------------------------------------------
+
+## The company sends a trade request. A trader accepts once a price is agreed; before
+## that they ask to settle the price first (or, if they have moved on, ignore it).
+func request_trade(trader: String, now: int) -> String:
+	if not is_trader(trader):
+		return "You can only trade with someone in the Hall."
+	if is_blocked(trader):
+		return "You blocked %s. Unblock them to trade." % trader
+	if session != null and session.is_open():
+		return "Finish your trade with %s first." % session.trader
+	_pm_line(trader, "system", "You sent a trade request.", [], now)
+	var h: Haggle = deals.get(trader, null)
+	if h != null and h.is_agreed():
+		_npc_say(trader, h.say("trade_request"), h, now, 1.0, 2.0, true)
+	elif h != null and h.status == "gone":
+		pass
+	else:
+		var asker := Haggle.new()
+		asker.rng = rng
+		_npc_say(trader, asker.say("price_first"), h, now, 2.0, 5.0)
+	return ""
 
 ## The trader's side is put in at once; the company fills its side in the trade window.
 func open_trade(trader: String) -> TradeSession:

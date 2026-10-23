@@ -589,6 +589,7 @@ def pm_window():
     s.node("Margin/Body/TitleBar", "HBoxContainer", {"mouse_filter": 0, "mouse_default_cursor_shape": 13, "theme_override_constants/separation": 4})
     label(s, "Margin/Body/TitleBar/Title", "Messages", "LabelTitle", {"size_flags_horizontal": 3, "mouse_filter": 2})
     label(s, "Margin/Body/TitleBar/Kind", "", "LabelCaption", {"size_flags_vertical": 4, "mouse_filter": 2})
+    button(s, "Margin/Body/TitleBar/Trade", "Trade", "PaperButton", {"custom_minimum_size": (34, 16), "size_flags_vertical": 4, "tooltip_text": "Send a trade request. Agree on a price first."})
     button(s, "Margin/Body/TitleBar/Close", "x", "PaperButton", {"custom_minimum_size": (16, 16), "size_flags_vertical": 4, "tooltip_text": "Close. Conversations are kept."})
     s.node("Margin/Body/Tabs", "HBoxContainer", {"theme_override_constants/separation": 2})
     s.node("Margin/Body/Log", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})

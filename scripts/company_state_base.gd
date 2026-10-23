@@ -571,6 +571,10 @@ func storeroom_keys() -> Dictionary:
 func hall_say(text: String, links: Array, now: int = -1) -> String:
 	return hall.say(text, links, now if now >= 0 else int(Time.get_unix_time_from_system()))
 
+## Send a trader a trade request (they accept once a price is agreed).
+func hall_request_trade(trader: String, now: int = -1) -> String:
+	return hall.request_trade(trader, now if now >= 0 else int(Time.get_unix_time_from_system()))
+
 ## Block or unblock a trader; the list is saved.
 func hall_block(trader: String, on: bool = true) -> void:
 	if on:

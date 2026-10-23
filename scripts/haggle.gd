@@ -105,6 +105,9 @@ const LINES := {
 	"what": {
 		"any": ["What are you after?", "Hm? What do you need?"],
 	},
+	"price_first": {
+		"any": ["Let's agree on a price first.", "What are we trading? Name a price first.", "Price first, then trade."],
+	},
 	"decline_ok": {
 		"any": ["No worries.", "Alright, another time.", "Fair enough."],
 	},

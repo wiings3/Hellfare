@@ -256,6 +256,21 @@ func _verify() -> void:
 	view.game.trade_accept(t3 + 63 + TradeSession.ACCEPT_DELAY)
 	view.game.hall_tick(t3 + 70)
 	check(view.game.equipment_inventory.size() == gear_before + 1 and view.game.gold == 1000 - sword_deal.agreed_total, "buying gear by trade")
+	# Sending a trade request: refused politely until a price is agreed, accepted after.
+	var t4: int = t3 + 200
+	hall.deals.erase("Wren")
+	check(view.game.hall_request_trade("Wren", t4) == "", "a trade request can be sent")
+	view.game.hall_tick(t4 + 10)
+	check(hall.session == null or not hall.session.is_open(), "no trade without an agreed price")
+	check(str((hall.conversation("Wren").back() as Dictionary)["from"]) == "Wren", "the trader answers the request")
+	var agreed := Haggle.make("Wren", "hawker", "copper", true, 5, 20, 20.0, hall.rng)
+	agreed.item_name = "Copper Ore"
+	agreed.take(5)
+	hall.deals["Wren"] = agreed
+	view.game.hall_request_trade("Wren", t4 + 20)
+	view.game.hall_tick(t4 + 30)
+	check(hall.session != null and hall.session.is_open() and hall.session.trader == "Wren", "an agreed trader accepts the request")
+	view.game.trade_cancel(t4 + 30)
 	# Blocking hides a trader and stops their messages.
 	view.game.hall_block("Marrow")
 	check(hall.is_blocked("Marrow"), "block works")
