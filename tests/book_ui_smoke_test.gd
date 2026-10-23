@@ -185,6 +185,9 @@ func _verify() -> void:
 	check(view.tab_overlay.visible and view.tab_icons_layer.visible, "tabs visible during flip")
 	await create_timer(0.6).timeout
 	check(not view.flip_art.visible, "page flip finished")
+	# Every item the quartermaster sells must have an icon in the slots and lists.
+	for item_key in MercsV05.ITEMS.keys():
+		check(view._gear_icon(str(item_key)) != null, "icon for item " + str(item_key))
 	view.game.reset_company()
 	if failures > 0:
 		push_error("%d BookUI checks failed." % failures)

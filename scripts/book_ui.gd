@@ -628,6 +628,7 @@ const ITEM_ICONS := {
 	"basic_pick": "pickaxe", "reinforced_pick": "pickaxe_reinforced",
 	"rusted_sword": "sword_rusted", "steel_sword": "sword_steel",
 	"leather": "armor_leather", "chainmail": "armor_iron",
+	"hand_axe": "axe", "felling_axe": "axe_felling",
 }
 const EMPTY_SLOT_ICONS := {
 	"tool": preload("res://assets/ui/icons/empty_glove.png"),
