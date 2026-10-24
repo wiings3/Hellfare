@@ -35,7 +35,7 @@ const SITES := [
 	{
 		"id": "mossward_copse", "name": "Mossward Copse", "trade": "logging", "tier": 1, "level": 1,
 		"tagline": "Young birch and pine a short walk from town. Safe, honest work.",
-		"duration": 300, "supplies": 6,
+		"duration": 300, "supplies": 2,
 		"yields": {"timber": [3, 5]},
 		"threat": {"name": "Nothing worse than splinters", "danger": 0, "note": "No predators this close to town"},
 		"injury": 0.04, "death": 0.0, "xp": 30,

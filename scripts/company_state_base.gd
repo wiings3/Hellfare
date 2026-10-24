@@ -61,6 +61,8 @@ static var persist: bool = true
 
 var market: MarketModel = MarketModel.new(BASE_PRICE)
 var hall: TradeHall = TradeHall.new(market, RESOURCE_ORDER)
+## Gear left by the fallen at each site (see fallen_gear.gd).
+var fallen: FallenGear = FallenGear.new()
 
 func _init() -> void:
 	for id in RESOURCE_ORDER:
@@ -113,6 +115,7 @@ func load_game() -> void:
 		TradeSkills.ensure(merc)
 	market.load_dict(state.get("market", {}))
 	hall.load_dict(state.get("hall", {}))
+	fallen.load_dict(state.get("fallen", {}))
 	# Listings no longer exist: goods left in them go back to the warehouse.
 	for listing in hall.legacy_listings:
 		resources[str(listing["good"])] = int(resources.get(str(listing["good"]), 0)) + int(listing["left"])
@@ -126,6 +129,7 @@ func save_game() -> void:
 	if file == null:
 		last_notice = "Unable to save company data."
 		return
+	fallen.prune(GameClock.now())
 	var data := {
 		"version": 1, "gold": gold, "reputation": reputation,
 		"expedition_slots": expedition_slots, "next_mission_id": next_mission_id,
@@ -133,7 +137,7 @@ func save_game() -> void:
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt,
 		"relief_count": relief_count, "retired_ids": retired_ids,
-		"market": market.to_dict(), "hall": hall.to_dict()
+		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
 
@@ -729,6 +733,8 @@ func buy_equipment(key: String) -> String:
 	var definition: Dictionary = item_definition(key)
 	if definition.is_empty():
 		return "That equipment does not exist."
+	if bool(definition.get("found", false)):
+		return "That piece can't be bought. It's only found on the fallen."
 	var cost: int = int(definition["cost"])
 	if gold < cost:
 		return "You need %d gold." % cost
@@ -866,6 +872,7 @@ func reset_company() -> void:
 	retired_ids.clear()
 	market.reset()
 	hall.reset()
+	fallen = FallenGear.new()
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
 	save_game()
@@ -878,3 +885,60 @@ func _harlow_finish(_mission: Dictionary) -> void:
 func _site_finish(_mission: Dictionary) -> void:
 	push_error("CompanyStateBase needs a site expedition resolver.")
 
+
+
+# --- Gear of the fallen -----------------------------------------------------------
+
+## At dispatch: does the crew come across something in this company's share of the pool?
+## The finder is chosen now; the item is only the company's if the finder gets home.
+func _roll_fallen(mission: Dictionary, site_id: String) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(mission["seed"]) ^ 0x5f3759
+	var found: Array[Dictionary] = fallen.roll_finds(site_id, str(mission.get("tactic", "Balanced")), int(mission["started"]), rng)
+	if found.is_empty():
+		return
+	var ids: Array = mission.get("ids", [])
+	var finds: Array = []
+	for item in found:
+		finds.append({"uid": str(item["uid"]), "key": str(item["key"]), "from": str(item.get("from", "")),
+			"finder": str(ids[rng.randi_range(0, ids.size() - 1)])})
+	mission["finds"] = finds
+
+## On return: finds carried home by survivors join the storeroom; a dead finder's find
+## drops back into the pool. Returns the merchant value of what came home.
+func _settle_finds(mission: Dictionary, site_id: String, dead_ids: Array, events: Array, found_names: Array) -> int:
+	var value: int = 0
+	var t: int = int(mission.get("finish", GameClock.now()))
+	for find in mission.get("finds", []):
+		var key: String = str(find.get("key", ""))
+		var definition: Dictionary = item_definition(key)
+		if definition.is_empty():
+			continue
+		var from: String = str(find.get("from", ""))
+		if dead_ids.has(str(find.get("finder", ""))):
+			fallen.drop(site_id, key, "lost on the road", t)
+			events.append("A %s found among the fallen never made it home. It lies where its carrier fell." % str(definition["name"]))
+			continue
+		var item: Dictionary = make_item(key)
+		item["found_from"] = from
+		var kept: Array = mission.get("found_keys", [])
+		kept.append(key)
+		mission["found_keys"] = kept
+		equipment_inventory.append(item)
+		found_names.append(str(definition["name"]))
+		value += int(floor(float(definition["cost"]) * 0.65))
+		events.append("Found among the fallen: %s%s." % [str(definition["name"]), (", once carried by " + from) if from != "" else ""])
+	return value
+
+## A mercenary died at a site: some of their gear may stay there for others to find.
+func _drop_on_death(site_id: String, worker: Dictionary, t: int, rng: RandomNumberGenerator) -> Array[String]:
+	var keys: Array = []
+	var equipped: Dictionary = worker.get("equipment", {})
+	for slot in ["tool", "armor"]:
+		var item: Dictionary = equipped.get(slot, {})
+		if not item.is_empty():
+			keys.append(str(item.get("key", "")))
+	var names: Array[String] = []
+	for key in fallen.drop_from_death(site_id, keys, str(worker.get("name", "")), t, rng):
+		names.append(str(item_definition(key).get("name", key)))
+	return names

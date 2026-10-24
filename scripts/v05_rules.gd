@@ -11,7 +11,12 @@ const ITEMS := {
 	"hand_axe": {"name": "Hand Axe", "slot": "tool", "role": "Woodcutter", "cost": 26, "mining": 0, "guard": 0, "protection": 0, "logging": 1},
 	"felling_axe": {"name": "Felling Axe", "slot": "tool", "role": "Woodcutter", "cost": 98, "mining": 0, "guard": 0, "protection": 0, "logging": 2},
 	"leather": {"name": "Leather Armor", "slot": "armor", "role": "Any", "cost": 38, "mining": 0, "guard": 0, "protection": 1},
-	"chainmail": {"name": "Chainmail", "slot": "armor", "role": "Any", "cost": 138, "mining": 0, "guard": 0, "protection": 3}
+	"chainmail": {"name": "Chainmail", "slot": "armor", "role": "Any", "cost": 138, "mining": 0, "guard": 0, "protection": 3},
+	# Found only on the fallen: never sold by the quartermaster. "cost" is their worth.
+	"dwarven_pick": {"name": "Dwarven Pickaxe", "slot": "tool", "role": "Miner", "cost": 900, "mining": 4, "guard": 0, "protection": 0, "found": true},
+	"wardens_axe": {"name": "Warden's Axe", "slot": "tool", "role": "Woodcutter", "cost": 800, "mining": 0, "guard": 0, "protection": 0, "logging": 4, "found": true},
+	"knights_blade": {"name": "Knight's Blade", "slot": "tool", "role": "Guard", "cost": 1100, "mining": 0, "guard": 5, "protection": 0, "found": true},
+	"gilded_plate": {"name": "Gilded Plate", "slot": "armor", "role": "Any", "cost": 1500, "mining": 0, "guard": 0, "protection": 5, "found": true}
 }
 
 const FIRST_NAMES := [
@@ -64,6 +69,14 @@ static func equipment_stats(merc: Dictionary) -> Dictionary:
 	# Legacy tier still has value, without creating a phantom physical item.
 	var legacy: int = int(merc.get("gear", 0))
 	return {"mining": mining, "guard": guard, "protection": protection + legacy, "logging": logging}
+
+## Gear the quartermaster sells (everything except found-only pieces).
+static func shop_keys() -> Array:
+	var keys: Array = []
+	for key in ITEMS:
+		if not bool(ITEMS[key].get("found", false)):
+			keys.append(key)
+	return keys
 
 static func item_name(item: Dictionary) -> String:
 	return str(ITEMS.get(str(item.get("key", "")), {}).get("name", "Unknown item"))

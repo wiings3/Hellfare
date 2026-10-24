@@ -15,6 +15,9 @@ const FRAMES := {
 	"pick": [preload("res://assets/ui/art/crew/pick_0.png"), preload("res://assets/ui/art/crew/pick_1.png")],
 }
 const SMOKE := preload("res://assets/ui/art/crew/smoke.png")
+const GLINT := [preload("res://assets/ui/art/crew/glint_0.png"), preload("res://assets/ui/art/crew/glint_1.png")]
+## Finds are made at work: the glint shows from this point of the trip.
+const FOUND_AT := 0.5
 ## Puffs per chimney, and seconds for one puff to rise and fade.
 const PUFFS := 3
 const PUFF_LIFE := 4.5
@@ -66,10 +69,14 @@ func show_company(missions: Array, free_mercs: int) -> void:
 			idle += 1  # Guild work happens in town.
 			continue
 		var tool: String = "pick" if road == "harlow" else "axe"
+		var carriers: Array = []
+		var ids: Array = mission.get("ids", [])
+		for find in mission.get("finds", []):
+			carriers.append(clampi(ids.find(str(find.get("finder", ""))), 0, count - 1))
 		for i in range(count):
 			var token := _add_token()
 			token.tooltip_text = describe.call(mission) if describe.is_valid() else ""
-			_tokens.append({"node": token, "mission": mission, "index": i, "road": road, "tool": tool})
+			_tokens.append({"node": token, "mission": mission, "index": i, "road": road, "tool": tool, "carrying": carriers.has(i)})
 	for i in range(mini(idle, MAX_IDLE)):
 		var token := _add_token()
 		token.tooltip_text = "Resting in Mossward."
@@ -116,6 +123,10 @@ func _process(delta: float) -> void:
 		var spot: Dictionary = place(str(token["road"]), progress, i)
 		var node := token["node"] as TextureRect
 		node.visible = progress < 1.0
+		var glint := node.get_node("Glint") as TextureRect
+		glint.visible = bool(token.get("carrying", false)) and progress >= FOUND_AT
+		if glint.visible:
+			glint.texture = GLINT[int(_anim * 3.0) % 2]
 		var pose: String = str(spot["pose"])
 		var frames: Array
 		var frame: int

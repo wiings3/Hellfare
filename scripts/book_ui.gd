@@ -7,6 +7,9 @@ const COMPANY_LEFT := preload("res://scenes/journal/pages/company_left.tscn")
 const COMPANY_RIGHT := preload("res://scenes/journal/pages/company_right.tscn")
 const COMPANY_MAP := preload("res://scenes/journal/pages/company_map.tscn")
 const COMPANY_TABS := preload("res://scenes/journal/pages/company_tabs.tscn")
+const ROW_FALLEN := preload("res://scenes/journal/rows/fallen_row.tscn")
+## Most items listed on a fallen-gear card.
+const FALLEN_ROWS := 6
 const FINANCE_LEFT := preload("res://scenes/journal/pages/finance_left.tscn")
 const FINANCE_RIGHT := preload("res://scenes/journal/pages/finance_right.tscn")
 const HARLOW_LEFT := preload("res://scenes/journal/pages/harlow_left.tscn")
@@ -234,7 +237,12 @@ func _draw_region_map() -> void:
 	map.describe = func(mission: Dictionary) -> String:
 		var phase: float = clampf(float(_now() - int(mission.get("started", _now()))) / maxf(1.0, float(int(mission.get("finish", _now())) - int(mission.get("started", _now())))), 0.0, 1.0)
 		var doing: String = "On the road" if phase < RegionMap.OUT else ("At work" if phase < RegionMap.BACK else "Heading home")
-		return "%s: %s\n%s  ·  back in %s" % [_mission_name(mission), doing, _crew_names(mission.get("ids", [])), _duration(maxi(0, int(mission.get("finish", _now())) - _now()))]
+		var text: String = "%s: %s\n%s  ·  back in %s" % [_mission_name(mission), doing, _crew_names(mission.get("ids", [])), _duration(maxi(0, int(mission.get("finish", _now())) - _now()))]
+		if phase >= RegionMap.FOUND_AT:
+			for find in mission.get("finds", []):
+				var who: String = str(game.merc_by_id(str(find.get("finder", ""))).get("name", "Someone"))
+				text += "\n%s is carrying a %s found among the fallen." % [who, str(game.item_definition(str(find.get("key", ""))).get("name", "find"))]
+		return text
 	map.show_company(game.missions, game.free_crew())
 	var sites := "Margin/Content/Map/Sites/"
 	for site in TradeSites.SITES:
@@ -254,6 +262,7 @@ func _draw_region_map() -> void:
 		if locked:
 			btn.modulate = Color(1, 1, 1, 0.7)
 		btn.pressed.connect(_open_site.bind(id))
+	_bind_fallen(left)
 	var town := left.get_node(sites + "town") as Button
 	town.tooltip_text = "Mossward, home of the company.\n%d resting in town." % game.free_crew()
 	town.pressed.connect(_nav_to.bind("standing"))
@@ -272,6 +281,58 @@ func _draw_region_map() -> void:
 		status.text = "%s in the field  ·  %s back in %s" % [_plural(game.missions.size(), "crew"), name, _duration(maxi(0, next))]
 	update.call()
 	live_updaters.append(update)
+
+## Grave markers on the map: how much fallen gear this company could find at each site.
+func _bind_fallen(left: Control) -> void:
+	var map := "Margin/Content/Map/"
+	var card := left.get_node(map + "FallenCard") as Control
+	for marker in left.get_node(map + "Fallen").get_children():
+		var site_id: String = str(marker.name)
+		var badge := marker as Button
+		badge.text = str(game.fallen.share(site_id, _now()).size())
+		badge.mouse_entered.connect(_show_fallen.bind(card, site_id, badge))
+		badge.mouse_exited.connect(func() -> void: card.visible = false)
+		badge.pressed.connect(_open_site.bind(site_id))
+
+func _show_fallen(card: Control, site_id: String, badge: Control) -> void:
+	var now: int = _now()
+	var share: Array[Dictionary] = game.fallen.share(site_id, now)
+	var body := "Margin/Body/"
+	var site_name: String = str(TradeSites.by_id(site_id).get("name", "the site"))
+	(card.get_node(body + "Title") as Label).text = "Fallen at " + site_name
+	(card.get_node(body + "Summary") as Label).text = "%d pieces lie here. %d %s within your reach today." % [game.fallen.size(site_id, now), share.size(), "is" if share.size() == 1 else "are"]
+	var rows := card.get_node(body + "Rows") as VBoxContainer
+	for child in rows.get_children():
+		rows.remove_child(child)
+		child.queue_free()
+	for i in range(mini(share.size(), FALLEN_ROWS)):
+		var item: Dictionary = share[i]
+		var key: String = str(item["key"])
+		var definition: Dictionary = game.item_definition(key)
+		var row := ROW_FALLEN.instantiate()
+		rows.add_child(row)
+		(row.get_node("Slot/Icon") as TextureRect).texture = _gear_icon(key)
+		var name_label := row.get_node("Info/Name") as Label
+		name_label.text = str(definition.get("name", key))
+		if bool(definition.get("found", false)):
+			name_label.theme_type_variation = &"LabelAccent"
+		var left_s: int = FallenGear.LIFETIME - (now - int(item["time"]))
+		(row.get_node("Info/From") as Label).text = str(item.get("from", ""))
+		(row.get_node("Side/Value") as Label).text = _money(int(definition.get("cost", 0)))
+		(row.get_node("Side/Left") as Label).text = _duration(maxi(0, left_s)) + " left"
+	(card.get_node(body + "Empty") as Control).visible = share.is_empty()
+	var reshuffle: int = FallenGear.RESHUFFLE - now % FallenGear.RESHUFFLE
+	var more: String = "And %d more. " % (share.size() - FALLEN_ROWS) if share.size() > FALLEN_ROWS else ""
+	(card.get_node(body + "Hint") as Label).text = "%s%d%% a trip to find one, more on Deep Push. Yours only if the finder gets home. New share in %s." % [more, int(round(float(FallenGear.FIND_CHANCE["Balanced"]) * 100.0)), _duration(reshuffle)]
+	card.visible = true
+	card.reset_size()
+	var map_size: Vector2 = (card.get_parent() as Control).size
+	var card_size: Vector2 = card.get_combined_minimum_size()
+	var x: float = clampf(badge.position.x - 10.0, 0.0, maxf(0.0, map_size.x - card_size.x))
+	var y: float = badge.position.y + badge.size.y + 2.0
+	if y + card_size.y > map_size.y:
+		y = maxf(0.0, badge.position.y - card_size.y - 2.0)
+	card.position = Vector2(x, y)
 
 func _draw_standing() -> void:
 	var left := _mount_page(COMPANY_LEFT, left_leaf)
@@ -405,8 +466,14 @@ func _bind_latest_report(right: Control) -> void:
 		slot.icon = _item_icon(str(key))
 		slot.count = int(loot[key])
 		slot.tooltip_text = "%d %s" % [int(loot[key]), _resource_name(str(key))]
-	(right.get_node(body + "Loot") as Control).visible = not loot.is_empty()
-	(right.get_node(body + "NoLoot") as Control).visible = loot.is_empty()
+	var found_gear: Array = report.get("found_gear", [])
+	for key in found_gear:
+		var slot := ITEM_SLOT.instantiate()
+		loot_row.add_child(slot)
+		slot.icon = _gear_icon(str(key))
+		slot.tooltip_text = "Found among the fallen: %s" % str(game.item_definition(str(key)).get("name", key))
+	(right.get_node(body + "Loot") as Control).visible = not loot.is_empty() or not found_gear.is_empty()
+	(right.get_node(body + "NoLoot") as Control).visible = loot.is_empty() and found_gear.is_empty()
 	var losses := right.get_node(body + "Losses") as Label
 	var parts: Array[String] = []
 	if not casualties.is_empty():
@@ -700,6 +767,8 @@ const ITEM_ICONS := {
 	"rusted_sword": "sword_rusted", "steel_sword": "sword_steel",
 	"leather": "armor_leather", "chainmail": "armor_iron",
 	"hand_axe": "axe", "felling_axe": "axe_felling",
+	"dwarven_pick": "pickaxe_dwarven", "wardens_axe": "axe_warden",
+	"knights_blade": "sword_knight", "gilded_plate": "armor_gilded",
 }
 const EMPTY_SLOT_ICONS := {
 	"tool": preload("res://assets/ui/icons/empty_glove.png"),
@@ -991,7 +1060,7 @@ func _draw_armory_page() -> void:
 	(right.get_node(c + "StoreEmpty") as Control).visible = game.equipment_inventory.is_empty()
 	# Quartermaster: buy new gear (goes to the storeroom).
 	var shop := right.get_node(c + "Shop/Items") as VBoxContainer
-	for key in MercsV05.ITEMS:
+	for key in MercsV05.shop_keys():
 		var definition: Dictionary = MercsV05.ITEMS[key]
 		var card := ROW_ITEM_CARD.instantiate()
 		shop.add_child(card)

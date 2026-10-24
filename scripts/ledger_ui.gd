@@ -976,7 +976,7 @@ func _draw_armory(body: VBoxContainer) -> void:
 		row.add_child(assign)
 		row.add_child(_button("SELL", _sell_equipment.bind(uid), false, true))
 	_section(body, "III", "QUARTERMASTER'S CATALOGUE", "PRICES IN GOLD")
-	for key in MercsV05.ITEMS:
+	for key in MercsV05.shop_keys():
 		var definition: Dictionary = MercsV05.ITEMS[key]
 		var offer := _panel(body, false, 10)
 		var row := _h(9)

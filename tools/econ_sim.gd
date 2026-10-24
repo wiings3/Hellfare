@@ -49,9 +49,9 @@ func _initialize() -> void:
 			var r: Dictionary = run(strategy, 1000 + s * 17)
 			r["runtime_ms"] = Time.get_ticks_msec() - started
 			results.append(r)
-			print("%-13s seed %d  worth %8d  1k %6s  10k %6s  100k %6s  deaths %d  (%d ms)" % [strategy, s, int(r["final_worth"]),
+			print("%-13s seed %d  worth %8d  1k %6s  10k %6s  100k %6s  deaths %d  finds %d (%d G, %d rare, first rare %s)  (%d ms)" % [strategy, s, int(r["final_worth"]),
 				_h(r["milestones"].get("1000", -1)), _h(r["milestones"].get("10000", -1)), _h(r["milestones"].get("100000", -1)),
-				int(r["deaths"]), int(r["runtime_ms"])])
+				int(r["deaths"]), int(r.get("finds", 0)), int(r.get("find_value", 0)), int(r.get("rare_finds", 0)), _h(r.get("first_rare_h", -1)), int(r["runtime_ms"])])
 	if out_path != "":
 		var f := FileAccess.open(out_path, FileAccess.WRITE)
 		f.store_string(JSON.stringify(results))
@@ -156,6 +156,13 @@ func _settle() -> void:
 			_add(key, net)
 			rec["trips"][key] = int(rec["trips"].get(key, 0)) + 1
 			rec["deaths"] = int(rec["deaths"]) + (r.get("casualties", []) as Array).size()
+			for k in r.get("found_gear", []):
+				rec["finds"] = int(rec.get("finds", 0)) + 1
+				rec["find_value"] = int(rec.get("find_value", 0)) + int(int(MercsV05.ITEMS[str(k)]["cost"]) * 0.65)
+				if bool(MercsV05.ITEMS[str(k)].get("found", false)):
+					rec["rare_finds"] = int(rec.get("rare_finds", 0)) + 1
+					if not rec.has("first_rare_h"):
+						rec["first_rare_h"] = snappedf(_elapsed_h(), 0.01)
 	if strategy in ["logging_hall", "hall_trader", "mixed"] or g.hall.session != null:
 		var events: Array = g.hall_tick(t)
 		for e in events:
@@ -195,6 +202,10 @@ func _guild_fallback() -> void:
 
 ## Broke with nothing out: sell spare gear from the storeroom, as a player would.
 func _sell_spare_gear() -> void:
+	# Gear found among the fallen is sold right away.
+	for item in g.equipment_inventory.duplicate():
+		if item.has("found_from"):
+			g.sell_equipment(str(item["uid"]))
 	if g.gold >= 100 or not g.missions.is_empty():
 		return
 	for item in g.equipment_inventory.duplicate():

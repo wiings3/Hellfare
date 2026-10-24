@@ -176,6 +176,7 @@ func harlow_dispatch(ids: Array[String], approach: String) -> String:
 		"rotation": int(harlow["rotation"]), "snapshot": available.duplicate(true),
 		"started": now, "finish": now + int(stats["duration"])
 	})
+	_roll_fallen(missions.back(), "harlow")
 	save_game()
 	return "Harlow expedition funded. Your crew is heading underground."
 
@@ -264,6 +265,8 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 	var casualties: Array[String] = []
 	var wounded: Array[String] = []
 	var lost_items: Array[String] = []
+	var dead_ids: Array[String] = []
+	var left_behind: Array[String] = []
 	var success: bool = rng.randf() < float(mission["chance"])
 	events.append("The crew entered the shafts with %s standing orders." % orders.to_lower())
 	events.append("%s was encountered in the tunnels." % str(enemy.get("name", "An unknown threat")))
@@ -280,6 +283,8 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 		var risk: float = float(risks.get(id, 0.15))
 		if rng.randf() < risk:
 			casualties.append(str(worker["name"]))
+			dead_ids.append(id)
+			left_behind.append_array(_drop_on_death("harlow", worker, int(mission["finish"]), rng))
 			retired_ids.append(id)
 			var equipped: Dictionary = worker.get("equipment", {})
 			for slot in ["tool", "armor"]:
@@ -308,6 +313,8 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 				effective_capacity += 6 + int(gear_stats["mining"])
 	if not casualties.is_empty():
 		events.append("%s fell. Their personal equipment was lost." % ", ".join(casualties))
+	if not left_behind.is_empty():
+		events.append("Some of their gear stayed in the shafts: %s. Another company may find it." % ", ".join(left_behind))
 	if not wounded.is_empty():
 		events.append("%s returned injured." % ", ".join(wounded))
 	var extractable: int = 0
@@ -358,14 +365,7 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 	if not gathered.is_empty():
 		events.append("Survivors delivered %s." % ", ".join(gathered))
 	var finds: Array[String] = []
-	var find_value: int = 0
-	if success and not survivors.is_empty() and rng.randf() < 0.15:
-		var gear_key: String = "reinforced_pick" if rng.randf() < 0.5 else "steel_sword"
-		var recovered_item: Dictionary = make_item(gear_key)
-		equipment_inventory.append(recovered_item)
-		finds.append(V05.item_name(recovered_item))
-		find_value = int(item_definition(gear_key)["cost"])
-		events.append("An abandoned %s was found in the shafts." % finds[0].to_lower())
+	var find_value: int = _settle_finds(mission, "harlow", dead_ids, events, finds)
 	var coins: int = rng.randi_range(5, 15) if not survivors.is_empty() else 0
 	var gross: int = coins + find_value
 	for ore in loot:
@@ -387,7 +387,8 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 		"injured": wounded, "lost_items": lost_items, "found_items": finds,
 		"events": events, "partial": not success and not loot.is_empty(),
 		"rotation": int(mission["rotation"]), "extracted": loot.duplicate(true),
-		"value": value, "trade": "mining", "site": "harlow"
+		"value": value, "trade": "mining", "site": "harlow",
+		"found_gear": mission.get("found_keys", [])
 	})
 	if reports.size() > 35:
 		reports.resize(35)
@@ -489,6 +490,7 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 		"share": float(plan["share"]), "injury": float(plan["injury"]), "death": float(plan["death"]),
 		"xp": int(plan["xp"]), "seed": randi(), "started": now, "finish": now + int(plan["duration"])
 	})
+	_roll_fallen(missions.back(), site_id)
 	save_game()
 	return "The crew set out for %s." % str(site["name"])
 
@@ -504,6 +506,8 @@ func _site_finish(mission: Dictionary) -> void:
 	var wounded: Array[String] = []
 	var lost_items: Array[String] = []
 	var finds: Array[String] = []
+	var dead_ids: Array[String] = []
+	var left_behind: Array[String] = []
 	var raw: Dictionary = {}
 	var survivors: int = 0
 	events.append("The crew set out for %s with %s orders." % [site_name, str(mission.get("tactic", "Balanced")).to_lower()])
@@ -517,6 +521,8 @@ func _site_finish(mission: Dictionary) -> void:
 		var death_chance: float = float(mission.get("death", 0.0)) * (1.1 if guard else 1.0)
 		if rng.randf() < death_chance:
 			casualties.append(str(worker["name"]))
+			dead_ids.append(id)
+			left_behind.append_array(_drop_on_death(str(mission.get("site", "")), worker, int(mission["finish"]), rng))
 			retired_ids.append(id)
 			var equipped: Dictionary = worker.get("equipment", {})
 			for slot in ["tool", "armor"]:
@@ -555,6 +561,8 @@ func _site_finish(mission: Dictionary) -> void:
 		events.append("%s found the crew." % str(threat.get("name", "Trouble")))
 	if not casualties.is_empty():
 		events.append("%s did not come back. Their gear was lost." % ", ".join(casualties))
+	if not left_behind.is_empty():
+		events.append("Some of their gear stayed where they fell: %s. Another company may find it." % ", ".join(left_behind))
 	if not wounded.is_empty():
 		events.append("%s returned injured." % ", ".join(wounded))
 	# The crew keeps its agreed share of the haul.
@@ -575,7 +583,7 @@ func _site_finish(mission: Dictionary) -> void:
 		finds.append(str(RESOURCE_NAMES.get(good, good)))
 		events.append("A rare find: %s." % str(rare.get("note", good)))
 	var hauled: Array[String] = []
-	var value: int = 0
+	var value: int = _settle_finds(mission, str(mission.get("site", "")), dead_ids, events, finds)
 	for good in loot:
 		if int(loot[good]) <= 0:
 			continue
@@ -597,7 +605,7 @@ func _site_finish(mission: Dictionary) -> void:
 		"value": value, "tactic": str(mission.get("tactic", "Balanced")), "crew": mission.get("ids", []),
 		"time": int(mission["finish"]), "casualties": casualties, "injured": wounded,
 		"lost_items": lost_items, "found_items": finds, "events": events,
-		"partial": not success and not loot.is_empty()
+		"partial": not success and not loot.is_empty(), "found_gear": mission.get("found_keys", [])
 	})
 	if reports.size() > 35:
 		reports.resize(35)

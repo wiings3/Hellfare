@@ -640,7 +640,7 @@ func _render_armory(list: VBoxContainer) -> void:
 			_sell_equipment.bind(str(item["uid"])), "secondary")
 	var heading_row := _record(list, 49)
 	_label(heading_row, "QUARTERMASTER'S CATALOGUE", 14, 4, 811, 38, 17, GOLD, true)
-	for key in MercsV05.ITEMS:
+	for key in MercsV05.shop_keys():
 		var def: Dictionary = MercsV05.ITEMS[key]
 		var purchase := _record(list, 74)
 		_label(purchase, str(def["name"]), 14, 5, 535, 30, 19, IVORY, true)

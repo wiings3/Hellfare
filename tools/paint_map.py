@@ -348,4 +348,27 @@ for x, y in [(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)]:
     puff.putpixel((x, y), FAINT)
 puff.putpixel((1, 1), WASH)
 puff.save("assets/ui/art/crew/smoke.png")
+
+# Grave marker for fallen gear: a sword planted in a small mound (7x9).
+grave = Image.new("RGBA", (7, 9), NONE)
+for y in range(0, 6):
+    grave.putpixel((3, y), SOFT if y else INK)
+for x in (1, 2, 4, 5):
+    grave.putpixel((x, 2), INK)
+for x in range(0, 7):
+    grave.putpixel((x, 8), INK)
+for x in range(1, 6):
+    grave.putpixel((x, 7), FAINT)
+grave.putpixel((3, 6), INK); grave.putpixel((2, 6), FAINT); grave.putpixel((4, 6), FAINT)
+grave.save("assets/ui/art/crew/grave.png")
+
+# Glint shown over a crew member carrying something found among the fallen (5x5).
+for i, size in enumerate((1, 2)):
+    glint = Image.new("RGBA", (5, 5), NONE)
+    gold, light = (214, 160, 62, 255), (246, 222, 140, 255)
+    glint.putpixel((2, 2), light)
+    for d in range(1, size + 1):
+        for (x, y) in [(2 - d, 2), (2 + d, 2), (2, 2 - d), (2, 2 + d)]:
+            glint.putpixel((x, y), gold)
+    glint.save("assets/ui/art/crew/glint_%d.png" % i)
 print("painted region map, %d crew frames" % len(frames))

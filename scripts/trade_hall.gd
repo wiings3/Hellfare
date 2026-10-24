@@ -687,7 +687,7 @@ func _npc_message(t: int) -> Dictionary:
 	var good: String
 	var qty: int
 	if side == "wts" and rng.randf() < GEAR_POST_CHANCE:
-		var keys: Array = MercsV05.ITEMS.keys()
+		var keys: Array = MercsV05.shop_keys()
 		good = "gear:" + str(keys[rng.randi_range(0, keys.size() - 1)])
 		qty = 1
 	else:

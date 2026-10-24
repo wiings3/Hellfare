@@ -656,7 +656,37 @@ def company_tabs():
 def map_crew():
     s = Scene("MapCrew", "TextureRect", {"offset_right": 9.0, "offset_bottom": 11.0, "mouse_filter": 1,
         "texture": Res("res://assets/ui/art/crew/walk_0.png"), "stretch_mode": 0})
+    # Sparkles over whoever carries something found among the fallen.
+    s.node("Glint", "TextureRect", {"visible": False, "layout_mode": 0, "offset_left": 5.0, "offset_top": -5.0, "offset_right": 10.0,
+        "offset_bottom": 0.0, "mouse_filter": 2, "texture": Res("res://assets/ui/art/crew/glint_0.png")})
     s.save(R + "map_crew.tscn")
+
+
+def fallen_row():
+    s = Scene("FallenRow", "HBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 5})
+    s.node("Slot", "PanelContainer", {"custom_minimum_size": (20, 20), "mouse_filter": 2, "theme_type_variation": Raw('&"SlotPanel"')})
+    s.node("Slot/Icon", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
+    s.node("Info", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "mouse_filter": 2, "theme_override_constants/separation": -4})
+    label(s, "Info/Name", "Item", None, {"text_overrun_behavior": 3})
+    label(s, "Info/From", "", "LabelCaption", {"text_overrun_behavior": 3})
+    s.node("Side", "VBoxContainer", {"size_flags_vertical": 4, "mouse_filter": 2, "theme_override_constants/separation": -4})
+    label(s, "Side/Value", "0 G", None, {"horizontal_alignment": 2})
+    label(s, "Side/Left", "", "LabelCaption", {"horizontal_alignment": 2})
+    s.save(R + "fallen_row.tscn")
+
+
+def fallen_card():
+    """Shown when hovering a site's grave marker on the map: this company's share of the pool."""
+    s = Scene("FallenCard", "PanelContainer", {"visible": False, "custom_minimum_size": (168, 0), "mouse_filter": 2})
+    s.node("Margin", "MarginContainer", {"mouse_filter": 2, "theme_override_constants/margin_left": 2, "theme_override_constants/margin_top": 2,
+        "theme_override_constants/margin_right": 2, "theme_override_constants/margin_bottom": 2})
+    s.node("Margin/Body", "VBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 3})
+    label(s, "Margin/Body/Title", "Fallen gear", "LabelTitle")
+    label(s, "Margin/Body/Summary", "", "LabelCaption", {"autowrap_mode": 3, "custom_minimum_size": (164, 0)})
+    s.node("Margin/Body/Rows", "VBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 2})
+    label(s, "Margin/Body/Empty", "Nothing within your reach today.", "LabelMuted", {"visible": False, "horizontal_alignment": 1})
+    label(s, "Margin/Body/Hint", "", "LabelMuted", {"autowrap_mode": 3, "custom_minimum_size": (164, 0)})
+    s.save("scenes/journal/widgets/fallen_card.tscn")
 
 
 def company_map():
@@ -689,8 +719,14 @@ def company_map():
                                 ("harlow", "Harlow Mines", 174, 98, 66), ("town", "Mossward", 104, 222, 40)]:
         button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 13)})
+    # Grave markers: gear of the fallen this company could find at each site.
+    s.node(M + "/Fallen", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
+    for site, x, y in [("mossward_copse", 40, 203), ("old_oakwood", 30, 37), ("harlow", 192, 111)]:
+        button(s, M + "/Fallen/" + site, "0", "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
+            "offset_right": float(x + 22), "offset_bottom": float(y + 12), "icon": Res("res://assets/ui/art/crew/grave.png")})
     # Crew figures are added here while expeditions run.
     s.node(M + "/Crews", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
+    s.inst(M + "/FallenCard", "res://scenes/journal/widgets/fallen_card.tscn", {"layout_mode": 0, "offset_right": 172.0, "offset_bottom": 40.0})
     label(s, C + "/Status", "", "LabelCaption", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "company_map.tscn")
 

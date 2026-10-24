@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/ui/art/crew/walk_0.png" id="1_walk_0"]
+[ext_resource type="Texture2D" path="res://assets/ui/art/crew/glint_0.png" id="2_glint_0"]
 
 [node name="MapCrew" type="TextureRect"]
 offset_right = 9.0
@@ -8,3 +9,13 @@ offset_bottom = 11.0
 mouse_filter = 1
 texture = ExtResource("1_walk_0")
 stretch_mode = 0
+
+[node name="Glint" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 5.0
+offset_top = -5.0
+offset_right = 10.0
+offset_bottom = 0.0
+mouse_filter = 2
+texture = ExtResource("2_glint_0")

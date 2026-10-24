@@ -8,7 +8,7 @@ func _initialize() -> void:
 
 func _capture() -> void:
 	MoneyMercsState.persist = false
-	var args := {"out": "/tmp/map", "frames": "1", "step": "4", "page": "hq"}
+	var args := {"out": "/tmp/map", "frames": "1", "step": "4", "page": "hq", "hover": "", "shift": "-0.35"}
 	for a in OS.get_cmdline_user_args():
 		var kv: PackedStringArray = a.split("=", true, 1)
 		if kv.size() == 2:
@@ -41,16 +41,23 @@ func _capture() -> void:
 	# Real expeditions, shifted so they are at different points of their trips.
 	print(game.site_dispatch("mossward_copse", cutters.slice(0, 2), "Balanced"))
 	print(game.harlow_dispatch(miners, "Balanced"))
-	var shifts := [-0.35, -0.02]
+	var shifts := [float(args["shift"]), -0.02]
 	for i in range(mini(shifts.size(), game.missions.size())):
 		var m: Dictionary = game.missions[i]
 		var span: int = int(m["finish"]) - int(m["started"])
 		var shift: int = int(float(span) * float(shifts[i]))
 		m["started"] = int(m["started"]) + shift
 		m["finish"] = int(m["finish"]) + shift
+	if str(args["hover"]) != "" and not game.missions.is_empty():
+		# Preview only: the copse crew carries a find home.
+		game.missions[0]["finds"] = [{"uid": "preview", "key": "knights_blade", "from": "Aldo of the Red Wolves", "finder": str(game.missions[0]["ids"][0])}]
 	ui._nav_to("standing")
 	ui._nav_to("hq")
 	ui._nav_to(str(args["page"]))
+	if str(args["hover"]) != "":
+		var page: Control = ui.left_leaf.get_child(0)
+		var badge: Control = page.get_node("Margin/Content/Map/Fallen/" + str(args["hover"]))
+		ui._show_fallen(page.get_node("Margin/Content/Map/FallenCard"), str(args["hover"]), badge)
 	for f in range(int(args["frames"])):
 		for k in range(3):
 			await process_frame

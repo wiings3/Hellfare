@@ -15,6 +15,16 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.16 – Gear of the fallen
+
+- When a mercenary dies at a site, there's a 40% chance 1–3 pieces of their gear stay where they fell. Items last 24 hours.
+- Each company can find only its own small share of a site's pool (about 1 in 80 items). The share reshuffles every 24 hours. Grave markers on the map show your share at each site; hover one to see what you could find.
+- Every trip rolls up to two finds from the share: 9% Cautious, 12% Balanced, 18% Deep Push, 45% Long Shift. A find counts only if the finder gets home. If they die, it drops back into the pool for someone else. A carrier shows a glint on the map.
+- Four rare pieces can only be found, never bought: Dwarven Pickaxe (900), Warden's Axe (800), Knight's Blade (1,100) and Gilded Plate (1,500).
+- Until real players arrive, NPC companies dying at the sites fill the pools (Copse ~145, Oakwood ~340, Harlow ~600). `FallenGear` keeps one interface (share, size, drop, claim) so a server can replace it.
+- Mossward Copse supplies are down from 6 G to 2 G. A lone new woodcutter was breaking even or losing money whenever timber was cheap.
+- Harlow's old 15% "abandoned pickaxe or sword" find is replaced by the pool.
+
 ## V0.15 – The living map (mockup)
 
 - The Company chapter now opens on a **Region** map. Each expedition's real timer moves its crew: they walk the road out for the first 20% of the trip, work at the site (axes in the woods, picks at the mine) for the middle 60%, and carry the haul home for the last 20%. Idle mercenaries wander around Mossward, and smoke rises from the chimneys.

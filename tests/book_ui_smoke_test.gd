@@ -73,6 +73,13 @@ func _verify() -> void:
 	check(region_map._roads.size() == 3, "a road to each site")
 	check(region_map.get_node("Crews").get_child_count() == 0, "no crews and nobody idle at the start")
 	check((map_page.get_node("Margin/Content/Map/Sites/old_oakwood") as Button).text.contains("Logging 8"), "locked site shows its requirement")
+	var grave := map_page.get_node("Margin/Content/Map/Fallen/harlow") as Button
+	check(grave.text == str(view.game.fallen.share("harlow", view._now()).size()), "grave marker counts this company's share")
+	var fallen_card := map_page.get_node("Margin/Content/Map/FallenCard") as Control
+	grave.mouse_entered.emit()
+	check(fallen_card.visible and (fallen_card.get_node("Margin/Body/Title") as Label).text.contains("Harlow"), "hovering a grave opens the fallen gear card")
+	grave.mouse_exited.emit()
+	check(not fallen_card.visible, "card closes")
 	var tabs_page: Control = view.left_leaf.get_child(1)
 	(tabs_page.get_node("Tabs/StandingTab") as Button).pressed.emit()
 	check(view.page == "standing", "standing tab")
@@ -122,7 +129,7 @@ func _verify() -> void:
 	check(view.game.crew.size() == 2, "hired two")
 	view._outfit("garrick")
 	check(view.roster_tab == "armory", "armory tab")
-	check(view.right_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == MercsV05.ITEMS.size(), "armory catalog")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == MercsV05.shop_keys().size(), "armory catalog")
 	view._nav_to("roster")
 	view._set_roster_tab("employed")
 	var roster_grid: GridContainer = view.left_leaf.get_child(0).get_node("Margin/Content/List/Items")
@@ -151,7 +158,13 @@ func _verify() -> void:
 	view._toggle_crew(true, str(cutter["id"]))
 	var sr: Control = view.right_leaf.get_child(0)
 	check(not (sr.get_node("Margin/Content/Fund") as Button).disabled, "copse can be funded with a woodcutter")
+	# Judge the forecast at an ordinary market moment, not whenever timber's drift is at its low.
+	var probe: int = int(Time.get_unix_time_from_system())
+	while view.game.market.drift("timber", probe) < 0.0:
+		probe += MarketModel.DRIFT_PERIOD
+	GameClock.fixed = probe
 	check(int(view.game.site_forecast("mossward_copse", view._selected_available(), "Balanced")["profit"]) > 0, "copse forecast is profitable")
+	GameClock.fixed = -1
 	view._dispatch_site()
 	check(view.game.missions.size() == 1 and str(view.game.missions[0].get("site", "")) == "mossward_copse", "copse expedition dispatched")
 	view._nav_to("hq")
