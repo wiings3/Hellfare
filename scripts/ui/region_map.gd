@@ -68,7 +68,7 @@ func show_company(missions: Array, free_mercs: int) -> void:
 		if road == "":
 			idle += 1  # Guild work happens in town.
 			continue
-		var tool: String = "pick" if road == "harlow" else "axe"
+		var tool: String = "pick" if road == "harlow" or str(mission.get("trade", "")) == "mining" else "axe"
 		var carriers: Array = []
 		var ids: Array = mission.get("ids", [])
 		for find in mission.get("finds", []):

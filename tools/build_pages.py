@@ -467,8 +467,14 @@ def site_pages():
     button(s, C + "/Planning/Hire", "Hire in Personnel  >", "PaperButton", {"visible": False, "size_flags_horizontal": 4})
     s.node(C + "/Planning/Orders", "HBoxContainer", {"theme_override_constants/separation": 4})
     label(s, C + "/Planning/Orders/Caption", "Orders", "LabelCaption", {"custom_minimum_size": (38, 0)})
-    for name, text, tip in [("Cautious", "Cautious", "Cautious: safer and slower, a smaller haul."), ("Balanced", "Balanced", "Balanced: a steady haul at the site's normal risk."), ("DeepPush", "Deep Push", "Deep Push: work harder for a bigger haul, at more risk."), ("LongShift", "Long Shift", "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while.")]:
+    for name, text, tip in [("Cautious", "Cautious", "Cautious: safer and slower, a smaller haul."), ("Balanced", "Balanced", "Balanced: a steady haul at the site's normal risk."), ("DeepPush", "Deep Push", "Deep Push: work harder for a bigger haul, at more risk.")]:
         button(s, C + "/Planning/Orders/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
+    s.node(C + "/Planning/Away", "HBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/Planning/Away/Caption", "Away", "LabelCaption", {"custom_minimum_size": (38, 0)})
+    for name, text, tip in [("LongShift", "Long Shift", "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while."),
+                            ("Overnight", "Overnight", "Overnight: an eight-hour trip at any site. 60% of the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."),
+                            ("FullDay", "Full Day", "Full Day: a 20-hour trip at any site, back before the same time tomorrow. 55% of the hourly haul for a fifth of the wages and supplies, at lower risk.")]:
+        button(s, C + "/Planning/Away/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
     s.node(C + "/Planning/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})
     tile(s, C + "/Planning/Forecast/Haul", "Expected haul", extra={"tooltip_text": "Average goods brought home after the crew's share."})
     tile(s, C + "/Planning/Forecast/Profit", "Expected profit", extra={"tooltip_text": "Value of the haul at today's merchant price, minus wages and supplies."})
@@ -716,12 +722,13 @@ def company_map():
     # Site names: click one to plan an expedition there.
     s.node(M + "/Sites", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
     for site, text, x, y, w in [("mossward_copse", "Mossward Copse", 14, 190, 76), ("old_oakwood", "Old Oakwood", 8, 24, 104),
-                                ("harlow", "Harlow Mines", 174, 98, 66), ("town", "Mossward", 104, 222, 40)]:
+                                ("harlow", "Harlow Mines", 174, 98, 66), ("town", "Mossward", 104, 222, 40),
+                                ("greyvein_quarry", "Greyvein Quarry", 194, 162, 62), ("deepdelve", "Deepdelve", 196, 28, 52)]:
         button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 13)})
     # Grave markers: gear of the fallen this company could find at each site.
     s.node(M + "/Fallen", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
-    for site, x, y in [("mossward_copse", 40, 203), ("old_oakwood", 30, 37), ("harlow", 192, 111)]:
+    for site, x, y in [("mossward_copse", 40, 203), ("old_oakwood", 30, 37), ("harlow", 192, 111), ("greyvein_quarry", 214, 175), ("deepdelve", 172, 30)]:
         button(s, M + "/Fallen/" + site, "0", "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + 22), "offset_bottom": float(y + 12), "icon": Res("res://assets/ui/art/crew/grave.png")})
     # Crew figures are added here while expeditions run.

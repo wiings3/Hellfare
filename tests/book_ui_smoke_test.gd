@@ -70,7 +70,7 @@ func _verify() -> void:
 	var map_page: Control = view.left_leaf.get_child(0)
 	check(map_page.scene_file_path == "res://scenes/journal/pages/company_map.tscn", "company opens on the region map")
 	var region_map := map_page.get_node("Margin/Content/Map") as RegionMap
-	check(region_map._roads.size() == 3, "a road to each site")
+	check(region_map._roads.size() == TradeSites.SITES.size(), "a road to each site")
 	check(region_map.get_node("Crews").get_child_count() == 0, "no crews and nobody idle at the start")
 	check((map_page.get_node("Margin/Content/Map/Sites/old_oakwood") as Button).text.contains("Logging 8"), "locked site shows its requirement")
 	var grave := map_page.get_node("Margin/Content/Map/Fallen/harlow") as Button

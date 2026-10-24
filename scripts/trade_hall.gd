@@ -44,8 +44,14 @@ const KINDS := {
 	"flipper": {"label": "Flipper", "note": "Buys cheap to sell dear."},
 	"bargain": {"label": "Bargain seller", "note": "Undercuts the market to sell fast."},
 	"haggler": {"label": "Haggler", "note": "Always open to offers."},
+	"contractor": {"label": "Guild contractor", "note": "Posts big orders above market value and waits for them to be filled."},
 }
-const BUYER_KINDS := ["hawker", "quartermaster", "collector", "flipper", "haggler"]
+const BUYER_KINDS := ["hawker", "quartermaster", "collector", "flipper", "haggler", "contractor"]
+## Guild contractors post rarely, order a lot, pay a premium and leave the post up for up
+## to an hour. Their orders don't draw on NPC demand: the order size is the limit. Bargain
+## sellers dump goods well under value. Together they give a trader a margin to work.
+const CONTRACTOR_SHARE := 0.15
+const CONTRACT_QTY := 3
 const SELLER_KINDS := ["hawker", "bargain", "flipper", "haggler"]
 
 const TRADERS := [
@@ -63,6 +69,8 @@ const TRADERS := [
 	{"name": "Marrow", "kind": "haggler"},
 	{"name": "Tobbin", "kind": "haggler"},
 	{"name": "Ilse_Rook", "kind": "hawker"},
+	{"name": "Ironworks_Guild", "kind": "contractor"},
+	{"name": "Shipwright_Ono", "kind": "contractor"},
 ]
 
 ## How often each good comes up in the chat.
@@ -83,7 +91,8 @@ const KIND_POSTS := {
 	"quartermaster": [["wtb", 0.80, 0.92, 1.0]],
 	"collector": [["wtb", 1.05, 1.25, 1.0]],
 	"flipper": [["wtb", 0.70, 0.84, 3.0], ["wts", 1.08, 1.22, 2.0]],
-	"bargain": [["wts", 0.84, 0.94, 1.0]],
+	"bargain": [["wts", 0.72, 0.9, 1.0]],
+	"contractor": [["wtb", 1.06, 1.18, 1.0]],
 	"haggler": [["wts", 0.98, 1.15, 1.0], ["wtb", 0.82, 0.95, 1.0]],
 }
 
@@ -384,7 +393,7 @@ func _deal_from_context(trader: String, text: String, links: Array, now: int) ->
 		h.post_id = int(post["id"])
 		if int(post["left"]) <= 0:
 			h.status = "gone"
-		elif not h.they_sell:
+		elif not h.they_sell and kind_of_post(post) != "contractor":
 			_limit_to_demand(h, now)
 		return h
 	if ref == "":
@@ -406,6 +415,9 @@ func _deal_from_context(trader: String, text: String, links: Array, now: int) ->
 		var ask: int = maxi(1, int(round(value * rng.randf_range(1.0, 1.12))))
 		return _new_deal(trader, ref, true, maxi(1, wanted if wanted > 0 else 20), ask, now)
 	return null
+
+func kind_of_post(post: Dictionary) -> String:
+	return str(post.get("kind", trader_kind(str(post.get("from", "")))))
 
 ## A buyer only takes what NPC demand still has room for; with none left they are stocked.
 func _limit_to_demand(h: Haggle, now: int) -> void:
@@ -621,7 +633,7 @@ func trade_finished(now: int) -> void:
 	session.status = "done"
 	session = null
 	h.status = "done"
-	if not h.they_sell:
+	if not h.they_sell and h.kind != "contractor":
 		_use_demand(h.good, h.agreed_qty, now)
 	if h.post_id >= 0:
 		var post: Dictionary = message_by_id(h.post_id)
@@ -681,6 +693,8 @@ func _npc_posts(now: int) -> void:
 
 func _npc_message(t: int) -> Dictionary:
 	var trader: Dictionary = TRADERS[rng.randi_range(0, TRADERS.size() - 1)]
+	while str(trader["kind"]) == "contractor" and rng.randf() > CONTRACTOR_SHARE:
+		trader = TRADERS[rng.randi_range(0, TRADERS.size() - 1)]
 	var kind: String = str(trader["kind"])
 	var option: Array = _weighted(KIND_POSTS[kind])
 	var side: String = str(option[0])
@@ -696,13 +710,15 @@ func _npc_message(t: int) -> Dictionary:
 		qty = rng.randi_range(int(span[0]), int(span[1]))
 		if kind == "quartermaster":
 			qty *= 2
+		elif kind == "contractor":
+			qty *= CONTRACT_QTY
 		if qty >= 10:
 			qty = maxi(5, int(round(float(qty) / 5.0)) * 5)
 	var ratio: float = rng.randf_range(float(option[1]), float(option[2]))
 	var price: int = maxi(1, int(round(fair(good, t) * ratio)))
 	return {"t": t, "from": str(trader["name"]), "kind": kind, "side": side, "good": good,
 		"qty": qty, "price": price, "offer": kind == "haggler", "left": qty,
-		"until": t + rng.randi_range(180, 1200)}
+		"until": t + (rng.randi_range(1800, 3600) if kind == "contractor" else rng.randi_range(180, 1200))}
 
 func _pick_good(rare_only: bool) -> String:
 	var total: float = 0.0

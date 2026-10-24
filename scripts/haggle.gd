@@ -23,6 +23,7 @@ const KINDS := {
 	"haggler": {"flex": 0.16, "step": 0.35, "patience": 5},
 	"quartermaster": {"flex": 0.06, "step": 0.5, "patience": 3},
 	"collector": {"flex": 0.10, "step": 0.45, "patience": 4},
+	"contractor": {"flex": 0.03, "step": 0.5, "patience": 3},
 }
 const INSULT := 0.25
 
@@ -38,6 +39,7 @@ const LINES := {
 	},
 	"greet_buy": {
 		"quartermaster": ["The garrison needs it. {each}g each, up to {qty}."],
+		"contractor": ["Guild order: {qty} at {each}g each. Bring what you have.", "We pay {each}g each for up to {qty}. Contract stands for the hour."],
 		"collector": ["I pay well for quality. {each}g each."],
 		"flipper": ["{each}g each. Take it or leave it."],
 		"haggler": ["I'll pay {each}g each. We can talk."],

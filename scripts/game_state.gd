@@ -396,6 +396,12 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 
 # --- Generic trade sites (data in sites.gd) -------------------------------------
 
+func _roll_avg(rng: RandomNumberGenerator, span: Array, rolls: int) -> float:
+	var total: int = 0
+	for i in range(rolls):
+		total += rng.randi_range(int(span[0]), int(span[1]))
+	return float(total) / float(rolls)
+
 func _tool_bonus(merc: Dictionary, trade: String) -> int:
 	var stats: Dictionary = V05.equipment_stats(merc)
 	return int(stats.get(trade, 0))
@@ -413,7 +419,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 	var site: Dictionary = TradeSites.by_id(site_id)
 	var workers: Array[Dictionary] = _crew(ids)
 	var trade: String = str(site.get("trade", "logging"))
-	var order: Dictionary = TradeSites.orders(approach)
+	var order: Dictionary = TradeSites.order_for(site, approach)
 	var guards: int = 0
 	var best_level: int = 0
 	var best_combat: int = 1
@@ -429,7 +435,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 			guards += 1
 		var effort: float = 0.5 if guard else 1.0
 		for good in site.get("yields", {}):
-			units[good] = float(units.get(good, 0.0)) + TradeSites.worker_yield(site["yields"][good], level, _tool_bonus(merc, trade)) * effort * float(order["yield"])
+			units[good] = float(units.get(good, 0.0)) + TradeSites.worker_yield(site["yields"][good], level, float(_tool_bonus(merc, trade)) * float(site.get("tool", 1.0))) * effort * float(order["yield"])
 		for good in site.get("side", {}):
 			units[good] = float(units.get(good, 0.0)) + TradeSites.worker_yield(site["side"][good], 1, 0) * float(order["yield"])
 		var t: Dictionary = terms(merc)
@@ -443,10 +449,10 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 		value += kept * float(sell_price(str(good), int(round(kept))))
 	var rare: Dictionary = site.get("rare", {})
 	if not rare.is_empty() and not workers.is_empty():
-		value += float(rare["chance"]) * float(rare["count"]) * float(sell_price(str(rare["good"])))
+		value += minf(0.9, float(rare["chance"]) * maxf(1.0, float(order.get("duration", 1.0)))) * float(rare["count"]) * float(sell_price(str(rare["good"])))
 	var protect: float = TradeSites.protection(guards, best_combat)
-	var injury: float = float(site.get("injury", 0.0)) * float(order["risk"]) * (1.0 - protect)
-	var death: float = float(site.get("death", 0.0)) * float(order["risk"]) * (1.0 - protect)
+	var injury: float = minf(TradeSites.MAX_INJURY, float(site.get("injury", 0.0)) * float(order["risk"]) * (1.0 - protect))
+	var death: float = minf(TradeSites.MAX_DEATH, float(site.get("death", 0.0)) * float(order["risk"]) * (1.0 - protect))
 	var cost: int = int(round(float(int(site.get("supplies", 0)) + wages) * float(order.get("cost", 1.0))))
 	return {
 		"site": site_id, "trade": trade, "workers": workers.size(), "guards": guards,
@@ -499,7 +505,7 @@ func _site_finish(mission: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(mission.get("seed", 1))
 	var trade: String = str(mission.get("trade", site.get("trade", "logging")))
-	var order: Dictionary = TradeSites.orders(str(mission.get("tactic", "Balanced")))
+	var order: Dictionary = TradeSites.order_for(site, str(mission.get("tactic", "Balanced")))
 	var site_name: String = str(site.get("name", "the site"))
 	var events: Array[String] = []
 	var casualties: Array[String] = []
@@ -542,14 +548,16 @@ func _site_finish(mission: Dictionary) -> void:
 			wounded.append(str(worker["name"]))
 		var level: int = TradeSkills.level_of(worker, trade)
 		var effort: float = 0.5 if guard else 1.0
-		var tool: int = _tool_bonus(worker, trade)
+		var tool: float = float(_tool_bonus(worker, trade)) * float(site.get("tool", 1.0))
+		# Long trips average several rolls, so an eight-hour haul isn't one coin flip.
+		var rolls: int = clampi(int(float(order.get("duration", 1.0))), 1, 12)
 		for good in site.get("yields", {}):
 			var span: Array = site["yields"][good]
-			var amount: float = float(rng.randi_range(int(span[0]), int(span[1]))) * (1.0 + TradeSites.LEVEL_YIELD_BONUS * float(level - 1)) + float(tool)
+			var amount: float = _roll_avg(rng, span, rolls) * (1.0 + TradeSites.LEVEL_YIELD_BONUS * float(level - 1)) + float(tool)
 			raw[good] = int(raw.get(good, 0)) + int(round(amount * effort * float(order["yield"])))
 		for good in site.get("side", {}):
 			var span: Array = site["side"][good]
-			raw[good] = int(raw.get(good, 0)) + int(round(float(rng.randi_range(int(span[0]), int(span[1]))) * float(order["yield"])))
+			raw[good] = int(raw.get(good, 0)) + int(round(_roll_avg(rng, span, rolls) * float(order["yield"])))
 		var xp: int = int(mission.get("xp", 20))
 		var gained: int = TradeSkills.grant(worker, trade, xp)
 		if gained > 0:
@@ -577,7 +585,7 @@ func _site_finish(mission: Dictionary) -> void:
 			kept_by_crew.append("%d %s" % [crew_cut, str(RESOURCE_NAMES.get(good, good))])
 		loot[good] = total - crew_cut
 	var rare: Dictionary = site.get("rare", {})
-	if survivors > 0 and not rare.is_empty() and rng.randf() < float(rare["chance"]):
+	if survivors > 0 and not rare.is_empty() and rng.randf() < minf(0.9, float(rare["chance"]) * maxf(1.0, float(order.get("duration", 1.0)))):
 		var good: String = str(rare["good"])
 		loot[good] = int(loot.get(good, 0)) + int(rare.get("count", 1))
 		finds.append(str(RESOURCE_NAMES.get(good, good)))

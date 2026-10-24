@@ -56,3 +56,10 @@ jobs:
           timeout 45s godot --headless --path . --script res://tests/fallen_gear_test.gd 2>&1 | tee /tmp/fallen.log
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/fallen.log; then exit 1; fi
           grep -F 'Fallen gear pool, shares, finds and the trip home passed.' /tmp/fallen.log
+
+      - name: Long orders, mining sites, contractors
+        run: |
+          set -o pipefail
+          timeout 45s godot --headless --path . --script res://tests/viability_test.gd 2>&1 | tee /tmp/viability.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/viability.log; then exit 1; fi
+          grep -F 'Long orders, mining sites and guild contractors passed.' /tmp/viability.log

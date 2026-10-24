@@ -140,7 +140,17 @@ toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Deep Push: work harder for a bigger haul, at more risk."
 
-[node name="LongShift" type="Button" parent="Margin/Content/Planning/Orders"]
+[node name="Away" type="HBoxContainer" parent="Margin/Content/Planning"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Caption" type="Label" parent="Margin/Content/Planning/Away"]
+custom_minimum_size = Vector2(38, 0)
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Away"
+
+[node name="LongShift" type="Button" parent="Margin/Content/Planning/Away"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
@@ -149,6 +159,26 @@ size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while."
+
+[node name="Overnight" type="Button" parent="Margin/Content/Planning/Away"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Overnight"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("orders")
+tooltip_text = "Overnight: an eight-hour trip at any site. 60% of the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."
+
+[node name="FullDay" type="Button" parent="Margin/Content/Planning/Away"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Full Day"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("orders")
+tooltip_text = "Full Day: a 20-hour trip at any site, back before the same time tomorrow. 55% of the hourly haul for a fifth of the wages and supplies, at lower risk."
 
 [node name="Forecast" type="HBoxContainer" parent="Margin/Content/Planning"]
 layout_mode = 2

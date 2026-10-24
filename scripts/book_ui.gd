@@ -1716,7 +1716,7 @@ func _bind_site_info(left: Control, site: Dictionary) -> void:
 	notes.append("Guards cut the risk and gather at half pace.")
 	(left.get_node(c + "Notes") as Label).text = "  ".join(notes)
 	# Trip facts follow the chosen orders (Long Shift is six times as long, and so on).
-	var order: Dictionary = TradeSites.orders(tactic)
+	var order: Dictionary = TradeSites.order_for(site, tactic)
 	left.get_node(c + "Facts/Duration").value = _duration(int(round(float(site["duration"]) * float(order["duration"]))))
 	left.get_node(c + "Facts/Supplies").value = _money(int(round(float(site.get("supplies", 0)) * float(order.get("cost", 1.0)))))
 	left.get_node(c + "Facts/Xp").value = "%d xp" % int(round(float(site.get("xp", 0)) * float(order["xp"])))
@@ -1812,8 +1812,8 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 	hire.visible = no_crew.visible
 	hire.pressed.connect(_open_recruitment)
 	var orders: String = str(field_mission.get("tactic", tactic)) if watching else tactic
-	for pair in [["Cautious", "Cautious"], ["Balanced", "Balanced"], ["DeepPush", "Deep Push"], ["LongShift", "Long Shift"]]:
-		var btn := right.get_node(plan + "Orders/" + str(pair[0])) as Button
+	for pair in [["Orders/Cautious", "Cautious"], ["Orders/Balanced", "Balanced"], ["Orders/DeepPush", "Deep Push"], ["Away/LongShift", "Long Shift"], ["Away/Overnight", "Overnight"], ["Away/FullDay", "Full Day"]]:
+		var btn := right.get_node(plan + str(pair[0])) as Button
 		btn.set_pressed_no_signal(orders == str(pair[1]))
 		if watching:
 			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
