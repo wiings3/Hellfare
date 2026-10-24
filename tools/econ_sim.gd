@@ -15,11 +15,19 @@ extends SceneTree
 ##   hall_trader    no crew: buy cheap posts and resell in the Trade Hall
 ##   mixed          one slot mines Harlow, the rest log; sales through the Trade Hall
 ##   casual         logging on Long Shift; the player only checks in for a minute every 30 minutes
-## Every strategy expands expedition slots and buys tools when it can afford them.
+##   minimal        the least the game needs: one woodcutter at the Copse, merchants only, nothing else
+##   everything     mixed, plus equipping gear found among the fallen when it's an upgrade
+##   evening        "everything" for two hours a day; Long Shifts sent out before logging off
+##   idle           checks in for a minute three times a day; Long Shift logging
+## Every strategy except minimal expands expedition slots and buys tools when it can afford them.
+## Hours are hours since the company started (crews keep working while the game is closed).
+## While the player is away the clock jumps ahead to the next return or check-in.
 
 const STEP := 10
 const SAMPLE := 900
-const MILESTONES := [1000, 10000, 100000]
+const MILESTONES := [1000, 10000, 100000, 1000000, 10000000]
+const CHECKPOINTS := [10, 100, 1000, 3000, 12000]
+const ALL := ["minimal", "logging", "logging_hall", "harlow", "mixed", "everything", "hall_trader", "contracts", "casual", "evening", "idle"]
 
 var hours: float = 150.0
 var seeds: int = 4
@@ -40,7 +48,7 @@ func _initialize() -> void:
 	var results: Array = []
 	var strategies: Array = ["logging", "logging_hall", "mixed", "harlow", "casual"]
 	if only != "":
-		strategies = ["logging", "logging_hall", "mixed", "harlow", "contracts", "lowlands", "hall_trader", "casual"]
+		strategies = ALL + ["lowlands"]
 	for strategy in strategies:
 		if only != "" and not only.split(",").has(strategy):
 			continue
@@ -71,6 +79,8 @@ var rec: Dictionary = {}
 var strategy: String = ""
 var counters: Dictionary = {}
 var dispatched: Dictionary = {}
+var sample_every: int = SAMPLE
+var next_checkpoint: int = 0
 
 func run(name: String, seed_value: int) -> Dictionary:
 	strategy = name
@@ -88,19 +98,36 @@ func run(name: String, seed_value: int) -> Dictionary:
 		"income": {}, "trips": {}, "deaths": 0, "hires": 0, "hire_spend": 0, "gear_spend": 0,
 		"merchant_sales": 0, "merchant_units": 0, "hall_sales": 0, "hall_units": 0, "hall_buys": 0,
 		"hall_trades": 0, "tax_paid": 0, "slots": [], "levels": [], "treat_spend": 0, "wages": 0,
+		"active_s": 0, "checkpoints": {}, "no_recruit": 0, "finds": 0, "find_value": 0, "rare_finds": 0,
+		"slot_busy_s": 0, "slot_s": 0, "costs": 0,
 	}
+	next_checkpoint = 0
+	sample_every = maxi(SAMPLE, int(hours * 3600.0 / 4000.0))
 	var end: int = t0 + int(hours * 3600.0)
 	var next_sample: int = t0
 	while t <= end:
 		GameClock.fixed = t
 		_settle()
 		g.harlow_sync(t)
-		if _active():
+		var active: bool = _active()
+		if active:
 			_policy()
 		if t >= next_sample:
 			_sample()
-			next_sample += SAMPLE
-		t += STEP
+			next_sample += sample_every
+		var step: int = STEP
+		if not active:
+			# Away from the keyboard: jump to the next return, check-in or sample.
+			var wake: int = mini(_next_active(), next_sample)
+			for m in g.missions:
+				wake = mini(wake, int(m["finish"]))
+			step = clampi(wake - t, STEP, 6 * 3600)
+		else:
+			rec["active_s"] = int(rec["active_s"]) + STEP
+		rec["slot_busy_s"] = int(rec["slot_busy_s"]) + g.missions.size() * step
+		rec["slot_s"] = int(rec["slot_s"]) + g.expedition_slots * step
+		t += step
+	_checkpoint(int(hours))
 	rec["final_worth"] = g.wealth()
 	rec["final_gold"] = g.gold
 	rec["crew"] = g.crew.size()
@@ -110,11 +137,30 @@ func run(name: String, seed_value: int) -> Dictionary:
 func _elapsed_h() -> float:
 	return float(t - t0) / 3600.0
 
-## Is the player at the keyboard? Casual players check in for a minute every 30 minutes.
+## Is the player at the keyboard? Casual players check in for a minute every 30 minutes,
+## evening players play two hours a day, idle players look in three times a day.
 func _active() -> bool:
-	if strategy == "casual":
-		return (t - t0) % 1800 < 60
+	var e: int = t - t0
+	match strategy:
+		"casual": return e % 1800 < 60
+		"evening": return e % 86400 < 7200
+		"idle": return e % 28800 < 60
 	return true
+
+## When the player next sits down (only asked while they are away).
+func _next_active() -> int:
+	var e: int = t - t0
+	var period: int = 1800
+	match strategy:
+		"evening": period = 86400
+		"idle": period = 28800
+		"casual": period = 1800
+		_: return t + STEP
+	return t0 + (int(e / period) + 1) * period
+
+## Evening players send everyone on Long Shift in the last 15 minutes before logging off.
+func _leaving() -> bool:
+	return strategy == "evening" and (t - t0) % 86400 >= 7200 - 900
 
 func _sample() -> void:
 	var w: int = g.wealth()
@@ -125,6 +171,36 @@ func _sample() -> void:
 	for m in MILESTONES:
 		if w >= m and not (rec["milestones"] as Dictionary).has(str(m)):
 			rec["milestones"][str(m)] = snappedf(_elapsed_h(), 0.01)
+	while next_checkpoint < CHECKPOINTS.size() and _elapsed_h() >= float(CHECKPOINTS[next_checkpoint]):
+		_checkpoint(int(CHECKPOINTS[next_checkpoint]))
+		next_checkpoint += 1
+
+## Everything worth comparing at 10, 100 and 1000 hours.
+func _checkpoint(h: int) -> void:
+	var best: int = 0
+	var levels: Array = []
+	for merc in g.crew:
+		var lv: int = TradeSkills.level_of(merc, _trade())
+		best = maxi(best, lv)
+		levels.append(lv)
+	var gear: int = 0
+	for merc in g.crew:
+		for slot in ["tool", "armor"]:
+			var item: Dictionary = (merc.get("equipment", {}) as Dictionary).get(slot, {})
+			if not item.is_empty():
+				gear += 1
+	rec["checkpoints"][str(h)] = {
+		"worth": g.wealth(), "gold": g.gold, "goods": g.goods_value(), "crew": g.crew.size(), "slots": g.expedition_slots,
+		"best_level": best, "levels": levels, "gear_worn": gear, "deaths": int(rec["deaths"]),
+		"income": (rec["income"] as Dictionary).duplicate(), "trips": (rec["trips"] as Dictionary).duplicate(),
+		"merchant_sales": int(rec["merchant_sales"]), "hall_sales": int(rec["hall_sales"]), "hall_buys": int(rec["hall_buys"]),
+		"tax_paid": int(rec["tax_paid"]), "hire_spend": int(rec["hire_spend"]), "gear_spend": int(rec["gear_spend"]),
+		"treat_spend": int(rec["treat_spend"]), "finds": int(rec["finds"]), "find_value": int(rec["find_value"]),
+		"rare_finds": int(rec["rare_finds"]), "guild_jobs": int(rec.get("guild_jobs", 0)), "no_recruit": int(rec["no_recruit"]),
+		"active_h": snappedf(float(rec["active_s"]) / 3600.0, 0.1),
+		"utilization": snappedf(float(rec["slot_busy_s"]) / maxf(1.0, float(rec["slot_s"])), 0.001),
+		"relief": g.relief_count, "reputation": g.reputation, "board": g.recruitment_board().size(),
+	}
 
 func _trade() -> String:
 	match strategy:
@@ -181,8 +257,12 @@ func _policy() -> void:
 		"contracts": _contracts(false)
 		"lowlands": _contracts(true)
 		"hall_trader": _hall_trader()
-		"mixed": _mixed()
-	_expand()
+		"mixed", "everything": _mixed()
+		"minimal": _minimal()
+		"idle": _logging(false)
+		"evening": _logging(true) if _leaving() else _mixed()
+	if strategy != "minimal":
+		_expand()
 	_guild_fallback()
 
 ## A company too poor to send anyone out takes guild work (and records it).
@@ -202,14 +282,31 @@ func _guild_fallback() -> void:
 
 ## Broke with nothing out: sell spare gear from the storeroom, as a player would.
 func _sell_spare_gear() -> void:
-	# Gear found among the fallen is sold right away.
+	# Gear found among the fallen: "everything" players wear it if it's an upgrade, the rest sell it.
 	for item in g.equipment_inventory.duplicate():
-		if item.has("found_from"):
-			g.sell_equipment(str(item["uid"]))
+		if not item.has("found_from"):
+			continue
+		if strategy in ["everything", "evening"] and _equip_upgrade(item):
+			continue
+		g.sell_equipment(str(item["uid"]))
 	if g.gold >= 100 or not g.missions.is_empty():
 		return
 	for item in g.equipment_inventory.duplicate():
 		g.sell_equipment(str(item["uid"]))
+
+## Put a found piece on the mercenary it improves most. Returns true if it was equipped.
+func _equip_upgrade(item: Dictionary) -> bool:
+	var def: Dictionary = MercsV05.ITEMS[str(item["key"])]
+	var slot: String = str(def["slot"])
+	for merc in g.crew:
+		if not g.is_available(merc) or not MercsV05.validate_role(str(item["key"]), merc):
+			continue
+		var worn: Dictionary = (merc.get("equipment", {}) as Dictionary).get(slot, {})
+		var worn_cost: int = int(MercsV05.ITEMS.get(str(worn.get("key", "")), {}).get("cost", 0))
+		if int(def["cost"]) > worn_cost and g.equip_item(str(merc["id"]), str(item["uid"])).contains(" equipped "):
+			rec["equipped_finds"] = int(rec.get("equipped_finds", 0)) + 1
+			return true
+	return false
 
 func _treat() -> void:
 	for merc in g.crew:
@@ -240,7 +337,10 @@ func _hire(role: String, max_count: int) -> void:
 			continue
 		if best.is_empty() or int(c["hire"]) < int(best["hire"]):
 			best = c
-	if best.is_empty() or g.gold < int(best["hire"]) + 40:
+	if best.is_empty():
+		rec["no_recruit"] = int(rec["no_recruit"]) + 1
+		return
+	if g.gold < int(best["hire"]) + 40:
 		return
 	if g.hire(str(best["id"])).ends_with("joined your company."):
 		rec["hires"] = int(rec["hires"]) + 1
@@ -285,7 +385,8 @@ func _logging(use_hall: bool, slots_for_logging: int = -1) -> void:
 	var slots: int = g.expedition_slots if slots_for_logging < 0 else slots_for_logging
 	_hire("Woodcutter", 3 * slots)
 	_outfit("Woodcutter", ["hand_axe", "felling_axe"])
-	var orders_list: Array = ["Long Shift"] if strategy == "casual" else ["Balanced", "Deep Push"]
+	var long_mode: bool = strategy in ["casual", "idle"] or _leaving()
+	var orders_list: Array = ["Long Shift"] if long_mode else ["Balanced", "Deep Push"]
 	while _running("site") < slots and g.missions.size() < g.expedition_slots:
 		var free: Array[String] = _free("Woodcutter")
 		if free.is_empty():
@@ -301,13 +402,13 @@ func _logging(use_hall: bool, slots_for_logging: int = -1) -> void:
 			for id in free.slice(0, size):
 				crew.append(id)
 			for site in ["mossward_copse", "old_oakwood"]:
-				for orders in orders_list + (["Balanced"] if strategy == "casual" else []):
+				for orders in orders_list + (["Balanced"] if long_mode else []):
 					var plan: Dictionary = g.site_forecast(site, crew, orders)
 					if not bool(plan["meets_level"]) or g.gold < int(plan["cost"]):
 						continue
 					# Count an expected death as 150 G (hire, tools and lost levels).
 					var rate: float = (float(plan["profit"]) - float(plan["death"]) * crew.size() * 150.0) / float(plan["duration"])
-					if strategy == "casual" and orders == "Balanced":
+					if long_mode and orders == "Balanced":
 						rate -= 1000.0
 					if rate > best_rate:
 						best_rate = rate
@@ -322,6 +423,18 @@ func _logging(use_hall: bool, slots_for_logging: int = -1) -> void:
 		_hall_seller(["timber", "herbs", "copper", "iron", "silver", "crystal"])
 	else:
 		_sell_to_merchants()
+
+# Minimal: one woodcutter at Mossward Copse on Balanced orders, everything sold to the
+# merchants. No expansion, no tools, no Trade Hall, no other sites.
+func _minimal() -> void:
+	_hire("Woodcutter", 1)
+	if g.missions.is_empty():
+		var free: Array[String] = _free("Woodcutter")
+		if not free.is_empty():
+			var plan: Dictionary = g.site_forecast("mossward_copse", free.slice(0, 1), "Balanced")
+			if g.gold >= int(plan["cost"]):
+				g.site_dispatch("mossward_copse", free.slice(0, 1), "Balanced")
+	_sell_to_merchants()
 
 func _running(kind: String) -> int:
 	var n: int = 0

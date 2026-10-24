@@ -92,6 +92,18 @@ func _test() -> void:
 	var restored := MoneyMercsState.new()
 	assert(restored.reports.size() == 2)
 	assert(restored.retired_ids.has("garrick"))
+	# Regression: hundreds of deaths must never empty the recruitment board. Every name a
+	# generated contractor can have is on the memorial, and every role must still be hireable.
+	var memorial: Array = restored.harlow.get("fallen", []).duplicate()
+	for first in MercsV05.FIRST_NAMES:
+		for last in MercsV05.LAST_NAMES:
+			memorial.append({"name": "%s %s" % [first, last]})
+	restored.harlow["fallen"] = memorial
+	var roles: Dictionary = {}
+	for candidate in restored.recruitment_board():
+		roles[str(candidate["role"])] = true
+	assert(roles.has("Woodcutter") and roles.has("Miner") and roles.has("Guard"))
+	restored.harlow["fallen"] = memorial.slice(0, memorial.size() - MercsV05.FIRST_NAMES.size() * MercsV05.LAST_NAMES.size())
 	assert(restored.next_item_id >= 3)
 	assert(restored.merc_by_id(next_miner).size() > 0)
 	# Companies can sell owned gear without creating duplicates.

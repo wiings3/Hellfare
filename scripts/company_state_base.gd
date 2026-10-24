@@ -176,6 +176,10 @@ func recruitment_board() -> Array[Dictionary]:
 func _is_retired(candidate: Dictionary) -> bool:
 	if retired_ids.has(str(candidate["id"])):
 		return true
+	# Generated contractors are new people each board: a fallen mercenary's name must not
+	# rule out every later stranger who shares it (that emptied the board after ~260 deaths).
+	if str(candidate["id"]).begins_with("candidate_"):
+		return false
 	for record in harlow.get("fallen", []):
 		if str(record.get("name", "")) == str(candidate["name"]):
 			return true
