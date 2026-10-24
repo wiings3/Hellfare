@@ -643,6 +643,58 @@ def trade_window():
     s.save("scenes/journal/widgets/trade_window.tscn")
 
 
+# --- Company chapter: the living map --------------------------------------------------
+def company_tabs():
+    s = Scene("CompanyTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
+    grp = s.sub("tabs", "ButtonGroup", {})
+    s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
+    for name, text in [("MapTab", "Region"), ("StandingTab", "Standing")]:
+        button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
+    s.save(P + "company_tabs.tscn")
+
+
+def map_crew():
+    s = Scene("MapCrew", "TextureRect", {"offset_right": 9.0, "offset_bottom": 11.0, "mouse_filter": 1,
+        "texture": Res("res://assets/ui/art/crew/walk_0.png"), "stretch_mode": 0})
+    s.save(R + "map_crew.tscn")
+
+
+def company_map():
+    import json
+    roads = json.load(open("tools/map_roads.json"))
+    s = page("CompanyMapLeft", top=36)
+    M = C + "/Map"
+    s.node(M, "Control", {"custom_minimum_size": (257, 280), "size_flags_horizontal": 4, "mouse_filter": 2,
+        "script": Res("res://scripts/ui/region_map.gd")})
+    s.node(M + "/Ground", "TextureRect", {"layout_mode": 0, "offset_right": 257.0, "offset_bottom": 280.0, "mouse_filter": 2,
+        "texture": Res("res://assets/ui/art/region_map.png"), "stretch_mode": 0})
+    # Roads the crews walk, from town to each site (hidden guides; edit the points to re-route).
+    s.node(M + "/Roads", "Node2D", {"visible": False})
+    chimneys = roads.pop("_chimneys", [])
+    for site, pts in roads.items():
+        flat = ", ".join("%s, %s" % (x, y) for x, y in pts)
+        s.node(M + "/Roads/" + site, "Line2D", {"points": Raw("PackedVector2Array(%s)" % flat), "width": 1.0})
+    # Chimneys in town: smoke rises from each marker.
+    s.node(M + "/Chimneys", "Node2D", {})
+    for i, (x, y) in enumerate(chimneys):
+        s.node(M + "/Chimneys/Chimney%d" % (i + 1), "Marker2D", {"position": (float(x), float(y)), "gizmo_extents": 3.0})
+    # Unsurveyed lands.
+    for name, text, x, y, w in [("Ruins", "Unsurveyed", 112, 18, 52), ("Fenmire", "Unsurveyed", 198, 248, 56)]:
+        label(s, M + "/" + name, text, "MapLabel", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
+            "offset_right": float(x + w), "offset_bottom": float(y + 12), "horizontal_alignment": 1, "mouse_filter": 1,
+            "tooltip_text": "Not yet surveyed. New work sites will open here."})
+    # Site names: click one to plan an expedition there.
+    s.node(M + "/Sites", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
+    for site, text, x, y, w in [("mossward_copse", "Mossward Copse", 14, 190, 76), ("old_oakwood", "Old Oakwood", 8, 24, 104),
+                                ("harlow", "Harlow Mines", 174, 98, 66), ("town", "Mossward", 104, 222, 40)]:
+        button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
+            "offset_right": float(x + w), "offset_bottom": float(y + 13)})
+    # Crew figures are added here while expeditions run.
+    s.node(M + "/Crews", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
+    label(s, C + "/Status", "", "LabelCaption", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.save(P + "company_map.tscn")
+
+
 if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:

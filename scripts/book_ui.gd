@@ -5,6 +5,8 @@ extends "res://scripts/book_shell.gd"
 
 const COMPANY_LEFT := preload("res://scenes/journal/pages/company_left.tscn")
 const COMPANY_RIGHT := preload("res://scenes/journal/pages/company_right.tscn")
+const COMPANY_MAP := preload("res://scenes/journal/pages/company_map.tscn")
+const COMPANY_TABS := preload("res://scenes/journal/pages/company_tabs.tscn")
 const FINANCE_LEFT := preload("res://scenes/journal/pages/finance_left.tscn")
 const FINANCE_RIGHT := preload("res://scenes/journal/pages/finance_right.tscn")
 const HARLOW_LEFT := preload("res://scenes/journal/pages/harlow_left.tscn")
@@ -64,6 +66,7 @@ const ICON_FIELD := preload("res://assets/ui/tab_icons/expeditions.png")
 const ICON_GUILD := preload("res://assets/ui/tab_icons/company.png")
 const PAGE_TITLES := {
 	"hq": "The Company",
+	"standing": "The Company",
 	"harlow": "Harlow Mines",
 	"expeditions": "Expeditions",
 	"contracts": "Regional Contracts",
@@ -99,6 +102,7 @@ func _refresh() -> void:
 		title_label.text = str(TradeSites.by_id(selected_site).get("name", "Expedition"))
 	match page:
 		"hq": _draw_company()
+		"standing": _draw_company()
 		"harlow": _draw_harlow()
 		"expeditions": _draw_board()
 		"site": _draw_site()
@@ -211,8 +215,66 @@ func _bind_expedition_row(row: Control, mission: Dictionary) -> void:
 # --- Company overview -------------------------------------------------------
 
 func _draw_company() -> void:
-	var left := _mount_page(COMPANY_LEFT, left_leaf)
 	var right := _mount_page(COMPANY_RIGHT, right_leaf)
+	_bind_company_right(right)
+	if page == "hq":
+		_draw_region_map()
+	else:
+		_draw_standing()
+	var tabs := _mount_page(COMPANY_TABS, left_leaf)
+	for tab in [["MapTab", "hq"], ["StandingTab", "standing"]]:
+		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
+		btn.set_pressed_no_signal(page == str(tab[1]))
+		btn.pressed.connect(_nav_to.bind(str(tab[1])))
+
+## The living map: crews walk out to the sites, work, and carry their haul home.
+func _draw_region_map() -> void:
+	var left := _mount_page(COMPANY_MAP, left_leaf)
+	var map := left.get_node("Margin/Content/Map") as RegionMap
+	map.describe = func(mission: Dictionary) -> String:
+		var phase: float = clampf(float(_now() - int(mission.get("started", _now()))) / maxf(1.0, float(int(mission.get("finish", _now())) - int(mission.get("started", _now())))), 0.0, 1.0)
+		var doing: String = "On the road" if phase < RegionMap.OUT else ("At work" if phase < RegionMap.BACK else "Heading home")
+		return "%s: %s\n%s  ·  back in %s" % [_mission_name(mission), doing, _crew_names(mission.get("ids", [])), _duration(maxi(0, int(mission.get("finish", _now())) - _now()))]
+	map.show_company(game.missions, game.free_crew())
+	var sites := "Margin/Content/Map/Sites/"
+	for site in TradeSites.SITES:
+		var id: String = str(site["id"])
+		if not left.has_node(sites + id):
+			continue
+		var btn := left.get_node(sites + id) as Button
+		var trade: String = str(site["trade"])
+		var best: int = int(_best_in(trade)["level"])
+		var locked: bool = best < int(site["level"])
+		var out: int = 0
+		for mission in game.missions:
+			if RegionMap.road_for(mission) == id:
+				out += 1
+		btn.text = str(site["name"]) + ("  ·  %s %d" % [TradeSkills.NAMES.get(trade, trade), int(site["level"])] if locked else "")
+		btn.tooltip_text = "%s\n%s" % [str(site["name"]), "Needs %s level %d (yours: %d)." % [TradeSkills.NAMES.get(trade, trade), int(site["level"]), best] if locked else ("%d crew working here." % out if out > 0 else "Click to plan an expedition.")]
+		if locked:
+			btn.modulate = Color(1, 1, 1, 0.7)
+		btn.pressed.connect(_open_site.bind(id))
+	var town := left.get_node(sites + "town") as Button
+	town.tooltip_text = "Mossward, home of the company.\n%d resting in town." % game.free_crew()
+	town.pressed.connect(_nav_to.bind("standing"))
+	var status := left.get_node("Margin/Content/Status") as Label
+	var update := func() -> void:
+		if game.missions.is_empty():
+			status.text = "No crews out. Click a site on the map to send one." if game.free_crew() > 0 else "Nobody in the field."
+			return
+		var next: int = -1
+		var name: String = ""
+		for mission in game.missions:
+			var left_s: int = int(mission.get("finish", _now())) - _now()
+			if next < 0 or left_s < next:
+				next = left_s
+				name = _mission_name(mission)
+		status.text = "%s in the field  ·  %s back in %s" % [_plural(game.missions.size(), "crew"), name, _duration(maxi(0, next))]
+	update.call()
+	live_updaters.append(update)
+
+func _draw_standing() -> void:
+	var left := _mount_page(COMPANY_LEFT, left_leaf)
 	var c := "Margin/Content/"
 	# Worth and what it is made of.
 	var coin: int = maxi(0, game.gold)
@@ -249,7 +311,10 @@ func _draw_company() -> void:
 		slot.dim = amount <= 0
 		slot.tooltip_text = "%s: %d stored\nSells for %d G each" % [_resource_name(str(key)), amount, game.sell_price(str(key))]
 	_bind_advice(left)
-	# Right page: expeditions in the field, then the latest report.
+
+## Right page: expeditions in the field, then the latest report.
+func _bind_company_right(right: Control) -> void:
+	var c := "Margin/Content/"
 	var list := right.get_node(c + "Expeditions") as VBoxContainer
 	for mission in game.missions:
 		var row := ROW_EXPEDITION.instantiate() as Control

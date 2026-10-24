@@ -82,7 +82,7 @@ class Scene:
                 head += ' instance=ExtResource("%s")' % self._ext_id(inst)
             head += "]"
             lines = [head]
-            if parent is not None and "layout_mode" not in props:
+            if parent is not None and "layout_mode" not in props and type_ not in ("Node2D", "Line2D", "Path2D", "Marker2D", "ButtonGroup"):
                 lines.append("layout_mode = 2")
             for k, v in props.items():
                 lines.append("%s = %s" % (k, self._val(v)))

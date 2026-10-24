@@ -15,6 +15,14 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.15 – The living map (mockup)
+
+- The Company chapter now opens on a **Region** map. Each expedition's real timer moves its crew: they walk the road out for the first 20% of the trip, work at the site (axes in the woods, picks at the mine) for the middle 60%, and carry the haul home for the last 20%. Idle mercenaries wander around Mossward, and smoke rises from the chimneys.
+- Click a site name to plan an expedition there. Locked sites show the level they need. Click Mossward to see the company's standing.
+- The old overview moved to the **Standing** tab, unchanged.
+- Art: `tools/paint_map.py` paints `assets/ui/art/region_map.png`, the crew frames and the road guides. The roads are the hidden `Line2D` nodes under `Map/Roads` in `company_map.tscn`, so you can re-route them in the editor.
+- Preview: `xvfb-run godot --path . --rendering-method gl_compatibility --resolution 1440x900 --script res://tools/capture_map.gd -- out=/tmp/map frames=90 step=3` records frames without touching the save.
+
 ## V0.14 — Economy rebalance from the simulator
 
 The economy simulator (`tools/econ_sim.gd`) played 150-hour runs of each strategy; these changes fix what it found. Active play now lands on the targets: 1,000 G at about 2–3 h, 10,000 G at about 15–25 h, 100,000 G at about 85–110 h.

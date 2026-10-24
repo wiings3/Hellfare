@@ -1,0 +1,159 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/region_map.gd" id="1_region_map"]
+[ext_resource type="Texture2D" path="res://assets/ui/art/region_map.png" id="2_region_map"]
+
+[node name="CompanyMapLeft" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Map" type="Control" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(257, 280)
+size_flags_horizontal = 4
+mouse_filter = 2
+script = ExtResource("1_region_map")
+
+[node name="Ground" type="TextureRect" parent="Margin/Content/Map"]
+layout_mode = 0
+offset_right = 257.0
+offset_bottom = 280.0
+mouse_filter = 2
+texture = ExtResource("2_region_map")
+stretch_mode = 0
+
+[node name="Roads" type="Node2D" parent="Margin/Content/Map"]
+visible = false
+
+[node name="mossward_copse" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(112, 208, 111.0, 207.5, 109.0, 206.5, 106.0, 205.0, 102.0, 203.0, 98.0, 200.9, 94.0, 198.6, 90.0, 196.2, 86.0, 193.8, 82.0, 191.3, 78.0, 188.9, 74.0, 186.6, 70.0, 184.4, 67.0, 182.7, 65.0, 181.6, 64, 181)
+width = 1.0
+
+[node name="old_oakwood" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(117, 197, 116.2, 195.2, 114.6, 191.6, 112.1, 186.1, 108.9, 178.9, 105.8, 171.2, 102.9, 163.1, 100.2, 154.5, 97.8, 145.5, 94.9, 136.8, 91.6, 128.2, 88.0, 120.0, 84.0, 112.0, 80.2, 105.0, 76.8, 99.0, 73.5, 94.0, 70.5, 90.0, 68.2, 87.0, 66.8, 85.0, 66, 84)
+width = 1.0
+
+[node name="harlow" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(137, 199, 137.8, 197.7, 139.4, 195.1, 141.9, 191.1, 145.1, 185.9, 148.4, 180.3, 151.6, 174.4, 154.9, 168.2, 158.1, 161.8, 161.8, 155.1, 165.8, 148.4, 170.1, 141.5, 174.9, 134.5, 179.4, 127.9, 183.6, 121.6, 187.6, 115.8, 191.4, 110.2, 194.7, 105.5, 197.6, 101.5, 200.0, 98.2, 202.0, 95.8, 203.5, 93.9, 204.5, 92.6, 205, 92)
+width = 1.0
+
+[node name="Chimneys" type="Node2D" parent="Margin/Content/Map"]
+
+[node name="Chimney1" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
+position = Vector2(115.0, 191.0)
+gizmo_extents = 3.0
+
+[node name="Chimney2" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
+position = Vector2(136.0, 196.0)
+gizmo_extents = 3.0
+
+[node name="Chimney3" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
+position = Vector2(129.0, 201.0)
+gizmo_extents = 3.0
+
+[node name="Chimney4" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
+position = Vector2(108.0, 200.0)
+gizmo_extents = 3.0
+
+[node name="Ruins" type="Label" parent="Margin/Content/Map"]
+theme_type_variation = &"MapLabel"
+text = "Unsurveyed"
+layout_mode = 0
+offset_left = 112.0
+offset_top = 18.0
+offset_right = 164.0
+offset_bottom = 30.0
+horizontal_alignment = 1
+mouse_filter = 1
+tooltip_text = "Not yet surveyed. New work sites will open here."
+
+[node name="Fenmire" type="Label" parent="Margin/Content/Map"]
+theme_type_variation = &"MapLabel"
+text = "Unsurveyed"
+layout_mode = 0
+offset_left = 198.0
+offset_top = 248.0
+offset_right = 254.0
+offset_bottom = 260.0
+horizontal_alignment = 1
+mouse_filter = 1
+tooltip_text = "Not yet surveyed. New work sites will open here."
+
+[node name="Sites" type="Control" parent="Margin/Content/Map"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="mossward_copse" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Mossward Copse"
+layout_mode = 0
+offset_left = 14.0
+offset_top = 190.0
+offset_right = 90.0
+offset_bottom = 203.0
+
+[node name="old_oakwood" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Old Oakwood"
+layout_mode = 0
+offset_left = 8.0
+offset_top = 24.0
+offset_right = 112.0
+offset_bottom = 37.0
+
+[node name="harlow" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Harlow Mines"
+layout_mode = 0
+offset_left = 174.0
+offset_top = 98.0
+offset_right = 240.0
+offset_bottom = 111.0
+
+[node name="town" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Mossward"
+layout_mode = 0
+offset_left = 104.0
+offset_top = 222.0
+offset_right = 144.0
+offset_bottom = 235.0
+
+[node name="Crews" type="Control" parent="Margin/Content/Map"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Status" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3

@@ -67,6 +67,15 @@ func _verify() -> void:
 	# Company overview.
 	view.game.reset_company()
 	view._nav_to("hq")
+	var map_page: Control = view.left_leaf.get_child(0)
+	check(map_page.scene_file_path == "res://scenes/journal/pages/company_map.tscn", "company opens on the region map")
+	var region_map := map_page.get_node("Margin/Content/Map") as RegionMap
+	check(region_map._roads.size() == 3, "a road to each site")
+	check(region_map.get_node("Crews").get_child_count() == 0, "no crews and nobody idle at the start")
+	check((map_page.get_node("Margin/Content/Map/Sites/old_oakwood") as Button).text.contains("Logging 8"), "locked site shows its requirement")
+	var tabs_page: Control = view.left_leaf.get_child(1)
+	(tabs_page.get_node("Tabs/StandingTab") as Button).pressed.emit()
+	check(view.page == "standing", "standing tab")
 	var company_left: Control = view.left_leaf.get_child(0)
 	var company_right: Control = view.right_leaf.get_child(0)
 	check(company_left.scene_file_path == "res://scenes/journal/pages/company_left.tscn", "company left scene")
@@ -145,6 +154,14 @@ func _verify() -> void:
 	check(int(view.game.site_forecast("mossward_copse", view._selected_available(), "Balanced")["profit"]) > 0, "copse forecast is profitable")
 	view._dispatch_site()
 	check(view.game.missions.size() == 1 and str(view.game.missions[0].get("site", "")) == "mossward_copse", "copse expedition dispatched")
+	view._nav_to("hq")
+	var live_map := view.left_leaf.get_child(0).get_node("Margin/Content/Map") as RegionMap
+	check(live_map._tokens.size() == 1, "the crew appears on the map")
+	var m0: Dictionary = view.game.missions[0]
+	check(live_map.place("mossward_copse", 0.0, 0)["pos"].distance_to(Vector2(112, 208)) < 1.0, "crew sets out from town")
+	check(live_map.place("mossward_copse", 0.5, 0)["pose"] == "work", "crew works mid-trip")
+	check(live_map.place("mossward_copse", 0.95, 0)["pose"] == "carry", "crew carries the haul home")
+	check(live_map.describe.call(m0).contains("Mossward Copse"), "crew tooltip names the site")
 	view.game.complete_due(int(Time.get_unix_time_from_system()) + 10000)
 	check(int(view.game.resources.get("timber", 0)) > 0, "timber delivered")
 	check(int(view.game.reports[0].get("value", 0)) > 0, "report records haul value")
