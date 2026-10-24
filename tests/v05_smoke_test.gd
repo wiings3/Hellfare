@@ -41,7 +41,7 @@ func _test() -> void:
 	var with_guard: Array[String] = ["garrick", "oswin"]
 	var solo: Dictionary = g.harlow_crew_stats(without, "Balanced")
 	var protected: Dictionary = g.harlow_crew_stats(with_guard, "Balanced")
-	assert(int(solo["capacity"]) == 5)
+	assert(int(solo["capacity"]) == 8)  # 6 per miner + 2 from the reinforced pickaxe
 	assert(float(protected["success"]) > float(solo["success"]))
 	assert(float(protected["death"]["garrick"]) < float(solo["death"]["garrick"]))
 	g.harlow_send_scout()
@@ -163,6 +163,15 @@ func _test() -> void:
 	restored.resources["relic"] = 1
 	assert(not restored.can_accept_guild_work())
 	restored.resources["relic"] = 0
+	# Gear worn by the crew never locks a broke company out of guild help: worth above
+	# 250 G from equipped gear alone must not block it (simulator soft-lock regression).
+	restored.merc_by_id("garrick")["gear"] = 5
+	(restored.merc_by_id("garrick")["equipment"] as Dictionary)["armor"] = restored.make_item("chainmail")
+	assert(restored.wealth() > 250)
+	assert(restored.liquid_worth() < 250)
+	assert(restored.can_accept_guild_work())
+	restored.merc_by_id("garrick")["gear"] = 0
+	(restored.merc_by_id("garrick")["equipment"] as Dictionary)["armor"] = {}
 	# Recovery is possible even with no mercenaries, gold or remaining credit.
 	restored.reset_company()
 	restored.gold = 0

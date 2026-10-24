@@ -558,8 +558,8 @@ func _bind_harlow_plan(right: Control) -> void:
 	var hire := right.get_node(plan + "Hire") as Button
 	hire.visible = no_crew.visible
 	hire.pressed.connect(_open_recruitment)
-	# Standing orders.
-	var orders: String = str(field_mission.get("tactic", tactic)) if watching else tactic
+	# Standing orders (Harlow has no Long Shift).
+	var orders: String = str(field_mission.get("tactic", harlow_view.stance)) if watching else harlow_view.stance
 	for pair in [["Cautious", "Cautious"], ["Balanced", "Balanced"], ["DeepPush", "Deep Push"]]:
 		var btn := right.get_node(plan + "Orders/" + str(pair[0])) as Button
 		btn.set_pressed_no_signal(orders == str(pair[1]))
@@ -1116,7 +1116,7 @@ func _draw_accounts() -> void:
 		expand.text = "Fully expanded"
 		expand.disabled = true
 	else:
-		var cost: int = 900 if game.expedition_slots == 1 else 4200
+		var cost: int = game.expansion_cost()
 		expand.text = "Expand  ·  %s" % _money(cost)
 		expand.disabled = game.gold < cost
 		expand.pressed.connect(func() -> void: _action(game.expand_operations()))
@@ -1204,7 +1204,7 @@ func _draw_guild_jobs() -> void:
 	var can_take: bool = game.can_accept_guild_work() and slot_free
 	var rules := [
 		["Cash", game.gold < 120, "Treasury below 120 G  (now %s)" % _money(game.gold)],
-		["Worth", game.wealth() < 250, "Company worth below 250 G  (now %s)" % _money(game.wealth())],
+		["Worth", game.liquid_worth() < 250, "Cash, goods and spare gear below 250 G  (now %s)" % _money(game.liquid_worth())],
 		["Slot", slot_free, "A free expedition slot"],
 	]
 	for rule in rules:
@@ -1216,7 +1216,7 @@ func _draw_guild_jobs() -> void:
 	office.pressed.connect(_guild_work.bind(""))
 	(left.get_node(c + "ReturnHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
 	if not can_take:
-		var why: String = "Not available: " + ("every expedition slot is busy." if not slot_free else "the guild only helps companies below 120 G cash and 250 G worth.")
+		var why: String = "Not available: " + ("every expedition slot is busy." if not slot_free else "the guild only helps companies with under 120 G cash and under 250 G in cash, goods and spare gear.")
 		var caption := right.get_node(c + "Caption") as Label
 		caption.text = why
 		caption.theme_type_variation = &"LabelAccent"
@@ -1515,8 +1515,6 @@ func _draw_board() -> void:
 		(right.get_node(base + "Level/Bar") as ProgressBar).value = 0.0 if merc.is_empty() else TradeSkills.progress(merc, trade) * 100.0
 	# Other work.
 	var other := right.get_node(c + "Other/Items") as VBoxContainer
-	var contracts := _list_card(other, ICON_FIELD, "Regional contracts", "Older escort and supply runs", "", "Open  >", false, _turn_to.bind("contracts"))
-	contracts.toggle_mode = false
 	var guild_ok: bool = game.can_accept_guild_work()
 	var guild := _list_card(other, ICON_GUILD, "Guild work", "Safe pay for struggling companies", "", "Open  >" if guild_ok else "Not eligible", false, _turn_to.bind("guildwork"))
 	guild.toggle_mode = false
@@ -1583,9 +1581,11 @@ func _bind_site_info(left: Control, site: Dictionary) -> void:
 		notes.append(str(threat["note"]) + ".")
 	notes.append("Guards cut the risk and gather at half pace.")
 	(left.get_node(c + "Notes") as Label).text = "  ".join(notes)
-	left.get_node(c + "Facts/Duration").value = _duration(int(site["duration"]))
-	left.get_node(c + "Facts/Supplies").value = _money(int(site.get("supplies", 0)))
-	left.get_node(c + "Facts/Xp").value = "%d xp" % int(site.get("xp", 0))
+	# Trip facts follow the chosen orders (Long Shift is six times as long, and so on).
+	var order: Dictionary = TradeSites.orders(tactic)
+	left.get_node(c + "Facts/Duration").value = _duration(int(round(float(site["duration"]) * float(order["duration"]))))
+	left.get_node(c + "Facts/Supplies").value = _money(int(round(float(site.get("supplies", 0)) * float(order.get("cost", 1.0)))))
+	left.get_node(c + "Facts/Xp").value = "%d xp" % int(round(float(site.get("xp", 0)) * float(order["xp"])))
 	(left.get_node(c + "Footer/Back") as Button).pressed.connect(_turn_to.bind("expeditions"))
 
 func _bind_site_plan(right: Control, site: Dictionary) -> void:
@@ -1678,7 +1678,7 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 	hire.visible = no_crew.visible
 	hire.pressed.connect(_open_recruitment)
 	var orders: String = str(field_mission.get("tactic", tactic)) if watching else tactic
-	for pair in [["Cautious", "Cautious"], ["Balanced", "Balanced"], ["DeepPush", "Deep Push"]]:
+	for pair in [["Cautious", "Cautious"], ["Balanced", "Balanced"], ["DeepPush", "Deep Push"], ["LongShift", "Long Shift"]]:
 		var btn := right.get_node(plan + "Orders/" + str(pair[0])) as Button
 		btn.set_pressed_no_signal(orders == str(pair[1]))
 		if watching:

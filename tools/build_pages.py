@@ -467,7 +467,7 @@ def site_pages():
     button(s, C + "/Planning/Hire", "Hire in Personnel  >", "PaperButton", {"visible": False, "size_flags_horizontal": 4})
     s.node(C + "/Planning/Orders", "HBoxContainer", {"theme_override_constants/separation": 4})
     label(s, C + "/Planning/Orders/Caption", "Orders", "LabelCaption", {"custom_minimum_size": (38, 0)})
-    for name, text, tip in [("Cautious", "Cautious", "Cautious: safer and slower, a smaller haul."), ("Balanced", "Balanced", "Balanced: a steady haul at the site's normal risk."), ("DeepPush", "Deep Push", "Deep Push: work hard and fast for a bigger haul, at more risk.")]:
+    for name, text, tip in [("Cautious", "Cautious", "Cautious: safer and slower, a smaller haul."), ("Balanced", "Balanced", "Balanced: a steady haul at the site's normal risk."), ("DeepPush", "Deep Push", "Deep Push: work harder for a bigger haul, at more risk."), ("LongShift", "Long Shift", "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while.")]:
         button(s, C + "/Planning/Orders/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
     s.node(C + "/Planning/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})
     tile(s, C + "/Planning/Forecast/Haul", "Expected haul", extra={"tooltip_text": "Average goods brought home after the crew's share."})

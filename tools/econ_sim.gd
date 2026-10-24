@@ -13,7 +13,8 @@ extends SceneTree
 ##   contracts      the older regional contracts, climbing to the best region reputation allows
 ##   lowlands       the older regional contracts, staying on Mossward Lowlands
 ##   hall_trader    no crew: buy cheap posts and resell in the Trade Hall
-##   casual         logging, but the player only checks in for a minute every 30 minutes
+##   mixed          one slot mines Harlow, the rest log; sales through the Trade Hall
+##   casual         logging on Long Shift; the player only checks in for a minute every 30 minutes
 ## Every strategy expands expedition slots and buys tools when it can afford them.
 
 const STEP := 10
@@ -37,7 +38,9 @@ func _initialize() -> void:
 			"only": only = kv[1]
 	MoneyMercsState.persist = false
 	var results: Array = []
-	var strategies: Array = ["logging", "logging_hall", "harlow", "contracts", "lowlands", "hall_trader", "casual"]
+	var strategies: Array = ["logging", "logging_hall", "mixed", "harlow", "casual"]
+	if only != "":
+		strategies = ["logging", "logging_hall", "mixed", "harlow", "contracts", "lowlands", "hall_trader", "casual"]
 	for strategy in strategies:
 		if only != "" and not only.split(",").has(strategy):
 			continue
@@ -153,7 +156,7 @@ func _settle() -> void:
 			_add(key, net)
 			rec["trips"][key] = int(rec["trips"].get(key, 0)) + 1
 			rec["deaths"] = int(rec["deaths"]) + (r.get("casualties", []) as Array).size()
-	if strategy in ["logging_hall", "hall_trader"] or g.hall.session != null:
+	if strategy in ["logging_hall", "hall_trader", "mixed"] or g.hall.session != null:
 		var events: Array = g.hall_tick(t)
 		for e in events:
 			if str(e["type"]) == "trade_done":
@@ -162,6 +165,7 @@ func _settle() -> void:
 # --- Policies ---------------------------------------------------------------------
 
 func _policy() -> void:
+	_sell_spare_gear()
 	_treat()
 	match strategy:
 		"logging", "casual": _logging(false)
@@ -170,6 +174,7 @@ func _policy() -> void:
 		"contracts": _contracts(false)
 		"lowlands": _contracts(true)
 		"hall_trader": _hall_trader()
+		"mixed": _mixed()
 	_expand()
 	_guild_fallback()
 
@@ -188,6 +193,13 @@ func _guild_fallback() -> void:
 		if not rec.has("stuck_at"):
 			rec["stuck_at"] = snappedf(_elapsed_h(), 0.01)
 
+## Broke with nothing out: sell spare gear from the storeroom, as a player would.
+func _sell_spare_gear() -> void:
+	if g.gold >= 100 or not g.missions.is_empty():
+		return
+	for item in g.equipment_inventory.duplicate():
+		g.sell_equipment(str(item["uid"]))
+
 func _treat() -> void:
 	for merc in g.crew:
 		if g.is_available(merc) and int(merc.get("health", 100)) < 60:
@@ -199,7 +211,7 @@ func _treat() -> void:
 func _expand() -> void:
 	if g.expedition_slots >= 3 or strategy == "hall_trader":
 		return
-	var cost: int = 900 if g.expedition_slots == 1 else 4200
+	var cost: int = g.expansion_cost()
 	if g.gold >= cost + 250:
 		g.expand_operations()
 		(rec["slots"] as Array).append({"h": snappedf(_elapsed_h(), 0.01), "slots": g.expedition_slots})
@@ -256,34 +268,70 @@ func _sell_to_merchants(keep: Array = []) -> void:
 		rec["merchant_sales"] = int(rec["merchant_sales"]) + each * n
 		rec["merchant_units"] = int(rec["merchant_units"]) + n
 
-# Logging: copse until someone reaches Logging 8, then Old Oakwood with the best crew.
-func _logging(use_hall: bool) -> void:
-	_hire("Woodcutter", 3 * g.expedition_slots)
+# Logging: each free slot goes to the site and orders with the best forecast profit per
+# hour, as the planner shows it. Casual players use Long Shift.
+func _logging(use_hall: bool, slots_for_logging: int = -1) -> void:
+	var slots: int = g.expedition_slots if slots_for_logging < 0 else slots_for_logging
+	_hire("Woodcutter", 3 * slots)
 	_outfit("Woodcutter", ["hand_axe", "felling_axe"])
-	while g.missions.size() < g.expedition_slots:
+	var orders_list: Array = ["Long Shift"] if strategy == "casual" else ["Balanced", "Deep Push"]
+	while _running("site") < slots and g.missions.size() < g.expedition_slots:
 		var free: Array[String] = _free("Woodcutter")
 		if free.is_empty():
 			break
 		free.sort_custom(func(a: String, b: String) -> bool: return TradeSkills.xp_of(g.merc_by_id(a), "logging") > TradeSkills.xp_of(g.merc_by_id(b), "logging"))
-		var crew: Array[String] = []
-		for id in free.slice(0, 3):
-			crew.append(id)
-		var site: String = "old_oakwood" if TradeSkills.level_of(g.merc_by_id(crew[0]), "logging") >= 8 else "mossward_copse"
-		var plan: Dictionary = g.site_forecast(site, crew, "Balanced")
-		if site == "old_oakwood" and int(plan["profit"]) < 0:
-			site = "mossward_copse"
-		if g.site_dispatch(site, crew, "Balanced").begins_with("The crew set out"):
-			continue
-		break
+		var best_site: String = ""
+		var best_orders: String = ""
+		var best_crew: Array[String] = []
+		var best_rate: float = -1000000.0
+		# Biggest affordable crew first; Long Shift falls back to Balanced when unaffordable.
+		for size in range(mini(3, free.size()), 0, -1):
+			var crew: Array[String] = []
+			for id in free.slice(0, size):
+				crew.append(id)
+			for site in ["mossward_copse", "old_oakwood"]:
+				for orders in orders_list + (["Balanced"] if strategy == "casual" else []):
+					var plan: Dictionary = g.site_forecast(site, crew, orders)
+					if not bool(plan["meets_level"]) or g.gold < int(plan["cost"]):
+						continue
+					# Count an expected death as 150 G (hire, tools and lost levels).
+					var rate: float = (float(plan["profit"]) - float(plan["death"]) * crew.size() * 150.0) / float(plan["duration"])
+					if strategy == "casual" and orders == "Balanced":
+						rate -= 1000.0
+					if rate > best_rate:
+						best_rate = rate
+						best_site = site
+						best_orders = orders
+						best_crew = crew
+			if best_site != "":
+				break
+		if best_site == "" or not g.site_dispatch(best_site, best_crew, best_orders).begins_with("The crew set out"):
+			break
 	if use_hall:
-		_hall_seller(["timber", "herbs"])
+		_hall_seller(["timber", "herbs", "copper", "iron", "silver", "crystal"])
 	else:
 		_sell_to_merchants()
 
+func _running(kind: String) -> int:
+	var n: int = 0
+	for m in g.missions:
+		if (kind == "site" and m.has("site")) or (kind == "harlow" and str(m.get("region", "")) == "harlow"):
+			n += 1
+	return n
+
+# Mixed: one slot mines Harlow, the rest log; sales through the Trade Hall.
+func _mixed() -> void:
+	if g.expedition_slots >= 2:
+		_harlow(1)
+		_logging(true, g.expedition_slots - 1)
+	else:
+		_logging(true)
+
 # Harlow Mines: two miners and a guard per slot, scout every rotation.
-func _harlow() -> void:
-	_hire("Miner", 2 * g.expedition_slots)
-	_hire("Guard", g.expedition_slots)
+func _harlow(slots_for_harlow: int = -1) -> void:
+	var slots: int = g.expedition_slots if slots_for_harlow < 0 else slots_for_harlow
+	_hire("Miner", 2 * slots)
+	_hire("Guard", slots)
 	_outfit("Miner", ["basic_pick", "reinforced_pick"])
 	_outfit("Guard", ["rusted_sword", "steel_sword"])
 	if (g.harlow.get("report", {}) as Dictionary).is_empty() and int(g.harlow.get("scout_finish", 0)) == 0:
@@ -291,7 +339,7 @@ func _harlow() -> void:
 	var left: int = 0
 	for ore in g.harlow.get("deposits", {}):
 		left += int(g.harlow["deposits"][ore])
-	while left > 0 and g.missions.size() < g.expedition_slots:
+	while left > 0 and _running("harlow") < slots and g.missions.size() < g.expedition_slots:
 		var miners: Array[String] = _free("Miner")
 		if miners.is_empty():
 			break
@@ -308,7 +356,8 @@ func _harlow() -> void:
 		left = 0
 		for ore in g.harlow.get("deposits", {}):
 			left += int(g.harlow["deposits"][ore])
-	_sell_to_merchants()
+	if slots_for_harlow < 0:
+		_sell_to_merchants()
 
 # Regional contracts: the best region the company's reputation allows, three mercs.
 func _contracts(lowlands_only: bool) -> void:
@@ -357,19 +406,29 @@ func _hall_seller(goods: Array) -> void:
 	if not links.is_empty() and t - int(counters["last_post"]) >= 300 and hall.say_wait(t) == 0:
 		if g.hall_say("WTS " + ", ".join(parts), links, t) == "":
 			counters["last_post"] = t
-	var keep: Array = []
-	for good in goods:
-		if t - int(counters["held_since"].get(good, t)) < 1800 or _committed(str(good)):
-			keep.append(good)
-	_sell_to_merchants(keep)
+	# Anything held for 30 minutes goes to the merchants, except what an agreed deal needs.
+	for good in MoneyMercsState.RESOURCE_ORDER:
+		var n: int = int(g.resources.get(good, 0))
+		if n <= 0:
+			continue
+		if goods.has(good) and t - int(counters["held_since"].get(good, t)) < 1800:
+			continue
+		var spare: int = n - _committed_qty(str(good))
+		if spare > 0:
+			var each: int = g.sell_price(str(good), spare)
+			g.trade(str(good), false, spare)
+			rec["merchant_sales"] = int(rec["merchant_sales"]) + each * spare
+			rec["merchant_units"] = int(rec["merchant_units"]) + spare
+		counters["held_since"].erase(good)
 
-## Goods promised in an agreed deal or an open trade stay out of merchant sales.
-func _committed(good: String) -> bool:
+## Units promised in agreed deals stay out of merchant sales.
+func _committed_qty(good: String) -> int:
+	var n: int = 0
 	for trader in g.hall.deals:
 		var h: Haggle = g.hall.deals[trader]
 		if h.good == good and not h.they_sell and h.is_agreed():
-			return true
-	return false
+			n += h.agreed_qty
+	return n
 
 ## Reply to traders: accept a fair offer, counter once at fair value, otherwise pass.
 func _answer_messages() -> void:

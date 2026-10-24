@@ -8,14 +8,16 @@ class_name MarketModel
 ## - NPC merchants buy from players at about 75% of reference and sell at about 130%.
 ##   Players trading with each other inside that gap both do better than the NPCs.
 ## - Selling to NPCs saturates them (their buy price falls); buying from them makes the
-##   good scarce (their sell price rises). Saturation fades with a 12-hour half-life.
+##   good scarce (their sell price rises). Saturation fades with an 8-hour half-life and
+##   can move a price at most 50%, so steady selling never makes honest work unprofitable
+##   (the economy simulator found the old 60% / 12-hour limits bankrupting companies).
 ## - Every NPC trade is recorded, plus an hourly sample, so item cards can show history.
 ## Everything here is plain data so it can later run on a server unchanged.
 
 const NPC_BUYS_AT := 0.75
 const NPC_SELLS_AT := 1.30
-const HALF_LIFE_SECONDS := 43200.0
-const SATURATION_PULL := 0.6
+const HALF_LIFE_SECONDS := 28800.0
+const SATURATION_PULL := 0.5
 const DRIFT_PERIOD := 21600
 const EVENT_PERIOD := 43200
 const HISTORY_LIMIT := 48
@@ -24,7 +26,7 @@ const SAMPLE_INTERVAL := 3600
 ## How many units it takes to move a merchant's price halfway to its limit.
 ## Cheap bulk goods have deep markets; rare goods move with a single sale.
 const DEPTH := {
-	"copper": 60.0, "iron": 60.0, "timber": 150.0, "herbs": 80.0,
+	"copper": 60.0, "iron": 60.0, "timber": 100.0, "herbs": 80.0,
 	"silver": 25.0, "crystal": 8.0, "relic": 3.0, "sovereign": 1.0,
 }
 

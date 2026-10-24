@@ -289,10 +289,17 @@ func treat(id: String) -> String:
 	save_game()
 	return "%s recovered for %d gold." % [str(merc["name"]), cost]
 
+## Price of the next expedition slot (0 when all three are open).
+func expansion_cost() -> int:
+	match expedition_slots:
+		1: return 1500
+		2: return 9000
+	return 0
+
 func expand_operations() -> String:
 	if expedition_slots >= 3:
 		return "Maximum expedition capacity reached."
-	var cost: int = 900 if expedition_slots == 1 else 4200
+	var cost: int = expansion_cost()
 	if gold < cost:
 		return "You need %d gold to expand operations." % cost
 	gold -= cost
@@ -414,8 +421,10 @@ func available_guild_workers() -> Array[Dictionary]:
 
 func can_accept_guild_work() -> bool:
 	# These are loss-recovery assignments, not an unlimited safer alternative
-	# to dangerous expeditions or the eventual player economy.
-	return gold < 120 and wealth() < 250
+	# to dangerous expeditions or the eventual player economy. Judged on what the
+	# company could actually raise (see liquid_worth), so gear worn by the crew
+	# never locks a broke company out of help.
+	return gold < 120 and liquid_worth() < 250
 
 func start_guild_work(worker_id: String = "") -> String:
 	if not can_accept_guild_work():
@@ -787,8 +796,8 @@ func guild_relief() -> String:
 		return "The guild issues advances only when you cannot afford a basic expedition."
 	if relief_debt >= 440:
 		return "The guild will not extend more credit until you repay some debt."
-	if wealth() > 250:
-		return "Sell some of your remaining assets before requesting guild support."
+	if liquid_worth() > 250:
+		return "Sell some of your goods or spare gear before requesting guild support."
 	gold += 90
 	relief_debt += 110
 	relief_count += 1
@@ -808,6 +817,15 @@ func goods_value() -> int:
 	var total: int = 0
 	for item in RESOURCE_ORDER:
 		total += int(resources.get(item, 0)) * sell_price(item)
+	return total
+
+## What the company could turn into cash today: gold, warehouse goods at merchant
+## prices and spare gear in the storeroom, less guild debt. Gear worn by the crew is left
+## out, so a company that cannot pay wages always qualifies for guild help.
+func liquid_worth() -> int:
+	var total: int = gold + goods_value() - relief_debt
+	for item in equipment_inventory:
+		total += maxi(1, int(floor(float(item_definition(str(item.get("key", ""))).get("cost", 0)) * 0.65)))
 	return total
 
 func wealth() -> int:

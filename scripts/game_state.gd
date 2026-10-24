@@ -5,7 +5,7 @@ class_name MoneyMercsState
 
 # Harlow Mines: separate persistent rotation state, scouting, and role-based work.
 # This is the first vertical slice. Existing jobs remain backward compatible.
-const HARLOW_ROTATION_SECONDS := 14400
+const HARLOW_ROTATION_SECONDS := 3600
 const HARLOW_ENEMIES := [
 	{"name": "Sleeping Dire Wolf", "danger": 3, "note": "Territorial predator near the lower shafts"},
 	{"name": "Goblin Prospectors", "danger": 2, "note": "A band of armed scavengers"},
@@ -25,12 +25,14 @@ func harlow_sync(now: int = -1) -> bool:
 			archives[str(int(harlow["rotation"]))] = (harlow.get("deposits", {}) as Dictionary).duplicate(true)
 		var randomizer := RandomNumberGenerator.new()
 		randomizer.seed = int(rotation * 15427 + 28483)
+		# Hourly rotations with enough ore for a few good trips (the simulator found the
+		# old 4-hour, ~10-ore rotations could never pay the wages).
 		var ore: Dictionary = {
-			"copper": randomizer.randi_range(5, 9),
-			"iron": randomizer.randi_range(0, 5),
-			"silver": 1 if randomizer.randf() < 0.28 else 0
+			"copper": randomizer.randi_range(25, 40),
+			"iron": randomizer.randi_range(10, 22),
+			"silver": (1 if randomizer.randf() < 0.35 else 0) + (1 if randomizer.randf() < 0.10 else 0)
 		}
-		if randomizer.randf() < 0.06:
+		if randomizer.randf() < 0.08:
 			ore["crystal"] = 1
 		var creature: Dictionary = HARLOW_ENEMIES[randomizer.randi_range(0, HARLOW_ENEMIES.size() - 1)]
 		var old_scout_level: int = int(harlow.get("scout_level", 1))
@@ -303,7 +305,7 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 			if str(worker.get("role", "")) == "Miner":
 				living_miners += 1
 				var gear_stats: Dictionary = V05.equipment_stats(worker)
-				effective_capacity += 3 + int(gear_stats["mining"])
+				effective_capacity += 6 + int(gear_stats["mining"])
 	if not casualties.is_empty():
 		events.append("%s fell. Their personal equipment was lost." % ", ".join(casualties))
 	if not wounded.is_empty():
@@ -444,7 +446,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 	var protect: float = TradeSites.protection(guards, best_combat)
 	var injury: float = float(site.get("injury", 0.0)) * float(order["risk"]) * (1.0 - protect)
 	var death: float = float(site.get("death", 0.0)) * float(order["risk"]) * (1.0 - protect)
-	var cost: int = int(site.get("supplies", 0)) + wages
+	var cost: int = int(round(float(int(site.get("supplies", 0)) + wages) * float(order.get("cost", 1.0))))
 	return {
 		"site": site_id, "trade": trade, "workers": workers.size(), "guards": guards,
 		"best_level": best_level, "meets_level": best_level >= int(site.get("level", 1)),
@@ -458,7 +460,7 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 	var site: Dictionary = TradeSites.by_id(site_id)
 	if site.is_empty() or site.has("special"):
 		return "That site is not available."
-	if not TACTICS.has(approach):
+	if not TradeSites.has_orders(approach):
 		return "Unrecognized standing orders."
 	if ids.is_empty() or ids.size() > 3:
 		return "Choose between one and three workers."

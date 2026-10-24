@@ -90,7 +90,7 @@ static func assess_party(mercs: Array[Dictionary], approach: String, danger: int
 		var role: String = str(merc.get("role", ""))
 		if role == "Miner":
 			miners += 1
-			capacity += 3 + int(stats["mining"])
+			capacity += 6 + int(stats["mining"])
 		elif role == "Guard":
 			guards += 1
 			guard_points += 1 + int(stats["guard"])
@@ -115,7 +115,7 @@ static func assess_party(mercs: Array[Dictionary], approach: String, danger: int
 	elif approach == "Deep Push":
 		success -= 0.13
 	success = clampf(success, 0.10, 0.96)
-	var general_risk: float = 0.06 + float(danger) * 0.065 - protection_score * 0.30
+	var general_risk: float = 0.02 + float(danger) * 0.035 - protection_score * 0.20
 	for merc in mercs:
 		var defense: Dictionary = equipment_stats(merc)
 		var difference: float = float(int(merc.get("skill", 10)) - 12) * 0.003
@@ -126,7 +126,7 @@ static func assess_party(mercs: Array[Dictionary], approach: String, danger: int
 			personal_risk *= 1.35
 		if str(merc.get("role", "")) == "Guard":
 			personal_risk *= 1.12
-		deaths[str(merc["id"])] = clampf(personal_risk, 0.005, 0.70)
+		deaths[str(merc["id"])] = clampf(personal_risk, 0.003, 0.45)
 	for merc in mercs:
 		var base_wage: int = int(merc.get("wage", 9))
 		var cut: float = float(merc.get("share", 0.09))
@@ -136,7 +136,7 @@ static func assess_party(mercs: Array[Dictionary], approach: String, danger: int
 			"Profit Share":
 				base_wage = maxi(1, int(round(float(base_wage) * 0.45)))
 		wages += base_wage
-	var duration := 100 if approach == "Cautious" else (65 if approach == "Deep Push" else 80)
+	var duration := 360 if approach == "Cautious" else (250 if approach == "Deep Push" else 300)
 	return {
 		"miners": miners, "guards": guards, "capacity": capacity,
 		"success": success, "death": deaths, "wage": wages,

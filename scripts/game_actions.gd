@@ -117,7 +117,8 @@ func _toggle_crew(on: bool, id: String) -> void:
 
 func _set_tactic(new_tactic: String) -> void:
 	tactic = new_tactic
-	harlow_view.stance = new_tactic
+	if MoneyMercsState.TACTICS.has(new_tactic):
+		harlow_view.stance = new_tactic
 	_refresh()
 
 func _scout() -> void:

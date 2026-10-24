@@ -17,42 +17,46 @@ class_name TradeSites
 ## Harlow Mines keeps its own rotating-deposit rules (game_state.gd) and is listed with
 ## "special": "harlow" so the board can link to it.
 
-const LEVEL_YIELD_BONUS := 0.05
+const LEVEL_YIELD_BONUS := 0.03
 const GUARD_PROTECTION := 0.25
 const MAX_GUARD_PROTECTION := 0.6
 
+## yield, risk, duration and xp multiply the site's numbers; cost multiplies wages and
+## supplies. Long Shift is one long trip for players who check in now and then: six times
+## as long, 80% of the hourly haul, four times the wages and supplies.
 const ORDERS := {
-	"Cautious": {"yield": 0.8, "risk": 0.5, "duration": 1.15, "xp": 0.9},
-	"Balanced": {"yield": 1.0, "risk": 1.0, "duration": 1.0, "xp": 1.0},
-	"Deep Push": {"yield": 1.3, "risk": 1.6, "duration": 0.9, "xp": 1.2},
+	"Cautious": {"yield": 0.85, "risk": 0.5, "duration": 1.1, "xp": 0.9, "cost": 1.0},
+	"Balanced": {"yield": 1.0, "risk": 1.0, "duration": 1.0, "xp": 1.0, "cost": 1.0},
+	"Deep Push": {"yield": 1.25, "risk": 1.6, "duration": 1.0, "xp": 1.15, "cost": 1.0},
+	"Long Shift": {"yield": 4.8, "risk": 3.0, "duration": 6.0, "xp": 4.8, "cost": 4.0},
 }
 
 const SITES := [
 	{
 		"id": "mossward_copse", "name": "Mossward Copse", "trade": "logging", "tier": 1, "level": 1,
 		"tagline": "Young birch and pine a short walk from town. Safe, honest work.",
-		"duration": 240, "supplies": 4,
-		"yields": {"timber": [4, 6]},
+		"duration": 300, "supplies": 6,
+		"yields": {"timber": [3, 5]},
 		"threat": {"name": "Nothing worse than splinters", "danger": 0, "note": "No predators this close to town"},
-		"injury": 0.03, "death": 0.0, "xp": 30,
+		"injury": 0.04, "death": 0.0, "xp": 30,
 		"art": "res://assets/ui/art/forest_copse.png",
 	},
 	{
 		"id": "old_oakwood", "name": "Old Oakwood", "trade": "logging", "tier": 2, "level": 8,
 		"tagline": "Ancient oaks a day's walk out. Rich timber, and wolves.",
-		"duration": 600, "supplies": 12,
-		"yields": {"timber": [7, 10]},
+		"duration": 600, "supplies": 20,
+		"yields": {"timber": [8, 11]},
 		"side": {"herbs": [0, 2]},
 		"rare": {"good": "relic", "chance": 0.015, "count": 1, "note": "a carved idol in a hollow oak"},
 		"threat": {"name": "Grey wolf packs", "danger": 2, "note": "They hunt the edges of the clearings"},
-		"injury": 0.10, "death": 0.015, "xp": 55,
+		"injury": 0.08, "death": 0.006, "xp": 55,
 		"art": "res://assets/ui/art/forest_oakwood.png",
 	},
 	{
 		"id": "harlow", "name": "Harlow Mines", "trade": "mining", "tier": 1, "level": 1,
 		"tagline": "A rotating copper and iron mine. Scout before you dig.",
-		"special": "harlow", "duration": 80, "supplies": 18,
-		"yields": {"copper": [5, 9], "iron": [0, 5]},
+		"special": "harlow", "duration": 300, "supplies": 18,
+		"yields": {"copper": [25, 40], "iron": [10, 22]},
 		"threat": {"name": "Changes every rotation", "danger": 2, "note": ""},
 		"injury": 0.0, "death": 0.0, "xp": 40,
 		"art": "res://assets/ui/art/harlow_site.png",
@@ -79,6 +83,9 @@ static func for_trade(trade: String) -> Array:
 		if str(site["trade"]) == trade:
 			result.append(site)
 	return result
+
+static func has_orders(tactic: String) -> bool:
+	return ORDERS.has(tactic)
 
 static func orders(tactic: String) -> Dictionary:
 	return ORDERS.get(tactic, ORDERS["Balanced"])

@@ -138,7 +138,17 @@ text = "Deep Push"
 size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("orders")
-tooltip_text = "Deep Push: work hard and fast for a bigger haul, at more risk."
+tooltip_text = "Deep Push: work harder for a bigger haul, at more risk."
+
+[node name="LongShift" type="Button" parent="Margin/Content/Planning/Orders"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Long Shift"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("orders")
+tooltip_text = "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while."
 
 [node name="Forecast" type="HBoxContainer" parent="Margin/Content/Planning"]
 layout_mode = 2

@@ -15,6 +15,19 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.14 — Economy rebalance from the simulator
+
+The economy simulator (`tools/econ_sim.gd`) played 150-hour runs of each strategy; these changes fix what it found. Active play now lands on the targets: 1,000 G at about 2–3 h, 10,000 G at about 15–25 h, 100,000 G at about 85–110 h.
+
+- **No more bankruptcy soft-lock.** Guild work and relief are judged on cash, goods and spare gear (`liquid_worth()`), not gear the crew is wearing.
+- **Merchants:** saturation can move a price at most 50% (was 60%) and fades with an 8-hour half-life (was 12). Timber's market depth is 100.
+- **Old Oakwood** pays about 1.3–1.5x the copse per hour with half the old death rate (8–11 timber, 20 G supplies, 0.6% death). **Mossward Copse:** 5-minute trips, 3–5 timber, 6 G supplies.
+- **Orders:** Deep Push is 1.25x yield at normal length (no longer shorter). New **Long Shift**: one trip six times as long, 80% of the hourly haul, four times the wages and supplies, for players who check in now and then.
+- **Trade levels** add 3% yield each (was 5%). **Expedition slots** cost 1,500 G and 9,000 G.
+- **Harlow Mines:** hourly rotations with 25–40 copper and 10–22 iron, 6 ore per miner, 5-minute trips, about half the old death risk.
+- **Trade Hall:** NPC buyers have a per-good demand pool that refills over 4 hours; when it runs low they say they are stocked up.
+- **Regional contracts** are off the Expeditions board (they bankrupted every simulated company).
+
 ## V0.13 — The Trade Hall as a real trade chat
 
 Replaces the listings (V0.11) and the whisper page (V0.12). NPC traders stand in for players until the game goes online; the chat, messages and trade window stay the same.

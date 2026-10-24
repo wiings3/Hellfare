@@ -27,7 +27,7 @@ func _run() -> void:
 	var workers: Array[String] = ["garrick", "oswin"]
 	var stats: Dictionary = view.game.harlow_crew_stats(workers, "Balanced")
 	assert(int(stats["miners"]) == 1 and int(stats["guards"]) == 1)
-	assert(int(stats["capacity"]) == 3)
+	assert(int(stats["capacity"]) == 6)  # 6 ore per miner, guards carry none
 	var solo: Array[String] = ["garrick"]
 	assert(float(stats["success"]) > float(view.game.harlow_crew_stats(solo,"Balanced")["success"]))
 	view._toggle_crew(true, "garrick")

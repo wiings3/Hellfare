@@ -30,6 +30,12 @@ const PM_HISTORY := 40
 const MAX_NPC_OPENERS := 3
 const GEAR_POST_CHANCE := 0.12
 const GEAR_FAIR := 0.85
+## NPC buyers' appetite for each good, in units: MarketModel.DEPTH x DEMAND_SCALE, refilled
+## over DEMAND_HOURS. When it runs low they stop asking, so the Hall pays better than the
+## merchants without soaking up a company's whole output (the simulator found unlimited
+## NPC demand carried all progression). Real players will replace most of this demand.
+const DEMAND_SCALE := 1.5
+const DEMAND_HOURS := 4.0
 
 const KINDS := {
 	"hawker": {"label": "Hawker", "note": "Posts often at fair prices."},
@@ -102,6 +108,8 @@ var last_say_at: int = -1000000
 var last_say_text: String = ""
 ## Goods left in listings by older saves; the company returns them to the warehouse.
 var legacy_listings: Array = []
+## good -> {"units": float, "t": int}: what NPC buyers still want (see DEMAND_SCALE).
+var demand: Dictionary = {}
 
 func _init(market_model: MarketModel = null, good_keys: Array = []) -> void:
 	market = market_model
@@ -111,7 +119,7 @@ func _init(market_model: MarketModel = null, good_keys: Array = []) -> void:
 # --- Saving -------------------------------------------------------------------
 
 func to_dict() -> Dictionary:
-	return {"feed": feed, "next_id": next_id, "blocked": blocked}
+	return {"feed": feed, "next_id": next_id, "blocked": blocked, "demand": demand}
 
 func load_dict(data: Dictionary) -> void:
 	reset()
@@ -123,6 +131,10 @@ func load_dict(data: Dictionary) -> void:
 				feed.append(clean)
 	for name in data.get("blocked", []):
 		blocked.append(str(name))
+	var saved_demand: Dictionary = data.get("demand", {})
+	for good in saved_demand:
+		var entry: Dictionary = saved_demand[good]
+		demand[str(good)] = {"units": float(entry.get("units", 0.0)), "t": int(entry.get("t", 0))}
 	# Saves from the listing prototype: the company returns these goods to the warehouse.
 	for l in data.get("listings", []):
 		if typeof(l) == TYPE_DICTIONARY and goods.has(str(l.get("good", ""))) and int(l.get("left", 0)) > 0:
@@ -141,6 +153,7 @@ func reset() -> void:
 	last_say_at = -1000000
 	last_say_text = ""
 	legacy_listings.clear()
+	demand.clear()
 
 func _clean_message(m: Dictionary) -> Dictionary:
 	var side: String = str(m.get("side", ""))
@@ -166,6 +179,26 @@ func fair(ref: String, now: int = -1) -> float:
 	if ref.begins_with("gear:"):
 		return float(MercsV05.ITEMS.get(ref.substr(5), {}).get("cost", 10)) * GEAR_FAIR
 	return float(market.reference_price(ref, now)) * market.saturation_factor(ref, 0.0, now)
+
+## How many units NPC buyers can absorb at most for a good.
+func demand_cap(good: String) -> float:
+	return float(MarketModel.DEPTH.get(good, 50.0)) * DEMAND_SCALE
+
+## Units NPC buyers still want right now (gear is not limited).
+func demand_left(good: String, now: int) -> float:
+	if good.begins_with("gear:"):
+		return 1000000.0
+	var cap: float = demand_cap(good)
+	var entry: Dictionary = demand.get(good, {})
+	if entry.is_empty():
+		return cap
+	var refill: float = cap * float(maxi(0, now - int(entry["t"]))) / (DEMAND_HOURS * 3600.0)
+	return minf(cap, float(entry["units"]) + refill)
+
+func _use_demand(good: String, qty: int, now: int) -> void:
+	if good.begins_with("gear:"):
+		return
+	demand[good] = {"units": maxf(0.0, demand_left(good, now) - float(qty)), "t": now}
 
 ## Kept for the goods pages.
 func fair_value(good: String, now: int = -1) -> float:
@@ -323,6 +356,10 @@ func _npc_read(trader: String, text: String, links: Array, now: int) -> void:
 				asker.rng = rng
 				_npc_say(trader, asker.say("what"), null, now)
 			return
+		if h.status == "stocked":
+			h.status = "gone"
+			_npc_say(trader, h.say("stocked"), h, now, 3.0, 10.0)
+			return
 		if h.status == "gone":
 			# Their post sold before they read the message: sometimes they say so, often not.
 			if rng.randf() < 0.5:
@@ -347,6 +384,8 @@ func _deal_from_context(trader: String, text: String, links: Array, now: int) ->
 		h.post_id = int(post["id"])
 		if int(post["left"]) <= 0:
 			h.status = "gone"
+		elif not h.they_sell:
+			_limit_to_demand(h, now)
 		return h
 	if ref == "":
 		return null
@@ -361,11 +400,20 @@ func _deal_from_context(trader: String, text: String, links: Array, now: int) ->
 		var bid: int = maxi(1, int(round(value * rng.randf_range(0.82, 0.94))))
 		var h := _new_deal(trader, ref, false, maxi(1, wanted), bid, now)
 		h.reservation = value * rng.randf_range(1.0, 1.1)
+		_limit_to_demand(h, now)
 		return h
 	if SELLER_KINDS.has(kind) and not ref.begins_with("gear:"):
 		var ask: int = maxi(1, int(round(value * rng.randf_range(1.0, 1.12))))
 		return _new_deal(trader, ref, true, maxi(1, wanted if wanted > 0 else 20), ask, now)
 	return null
+
+## A buyer only takes what NPC demand still has room for; with none left they are stocked.
+func _limit_to_demand(h: Haggle, now: int) -> void:
+	var room: int = int(demand_left(h.good, now))
+	if room < 1:
+		h.status = "stocked"
+	else:
+		h.qty_max = mini(h.qty_max, room)
 
 ## Read the company's message inside a negotiation and reply.
 func _npc_answer(h: Haggle, text: String, now: int) -> void:
@@ -459,6 +507,11 @@ func _react_to_say(text: String, links: Array, now: int) -> void:
 			if each > 0.0:
 				var ratio: float = each / maxf(0.5, value)
 				interest = clampf((1.25 - ratio) / 0.35, 0.0, 1.0) if not buying else clampf((ratio - 0.8) / 0.3, 0.0, 1.0)
+			if not buying:
+				var room: float = demand_left(ref, now)
+				if room < 1.0:
+					continue
+				interest *= clampf(room / demand_cap(ref), 0.15, 1.0) if not ref.begins_with("gear:") else 1.0
 			if rng.randf() >= interest * 0.75:
 				continue
 			openers += 1
@@ -469,6 +522,8 @@ func _npc_opener(trader: String, ref: String, player_buys: bool, qty: int, each:
 	var their_qty: int = qty
 	if not ref.begins_with("gear:") and not player_buys and kind != "quartermaster":
 		their_qty = rng.randi_range(int(ceil(float(qty) / 3.0)), qty)
+	if not player_buys:
+		their_qty = clampi(their_qty, 1, maxi(1, int(demand_left(ref, now))))
 	var h: Haggle
 	var moment: String
 	if player_buys:
@@ -566,6 +621,8 @@ func trade_finished(now: int) -> void:
 	session.status = "done"
 	session = null
 	h.status = "done"
+	if not h.they_sell:
+		_use_demand(h.good, h.agreed_qty, now)
 	if h.post_id >= 0:
 		var post: Dictionary = message_by_id(h.post_id)
 		if not post.is_empty():
