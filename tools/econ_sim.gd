@@ -33,6 +33,8 @@ var hours: float = 150.0
 var seeds: int = 4
 var out_path: String = ""
 var only: String = ""
+## First seed index, so seeds can be split across processes.
+var first: int = 0
 
 func _initialize() -> void:
 	for arg in OS.get_cmdline_user_args():
@@ -44,6 +46,7 @@ func _initialize() -> void:
 			"seeds": seeds = int(kv[1])
 			"out": out_path = kv[1]
 			"only": only = kv[1]
+			"first": first = int(kv[1])
 	MoneyMercsState.persist = false
 	var results: Array = []
 	var strategies: Array = ["logging", "logging_hall", "mixed", "harlow", "casual"]
@@ -52,7 +55,7 @@ func _initialize() -> void:
 	for strategy in strategies:
 		if only != "" and not only.split(",").has(strategy):
 			continue
-		for s in range(seeds):
+		for s in range(first, first + seeds):
 			var started: int = Time.get_ticks_msec()
 			var r: Dictionary = run(strategy, 1000 + s * 17)
 			r["runtime_ms"] = Time.get_ticks_msec() - started
@@ -239,7 +242,7 @@ func _settle() -> void:
 					rec["rare_finds"] = int(rec.get("rare_finds", 0)) + 1
 					if not rec.has("first_rare_h"):
 						rec["first_rare_h"] = snappedf(_elapsed_h(), 0.01)
-	if strategy in ["logging_hall", "hall_trader", "mixed"] or g.hall.session != null:
+	if strategy in ["logging_hall", "hall_trader", "mixed", "everything", "evening"] or g.hall.session != null:
 		var events: Array = g.hall_tick(t)
 		for e in events:
 			if str(e["type"]) == "trade_done":
@@ -353,9 +356,12 @@ func _outfit(role: String, keys: Array) -> void:
 			continue
 		var tool: Dictionary = (merc.get("equipment", {}) as Dictionary).get("tool", {})
 		var current: int = keys.find(str(tool.get("key", "")))
+		var worn_cost: int = int(MercsV05.ITEMS.get(str(tool.get("key", "")), {}).get("cost", 0))
 		for i in range(keys.size() - 1, current, -1):
 			var key: String = str(keys[i])
 			var cost: int = int(MercsV05.ITEMS[key]["cost"])
+			if cost <= worn_cost:
+				break  # Already wears something better (a piece found among the fallen).
 			if g.gold >= cost * 3 + 100:
 				g.buy_equipment(key)
 				rec["gear_spend"] = int(rec["gear_spend"]) + cost
