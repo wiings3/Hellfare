@@ -110,7 +110,7 @@ Everything the game will have lives in one data file, `data/catalog.json`, read 
 re-run it (`python3 tools/catalog_gen.py`).
 
 - **Expeditions:** 29 across six trades (logging, mining, foraging, fishing, hunting, farming) plus
-  three dungeons. The bigger waters need a boat; the better farmland needs building.
+  three dungeons. Each tier opens at a higher skill level; the better farmland needs building.
 - **Materials:** 56. Each tier has its own metal, timber, hide, cloth and gem, plus fish, meat,
   crops, herbs and treasures.
 - **Weapons:** eight families at every tier, each with its own shape. Daggers are fast and crit
@@ -125,7 +125,7 @@ re-run it (`python3 tools/catalog_gen.py`).
 - **Food:** sits in a mercenary's food slot for the next trip. Cooking burns timber as firewood,
   and fishing rods are mostly timber.
 - **Found-only pieces:** eleven, fixed rolls, between tier 4 and tier 5.
-- **Company upgrades:** charters, field plots, an apiary, a glasshouse and three boats, paid for
+- **Company upgrades:** charters, field plots, an apiary and a glasshouse, paid for
   in materials.
 
 `tests/catalog_test.gd` fails the build if any of these break:

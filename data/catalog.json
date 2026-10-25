@@ -127,8 +127,7 @@
    "trade": "fishing",
    "tier": 3,
    "status": "planned",
-   "level": 18,
-   "needs": "rowboat"
+   "level": 18
   },
   "greywater_coast": {
    "name": "Greywater Coast",
@@ -136,8 +135,7 @@
    "trade": "fishing",
    "tier": 4,
    "status": "planned",
-   "level": 30,
-   "needs": "skiff"
+   "level": 30
   },
   "drowned_deep": {
    "name": "The Drowned Deep",
@@ -145,8 +143,7 @@
    "trade": "fishing",
    "tier": 5,
    "status": "planned",
-   "level": 45,
-   "needs": "deepwater_cog"
+   "level": 45
   },
   "hollow_fields": {
    "name": "Hollow Fields",
@@ -1848,16 +1845,15 @@
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "timber": 3,
-    "linen": 1,
-    "copper": 1
+    "timber": 4,
+    "linen": 1
    },
    "blueprint": [
     "quartermaster"
    ],
    "found_only": false,
    "trade": "fishing",
-   "value": 77,
+   "value": 57,
    "blueprint_price": 40
   },
   "iron_hoe": {
@@ -2752,16 +2748,15 @@
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "oak": 3,
-    "spider_silk": 1,
-    "copper": 1
+    "oak": 4,
+    "spider_silk": 1
    },
    "blueprint": [
     "quartermaster"
    ],
    "found_only": false,
    "trade": "fishing",
-   "value": 123,
+   "value": 115,
    "blueprint_price": 150
   },
   "steel_hoe": {
@@ -3632,9 +3627,8 @@
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "yew": 3,
-    "spider_silk": 1,
-    "silver": 1
+    "yew": 4,
+    "spider_silk": 1
    },
    "blueprint": [
     "glasswater",
@@ -3642,7 +3636,7 @@
    ],
    "found_only": false,
    "trade": "fishing",
-   "value": 202
+   "value": 204
   },
   "silversteel_hoe": {
    "name": "Silversteel Hoe",
@@ -4511,9 +4505,8 @@
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "ironwood": 3,
-    "shadowsilk": 1,
-    "silver": 1
+    "ironwood": 4,
+    "shadowsilk": 1
    },
    "blueprint": [
     "greywater_coast",
@@ -4521,7 +4514,7 @@
    ],
    "found_only": false,
    "trade": "fishing",
-   "value": 466
+   "value": 518
   },
   "wyrmbone_dagger": {
    "name": "Wyrmbone Dagger",
@@ -5329,9 +5322,8 @@
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "ghostwood": 3,
-    "shadowsilk": 1,
-    "silver": 1
+    "ghostwood": 4,
+    "shadowsilk": 1
    },
    "blueprint": [
     "drowned_deep",
@@ -5339,7 +5331,7 @@
    ],
    "found_only": false,
    "trade": "fishing",
-   "value": 823
+   "value": 994
   },
   "copper_lantern": {
    "name": "Copper Lantern",
@@ -7045,42 +7037,6 @@
    "effect": "Opens the Glasshouse (emberpepper)",
    "unlocks": [
     "glasshouse"
-   ]
-  },
-  "rowboat": {
-   "name": "Rowboat",
-   "cost": {
-    "oak": 30,
-    "linen": 6,
-    "copper": 6
-   },
-   "effect": "Fish Glasswater Lake",
-   "unlocks": [
-    "glasswater"
-   ]
-  },
-  "skiff": {
-   "name": "Sailing Skiff",
-   "cost": {
-    "yew": 40,
-    "linen": 12,
-    "silversteel_ingot": 4
-   },
-   "effect": "Fish the Greywater Coast",
-   "unlocks": [
-    "greywater_coast"
-   ]
-  },
-  "deepwater_cog": {
-   "name": "Deepwater Cog",
-   "cost": {
-    "ironwood": 50,
-    "silversteel_ingot": 10,
-    "shadowsilk": 6
-   },
-   "effect": "Fish the Drowned Deep",
-   "unlocks": [
-    "drowned_deep"
    ]
   }
  },

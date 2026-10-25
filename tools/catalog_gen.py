@@ -48,12 +48,12 @@ SOURCES = {
     "fenmire": ("Fenmire", "site", "foraging", 2, "planned", {}),
     "sunreach": ("Sunreach Slopes", "site", "foraging", 3, "planned", {}),
     "frostvale": ("Frostvale", "site", "foraging", 4, "planned", {}),
-    # Fishing (the bigger waters need a boat)
+    # Fishing (deeper waters need a higher Fishing level, like every trade)
     "millbrook_pond": ("Millbrook Pond", "site", "fishing", 1, "planned", {}),
     "silverrun": ("Silverrun River", "site", "fishing", 2, "planned", {}),
-    "glasswater": ("Glasswater Lake", "site", "fishing", 3, "planned", {"needs": "rowboat"}),
-    "greywater_coast": ("Greywater Coast", "site", "fishing", 4, "planned", {"needs": "skiff"}),
-    "drowned_deep": ("The Drowned Deep", "site", "fishing", 5, "planned", {"needs": "deepwater_cog"}),
+    "glasswater": ("Glasswater Lake", "site", "fishing", 3, "planned", {}),
+    "greywater_coast": ("Greywater Coast", "site", "fishing", 4, "planned", {}),
+    "drowned_deep": ("The Drowned Deep", "site", "fishing", 5, "planned", {}),
     # Hunting (hunters use weapons: bows, crossbows and spears hunt best)
     "hollow_fields": ("Hollow Fields", "site", "hunting", 1, "planned", {}),
     "greyfang_hills": ("Greyfang Hills", "site", "hunting", 2, "planned", {}),
@@ -253,7 +253,8 @@ TOOLS = {
     "felling_axe_kind": ("logging", "Felling Axe", {"M": 1, "W": 2}, 5),
     "pickaxe": ("mining", "Pickaxe", {"M": 2, "W": 1}, 5),
     "sickle": ("foraging", "Sickle", {"M": 1, "W": 1}, 4),
-    "fishing_rod": ("fishing", "Rod", {"W": 3, "C": 1, "copper": 1}, 5),
+    # Rods are almost all timber, strung with the tier's cord (linen, spider silk, shadowsilk).
+    "fishing_rod": ("fishing", "Rod", {"W": 4, "C": 1}, 5),
     "hoe": ("farming", "Hoe", {"M": 1, "W": 2}, 3),
 }
 TOOL_POOL = ["yield", "rare_find", "speed", "sturdy", "xp"]
@@ -376,9 +377,6 @@ UPGRADES = {
     "field_plots": ("Field Plots", {"timber": 30, "iron": 6}, "Opens the Tilled Acres (barley, potatoes)", ["tilled_acres"]),
     "apiary": ("Apiary", {"timber": 20, "linen": 4}, "Opens the Beehives (honey)", ["beehives"]),
     "glasshouse_build": ("Glasshouse", {"oak": 30, "crystal": 2, "iron": 8}, "Opens the Glasshouse (emberpepper)", ["glasshouse"]),
-    "rowboat": ("Rowboat", {"oak": 30, "linen": 6, "copper": 6}, "Fish Glasswater Lake", ["glasswater"]),
-    "skiff": ("Sailing Skiff", {"yew": 40, "linen": 12, "silversteel_ingot": 4}, "Fish the Greywater Coast", ["greywater_coast"]),
-    "deepwater_cog": ("Deepwater Cog", {"ironwood": 50, "silversteel_ingot": 10, "shadowsilk": 6}, "Fish the Drowned Deep", ["drowned_deep"]),
 }
 
 CRAFT_MARKUP = 1.4
@@ -503,8 +501,6 @@ def build():
             recipe = recipe_for(shape, t)
             if kind == "sickle" and t == 1:
                 recipe = {"copper": 1, "timber": 1}
-            if kind == "fishing_rod" and t >= 3:
-                recipe["silver"] = recipe.pop("copper")
             local = next((k for k, s in SOURCES.items() if s[2] == trade and s[3] == t), None)
             gear(slug(name), name, "tool", kind, "main_hand", t, {trade: TOOL[t]}, TOOL_POOL, recipe, blueprints(t, local),
                  {"trade": trade})
