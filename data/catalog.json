@@ -1,0 +1,1032 @@
+{
+ "version": 1,
+ "sources": {
+  "mossward_copse": {
+   "name": "Mossward Copse",
+   "kind": "site",
+   "trade": "logging",
+   "tier": 1,
+   "status": "live"
+  },
+  "old_oakwood": {
+   "name": "Old Oakwood",
+   "kind": "site",
+   "trade": "logging",
+   "tier": 2,
+   "status": "live"
+  },
+  "harlow": {
+   "name": "Harlow Mines",
+   "kind": "site",
+   "trade": "mining",
+   "tier": 1,
+   "status": "live"
+  },
+  "deepdelve": {
+   "name": "Deepdelve",
+   "kind": "site",
+   "trade": "mining",
+   "tier": 2,
+   "status": "live"
+  },
+  "thornwald": {
+   "name": "Thornwald",
+   "kind": "site",
+   "trade": "logging",
+   "tier": 3,
+   "status": "planned"
+  },
+  "blackroot_weald": {
+   "name": "Blackroot Weald",
+   "kind": "site",
+   "trade": "logging",
+   "tier": 4,
+   "status": "planned"
+  },
+  "cinder_shaft": {
+   "name": "Cinder Shaft",
+   "kind": "site",
+   "trade": "mining",
+   "tier": 3,
+   "status": "planned"
+  },
+  "mossward_meadows": {
+   "name": "Mossward Meadows",
+   "kind": "site",
+   "trade": "foraging",
+   "tier": 1,
+   "status": "planned"
+  },
+  "fenmire": {
+   "name": "Fenmire",
+   "kind": "site",
+   "trade": "foraging",
+   "tier": 2,
+   "status": "planned"
+  },
+  "calder_keep": {
+   "name": "Calder Keep",
+   "kind": "dungeon",
+   "trade": "combat",
+   "tier": 1,
+   "status": "planned"
+  },
+  "sunken_abbey": {
+   "name": "The Sunken Abbey",
+   "kind": "dungeon",
+   "trade": "combat",
+   "tier": 2,
+   "status": "planned"
+  },
+  "wyrms_hollow": {
+   "name": "Wyrm's Hollow",
+   "kind": "dungeon",
+   "trade": "combat",
+   "tier": 3,
+   "status": "planned"
+  },
+  "quartermaster": {
+   "name": "Quartermaster",
+   "kind": "shop",
+   "trade": "",
+   "tier": 0,
+   "status": "live"
+  },
+  "fallen": {
+   "name": "Gear of the fallen",
+   "kind": "found",
+   "trade": "",
+   "tier": 0,
+   "status": "live"
+  },
+  "crafting": {
+   "name": "Crafting",
+   "kind": "craft",
+   "trade": "",
+   "tier": 0,
+   "status": "planned"
+  }
+ },
+ "materials": {
+  "timber": {
+   "name": "Birch Timber",
+   "tier": 1,
+   "group": "timber",
+   "value": 6,
+   "sources": [
+    "mossward_copse"
+   ],
+   "note": "Handles for basic tools and weapons.",
+   "sell_only": false
+  },
+  "oak": {
+   "name": "Oak Timber",
+   "tier": 2,
+   "group": "timber",
+   "value": 14,
+   "sources": [
+    "old_oakwood"
+   ],
+   "note": "Handles for tier-2 gear, clubs and hunting bows.",
+   "sell_only": false
+  },
+  "yew": {
+   "name": "Yew Timber",
+   "tier": 3,
+   "group": "timber",
+   "value": 30,
+   "sources": [
+    "thornwald"
+   ],
+   "note": "Longbows and tier-3 handles.",
+   "sell_only": false
+  },
+  "ironwood": {
+   "name": "Ironwood",
+   "tier": 4,
+   "group": "timber",
+   "value": 65,
+   "sources": [
+    "blackroot_weald"
+   ],
+   "note": "Tier-4 handles and hafts.",
+   "sell_only": false
+  },
+  "ghostwood": {
+   "name": "Ghostwood",
+   "tier": 5,
+   "group": "timber",
+   "value": 150,
+   "sources": [
+    "wyrms_hollow"
+   ],
+   "note": "Pale wood from the wyrm's lair; tier-5 gear.",
+   "sell_only": false
+  },
+  "copper": {
+   "name": "Copper Ore",
+   "tier": 1,
+   "group": "ore",
+   "value": 20,
+   "sources": [
+    "harlow"
+   ],
+   "note": "Rivets, fittings, sickles.",
+   "sell_only": false
+  },
+  "coal": {
+   "name": "Coal",
+   "tier": 1,
+   "group": "ore",
+   "value": 8,
+   "sources": [
+    "harlow",
+    "cinder_shaft"
+   ],
+   "note": "Fuel for smelting steel.",
+   "sell_only": false
+  },
+  "iron": {
+   "name": "Iron Ore",
+   "tier": 1,
+   "group": "ore",
+   "value": 17,
+   "sources": [
+    "harlow",
+    "deepdelve",
+    "cinder_shaft"
+   ],
+   "note": "Tools, blades, mail and most repairs. Harlow gives a little as a side find; Deepdelve is the main seam.",
+   "sell_only": false
+  },
+  "silver": {
+   "name": "Silver",
+   "tier": 2,
+   "group": "ore",
+   "value": 28,
+   "sources": [
+    "deepdelve"
+   ],
+   "note": "Fine fittings, blades and healing draughts.",
+   "sell_only": false
+  },
+  "crystal": {
+   "name": "Azure Crystal",
+   "tier": 3,
+   "group": "gem",
+   "value": 75,
+   "sources": [
+    "deepdelve",
+    "cinder_shaft"
+   ],
+   "note": "Focus stones for tier-4 and tier-5 gear.",
+   "sell_only": false
+  },
+  "gloomiron": {
+   "name": "Gloomiron",
+   "tier": 4,
+   "group": "dungeon",
+   "value": 120,
+   "sources": [
+    "sunken_abbey"
+   ],
+   "note": "Dark deep-metal; tier-4 gear.",
+   "sell_only": false
+  },
+  "wyrmbone": {
+   "name": "Wyrmbone",
+   "tier": 5,
+   "group": "dungeon",
+   "value": 400,
+   "sources": [
+    "wyrms_hollow"
+   ],
+   "note": "Bone of the wyrm; tier-5 gear.",
+   "sell_only": false
+  },
+  "herbs": {
+   "name": "Moonleaf",
+   "tier": 1,
+   "group": "herb",
+   "value": 5,
+   "sources": [
+    "old_oakwood",
+    "mossward_meadows"
+   ],
+   "note": "Healing draughts and tanning.",
+   "sell_only": false
+  },
+  "bloodcap": {
+   "name": "Bloodcap",
+   "tier": 2,
+   "group": "herb",
+   "value": 18,
+   "sources": [
+    "fenmire"
+   ],
+   "note": "Greater healing draughts.",
+   "sell_only": false
+  },
+  "wolf_pelt": {
+   "name": "Wolf Pelt",
+   "tier": 2,
+   "group": "hide",
+   "value": 22,
+   "sources": [
+    "old_oakwood"
+   ],
+   "note": "Hardened leather armour.",
+   "sell_only": false
+  },
+  "spider_silk": {
+   "name": "Spider Silk",
+   "tier": 2,
+   "group": "fibre",
+   "value": 26,
+   "sources": [
+    "calder_keep",
+    "deepdelve"
+   ],
+   "note": "Bowstrings and padded linings.",
+   "sell_only": false
+  },
+  "relic": {
+   "name": "Ancient Relic",
+   "tier": 4,
+   "group": "treasure",
+   "value": 550,
+   "sources": [
+    "old_oakwood",
+    "calder_keep",
+    "sunken_abbey"
+   ],
+   "note": "Carved idols; tier-5 gear needs one.",
+   "sell_only": false
+  },
+  "sovereign": {
+   "name": "Sovereign Orb",
+   "tier": 5,
+   "group": "treasure",
+   "value": 12500,
+   "sources": [
+    "wyrms_hollow"
+   ],
+   "note": "The rarest prize. Reserved for a future mythic tier.",
+   "sell_only": true
+  }
+ },
+ "items": {
+  "steel_ingot": {
+   "name": "Steel Ingot",
+   "kind": "intermediate",
+   "slot": "none",
+   "tier": 2,
+   "recipe": {
+    "iron": 2,
+    "coal": 1
+   },
+   "blueprint": [
+    "crafting"
+   ],
+   "note": "Smelted from iron and coal; most tier-3 and tier-4 gear needs it.",
+   "value": 59
+  },
+  "healing_draught": {
+   "name": "Healing Draught",
+   "kind": "consumable",
+   "slot": "none",
+   "tier": 1,
+   "recipe": {
+    "herbs": 3,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Restores 40 health, in town or mid-dungeon.",
+   "value": 49
+  },
+  "greater_draught": {
+   "name": "Greater Draught",
+   "kind": "consumable",
+   "slot": "none",
+   "tier": 3,
+   "recipe": {
+    "bloodcap": 2,
+    "herbs": 2,
+    "silver": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "note": "Restores full health, in town or mid-dungeon.",
+   "value": 104
+  },
+  "hand_axe": {
+   "name": "Hand Axe",
+   "kind": "axe",
+   "slot": "tool",
+   "tier": 1,
+   "stats": {
+    "logging": 1
+   },
+   "durability": 30,
+   "kit": 10,
+   "recipe": {
+    "iron": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 26,
+   "found_only": false,
+   "blueprint_price": 40
+  },
+  "felling_axe": {
+   "name": "Felling Axe",
+   "kind": "axe",
+   "slot": "tool",
+   "tier": 2,
+   "stats": {
+    "logging": 2
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "iron": 3,
+    "oak": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 98,
+   "found_only": false,
+   "blueprint_price": 150
+  },
+  "steel_felling_axe": {
+   "name": "Steel Felling Axe",
+   "kind": "axe",
+   "slot": "tool",
+   "tier": 3,
+   "stats": {
+    "logging": 3
+   },
+   "durability": 50,
+   "kit": 30,
+   "recipe": {
+    "steel_ingot": 3,
+    "yew": 2
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "value": 332,
+   "found_only": false
+  },
+  "gloomiron_axe": {
+   "name": "Gloomiron Axe",
+   "kind": "axe",
+   "slot": "tool",
+   "tier": 4,
+   "stats": {
+    "logging": 4
+   },
+   "durability": 60,
+   "kit": 40,
+   "recipe": {
+    "gloomiron": 2,
+    "ironwood": 2,
+    "steel_ingot": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "value": 601,
+   "found_only": false
+  },
+  "wyrmbone_axe": {
+   "name": "Wyrmbone Axe",
+   "kind": "axe",
+   "slot": "tool",
+   "tier": 5,
+   "stats": {
+    "logging": 6
+   },
+   "durability": 80,
+   "kit": 50,
+   "recipe": {
+    "wyrmbone": 2,
+    "ghostwood": 2,
+    "relic": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "value": 2310,
+   "found_only": false
+  },
+  "basic_pick": {
+   "name": "Iron Pickaxe",
+   "kind": "pickaxe",
+   "slot": "tool",
+   "tier": 1,
+   "stats": {
+    "mining": 1
+   },
+   "durability": 30,
+   "kit": 10,
+   "recipe": {
+    "iron": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 28,
+   "found_only": false,
+   "blueprint_price": 40
+  },
+  "reinforced_pick": {
+   "name": "Reinforced Pickaxe",
+   "kind": "pickaxe",
+   "slot": "tool",
+   "tier": 2,
+   "stats": {
+    "mining": 2
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "iron": 3,
+    "copper": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 105,
+   "found_only": false,
+   "blueprint_price": 150
+  },
+  "steel_pick": {
+   "name": "Steel Pickaxe",
+   "kind": "pickaxe",
+   "slot": "tool",
+   "tier": 3,
+   "stats": {
+    "mining": 3
+   },
+   "durability": 50,
+   "kit": 30,
+   "recipe": {
+    "steel_ingot": 3,
+    "yew": 2
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "value": 332,
+   "found_only": false
+  },
+  "gloomiron_pick": {
+   "name": "Gloomiron Pickaxe",
+   "kind": "pickaxe",
+   "slot": "tool",
+   "tier": 4,
+   "stats": {
+    "mining": 4
+   },
+   "durability": 60,
+   "kit": 40,
+   "recipe": {
+    "gloomiron": 2,
+    "ironwood": 2,
+    "crystal": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "value": 623,
+   "found_only": false
+  },
+  "wyrmbone_pick": {
+   "name": "Wyrmbone Pickaxe",
+   "kind": "pickaxe",
+   "slot": "tool",
+   "tier": 5,
+   "stats": {
+    "mining": 6
+   },
+   "durability": 80,
+   "kit": 50,
+   "recipe": {
+    "wyrmbone": 2,
+    "ghostwood": 2,
+    "relic": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "value": 2310,
+   "found_only": false
+  },
+  "copper_sickle": {
+   "name": "Copper Sickle",
+   "kind": "sickle",
+   "slot": "tool",
+   "tier": 1,
+   "stats": {
+    "foraging": 1
+   },
+   "durability": 30,
+   "kit": 10,
+   "recipe": {
+    "copper": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 36,
+   "found_only": false,
+   "blueprint_price": 40
+  },
+  "iron_sickle": {
+   "name": "Iron Sickle",
+   "kind": "sickle",
+   "slot": "tool",
+   "tier": 2,
+   "stats": {
+    "foraging": 2
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "iron": 2,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 67,
+   "found_only": false,
+   "blueprint_price": 150
+  },
+  "silver_sickle": {
+   "name": "Silver Sickle",
+   "kind": "sickle",
+   "slot": "tool",
+   "tier": 3,
+   "stats": {
+    "foraging": 3
+   },
+   "durability": 50,
+   "kit": 30,
+   "recipe": {
+    "silver": 3,
+    "yew": 1,
+    "steel_ingot": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "value": 242,
+   "found_only": false
+  },
+  "rusted_sword": {
+   "name": "Rusted Sword",
+   "kind": "sword",
+   "slot": "tool",
+   "tier": 1,
+   "stats": {
+    "guard": 1
+   },
+   "durability": 30,
+   "kit": 10,
+   "recipe": {
+    "iron": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 30,
+   "found_only": false,
+   "blueprint_price": 40
+  },
+  "steel_sword": {
+   "name": "Steel Sword",
+   "kind": "sword",
+   "slot": "tool",
+   "tier": 2,
+   "stats": {
+    "guard": 3
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "steel_ingot": 1,
+    "copper": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 125,
+   "found_only": false,
+   "blueprint_price": 150
+  },
+  "longsword": {
+   "name": "Longsword",
+   "kind": "sword",
+   "slot": "tool",
+   "tier": 3,
+   "stats": {
+    "guard": 4
+   },
+   "durability": 50,
+   "kit": 30,
+   "recipe": {
+    "steel_ingot": 3,
+    "silver": 1,
+    "yew": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "value": 329,
+   "found_only": false
+  },
+  "gloomiron_blade": {
+   "name": "Gloomiron Blade",
+   "kind": "sword",
+   "slot": "tool",
+   "tier": 4,
+   "stats": {
+    "guard": 6
+   },
+   "durability": 60,
+   "kit": 40,
+   "recipe": {
+    "gloomiron": 2,
+    "steel_ingot": 1,
+    "ironwood": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "value": 510,
+   "found_only": false
+  },
+  "wyrmbone_greatsword": {
+   "name": "Wyrmbone Greatsword",
+   "kind": "sword",
+   "slot": "tool",
+   "tier": 5,
+   "stats": {
+    "guard": 8
+   },
+   "durability": 80,
+   "kit": 50,
+   "recipe": {
+    "wyrmbone": 2,
+    "crystal": 2,
+    "ghostwood": 1,
+    "relic": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "value": 2310,
+   "found_only": false
+  },
+  "oak_club": {
+   "name": "Oak Club",
+   "kind": "club",
+   "slot": "tool",
+   "tier": 2,
+   "stats": {
+    "guard": 2
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "oak": 2,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 67,
+   "found_only": false,
+   "blueprint_price": 150
+  },
+  "hunting_bow": {
+   "name": "Hunting Bow",
+   "kind": "bow",
+   "slot": "tool",
+   "tier": 2,
+   "stats": {
+    "guard": 2
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "oak": 3,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 95,
+   "found_only": false,
+   "blueprint_price": 150,
+   "perk": "Strikes first when hunting rival crews."
+  },
+  "yew_longbow": {
+   "name": "Yew Longbow",
+   "kind": "bow",
+   "slot": "tool",
+   "tier": 3,
+   "stats": {
+    "guard": 4
+   },
+   "durability": 50,
+   "kit": 30,
+   "recipe": {
+    "yew": 3,
+    "spider_silk": 2
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "value": 199,
+   "found_only": false,
+   "perk": "Strikes first when hunting rival crews."
+  },
+  "ghostwood_bow": {
+   "name": "Ghostwood Bow",
+   "kind": "bow",
+   "slot": "tool",
+   "tier": 5,
+   "stats": {
+    "guard": 7
+   },
+   "durability": 80,
+   "kit": 50,
+   "recipe": {
+    "ghostwood": 3,
+    "spider_silk": 2,
+    "wyrmbone": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "value": 1263,
+   "found_only": false,
+   "perk": "Strikes first when hunting rival crews."
+  },
+  "leather": {
+   "name": "Leather Armor",
+   "kind": "armour",
+   "slot": "armor",
+   "tier": 1,
+   "stats": {
+    "protection": 1
+   },
+   "durability": 30,
+   "kit": 10,
+   "recipe": {
+    "herbs": 2,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 38,
+   "found_only": false,
+   "blueprint_price": 40
+  },
+  "hardened_leather": {
+   "name": "Hardened Leather",
+   "kind": "armour",
+   "slot": "armor",
+   "tier": 2,
+   "stats": {
+    "protection": 2
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "wolf_pelt": 3,
+    "herbs": 2,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 134,
+   "found_only": false,
+   "blueprint_price": 150
+  },
+  "chainmail": {
+   "name": "Chainmail",
+   "kind": "armour",
+   "slot": "armor",
+   "tier": 2,
+   "stats": {
+    "protection": 3
+   },
+   "durability": 40,
+   "kit": 20,
+   "recipe": {
+    "iron": 4,
+    "copper": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "value": 138,
+   "found_only": false,
+   "blueprint_price": 150
+  },
+  "steel_plate": {
+   "name": "Steel Plate",
+   "kind": "armour",
+   "slot": "armor",
+   "tier": 3,
+   "stats": {
+    "protection": 4
+   },
+   "durability": 50,
+   "kit": 30,
+   "recipe": {
+    "steel_ingot": 4,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "value": 361,
+   "found_only": false
+  },
+  "gloomiron_plate": {
+   "name": "Gloomiron Plate",
+   "kind": "armour",
+   "slot": "armor",
+   "tier": 4,
+   "stats": {
+    "protection": 6
+   },
+   "durability": 60,
+   "kit": 40,
+   "recipe": {
+    "gloomiron": 3,
+    "steel_ingot": 2,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "value": 706,
+   "found_only": false
+  },
+  "wyrmscale_armour": {
+   "name": "Wyrmscale Armour",
+   "kind": "armour",
+   "slot": "armor",
+   "tier": 5,
+   "stats": {
+    "protection": 8
+   },
+   "durability": 80,
+   "kit": 50,
+   "recipe": {
+    "wyrmbone": 3,
+    "spider_silk": 2,
+    "relic": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "value": 2523,
+   "found_only": false
+  },
+  "dwarven_pick": {
+   "name": "Dwarven Pickaxe",
+   "kind": "pickaxe",
+   "slot": "tool",
+   "tier": 4,
+   "stats": {
+    "mining": 5
+   },
+   "durability": 100,
+   "kit": 45,
+   "recipe": null,
+   "blueprint": [],
+   "value": 900,
+   "found_only": true
+  },
+  "wardens_axe": {
+   "name": "Warden's Axe",
+   "kind": "axe",
+   "slot": "tool",
+   "tier": 4,
+   "stats": {
+    "logging": 5
+   },
+   "durability": 100,
+   "kit": 45,
+   "recipe": null,
+   "blueprint": [],
+   "value": 800,
+   "found_only": true
+  },
+  "knights_blade": {
+   "name": "Knight's Blade",
+   "kind": "sword",
+   "slot": "tool",
+   "tier": 4,
+   "stats": {
+    "guard": 7
+   },
+   "durability": 100,
+   "kit": 45,
+   "recipe": null,
+   "blueprint": [],
+   "value": 1100,
+   "found_only": true
+  },
+  "gilded_plate": {
+   "name": "Gilded Plate",
+   "kind": "armour",
+   "slot": "armor",
+   "tier": 4,
+   "stats": {
+    "protection": 7
+   },
+   "durability": 100,
+   "kit": 45,
+   "recipe": null,
+   "blueprint": [],
+   "value": 1500,
+   "found_only": true
+  }
+ },
+ "rules": {
+  "craft_markup": 1.4,
+  "kit_per_tier": 10,
+  "found_kit_bonus": 5,
+  "dungeon_min_kit": {
+   "1": 10,
+   "2": 40,
+   "3": 70
+  },
+  "wear": {
+   "site_trip": 1,
+   "dungeon_run": 4
+  },
+  "worn_effect": 0.5
+ }
+}

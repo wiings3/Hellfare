@@ -64,3 +64,10 @@ jobs:
           timeout 45s godot --headless --path . --script res://tests/viability_test.gd 2>&1 | tee /tmp/viability.log
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/viability.log; then exit 1; fi
           grep -F 'Long orders, mining sites and guild contractors passed.' /tmp/viability.log
+
+      - name: Item catalog integrity
+        run: |
+          set -o pipefail
+          timeout 45s godot --headless --path . --script res://tests/catalog_test.gd 2>&1 | tee /tmp/catalog.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/catalog.log; then exit 1; fi
+          grep -F 'Catalog passed:' /tmp/catalog.log
