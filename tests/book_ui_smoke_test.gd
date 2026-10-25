@@ -448,9 +448,9 @@ func _verify() -> void:
 	check(not sign.disabled, "first charter can be signed")
 	sign.pressed.emit()
 	check(view.game.expedition_slots == 2 and view.game.upgrades.has("charter_1"), "charter I opens a second slot")
-	check(view.game.charter_block().begins_with("Needs Respected"), "charter II waits on reputation")
+	check(view.game.charter_block().begins_with("Needs Known"), "charter II waits on reputation")
 	check((view.left_leaf.get_child(0).get_node("Margin/Content/Slots/Expand") as Button).disabled, "sign button waits too")
-	view.game.reputation = 5000
+	view.game.reputation = 500
 	check(view.game.build_upgrade("charter_3").begins_with("Charters are built in order"), "charters go in order")
 	check(view.game.expand_operations().contains("signed") and view.game.expedition_slots == 3, "charter II opens a third slot")
 	view.game.reset_company()

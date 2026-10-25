@@ -382,7 +382,7 @@ UPGRADES = {
 
 # Expedition charters are the only way to field more crews: gold plus materials, and from the
 # third crew on, a reputation tier. charter_N opens slot N+1, in order.
-CHARTERS = {"charter_1": {"gold": 1200, "rep": 0}, "charter_2": {"gold": 8000, "rep": 5000},
+CHARTERS = {"charter_1": {"gold": 1200, "rep": 0}, "charter_2": {"gold": 8000, "rep": 500},
             "charter_3": {"gold": 30000, "rep": 25000}, "charter_4": {"gold": 90000, "rep": 75000}}
 
 CRAFT_MARKUP = 1.4
