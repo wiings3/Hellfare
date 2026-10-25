@@ -1,8 +1,9 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/pip_row.tscn" id="2_pip_row"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="3_stat_tile"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
+
+[sub_resource type="ButtonGroup" id="filter"]
 
 [node name="SiteLeft" type="Control"]
 layout_mode = 3
@@ -28,112 +29,74 @@ theme_override_constants/separation = 6
 
 [node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
-text = "The Site"
+text = "Choose a Crew"
 
-[node name="Site" type="PanelContainer" parent="Margin/Content"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 132)
-theme_type_variation = &"SlotPanel"
-
-[node name="Art" type="TextureRect" parent="Margin/Content/Site"]
-layout_mode = 2
-mouse_filter = 2
-stretch_mode = 3
-
-[node name="Badge" type="PanelContainer" parent="Margin/Content/Site"]
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 8
-theme_type_variation = &"GoldPanel"
-
-[node name="Text" type="Label" parent="Margin/Content/Site/Badge"]
-layout_mode = 2
-text = "Logging 1+"
-
-[node name="Tagline" type="Label" parent="Margin/Content"]
-layout_mode = 2
-theme_type_variation = &"LabelCaption"
-text = ""
-autowrap_mode = 3
-
-[node name="Intel" type="HBoxContainer" parent="Margin/Content"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Yields" type="VBoxContainer" parent="Margin/Content/Intel"]
-layout_mode = 2
-theme_override_constants/separation = 1
-
-[node name="Caption" type="Label" parent="Margin/Content/Intel/Yields"]
-layout_mode = 2
-theme_type_variation = &"LabelCaption"
-text = "Each worker brings back"
-
-[node name="Slots" type="HBoxContainer" parent="Margin/Content/Intel/Yields"]
+[node name="Filter" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Threat" type="PanelContainer" parent="Margin/Content/Intel"]
+[node name="Trade" type="Button" parent="Margin/Content/Filter"]
 layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Workers"
 size_flags_horizontal = 3
-theme_type_variation = &"InsetPanel"
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "Mercenaries with the right tool for this site."
 
-[node name="Body" type="VBoxContainer" parent="Margin/Content/Intel/Threat"]
+[node name="Guards" type="Button" parent="Margin/Content/Filter"]
 layout_mode = 2
-theme_override_constants/separation = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Guards"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "Guards cut the risk for the whole crew but gather at half pace."
 
-[node name="Caption" type="Label" parent="Margin/Content/Intel/Threat/Body"]
+[node name="All" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Everyone"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "Everyone free, best at this trade first."
+
+[node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Threat"
+text = "Up to 3. Click to add or remove."
 
-[node name="Name" type="Label" parent="Margin/Content/Intel/Threat/Body"]
+[node name="Roster" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
-theme_type_variation = &"LabelAccent"
-text = "None"
-text_overrun_behavior = 3
-
-[node name="Danger" parent="Margin/Content/Intel/Threat/Body" instance=ExtResource("2_pip_row")]
-layout_mode = 2
-value = 0
-max_value = 4
-tooltip_text = "Danger level"
-
-[node name="Notes" type="Label" parent="Margin/Content"]
-layout_mode = 2
-theme_type_variation = &"LabelMuted"
-text = ""
-autowrap_mode = 3
-
-[node name="Facts" type="HBoxContainer" parent="Margin/Content"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Duration" parent="Margin/Content/Facts" instance=ExtResource("3_stat_tile")]
-layout_mode = 2
-size_flags_horizontal = 3
-caption = "Trip"
-value = "0"
-tooltip_text = "Under Balanced orders. Cautious takes longer, Deep Push is quicker."
-
-[node name="Supplies" parent="Margin/Content/Facts" instance=ExtResource("3_stat_tile")]
-layout_mode = 2
-size_flags_horizontal = 3
-caption = "Supplies"
-value = "0"
-tooltip_text = "Paid up front on top of wages."
-
-[node name="Xp" parent="Margin/Content/Facts" instance=ExtResource("3_stat_tile")]
-layout_mode = 2
-size_flags_horizontal = 3
-caption = "Experience"
-value = "0"
-tooltip_text = "Trade experience each worker earns per trip."
-
-[node name="Spacer" type="Control" parent="Margin/Content"]
-layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+horizontal_scroll_mode = 0
 size_flags_vertical = 3
-mouse_filter = 2
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Roster"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="NoCrew" parent="Margin/Content" instance=ExtResource("2_info_box")]
+layout_mode = 2
+visible = false
+text = "No mercenaries are free. Hire one in Mercenaries."
+icon_kind = "plus"
+
+[node name="Hire" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Hire in Mercenaries  >"
+visible = false
+size_flags_horizontal = 4
 
 [node name="Footer" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
@@ -142,4 +105,4 @@ layout_mode = 2
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"TextButton"
-text = "<  All expeditions"
+text = "<  All sites"

@@ -407,35 +407,6 @@ def chronicle():
 
 
 # --- Regional contracts --------------------------------------------------------
-def regions():
-    s = page("RegionsLeft")
-    header(s, C + "/Header", "Contracts")
-    label(s, C + "/Summary", "Choose a destination for your crew.", "LabelCaption")
-    scroll(s, C + "/List", 80)
-    s.save(P + "regions_left.tscn")
-
-    s = page("RegionsRight")
-    header(s, C + "/Header", "Contract")
-    label(s, C + "/Name", "Region", "LabelTitle")
-    label(s, C + "/Tagline", "", "LabelCaption", {"autowrap_mode": 3})
-    s.node(C + "/Stats", "GridContainer", {"theme_override_constants/h_separation": 5, "theme_override_constants/v_separation": 5, "columns": 2})
-    tile(s, C + "/Stats/Threat", "Threat", extra={"tooltip_text": "Higher threat means a stronger crew is needed."})
-    tile(s, C + "/Stats/Duration", "Duration")
-    tile(s, C + "/Stats/Supplies", "Supplies", icon=ICON + "gold.png", extra={"tooltip_text": "Paid up front, on top of wages."})
-    tile(s, C + "/Stats/Reputation", "Reputation needed", icon=ICON + "crystal.png")
-    label(s, C + "/LootCaption", "Possible finds", "LabelCaption")
-    s.node(C + "/Loot", "HBoxContainer", {"theme_override_constants/separation": 4})
-    label(s, C + "/Finds", "", "LabelCaption", {"autowrap_mode": 3})
-    label(s, C + "/Focus", "", "LabelMuted", {"autowrap_mode": 3})
-    spacer(s, C + "/Spacer")
-    label(s, C + "/Team", "", "LabelCaption", {"autowrap_mode": 3, "horizontal_alignment": 1})
-    button(s, C + "/Dispatch", "Dispatch crew", None, {"custom_minimum_size": (0, 26)})
-    label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
-    button(s, C + "/GoHarlow", "Open Harlow Mines  >", "PaperButton", {"visible": False, "size_flags_horizontal": 4})
-    s.save(P + "regions_right.tscn")
-
-
-# --- Guild work -------------------------------------------------------------------
 def guildwork():
     s = page("GuildWorkLeft")
     header(s, C + "/Header", "Guild Work")
@@ -470,98 +441,105 @@ def guildwork():
 
 
 def board():
+    """The Expeditions index: the trades on the left, the chosen trade's sites on the right."""
     s = page("BoardLeft")
     header(s, C + "/Header", "Trades")
-    label(s, C + "/Summary", "Every trade is a way to make money. Pick a site to plan a crew.", "LabelCaption", {"autowrap_mode": 3})
-    scroll(s, C + "/List", 80)
+    s.node(C + "/Trades", "VBoxContainer", {"theme_override_constants/separation": 4})
+    spacer(s, C + "/Spacer")
+    label(s, C + "/Hint", "Guards ride along with any crew: they cut the risk and gather at half pace.", "LabelMuted",
+          {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "board_left.tscn")
 
     s = page("BoardRight")
-    header(s, C + "/Header", "Company Skills")
-    label(s, C + "/Caption", "Your best mercenary in each trade", "LabelCaption")
-    s.node(C + "/Skills", "GridContainer", {"columns": 2, "theme_override_constants/h_separation": 4, "theme_override_constants/v_separation": 4})
-    for trade in TRADE_LABELS:
-        base = C + "/Skills/" + trade
-        s.node(base, "PanelContainer", {"size_flags_horizontal": 3, "theme_type_variation": Raw('&"InsetPanel"')})
-        s.node(base + "/Row", "HBoxContainer", {"theme_override_constants/separation": 6})
-        s.node(base + "/Row/Icon", "TextureRect", {"custom_minimum_size": (16, 16), "size_flags_vertical": 4, "mouse_filter": 2, "stretch_mode": 3})
-        s.node(base + "/Row/Text", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -3})
-        label(s, base + "/Row/Text/Name", trade)
-        label(s, base + "/Row/Text/Who", "Nobody trained", "LabelCaption", {"text_overrun_behavior": 3})
-        s.node(base + "/Row/Level", "VBoxContainer", {"custom_minimum_size": (38, 0), "size_flags_vertical": 4, "theme_override_constants/separation": 0})
-        label(s, base + "/Row/Level/Value", "Lv 1", None, {"horizontal_alignment": 2})
-        s.node(base + "/Row/Level/Bar", "ProgressBar", {"custom_minimum_size": (0, 4), "mouse_filter": 2, "theme_type_variation": Raw('&"GoldBar"'), "show_percentage": False})
-    header(s, C + "/OtherHeader", "Other Work")
-    scroll(s, C + "/Other", 40, expand=False)
+    header(s, C + "/Header", "Logging")
+    s.node(C + "/Open", "VBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/LockedCaption", "Locked", "LabelCaption")
+    s.node(C + "/Locked", "VBoxContainer", {"theme_override_constants/separation": 2})
     spacer(s, C + "/Spacer")
-    s.inst(C + "/Tip", INFO, {"text": "New to the trade? Logging at Mossward Copse is safe work that pays from the first trip.", "icon_kind": "home"})
+    label(s, C + "/Hint", "Pick a site to plan a crew.", "LabelMuted", {"horizontal_alignment": 1})
     s.save(P + "board_right.tscn")
 
 
+def site_card():
+    """One open site on the Expeditions index."""
+    s = Scene("SiteCard", "Button", {"custom_minimum_size": (0, 44), "size_flags_horizontal": 3, "mouse_default_cursor_shape": 2,
+        "theme_type_variation": Raw('&"CardButton"')})
+    s.node("Body", "VBoxContainer", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "offset_left": 7.0, "offset_top": 4.0, "offset_right": -7.0, "offset_bottom": -4.0, "grow_horizontal": 2, "grow_vertical": 2,
+        "mouse_filter": 2, "theme_override_constants/separation": -2})
+    s.node("Body/Top", "HBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 6})
+    s.node("Body/Top/Info", "VBoxContainer", {"size_flags_horizontal": 3, "mouse_filter": 2, "theme_override_constants/separation": -4})
+    label(s, "Body/Top/Info/Name", "Site", None, {"text_overrun_behavior": 3})
+    label(s, "Body/Top/Info/Details", "Safe", "LabelCaption", {"text_overrun_behavior": 3})
+    label(s, "Body/Top/Value", "", "LabelGood", {"size_flags_vertical": 4})
+    label(s, "Body/Facts", "", "LabelCaption", {"text_overrun_behavior": 3})
+    s.save(R + "site_card.tscn")
+
+
+def locked_row():
+    """A site the company can't work yet: one quiet line."""
+    s = Scene("LockedRow", "Button", {"custom_minimum_size": (0, 20), "size_flags_horizontal": 3, "mouse_default_cursor_shape": 2,
+        "theme_type_variation": Raw('&"TextButton"')})
+    s.node("Body", "HBoxContainer", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "offset_left": 7.0, "offset_right": -7.0, "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2})
+    label(s, "Body/Name", "Site", "LabelMuted", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "text_overrun_behavior": 3})
+    label(s, "Body/Need", "Level 8", "LabelMuted", {"size_flags_vertical": 4})
+    s.save(R + "locked_row.tscn")
+
+
 def site_pages():
+    """The expedition planner: the crew on the left, the site, orders and forecast on the right."""
     s = page("SiteLeft")
-    header(s, C + "/Header", "The Site")
-    s.node(C + "/Site", "PanelContainer", {"custom_minimum_size": (0, 132), "theme_type_variation": Raw('&"SlotPanel"')})
-    s.node(C + "/Site/Art", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
-    s.node(C + "/Site/Badge", "PanelContainer", {"size_flags_horizontal": 8, "size_flags_vertical": 8, "theme_type_variation": Raw('&"GoldPanel"')})
-    label(s, C + "/Site/Badge/Text", "Logging 1+")
-    label(s, C + "/Tagline", "", "LabelCaption", {"autowrap_mode": 3})
-    s.node(C + "/Intel", "HBoxContainer", {"theme_override_constants/separation": 6})
-    s.node(C + "/Intel/Yields", "VBoxContainer", {"theme_override_constants/separation": 1})
-    label(s, C + "/Intel/Yields/Caption", "Each worker brings back", "LabelCaption")
-    s.node(C + "/Intel/Yields/Slots", "HBoxContainer", {"theme_override_constants/separation": 4})
-    s.node(C + "/Intel/Threat", "PanelContainer", {"size_flags_horizontal": 3, "theme_type_variation": Raw('&"InsetPanel"')})
-    s.node(C + "/Intel/Threat/Body", "VBoxContainer", {"theme_override_constants/separation": 0})
-    label(s, C + "/Intel/Threat/Body/Caption", "Threat", "LabelCaption")
-    label(s, C + "/Intel/Threat/Body/Name", "None", "LabelAccent", {"text_overrun_behavior": 3})
-    s.inst(C + "/Intel/Threat/Body/Danger", PIPS, {"value": 0, "max_value": 4, "tooltip_text": "Danger level"})
-    label(s, C + "/Notes", "", "LabelMuted", {"autowrap_mode": 3})
-    s.node(C + "/Facts", "HBoxContainer", {"theme_override_constants/separation": 4})
-    tile(s, C + "/Facts/Duration", "Trip", extra={"tooltip_text": "Under Balanced orders. Cautious takes longer, Deep Push is quicker."})
-    tile(s, C + "/Facts/Supplies", "Supplies", extra={"tooltip_text": "Paid up front on top of wages."})
-    tile(s, C + "/Facts/Xp", "Experience", extra={"tooltip_text": "Trade experience each worker earns per trip."})
-    spacer(s, C + "/Spacer")
+    grp = s.sub("filter", "ButtonGroup", {})
+    header(s, C + "/Header", "Choose a Crew")
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 4})
+    for name, text, tip in [("Trade", "Workers", "Mercenaries with the right tool for this site."),
+                            ("Guards", "Guards", "Guards cut the risk for the whole crew but gather at half pace."),
+                            ("All", "Everyone", "Everyone free, best at this trade first.")]:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                               "custom_minimum_size": (0, 18), "tooltip_text": tip})
+    label(s, C + "/Caption", "Up to 3. Click to add or remove.", "LabelCaption")
+    scroll(s, C + "/Roster", 80)
+    s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "No mercenaries are free. Hire one in Mercenaries.", "icon_kind": "plus"})
+    button(s, C + "/Hire", "Hire in Mercenaries  >", "PaperButton", {"visible": False, "size_flags_horizontal": 4})
     s.node(C + "/Footer", "HBoxContainer")
-    button(s, C + "/Footer/Back", "<  All expeditions", "TextButton")
+    button(s, C + "/Footer/Back", "<  All sites", "TextButton")
     s.save(P + "site_left.tscn")
 
     s = page("SiteRight")
     grp = s.sub("orders", "ButtonGroup", {})
-    header(s, C + "/Header", "Expedition")
+    s.node(C + "/Site", "PanelContainer", {"custom_minimum_size": (0, 100), "theme_type_variation": Raw('&"SlotPanel"')})
+    s.node(C + "/Site/Art", "TextureRect", {"mouse_filter": 2, "expand_mode": 1, "stretch_mode": 5})
+    s.node(C + "/Site/Badge", "PanelContainer", {"size_flags_horizontal": 8, "size_flags_vertical": 8, "theme_type_variation": Raw('&"GoldPanel"')})
+    label(s, C + "/Site/Badge/Text", "Logging 1+")
+    s.node(C + "/Intel", "HBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(C + "/Intel/Yields", "HBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 3})
+    s.node(C + "/Intel/Threat", "VBoxContainer", {"size_flags_vertical": 4, "theme_override_constants/separation": -2})
+    label(s, C + "/Intel/Threat/Name", "Safe", "LabelGood", {"horizontal_alignment": 2})
+    s.inst(C + "/Intel/Threat/Danger", PIPS, {"value": 0, "max_value": 4, "size_flags_horizontal": 8, "tooltip_text": "Danger level"})
+    label(s, C + "/Facts", "", "LabelCaption", {"autowrap_mode": 3})
     s.inst(C + "/InField", "res://scenes/journal/rows/expedition_row.tscn", {"visible": False})
-    s.node(C + "/Planning", "VBoxContainer", {"size_flags_vertical": 3, "theme_override_constants/separation": 6})
-    s.node(C + "/Planning/CrewCaption", "HBoxContainer")
-    label(s, C + "/Planning/CrewCaption/Label", "Crew  (up to 3)", "LabelCaption", {"size_flags_horizontal": 3})
-    label(s, C + "/Planning/CrewCaption/Best", "", "LabelMuted")
-    s.node(C + "/Planning/Slots", "HBoxContainer", {"theme_override_constants/separation": 4})
-    for i in range(3):
-        s.inst(C + "/Planning/Slots/Slot%d" % i, "res://scenes/journal/rows/crew_slot.tscn", {})
-    label(s, C + "/Planning/RosterCaption", "Available  -  click to assign", "LabelCaption")
-    s.node(C + "/Planning/Roster", "ScrollContainer", {"custom_minimum_size": (0, 62), "size_flags_vertical": 3, "horizontal_scroll_mode": 0})
-    s.node(C + "/Planning/Roster/Items", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 3})
-    s.inst(C + "/Planning/NoCrew", INFO, {"visible": False, "text": "No mercenaries are free. Hire a woodcutter in Personnel.", "icon_kind": "plus"})
-    button(s, C + "/Planning/Hire", "Hire in Personnel  >", "PaperButton", {"visible": False, "size_flags_horizontal": 4})
-    s.node(C + "/Planning/Orders", "HBoxContainer", {"theme_override_constants/separation": 4})
-    label(s, C + "/Planning/Orders/Caption", "Orders", "LabelCaption", {"custom_minimum_size": (38, 0)})
+    label(s, C + "/Crew", "No crew chosen yet.", "LabelMuted", {"autowrap_mode": 3})
+    s.node(C + "/Orders", "HBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/Orders/Caption", "Orders", "LabelCaption", {"custom_minimum_size": (38, 0)})
     for name, text, tip in [("Cautious", "Cautious", "Cautious: safer and slower, a smaller haul."), ("Balanced", "Balanced", "Balanced: a steady haul at the site's normal risk."), ("DeepPush", "Deep Push", "Deep Push: work harder for a bigger haul, at more risk.")]:
-        button(s, C + "/Planning/Orders/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
-    s.node(C + "/Planning/Away", "HBoxContainer", {"theme_override_constants/separation": 4})
-    label(s, C + "/Planning/Away/Caption", "Away", "LabelCaption", {"custom_minimum_size": (38, 0)})
+        button(s, C + "/Orders/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
+    s.node(C + "/Away", "HBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/Away/Caption", "Away", "LabelCaption", {"custom_minimum_size": (38, 0)})
     for name, text, tip in [("LongShift", "Long Shift", "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while."),
                             ("Overnight", "Overnight", "Overnight: an eight-hour trip at any site. Half the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."),
                             ("FullDay", "Full Day", "Full Day: a 20-hour trip at any site, back before the same time tomorrow. 55% of the hourly haul for a fifth of the wages and supplies, at lower risk.")]:
-        button(s, C + "/Planning/Away/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
-    s.node(C + "/Planning/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})
-    tile(s, C + "/Planning/Forecast/Haul", "Expected haul", extra={"tooltip_text": "Average goods brought home after the crew's share."})
-    tile(s, C + "/Planning/Forecast/Profit", "Expected profit", extra={"tooltip_text": "Value of the haul at today's merchant price, minus wages and supplies."})
-    tile(s, C + "/Planning/Forecast/Risk", "Risk", extra={"tooltip_text": "Chance each worker is injured, and killed."})
-    button(s, C + "/Fund", "Fund expedition", None, {"custom_minimum_size": (0, 26)})
+        button(s, C + "/Away/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
+    s.node(C + "/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, C + "/Forecast/Haul", "Haul", extra={"tooltip_text": "Average goods brought home after the crew's share."})
+    tile(s, C + "/Forecast/Profit", "Profit", extra={"tooltip_text": "Value of the haul at today's merchant price, minus wages and supplies."})
+    tile(s, C + "/Forecast/Risk", "Risk each", extra={"tooltip_text": "Chance each worker is injured, and killed."})
+    spacer(s, C + "/Spacer")
+    button(s, C + "/Fund", "Fund expedition", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Deaths and lost gear are permanent."})
     label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
-    label(s, C + "/Warning", "Deaths and lost gear are permanent.", "LabelMuted", {"horizontal_alignment": 1})
     s.save(P + "site_right.tscn")
 
 
-# --- Exchange tabs and the Trade Hall ------------------------------------------------
 def exchange_tabs():
     s = Scene("ExchangeTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})
@@ -839,8 +817,9 @@ if __name__ == "__main__":
     exchange()
     finances()
     chronicle()
-    regions()
     guildwork()
     board()
+    site_card()
+    locked_row()
     site_pages()
     print("pages written")

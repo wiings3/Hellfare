@@ -105,7 +105,6 @@ func _verify() -> void:
 	# Every chapter mounts its scenes.
 	var scene_by_chapter := {
 		"expeditions": ["board_left", "board_right"],
-		"contracts": ["regions_left", "regions_right"],
 		"site": ["site_left", "site_right"],
 		"roster": ["personnel_employed_left", "personnel_employed_right"],
 		"market": ["exchange_left", "exchange_right"],
@@ -140,10 +139,16 @@ func _verify() -> void:
 	view._nav_to("ledger")
 	check((view.left_leaf.get_child(0).get_node("Margin/Content/Empty") as Control).visible == view.game.reports.is_empty(), "chronicle empty state")
 	view._nav_to("contracts")
-	check(view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count() == MoneyMercsState.REGIONS.size() + 1, "contract cards")
+	check(view.page == "expeditions" and view.left_leaf.get_child(0).scene_file_path.ends_with("/board_left.tscn"), "retired contracts open the board")
 	# Logging: the board lists the copse; the site planner forecasts a profit for a woodcutter.
 	view._nav_to("expeditions")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/board_left.tscn"), "expedition board")
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Trades").get_child_count() == 7, "six trades and guarding")
+	view._select_trade("fishing")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text == "Fishing", "trade heading")
+	var site_rows: int = view.right_leaf.get_child(0).get_node("Margin/Content/Open").get_child_count() + view.right_leaf.get_child(0).get_node("Margin/Content/Locked").get_child_count()
+	check(site_rows == TradeSites.for_trade("fishing").size(), "a row per fishing site")
+	view._select_trade("logging")
 	var cutter: Dictionary = {}
 	for candidate in view.game.recruitment_board():
 		if Mercs.best_trade(candidate) == "logging":
@@ -327,20 +332,27 @@ func _verify() -> void:
 	check(view.page == "site" and view.selected_site == "harlow", "Harlow opens its site planner")
 	check(view.flip_art.visible, "page flip playing")
 	var hr: Control = view.right_leaf.get_child(0)
-	var roster: VBoxContainer = hr.get_node("Margin/Content/Planning/Roster/Items")
+	var hl: Control = view.left_leaf.get_child(0)
+	(hl.get_node("Margin/Content/Filter/All") as Button).pressed.emit()
+	hl = view.left_leaf.get_child(0)
+	check(view.crew_filter == "all", "crew filter: everyone")
+	var roster: VBoxContainer = hl.get_node("Margin/Content/Roster/Items")
 	check(roster.get_child_count() == view.game.available_guild_workers().size(), "a roster card per free mercenary")
 	check(roster.get_child(0).scene_file_path.ends_with("/rows/roster_card.tscn"), "roster card scene")
 	check((hr.get_node("Margin/Content/Fund") as Button).disabled, "fund disabled with no crew")
 	(roster.get_child(0) as Button).pressed.emit()
 	check(view.selected_crew.size() == 1, "card click assigns")
 	hr = view.right_leaf.get_child(0)
-	check((hr.get_node("Margin/Content/Planning/Slots/Slot0/Body/Name") as Label).text != "Empty", "slot shows assigned merc")
+	check((hr.get_node("Margin/Content/Crew") as Label).text.begins_with("Crew 1 of 3"), "crew line names the crew")
 	check(not (hr.get_node("Margin/Content/Fund") as Button).disabled, "fund enabled with a crew")
+	(view.left_leaf.get_child(0).get_node("Margin/Content/Filter/Trade") as Button).pressed.emit()
+	check(view.crew_filter == "trade", "crew filter: workers")
 	# Orders toggle, including the long orders.
-	(hr.get_node("Margin/Content/Planning/Orders/Cautious") as Button).pressed.emit()
+	hr = view.right_leaf.get_child(0)
+	(hr.get_node("Margin/Content/Orders/Cautious") as Button).pressed.emit()
 	check(view.tactic == "Cautious", "orders toggle")
 	hr = view.right_leaf.get_child(0)
-	(hr.get_node("Margin/Content/Planning/Away/Overnight") as Button).pressed.emit()
+	(hr.get_node("Margin/Content/Away/Overnight") as Button).pressed.emit()
 	check(view.tactic == "Overnight", "Overnight toggle")
 	# Live tick updates without rebuilding the page.
 	var before: Control = view.left_leaf.get_child(0)

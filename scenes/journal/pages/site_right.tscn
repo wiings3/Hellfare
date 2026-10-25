@@ -1,10 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/pip_row.tscn" id="1_pip_row"]
 [ext_resource type="PackedScene" path="res://scenes/journal/rows/expedition_row.tscn" id="2_expedition_row"]
-[ext_resource type="PackedScene" path="res://scenes/journal/rows/crew_slot.tscn" id="3_crew_slot"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="4_info_box"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="5_stat_tile"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="3_stat_tile"]
 
 [sub_resource type="ButtonGroup" id="orders"]
 
@@ -30,87 +28,81 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+[node name="Site" type="PanelContainer" parent="Margin/Content"]
 layout_mode = 2
-text = "Expedition"
+custom_minimum_size = Vector2(0, 100)
+theme_type_variation = &"SlotPanel"
+
+[node name="Art" type="TextureRect" parent="Margin/Content/Site"]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Badge" type="PanelContainer" parent="Margin/Content/Site"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_type_variation = &"GoldPanel"
+
+[node name="Text" type="Label" parent="Margin/Content/Site/Badge"]
+layout_mode = 2
+text = "Logging 1+"
+
+[node name="Intel" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Yields" type="HBoxContainer" parent="Margin/Content/Intel"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="Threat" type="VBoxContainer" parent="Margin/Content/Intel"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = -2
+
+[node name="Name" type="Label" parent="Margin/Content/Intel/Threat"]
+layout_mode = 2
+theme_type_variation = &"LabelGood"
+text = "Safe"
+horizontal_alignment = 2
+
+[node name="Danger" parent="Margin/Content/Intel/Threat" instance=ExtResource("1_pip_row")]
+layout_mode = 2
+value = 0
+max_value = 4
+size_flags_horizontal = 8
+tooltip_text = "Danger level"
+
+[node name="Facts" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
 
 [node name="InField" parent="Margin/Content" instance=ExtResource("2_expedition_row")]
 layout_mode = 2
 visible = false
 
-[node name="Planning" type="VBoxContainer" parent="Margin/Content"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 6
-
-[node name="CrewCaption" type="HBoxContainer" parent="Margin/Content/Planning"]
-layout_mode = 2
-
-[node name="Label" type="Label" parent="Margin/Content/Planning/CrewCaption"]
-layout_mode = 2
-theme_type_variation = &"LabelCaption"
-text = "Crew  (up to 3)"
-size_flags_horizontal = 3
-
-[node name="Best" type="Label" parent="Margin/Content/Planning/CrewCaption"]
+[node name="Crew" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = ""
+text = "No crew chosen yet."
+autowrap_mode = 3
 
-[node name="Slots" type="HBoxContainer" parent="Margin/Content/Planning"]
+[node name="Orders" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Slot0" parent="Margin/Content/Planning/Slots" instance=ExtResource("3_crew_slot")]
-layout_mode = 2
-
-[node name="Slot1" parent="Margin/Content/Planning/Slots" instance=ExtResource("3_crew_slot")]
-layout_mode = 2
-
-[node name="Slot2" parent="Margin/Content/Planning/Slots" instance=ExtResource("3_crew_slot")]
-layout_mode = 2
-
-[node name="RosterCaption" type="Label" parent="Margin/Content/Planning"]
-layout_mode = 2
-theme_type_variation = &"LabelCaption"
-text = "Available  -  click to assign"
-
-[node name="Roster" type="ScrollContainer" parent="Margin/Content/Planning"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 62)
-size_flags_vertical = 3
-horizontal_scroll_mode = 0
-
-[node name="Items" type="VBoxContainer" parent="Margin/Content/Planning/Roster"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 3
-
-[node name="NoCrew" parent="Margin/Content/Planning" instance=ExtResource("4_info_box")]
-layout_mode = 2
-visible = false
-text = "No mercenaries are free. Hire a woodcutter in Personnel."
-icon_kind = "plus"
-
-[node name="Hire" type="Button" parent="Margin/Content/Planning"]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_type_variation = &"PaperButton"
-text = "Hire in Personnel  >"
-visible = false
-size_flags_horizontal = 4
-
-[node name="Orders" type="HBoxContainer" parent="Margin/Content/Planning"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Caption" type="Label" parent="Margin/Content/Planning/Orders"]
+[node name="Caption" type="Label" parent="Margin/Content/Orders"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 text = "Orders"
 custom_minimum_size = Vector2(38, 0)
 
-[node name="Cautious" type="Button" parent="Margin/Content/Planning/Orders"]
+[node name="Cautious" type="Button" parent="Margin/Content/Orders"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
@@ -120,7 +112,7 @@ toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Cautious: safer and slower, a smaller haul."
 
-[node name="Balanced" type="Button" parent="Margin/Content/Planning/Orders"]
+[node name="Balanced" type="Button" parent="Margin/Content/Orders"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
@@ -130,7 +122,7 @@ toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Balanced: a steady haul at the site's normal risk."
 
-[node name="DeepPush" type="Button" parent="Margin/Content/Planning/Orders"]
+[node name="DeepPush" type="Button" parent="Margin/Content/Orders"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
@@ -140,17 +132,17 @@ toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Deep Push: work harder for a bigger haul, at more risk."
 
-[node name="Away" type="HBoxContainer" parent="Margin/Content/Planning"]
+[node name="Away" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Caption" type="Label" parent="Margin/Content/Planning/Away"]
-custom_minimum_size = Vector2(38, 0)
+[node name="Caption" type="Label" parent="Margin/Content/Away"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 text = "Away"
+custom_minimum_size = Vector2(38, 0)
 
-[node name="LongShift" type="Button" parent="Margin/Content/Planning/Away"]
+[node name="LongShift" type="Button" parent="Margin/Content/Away"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
@@ -160,7 +152,7 @@ toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while."
 
-[node name="Overnight" type="Button" parent="Margin/Content/Planning/Away"]
+[node name="Overnight" type="Button" parent="Margin/Content/Away"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
@@ -170,7 +162,7 @@ toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Overnight: an eight-hour trip at any site. Half the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."
 
-[node name="FullDay" type="Button" parent="Margin/Content/Planning/Away"]
+[node name="FullDay" type="Button" parent="Margin/Content/Away"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
@@ -180,36 +172,42 @@ toggle_mode = true
 button_group = SubResource("orders")
 tooltip_text = "Full Day: a 20-hour trip at any site, back before the same time tomorrow. 55% of the hourly haul for a fifth of the wages and supplies, at lower risk."
 
-[node name="Forecast" type="HBoxContainer" parent="Margin/Content/Planning"]
+[node name="Forecast" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Haul" parent="Margin/Content/Planning/Forecast" instance=ExtResource("5_stat_tile")]
+[node name="Haul" parent="Margin/Content/Forecast" instance=ExtResource("3_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Expected haul"
+caption = "Haul"
 value = "0"
 tooltip_text = "Average goods brought home after the crew's share."
 
-[node name="Profit" parent="Margin/Content/Planning/Forecast" instance=ExtResource("5_stat_tile")]
+[node name="Profit" parent="Margin/Content/Forecast" instance=ExtResource("3_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Expected profit"
+caption = "Profit"
 value = "0"
 tooltip_text = "Value of the haul at today's merchant price, minus wages and supplies."
 
-[node name="Risk" parent="Margin/Content/Planning/Forecast" instance=ExtResource("5_stat_tile")]
+[node name="Risk" parent="Margin/Content/Forecast" instance=ExtResource("3_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Risk"
+caption = "Risk each"
 value = "0"
 tooltip_text = "Chance each worker is injured, and killed."
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="Fund" type="Button" parent="Margin/Content"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Fund expedition"
 custom_minimum_size = Vector2(0, 26)
+tooltip_text = "Deaths and lost gear are permanent."
 
 [node name="Reason" type="Label" parent="Margin/Content"]
 layout_mode = 2
@@ -217,9 +215,3 @@ theme_type_variation = &"LabelAccent"
 text = ""
 horizontal_alignment = 1
 autowrap_mode = 3
-
-[node name="Warning" type="Label" parent="Margin/Content"]
-layout_mode = 2
-theme_type_variation = &"LabelMuted"
-text = "Deaths and lost gear are permanent."
-horizontal_alignment = 1
