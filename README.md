@@ -46,6 +46,22 @@ Four new trades are live, with seventeen expedition sites between them (`scripts
   `tools/paint_goods.py` the goods icons.
 - **Simulator.** `tools/econ_sim.gd` has forager, angler, hunter and farmer strategies.
 
+**Balance check** (300 simulated hours, one trade only, merchants only):
+
+| Strategy | Worth at 300 h | 100k reached | Deaths |
+|---|---|---|---|
+| Logging (tiers 1–2 only) | 402–415k | 74–85 h | 93–111 |
+| Foraging | 451–516k | 72–80 h | 119–138 |
+| Fishing | 472–506k | 79–88 h | 88–95 |
+| Hunting | 552–557k | 75–79 h | 145–154 |
+| Farming | 567–576k | 91–97 h | 0 |
+
+Logging trails because its tiers 3–5 aren't live yet. The first run had hunting at twice
+logging: a bow made every hunter count as a guard, cutting the crew's risk on top of hunting
+at full pace. Hunters on a hunt no longer double as guards. The Glasshouse now yields 3–4
+emberpeppers (was 3–5), so safe farming pays a little less than risky tier-3 sites. Farming
+starts slowest (buildings first) and nobody dies.
+
 ## V0.20.1 – Idle wages
 
 - Mercenaries in town draw half their trip wage each day, charged as time passes (including
