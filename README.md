@@ -28,6 +28,13 @@ Six bookmarks, each with one job, their names printed beside them and keys 1–6
 | Market | Merchants, Trade Hall | A compact goods table, held goods first, price arrows beside the price |
 | Ledger | Accounts, Reports, Warehouse | Money and profit by trade; expedition reports; the one full list of goods held |
 
+**Expedition charters** are now the only way to field more crews, up to five, signed in order
+from the Ledger: I (1,200 G + 40 birch + 20 iron), II (8,000 G + 40 oak + 10 steel, Known),
+III (30,000 G + 60 oak + 10 silversteel, Renowned), IV (90,000 G + 80 oak + 25 silversteel +
+10 crystal, Legendary). Over 600 simulated hours the second and third crews arrive when they
+used to (about 3h and 10–18h), the fourth around 180–205h and the fifth around 460–525h;
+companies end 7–15% richer than under the old three-slot cap.
+
 The Regional Contracts and Standing pages are retired; their old links open the board and the
 Company page. Explanations moved into tooltips; locked sites and empty states take one line.
 
