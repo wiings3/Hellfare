@@ -23,6 +23,7 @@ Measured with the 1,000-hour simulator (`tools/econ_sim.gd`, median of three run
 - **Mining career:** Harlow Mines, the first mining expedition from the MVP, is now an ordinary tier-1 site like Mossward Copse, and Deepdelve (Mining 8, cave crawlers) is mining's Old Oakwood. Harlow's old scouting and rotating deposits are retired; they only finish trips and saves made before the change. A mining company reaches about 1.25M, level with logging.
 - **Trade Hall:** guild contractors post big orders above fair value for up to an hour, and bargain sellers go deeper. Pure trading with no crew still doesn't pay; it needs its own mechanic.
 - Long trips average several dice rolls and scale rare finds with their length; injury and death are capped.
+- **Healing:** mercenaries resting in town recover 20 health an hour for free, counted from when they got home, so they heal while the game is closed. Treatment costs 0.6 G per missing point (5 G minimum), down from 1.5 G (12 G minimum). Healing went from about 7% of a full-time company's sales to about 3%.
 - The recruitment board no longer empties after many deaths. That bug ended full-time companies around hour 550.
 
 ## V0.16 – Gear of the fallen
