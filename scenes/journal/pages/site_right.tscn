@@ -168,7 +168,7 @@ text = "Overnight"
 size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("orders")
-tooltip_text = "Overnight: an eight-hour trip at any site. 60% of the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."
+tooltip_text = "Overnight: an eight-hour trip at any site. Half the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."
 
 [node name="FullDay" type="Button" parent="Margin/Content/Planning/Away"]
 layout_mode = 2

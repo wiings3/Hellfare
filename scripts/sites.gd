@@ -32,7 +32,7 @@ const ORDERS := {
 	"Balanced": {"yield": 1.0, "risk": 1.0, "duration": 1.0, "xp": 1.0, "cost": 1.0},
 	"Deep Push": {"yield": 1.25, "risk": 1.6, "duration": 1.0, "xp": 1.15, "cost": 1.0},
 	"Long Shift": {"yield": 4.8, "risk": 3.0, "duration": 6.0, "xp": 4.8, "cost": 4.0},
-	"Overnight": {"hours": 8, "yield": 0.6, "risk": 0.2, "xp": 0.5, "cost": 0.25},
+	"Overnight": {"hours": 8, "yield": 0.5, "risk": 0.2, "xp": 0.5, "cost": 0.25},
 	"Full Day": {"hours": 20, "yield": 0.55, "risk": 0.15, "xp": 0.42, "cost": 0.2},
 }
 ## A long trip can't make injury or death certain.
@@ -73,7 +73,7 @@ const SITES := [
 		"id": "deepdelve", "name": "Deepdelve", "trade": "mining", "tier": 2, "level": 8,
 		"tagline": "Old dwarven galleries high in the range. Iron and silver, and things that crawl.",
 		"duration": 600, "supplies": 22,
-		"yields": {"iron": [2, 3], "copper": [0, 1]},
+		"yields": {"iron": [1, 2], "copper": [0, 1]},
 		"side": {"silver": [0, 1]},
 		"rare": {"good": "crystal", "chance": 0.04, "count": 1, "note": "a geode in a collapsed gallery"},
 		"threat": {"name": "Cave crawlers", "danger": 2, "note": "They nest in the old galleries"},

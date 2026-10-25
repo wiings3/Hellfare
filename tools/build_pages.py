@@ -472,7 +472,7 @@ def site_pages():
     s.node(C + "/Planning/Away", "HBoxContainer", {"theme_override_constants/separation": 4})
     label(s, C + "/Planning/Away/Caption", "Away", "LabelCaption", {"custom_minimum_size": (38, 0)})
     for name, text, tip in [("LongShift", "Long Shift", "Long Shift: one long trip, six times as long. 80% of the hourly haul for four times the wages and supplies. For when you won't be back for a while."),
-                            ("Overnight", "Overnight", "Overnight: an eight-hour trip at any site. 60% of the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."),
+                            ("Overnight", "Overnight", "Overnight: an eight-hour trip at any site. Half the hourly haul for a quarter of the wages and supplies, at lower risk. Send it before bed."),
                             ("FullDay", "Full Day", "Full Day: a 20-hour trip at any site, back before the same time tomorrow. 55% of the hourly haul for a fifth of the wages and supplies, at lower risk.")]:
         button(s, C + "/Planning/Away/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "tooltip_text": tip})
     s.node(C + "/Planning/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})

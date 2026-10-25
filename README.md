@@ -15,6 +15,16 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.17 – More ways to get rich
+
+Measured with the 1,000-hour simulator (`tools/econ_sim.gd`, median of three runs).
+
+- **Overnight (8 h) and Full Day (20 h) orders** at every site: half or 55% of the hourly haul for a quarter or a fifth of the wages and supplies, at lower risk. Once-a-day players went from 149k to about 740k at 1,000 hours, and three-check-ins-a-day players from 100k to about 695k (casual: about 1.0M).
+- **Mining career:** Greyvein Quarry (safe, tier 1) and Deepdelve (Mining 8, cave crawlers), on the map and the board, with fallen-gear pools. A mining company reaches about 1.25M, level with logging. Harlow stays a rotating side site.
+- **Trade Hall:** guild contractors post big orders above fair value for up to an hour, and bargain sellers go deeper. Pure trading with no crew still doesn't pay; it needs its own mechanic.
+- Long trips average several dice rolls and scale rare finds with their length; injury and death are capped.
+- The recruitment board no longer empties after many deaths. That bug ended full-time companies around hour 550.
+
 ## V0.16 – Gear of the fallen
 
 - When a mercenary dies at a site, there's a 40% chance 1–3 pieces of their gear stay where they fell. Items last 24 hours.
