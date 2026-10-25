@@ -75,7 +75,9 @@ func _initialize() -> void:
 	var back_at: int = int(g.missions.back()["finish"])
 	patient["health"] = 50
 	g.complete_due(back_at + 3600)
-	check(int(patient["health"]) >= 70, "resting counts from the return (%d)" % int(patient["health"]))
+	# The Copse can injure (4%); then the check can't expect a clean +20.
+	var injured: bool = (g.reports[0].get("injured", []) as Array).has(str(patient["name"]))
+	check(injured or int(patient["health"]) >= 70, "resting counts from the return (%d)" % int(patient["health"]))
 	# Guild contractors post big orders above fair value, and filling one leaves NPC demand alone.
 	var hall: TradeHall = g.hall
 	hall.rng.seed = 4

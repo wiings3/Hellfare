@@ -49,6 +49,7 @@ var selected_trade: String = "logging"
 var crew_filter: String = "trade"
 ## Mercenaries: the roster filter and the dossier view; the Workshop chapter's tab.
 var roster_filter: String = "all"
+var recruit_filter: String = "all"
 var dossier_view: String = "overview"
 var workshop_tab: String = "craft"
 var craft_filter: String = "all"

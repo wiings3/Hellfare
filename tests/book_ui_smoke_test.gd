@@ -440,6 +440,19 @@ func _verify() -> void:
 		push_error("%d BookUI checks failed." % failures)
 		quit(1)
 		return
+	# Item lookup: any item opens a card saying where it comes from and what it's for.
+	view._open_lookup("perch")
+	var lookup: Control = view._lookup_card()
+	check(lookup.visible, "lookup card opens")
+	check((lookup.get_node("Card/Margin/Body/From") as Label).text.contains("Millbrook Pond"), "perch comes from Millbrook Pond")
+	check((lookup.get_node("Card/Margin/Body/Uses") as Label).text.contains("Grilled Perch"), "perch is used for grilled perch")
+	(lookup.get_node("Card/Margin/Body/Actions/Trade") as Button).pressed.emit()
+	check(not lookup.visible and view.page == "market" and view.selected_market_item == "perch", "Trade opens it in the Market")
+	await create_timer(0.6).timeout  # let the page turn finish
+	view._open_lookup("hand_axe")
+	check((lookup.get_node("Card/Margin/Body/From") as Label).text.contains("quartermaster"), "the hand axe is sold by the quartermaster")
+	view._close_lookup()
+	check(not lookup.visible, "lookup card closes")
 	# Expedition charters: signed in order from the Ledger, the third needs Respected reputation.
 	view.game.reset_company()
 	view.game.gold = 20000

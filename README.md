@@ -23,7 +23,7 @@ Six bookmarks, each with one job, their names printed beside them and keys 1–6
 |---|---|---|
 | Company | – | The region map, and a Today page: crews in the field, then only what needs you (crews back, the hurt, worn gear, idle hands, guild work), each with its button |
 | Expeditions | – | The trades and their sites; the planner gives choosing a crew a full page |
-| Mercenaries | Roster, Recruit | A compact roster with filters; each dossier has Overview and Gear (the old Armory) |
+| Mercenaries | Roster, Recruit | A compact roster and recruit list, both with filters; each dossier has Overview and Gear (the old Armory) |
 | Workshop | Craft, Shop, Storeroom | What can I make, what can I buy, what do I have; Craft and Shop share category filters |
 | Market | Merchants, Trade Hall | A compact goods table, held goods first, price arrows beside the price |
 | Ledger | Accounts, Reports, Warehouse | Money and profit by trade; expedition reports; the one full list of goods held |
@@ -34,6 +34,11 @@ III (30,000 G + 60 oak + 10 silversteel, Renowned), IV (90,000 G + 80 oak + 25 s
 10 crystal, Legendary). Over 600 simulated hours the second and third crews arrive when they
 used to (about 3h and 10–18h), the fourth around 180–205h and the fifth around 460–525h;
 companies end 7–15% richer than under the old three-slot cap.
+
+**Item lookup.** Click any item icon (site yields, report loot, recipe materials, the
+Market's trade desk, the Workshop's rows, the Warehouse) for one card: what it is, how many
+you hold, what merchants pay and charge, where it comes from and what it's used for, with
+buttons to trade it or open its recipes.
 
 The Regional Contracts and Standing pages are retired; their old links open the board and the
 Company page. Explanations moved into tooltips; locked sites and empty states take one line.

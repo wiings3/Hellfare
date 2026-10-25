@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://by6klxuxek6c1"]
+[gd_scene load_steps=19 format=3 uid="uid://by6klxuxek6c1"]
 
 [ext_resource type="Texture2D" uid="uid://03hskmpl7e6m" path="res://assets/ui/book/tabs/1.png" id="book"]
 [ext_resource type="Texture2D" uid="uid://t61vjtyty58h" path="res://assets/ui/tab_icons/chronicle.png" id="chronicle"]
@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bikhqe8615yop" path="res://assets/ui/kit/ornament.png" id="ornament"]
 [ext_resource type="PackedScene" path="res://scenes/journal/pause_menu.tscn" id="pause"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/link_card.tscn" id="linkcard"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/item_lookup.tscn" id="lookup"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/pm_window.tscn" id="pmwindow"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/trade_window.tscn" id="tradewindow"]
 [ext_resource type="Texture2D" uid="uid://nrj7sru86b3a" path="res://assets/ui/tab_icons/personnel.png" id="personnel"]
@@ -456,6 +457,11 @@ item_2/id = 1
 
 [node name="LinkCard" parent="." instance=ExtResource("linkcard")]
 layout_mode = 0
+
+[node name="ItemLookup" parent="." instance=ExtResource("lookup")]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
 
 [node name="PauseMenu" parent="." instance=ExtResource("pause")]
 layout_mode = 0

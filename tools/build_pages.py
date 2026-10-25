@@ -182,44 +182,50 @@ def personnel_roster():
 # --- Personnel: recruitment -----------------------------------------------------
 def personnel_recruit():
     s = page("PersonnelRecruitLeft", top=36)
-    header(s, C + "/Header", "Applicants")
+    grp = s.sub("filter", "ButtonGroup", {})
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 2})
+    for name, text, tip in [("All", "All", "Everyone looking for work."), ("Logging", "Logging", "Woodcutters."), ("Mining", "Mining", "Miners."),
+                            ("Guards", "Guards", "Guards: they cut the risk for any crew."), ("Other", "Other", "Foragers, anglers, hunters and farmhands.")]:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                               "custom_minimum_size": (0, 16), "tooltip_text": tip})
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Refresh", "New applicants in 30m", "LabelCaption", {"size_flags_horizontal": 3})
-    label(s, C + "/Summary/Count", "0 waiting", "LabelCaption")
-    label(s, C + "/Standing", "Reputation: Unknown", "LabelMuted", {"autowrap_mode": 3, "mouse_filter": 1,
+    label(s, C + "/Summary/Standing", "Unknown", "LabelCaption", {"mouse_filter": 1,
         "tooltip_text": "Better mercenaries apply to more reputable companies. Reputation comes from the value your crews deliver."})
     scroll(s, C + "/List", 80)
-    s.inst(C + "/Empty", INFO, {"visible": False, "text": "No applicants today. New faces arrive every half hour.", "icon_kind": "home"})
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Nobody of this kind is looking for work. New faces arrive every half hour.", "icon_kind": "home"})
     s.save(P + "personnel_recruits_left.tscn")
 
     s = page("PersonnelRecruitRight")
-    header(s, C + "/Header", "Applicant")
     s.node(C + "/Head", "HBoxContainer", {"theme_override_constants/separation": 8})
     s.node(C + "/Head/Portrait", "PanelContainer", {"custom_minimum_size": (58, 46), "theme_type_variation": Raw('&"SlotPanel"')})
     s.node(C + "/Head/Portrait/Bust", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
     s.node(C + "/Head/Id", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": -2})
     label(s, C + "/Head/Id/Name", "Name", "LabelTitle", {"text_overrun_behavior": 3})
-    label(s, C + "/Head/Id/Title", "Title", "LabelCaption")
+    label(s, C + "/Head/Id/Title", "Title", "LabelCaption", {"text_overrun_behavior": 3})
     s.node(C + "/Head/Id/Status", "HBoxContainer", {"theme_override_constants/separation": 4})
     s.node(C + "/Head/Id/Status/RoleIcon", "TextureRect", {"custom_minimum_size": (16, 16), "mouse_filter": 2, "stretch_mode": 3})
-    label(s, C + "/Head/Id/Status/Role", "Miner")
-    s.node(C + "/Stats", "GridContainer", {"theme_override_constants/h_separation": 5, "theme_override_constants/v_separation": 5, "columns": 2})
-    tile(s, C + "/Stats/Skill", "Value", extra={"tooltip_text": "Rough market value: skills, traits and the tool they bring."})
-    tile(s, C + "/Stats/Fee", "Signing fee", icon=ICON + "gold.png", extra={"tooltip_text": "Paid once, when they sign."})
+    label(s, C + "/Head/Id/Status/Role", "Miner", None, {"size_flags_horizontal": 3, "text_overrun_behavior": 3})
+    s.node(C + "/Stats", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, C + "/Stats/Fee", "Signing fee", extra={"tooltip_text": "Paid once, when they sign."})
     tile(s, C + "/Stats/Wage", "Wage", extra={"tooltip_text": "Paid up front for each expedition."})
-    tile(s, C + "/Stats/Share", "Share of haul")
-    s.node(C + "/Skills", "GridContainer", {"columns": 4, "theme_override_constants/h_separation": 8, "theme_override_constants/v_separation": 2, "mouse_filter": 1,
+    tile(s, C + "/Stats/Share", "Share", extra={"tooltip_text": "Their cut of the coin an expedition brings back."})
+    tile(s, C + "/Stats/Skill", "Value", extra={"tooltip_text": "Rough market value: skills, traits and the tool they bring."})
+    label(s, C + "/SkillsCaption", "Skills", "LabelCaption")
+    s.node(C + "/Skills", "GridContainer", {"columns": 2, "theme_override_constants/h_separation": 14, "theme_override_constants/v_separation": 1, "mouse_filter": 1,
         "tooltip_text": "Trade levels. Higher levels haul more and open better sites."})
     for trade in TRADE_LABELS:
         base = C + "/Skills/" + trade
-        s.node(base, "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 0, "mouse_filter": 2})
-        label(s, base + "/Level", trade + " 1", "LabelCaption")
+        s.node(base, "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -1, "mouse_filter": 2})
+        s.node(base + "/Top", "HBoxContainer", {"mouse_filter": 2})
+        label(s, base + "/Top/Name", trade, None, {"size_flags_horizontal": 3})
+        label(s, base + "/Top/Level", "1")
         s.node(base + "/Bar", "ProgressBar", {"custom_minimum_size": (0, 4), "mouse_filter": 2, "theme_type_variation": Raw('&"GoldBar"'), "show_percentage": False})
-    s.inst(C + "/RoleNote", INFO, {"text": "Traits", "icon_kind": "alert"})
+    label(s, C + "/TraitsCaption", "Traits", "LabelCaption")
+    label(s, C + "/Traits", "None", None, {"autowrap_mode": 3})
     spacer(s, C + "/Spacer")
-    button(s, C + "/Hire", "Hire", None, {"custom_minimum_size": (0, 26)})
+    button(s, C + "/Hire", "Hire", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Traits are for life. The fallen cannot be rehired."})
     label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
-    label(s, C + "/Footer", "Traits are for life. The fallen cannot be rehired.", "LabelMuted", {"horizontal_alignment": 1})
     s.inst(C + "/Empty", INFO, {"visible": False, "text": "Select an applicant to see their terms.", "icon_kind": "home"})
     s.save(P + "personnel_recruits_right.tscn")
 
@@ -443,7 +449,7 @@ def ledger_warehouse():
     s = page("WarehouseLeft", top=36)
     header(s, C + "/Header", "Warehouse")
     s.node(C + "/Columns", "HBoxContainer", {"theme_override_constants/separation": 4})
-    label(s, C + "/Columns/Good", "Good  ·  click to trade", "LabelCaption", {"size_flags_horizontal": 3})
+    label(s, C + "/Columns/Good", "Good  ·  click for details", "LabelCaption", {"size_flags_horizontal": 3})
     label(s, C + "/Columns/Held", "Held", "LabelCaption", {"custom_minimum_size": (34, 0), "horizontal_alignment": 2})
     label(s, C + "/Columns/Worth", "Worth", "LabelCaption", {"custom_minimum_size": (52, 0), "horizontal_alignment": 2})
     scroll(s, C + "/List", 80)
@@ -665,6 +671,41 @@ def link_card():
         label(s, "Margin/Body/Rows/%s" % name, "-", None, {"horizontal_alignment": 2})
     label(s, "Margin/Body/Hint", "Shift+click to link it in a message.", "LabelMuted", {"horizontal_alignment": 1})
     s.save("scenes/journal/widgets/link_card.tscn")
+
+
+def lookup_card():
+    """Item lookup: click any item icon to see what it is, where it comes from and what it's for."""
+    s = Scene("ItemLookup", "Control", {"visible": False, "layout_mode": 3, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "grow_horizontal": 2, "grow_vertical": 2})
+    # Clicking anywhere outside the card closes it.
+    s.node("Dim", "ColorRect", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "grow_horizontal": 2, "grow_vertical": 2,
+        "color": Raw("Color(0.08, 0.05, 0.04, 0.45)")})
+    s.node("Card", "PanelContainer", {"layout_mode": 1, "anchors_preset": 8, "anchor_left": 0.5, "anchor_top": 0.5, "anchor_right": 0.5, "anchor_bottom": 0.5,
+        "offset_left": -120.0, "offset_top": -120.0, "offset_right": 120.0, "offset_bottom": 120.0, "grow_horizontal": 2, "grow_vertical": 2,
+        "theme_type_variation": Raw('&"InsetPanel"')})
+    B = "Card/Margin/Body"
+    s.node("Card/Margin", "MarginContainer", {"theme_override_constants/margin_left": 8, "theme_override_constants/margin_top": 6,
+        "theme_override_constants/margin_right": 8, "theme_override_constants/margin_bottom": 6})
+    s.node(B, "VBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(B + "/Head", "HBoxContainer", {"theme_override_constants/separation": 6})
+    s.inst(B + "/Head/Slot", SLOT, {"custom_minimum_size": (30, 30)})
+    s.node(B + "/Head/Id", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": -3})
+    label(s, B + "/Head/Id/Name", "Item", "LabelTitle", {"text_overrun_behavior": 3})
+    label(s, B + "/Head/Id/Kind", "", "LabelCaption", {"text_overrun_behavior": 3})
+    button(s, B + "/Head/Close", "x", "TextButton", {"size_flags_vertical": 0, "tooltip_text": "Close (Esc)"})
+    label(s, B + "/Desc", "", "LabelMuted", {"autowrap_mode": 3, "custom_minimum_size": (224, 0)})
+    s.node(B + "/Rows", "GridContainer", {"columns": 2, "theme_override_constants/h_separation": 8, "theme_override_constants/v_separation": 0})
+    for name, caption in [("Held", "You hold"), ("Pays", "Merchants pay"), ("Sells", "Merchants sell")]:
+        label(s, B + "/Rows/%sCaption" % name, caption, "LabelCaption", {"size_flags_horizontal": 3})
+        label(s, B + "/Rows/%s" % name, "-", None, {"horizontal_alignment": 2})
+    label(s, B + "/FromCaption", "Where it comes from", "LabelCaption")
+    label(s, B + "/From", "", None, {"autowrap_mode": 3, "custom_minimum_size": (224, 0)})
+    label(s, B + "/UsesCaption", "What it's used for", "LabelCaption")
+    label(s, B + "/Uses", "", None, {"autowrap_mode": 3, "custom_minimum_size": (224, 0)})
+    s.node(B + "/Actions", "HBoxContainer", {"theme_override_constants/separation": 4, "alignment": 1})
+    button(s, B + "/Actions/Trade", "Trade it  >", "PaperButton")
+    button(s, B + "/Actions/Craft", "Recipes  >", "PaperButton")
+    s.save("scenes/journal/widgets/item_lookup.tscn")
 
 
 def trade_hall():
