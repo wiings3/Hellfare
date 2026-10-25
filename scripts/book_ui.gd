@@ -134,6 +134,8 @@ func _refresh() -> void:
 		title_label.text = str(PAGE_TITLES["expeditions"])
 	if page == "site":
 		title_label.text = str(TradeSites.by_id(selected_site).get("name", "Expedition"))
+	if page != "workshop":
+		workshop_focus = ""  # The lookup card's narrowing lasts only while you're in the Workshop.
 	match page:
 		"hq": _draw_company()
 		"harlow": _draw_site()  # Old links to the retired Harlow page open its planner.
@@ -690,20 +692,40 @@ func _open_lookup(key: String) -> void:
 	_reconnect(trade, func() -> void:
 		_close_lookup()
 		_open_market(key))
+	# Recipe(s): straight to what the card was talking about.
 	var craft := card.get_node(b + "Actions/Craft") as Button
 	var makes: bool = d.get("recipe") is Dictionary and not (d["recipe"] as Dictionary).is_empty()
-	craft.visible = makes or not _uses_text(key).contains("selling:")
-	craft.text = "Recipe  >" if makes else "Recipes  >"
+	var users: Array = []
+	for item_key in Catalog.items():
+		var recipe: Variant = Catalog.item(str(item_key)).get("recipe", {})
+		if recipe is Dictionary and (recipe as Dictionary).has(key):
+			users.append(str(item_key))
+	var for_sale: Array = game.blueprint_shop()
+	var target_tab: String = ""
+	var focus: String = ""
+	if makes:
+		focus = "item:" + key
+		if game.knows(key):
+			target_tab = "craft"
+			focus = ""
+		elif for_sale.has(key):
+			target_tab = "shop"
+		craft.text = "Recipe  >"
+	elif not users.is_empty():
+		focus = "uses:" + key
+		if users.any(func(k): return game.knows(str(k))):
+			target_tab = "craft"
+		elif users.any(func(k): return for_sale.has(str(k))):
+			target_tab = "shop"
+		craft.text = "Recipes  >"
+	craft.visible = target_tab != ""
+	craft.tooltip_text = "Open the Workshop's %s at %s." % ["Craft tab" if target_tab == "craft" else "Shop", _focus_text_for(focus) if focus != "" else "this recipe"]
 	_reconnect(craft, func() -> void:
 		_close_lookup()
+		workshop_focus = focus
+		workshop_tab = target_tab
 		if makes and game.knows(key):
 			selected_recipe = key
-			workshop_tab = "craft"
-		elif makes:
-			workshop_tab = "shop"
-		else:
-			workshop_tab = "craft"
-		craft_filter = "all"
 		if page == "workshop":
 			_refresh()
 		else:
@@ -1126,7 +1148,41 @@ func _draw_workshop_chapter() -> void:
 
 func _set_workshop_tab(tab: String) -> void:
 	workshop_tab = tab
+	if tab == "store":
+		workshop_focus = ""
 	_refresh()
+
+## Does a recipe pass the Workshop's focus from the lookup card?
+func _focus_shows(key: String) -> bool:
+	if workshop_focus.begins_with("uses:"):
+		var recipe: Variant = Catalog.item(key).get("recipe", {})
+		return recipe is Dictionary and (recipe as Dictionary).has(workshop_focus.substr(5))
+	if workshop_focus.begins_with("item:"):
+		return key == workshop_focus.substr(5)
+	return true
+
+func _focus_text_for(focus: String) -> String:
+	var saved: String = workshop_focus
+	workshop_focus = focus
+	var text: String = _focus_text().to_lower()
+	workshop_focus = saved
+	return text
+
+func _focus_text() -> String:
+	if workshop_focus.begins_with("uses:"):
+		var good: String = workshop_focus.substr(5)
+		return "Recipes using " + (_resource_name(good) if MoneyMercsState.RESOURCE_ORDER.has(good) else str(Catalog.item(good).get("name", good)))
+	if workshop_focus.begins_with("item:"):
+		return "Blueprint: " + str(Catalog.item(workshop_focus.substr(5)).get("name", ""))
+	return ""
+
+func _bind_focus(page_root: Control) -> void:
+	var focus := page_root.get_node("Margin/Content/Focus") as Control
+	focus.visible = not workshop_focus.is_empty()
+	(focus.get_node("Text") as Label).text = _focus_text()
+	(focus.get_node("Clear") as Button).pressed.connect(func() -> void:
+		workshop_focus = ""
+		_refresh())
 
 ## How many of a known recipe the warehouse can make right now.
 func _craftable_count(key: String) -> int:
@@ -1189,8 +1245,12 @@ func _draw_workshop_shop() -> void:
 			craft_filter = name.to_lower()
 			_refresh())
 	var prints := right.get_node(c + "Blueprints/Items") as VBoxContainer
+	_bind_focus(right)
+	(right.get_node(c + "Filter") as Control).visible = workshop_focus.is_empty()
 	for key in game.blueprint_shop():
-		if craft_filter != "all" and _craft_group(key) != craft_filter:
+		if not _focus_shows(key):
+			continue
+		if workshop_focus.is_empty() and craft_filter != "all" and _craft_group(key) != craft_filter:
 			continue
 		var d: Dictionary = Catalog.item(key)
 		var price: int = int(d.get("blueprint_price", 40))
@@ -1287,7 +1347,7 @@ func _draw_workshop() -> void:
 			_refresh())
 	var known: Array = []
 	for key in Catalog.items():
-		if game.knows(str(key)) and (craft_filter == "all" or _craft_group(str(key)) == craft_filter):
+		if game.knows(str(key)) and _focus_shows(str(key)) and (not workshop_focus.is_empty() or craft_filter == "all" or _craft_group(str(key)) == craft_filter):
 			known.append(str(key))
 	known.sort_custom(func(a, b): return int(Catalog.item(a)["tier"]) * 100000 + int(Catalog.item(a)["value"]) < int(Catalog.item(b)["tier"]) * 100000 + int(Catalog.item(b)["value"]))
 	var ready: Array = known.filter(func(k): return game.craft_missing(k).is_empty())
@@ -1316,7 +1376,9 @@ func _draw_workshop() -> void:
 	(left.get_node(c + "Summary") as Label).text = "%d ready to craft  ·  %d short of materials" % [ready.size(), short.size()]
 	(left.get_node(c + "Known") as Control).visible = not known.is_empty()
 	(left.get_node(c + "KnownEmpty") as Control).visible = known.is_empty()
-	var for_sale: int = game.blueprint_shop().size()
+	_bind_focus(left)
+	(left.get_node(c + "Filter") as Control).visible = workshop_focus.is_empty()
+	var for_sale: int = game.blueprint_shop().filter(func(k): return _focus_shows(str(k))).size()
 	var link := left.get_node(c + "ShopLink") as Button
 	link.text = "%s for sale in the Shop  >" % _plural(for_sale, "blueprint")
 	link.visible = for_sale > 0

@@ -53,6 +53,9 @@ var recruit_filter: String = "all"
 var dossier_view: String = "overview"
 var workshop_tab: String = "craft"
 var craft_filter: String = "all"
+## The Workshop narrowed from the item lookup card: "uses:<good>" (recipes that use it) or
+## "item:<key>" (that one blueprint). Empty shows everything.
+var workshop_focus: String = ""
 ## Exchange list filter: "all", "held", "raw", "crafted" or "food".
 var market_filter: String = "held"
 var selected_report_index: int = 0

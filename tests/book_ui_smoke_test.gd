@@ -449,6 +449,22 @@ func _verify() -> void:
 	(lookup.get_node("Card/Margin/Body/Actions/Trade") as Button).pressed.emit()
 	check(not lookup.visible and view.page == "market" and view.selected_market_item == "perch", "Trade opens it in the Market")
 	await create_timer(0.6).timeout  # let the page turn finish
+	# Recipes on an ingredient: the Workshop narrowed to recipes that use it.
+	view._open_lookup("iron")
+	var recipes_button := lookup.get_node("Card/Margin/Body/Actions/Craft") as Button
+	check(recipes_button.visible and recipes_button.text.begins_with("Recipes"), "iron offers its recipes")
+	recipes_button.pressed.emit()
+	await create_timer(0.6).timeout
+	check(view.page == "workshop" and view.workshop_focus == "uses:iron", "Recipes narrows the Workshop to iron")
+	var listed: VBoxContainer = view.right_leaf.get_child(0).get_node("Margin/Content/Blueprints/Items") if view.workshop_tab == "shop" else view.left_leaf.get_child(0).get_node("Margin/Content/Known/Items")
+	check(listed.get_child_count() > 0, "some recipes use iron")
+	check((view.left_leaf.get_child(0).get_node("Margin/Content/Focus") as Control).visible or (view.right_leaf.get_child(0).get_node("Margin/Content/Focus") as Control).visible, "the focus line says what's shown")
+	# Recipe on an unknown craftable item: the Shop, showing just that blueprint.
+	view._open_lookup("iron_war_axe")
+	(lookup.get_node("Card/Margin/Body/Actions/Craft") as Button).pressed.emit()
+	check(view.workshop_tab == "shop" and view.right_leaf.get_child(0).get_node("Margin/Content/Blueprints/Items").get_child_count() == 1, "Recipe shows just that blueprint")
+	view._nav_to("hq")
+	check(view.workshop_focus == "", "leaving the Workshop clears the focus")
 	view._open_lookup("hand_axe")
 	check((lookup.get_node("Card/Margin/Body/From") as Label).text.contains("quartermaster"), "the hand axe is sold by the quartermaster")
 	view._close_lookup()

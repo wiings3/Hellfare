@@ -102,6 +102,24 @@ theme_type_variation = &"LabelCaption"
 text = ""
 autowrap_mode = 3
 
+[node name="Focus" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 4
+
+[node name="Text" type="Label" parent="Margin/Content/Focus"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = ""
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+
+[node name="Clear" type="Button" parent="Margin/Content/Focus"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Show all"
+
 [node name="Known" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 110)

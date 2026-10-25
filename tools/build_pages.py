@@ -263,6 +263,9 @@ def workshop_shop():
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 16), "tooltip_text": tip})
     label(s, C + "/Caption", "Learn a recipe once; anyone in the company can craft it.", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Focus", "HBoxContainer", {"visible": False, "theme_override_constants/separation": 4})
+    label(s, C + "/Focus/Text", "", "LabelAccent", {"size_flags_horizontal": 3, "text_overrun_behavior": 3})
+    button(s, C + "/Focus/Clear", "Show all", "PaperButton")
     scroll(s, C + "/Blueprints", 80)
     s.inst(C + "/Empty", INFO, {"visible": False, "text": "You know every blueprint the quartermaster sells.", "icon_kind": "check"})
     s.save(P + "workshop_shop_right.tscn")
@@ -289,6 +292,9 @@ def personnel_workshop():
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 16), "tooltip_text": tip})
     label(s, C + "/Summary", "", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Focus", "HBoxContainer", {"visible": False, "theme_override_constants/separation": 4})
+    label(s, C + "/Focus/Text", "", "LabelAccent", {"size_flags_horizontal": 3, "text_overrun_behavior": 3})
+    button(s, C + "/Focus/Clear", "Show all", "PaperButton")
     scroll(s, C + "/Known", 110)
     s.inst(C + "/KnownEmpty", INFO, {"visible": False, "text": "No blueprints here yet. Buy them in the Shop; better ones turn up in dungeons.", "icon_kind": "plus"})
     button(s, C + "/ShopLink", "Blueprints for sale in the Shop  >", "TextButton", {"size_flags_horizontal": 8})
