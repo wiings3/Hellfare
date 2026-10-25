@@ -8,7 +8,7 @@ func _initialize() -> void:
 
 func _capture() -> void:
 	MoneyMercsState.persist = false
-	var args := {"out": "/tmp/map", "frames": "1", "step": "4", "page": "hq", "hover": "", "shift": "-0.35"}
+	var args := {"out": "/tmp/map", "frames": "1", "step": "4", "page": "hq", "hover": "", "shift": "-0.35", "site": ""}
 	for a in OS.get_cmdline_user_args():
 		var kv: PackedStringArray = a.split("=", true, 1)
 		if kv.size() == 2:
@@ -53,6 +53,8 @@ func _capture() -> void:
 		game.missions[0]["finds"] = [{"uid": "preview", "key": "knights_blade", "from": "Aldo of the Red Wolves", "finder": str(game.missions[0]["ids"][0])}]
 	ui._nav_to("standing")
 	ui._nav_to("hq")
+	if str(args["site"]) != "":
+		ui.selected_site = str(args["site"])
 	ui._nav_to(str(args["page"]))
 	if str(args["hover"]) != "":
 		var page: Control = ui.left_leaf.get_child(0)
