@@ -96,9 +96,15 @@ roads = {
     "harlow": smooth([(137, 199), (150, 178), (163, 152), (182, 124), (197, 102), (205, 92)], 2),
     "deepdelve": smooth([(137, 199), (150, 178), (163, 152), (182, 124), (197, 102), (205, 92), (211, 82), (218, 71), (226, 61)], 2),
 }
-fog_roads = {
-    "fenmire": smooth([(140, 214), (170, 232), (200, 247), (224, 256)], 2),
+# Roads shared by every site of the newer trades (the map shows the region, not each site).
+trade_roads = {
+    "foraging": smooth([(140, 214), (170, 232), (200, 247), (222, 255)], 2),
+    "fishing": smooth([(138, 210), (146, 216), (152, 222)], 1),
+    "hunting": smooth([(108, 200), (88, 186), (70, 160), (52, 140), (38, 128)], 2),
+    "farming": smooth([(112, 214), (104, 222), (98, 230)], 1),
 }
+roads.update(trade_roads)
+fog_roads = {}
 for name, pts in roads.items():
     for i, (x, y) in enumerate(line_points(pts, 1.0)):
         if i % 3 != 2:
@@ -265,8 +271,60 @@ def fog(x0, y0, x1, y1):
                     put(x, y, FAINT)
 
 
-fog(196, 230, 254, 276)   # Fenmire marsh: foraging, not surveyed yet
 fog(96, 6, 168, 44)       # Old ruins: dungeons, not surveyed yet
+
+# --- Fenmire: marsh pools and reeds (foraging) -------------------------------------
+for (px0, py0, rx, ry) in [(214, 252, 9, 4), (236, 262, 7, 3), (228, 246, 5, 2), (206, 266, 6, 3), (244, 248, 4, 2)]:
+    for y in range(py0 - ry, py0 + ry + 1):
+        for x in range(px0 - rx, px0 + rx + 1):
+            if ((x - px0) / rx) ** 2 + ((y - py0) / ry) ** 2 <= 1.0:
+                put(x, y, WASH)
+    for a in range(0, 360, 12):
+        put(round(px0 + rx * math.cos(math.radians(a))), round(py0 + ry * math.sin(math.radians(a))), FAINT)
+for _ in range(40):
+    x, y = rnd.randrange(198, 252), rnd.randrange(238, 274)
+    for dy in range(3):
+        put(x, y - dy, SOFT)
+    put(x - 1, y - 3, INK)
+
+# --- Millbrook: a jetty and a rowing boat on the river (fishing) ---------------------
+for x in range(150, 158):
+    put(x, 223, INK)
+    put(x, 225, SOFT)
+for x in (151, 154, 157):
+    put(x, 226, INK)
+for dx in range(-3, 4):
+    put(160 + dx, 232, INK)
+for dx in range(-2, 3):
+    put(160 + dx, 231, SOFT)
+put(160, 229, INK); put(160, 230, INK)
+
+# --- Greyfang Hills: rolling hills and a lodge (hunting) ------------------------------
+for (cx, cy, w) in [(30, 126, 10), (46, 118, 8), (22, 140, 7), (40, 104, 6)]:
+    hill(cx, cy, w)
+    hill(cx, cy + 2, w - 2)
+for row in range(3):
+    for dx in range(row, 7 - row):
+        put(30 + dx, 131 + row - 3, INK if row == 0 else SOFT)
+rect(30, 131, 36, 134, WASH)
+for dx in range(7):
+    put(30 + dx, 134, INK)
+put(33, 133, INK)
+# antlers over the lodge door
+put(32, 126, INK); put(34, 126, INK); put(31, 125, INK); put(35, 125, INK); put(33, 127, INK)
+
+# --- Home Fields: rows of crops, beehives and a glasshouse (farming) ------------------
+for (bx, by) in [(70, 240), (74, 240)]:
+    rect(bx, by, bx + 2, by + 2, SOFT)
+    put(bx + 1, by - 1, INK)
+for y in range(250, 256):
+    put(66, y, INK); put(76, y, INK)
+for x in range(66, 77):
+    put(x, 250, INK); put(x, 256, INK)
+    if x % 2 == 0:
+        put(x, 253, FAINT)
+for dx in range(0, 11):
+    put(66 + dx, 249 - min(dx, 10 - dx) // 2, SOFT)
 
 # --- Compass ------------------------------------------------------------------
 ccx, ccy = 30, 228

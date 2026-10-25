@@ -68,7 +68,7 @@ func show_company(missions: Array, free_mercs: int) -> void:
 		if road == "":
 			idle += 1  # Guild work happens in town.
 			continue
-		var tool: String = "pick" if road == "harlow" or str(mission.get("trade", "")) == "mining" else "axe"
+		var tool: String = "pick" if road == "harlow" or str(mission.get("trade", "")) in ["mining", "farming"] else "axe"
 		var carriers: Array = []
 		var ids: Array = mission.get("ids", [])
 		for find in mission.get("finds", []):
@@ -85,10 +85,15 @@ func show_company(missions: Array, free_mercs: int) -> void:
 	_process(0.0)
 
 ## Which road a mission's crew walks, or "" if they stay in town.
+## Sites with a road of their own; every other site walks its trade's road to the region.
+const OWN_ROADS := ["mossward_copse", "old_oakwood", "harlow", "deepdelve"]
+
 static func road_for(mission: Dictionary) -> String:
 	match str(mission.get("region", "")):
 		"harlow": return "harlow"
-		"site": return str(mission.get("site", ""))
+		"site":
+			var site: String = str(mission.get("site", ""))
+			return site if OWN_ROADS.has(site) else str(TradeSites.by_id(site).get("trade", ""))
 	return ""
 
 ## Where one crew member stands on the map at `progress` (0..1) of the trip, and what they do.

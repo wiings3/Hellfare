@@ -61,6 +61,22 @@ width = 1.0
 points = PackedVector2Array(137, 199, 137.8, 197.7, 139.4, 195.1, 141.9, 191.1, 145.1, 185.9, 148.4, 180.3, 151.6, 174.4, 154.9, 168.2, 158.1, 161.8, 161.8, 155.1, 165.8, 148.4, 170.1, 141.5, 174.9, 134.5, 179.4, 127.9, 183.6, 121.6, 187.6, 115.8, 191.4, 110.2, 194.7, 105.5, 197.6, 101.5, 200.0, 98.2, 202.0, 95.8, 203.9, 93.2, 205.6, 90.8, 207.2, 88.2, 208.8, 85.8, 210.3, 83.2, 211.9, 80.6, 213.6, 77.9, 215.4, 75.1, 217.2, 72.4, 219.1, 69.8, 221.0, 67.2, 223.0, 64.8, 224.5, 62.9, 225.5, 61.6, 226, 61)
 width = 1.0
 
+[node name="foraging" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(140, 214, 141.9, 215.1, 145.6, 217.4, 151.2, 220.8, 158.8, 225.2, 166.2, 229.6, 173.8, 233.7, 181.2, 237.6, 188.8, 241.4, 195.8, 244.7, 202.2, 247.6, 208.2, 250.0, 213.8, 252.0, 217.9, 253.5, 220.6, 254.5, 222, 255)
+width = 1.0
+
+[node name="fishing" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(138, 210, 140.0, 211.5, 144.0, 214.5, 147.5, 217.5, 150.5, 220.5, 152, 222)
+width = 1.0
+
+[node name="hunting" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(108, 200, 106.8, 199.1, 104.2, 197.4, 100.5, 194.8, 95.5, 191.2, 90.6, 187.0, 85.9, 182.0, 81.2, 176.2, 76.8, 169.8, 72.2, 163.6, 67.8, 157.9, 63.2, 152.5, 58.8, 147.5, 54.5, 143.0, 50.5, 139.0, 46.8, 135.5, 43.2, 132.5, 40.6, 130.2, 38.9, 128.8, 38, 128)
+width = 1.0
+
+[node name="farming" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(112, 214, 110.0, 216.0, 106.0, 220.0, 102.5, 224.0, 99.5, 228.0, 98, 230)
+width = 1.0
+
 [node name="Chimneys" type="Node2D" parent="Margin/Content/Map"]
 
 [node name="Chimney1" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
@@ -87,18 +103,6 @@ offset_left = 112.0
 offset_top = 18.0
 offset_right = 164.0
 offset_bottom = 30.0
-horizontal_alignment = 1
-mouse_filter = 1
-tooltip_text = "Not yet surveyed. New work sites will open here."
-
-[node name="Fenmire" type="Label" parent="Margin/Content/Map"]
-theme_type_variation = &"MapLabel"
-text = "Unsurveyed"
-layout_mode = 0
-offset_left = 198.0
-offset_top = 248.0
-offset_right = 254.0
-offset_bottom = 260.0
 horizontal_alignment = 1
 mouse_filter = 1
 tooltip_text = "Not yet surveyed. New work sites will open here."
@@ -159,6 +163,46 @@ offset_left = 196.0
 offset_top = 28.0
 offset_right = 248.0
 offset_bottom = 41.0
+
+[node name="foraging" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Fenmire"
+layout_mode = 0
+offset_left = 196.0
+offset_top = 230.0
+offset_right = 246.0
+offset_bottom = 243.0
+
+[node name="fishing" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Millbrook"
+layout_mode = 0
+offset_left = 166.0
+offset_top = 212.0
+offset_right = 214.0
+offset_bottom = 225.0
+
+[node name="hunting" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Greyfang Hills"
+layout_mode = 0
+offset_left = 4.0
+offset_top = 100.0
+offset_right = 74.0
+offset_bottom = 113.0
+
+[node name="farming" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Home Fields"
+layout_mode = 0
+offset_left = 36.0
+offset_top = 258.0
+offset_right = 92.0
+offset_bottom = 271.0
 
 [node name="Fallen" type="Control" parent="Margin/Content/Map"]
 layout_mode = 1

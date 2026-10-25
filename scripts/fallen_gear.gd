@@ -26,12 +26,25 @@ const FIND_CHANCE := {"Cautious": 0.09, "Balanced": 0.12, "Deep Push": 0.18, "Lo
 ## Chance another player picks up an item from your share before it expires.
 const TAKEN_CHANCE := 0.4
 ## NPC pool items added per hour at each site (dangerous sites see more deaths).
-const NPC_RATE := {"mossward_copse": 6.0, "old_oakwood": 14.0, "harlow": 6.0, "deepdelve": 16.0}
+const NPC_RATE := {"mossward_copse": 6.0, "old_oakwood": 14.0, "harlow": 6.0, "deepdelve": 16.0,
+	"fenmire": 8.0, "sunreach": 10.0, "frostvale": 14.0, "silverrun": 4.0, "glasswater": 6.0, "greywater_coast": 10.0,
+	"drowned_deep": 14.0, "hollow_fields": 4.0, "greyfang_hills": 12.0, "elkmoor": 14.0, "bleakridge": 18.0}
 ## What fallen NPC mercenaries carried, by site. Weights.
 const NPC_LOOT := {
 	"mossward_copse": {"hand_axe": 30, "leather": 24, "felling_axe": 12, "rusted_sword": 10, "leather_cap": 6, "leather_boots": 6, "iron_spear": 4, "chainmail": 4, "steel_sword": 3, "birch_shortbow": 3, "wardens_axe": 1.2, "veil_of_ashes": 0.4, "knights_blade": 0.3, "gilded_plate": 0.2},
 	"old_oakwood": {"felling_axe": 20, "hand_axe": 15, "leather": 12, "rusted_sword": 8, "chainmail": 8, "steel_sword": 6, "wolfhide_jerkin": 6, "oak_hunting_bow": 5, "steel_war_axe": 4, "steel_kite_shield": 3, "wardens_axe": 2.5, "huntmasters_spear": 1.0, "stormstring": 0.6, "knights_blade": 1.0, "gilded_plate": 0.5},
 	"deepdelve": {"basic_pick": 18, "reinforced_pick": 15, "leather": 10, "chainmail": 9, "rusted_sword": 8, "steel_sword": 8, "steel_helm": 5, "steel_mace": 4, "steel_buckler": 4, "copper_lantern": 3, "dwarven_pick": 2.5, "graveward_maul": 0.8, "nightfang": 0.6, "knights_blade": 1.0, "gilded_plate": 0.7, "widowmaker": 0.4},
+	"fenmire": {"copper_sickle": 30, "leather": 20, "steel_sickle": 10, "wolfhide_cap": 6, "iron_spear": 5, "veil_of_ashes": 0.6},
+	"sunreach": {"steel_sickle": 24, "silversteel_sickle": 8, "wolfhide_jerkin": 10, "elkhide_boots": 6, "steel_dagger": 5, "nightfang": 0.6},
+	"frostvale": {"silversteel_sickle": 20, "gloomiron_sickle": 4, "elkhide_jerkin": 10, "direbear_cap": 4, "silversteel_spear": 5, "veil_of_ashes": 0.8, "nightfang": 0.6},
+	"silverrun": {"birch_rod": 30, "oak_rod": 14, "leather": 20, "wolfhide_boots": 6, "wanderers_rod": 0.6},
+	"glasswater": {"oak_rod": 24, "yew_rod": 8, "wolfhide_jerkin": 10, "steel_dagger": 4, "wanderers_rod": 0.8},
+	"greywater_coast": {"yew_rod": 20, "ironwood_rod": 5, "chainmail": 10, "silversteel_scale_hauberk": 4, "wanderers_rod": 1.0, "widowmaker": 0.4},
+	"drowned_deep": {"ironwood_rod": 18, "ghostwood_rod": 2, "gloomiron_brigandine_hauberk": 4, "wanderers_rod": 1.2, "widowmaker": 0.6},
+	"hollow_fields": {"birch_shortbow": 30, "iron_spear": 14, "leather": 20, "leather_cap": 8, "huntmasters_spear": 0.4},
+	"greyfang_hills": {"oak_hunting_bow": 24, "steel_spear": 12, "oak_crossbow": 6, "wolfhide_jerkin": 10, "steel_war_axe": 4, "huntmasters_spear": 1.0, "stormstring": 0.6},
+	"elkmoor": {"yew_longbow": 20, "silversteel_spear": 10, "yew_crossbow": 6, "elkhide_jerkin": 10, "huntmasters_spear": 1.0, "stormstring": 0.8},
+	"bleakridge": {"ironwood_warbow": 16, "gloomiron_spear": 8, "ironwood_crossbow": 6, "direbear_jerkin": 8, "graveward_maul": 0.8, "stormstring": 1.0, "widowmaker": 0.6},
 	"harlow": {"basic_pick": 30, "leather": 24, "reinforced_pick": 10, "rusted_sword": 10, "ringmail_coif": 5, "iron_dagger": 4, "chainmail": 4, "steel_sword": 3, "iron_helm": 3, "dwarven_pick": 0.8, "knights_blade": 0.3, "gilded_plate": 0.2},
 }
 const COMPANIES := ["Iron Hands", "Grey Lanterns", "Red Wolves", "Ashford Free Company", "Black Pines", "Copper Crowns", "Hollow Oaks", "Brightwater Guild", "Lantern Road Co.", "Salt Kings"]

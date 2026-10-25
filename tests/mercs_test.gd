@@ -28,9 +28,10 @@ func _initialize() -> void:
 		var best_seen: int = 0
 		for epoch in range(200):
 			var board: Array[Dictionary] = Mercs.generate_board(epoch, tier)
-			check(board.size() == 7, "seven applicants")
-			for i in range(3):
-				check(Mercs.best_trade(board[i]) == Mercs.RECRUIT_TRADES[i] and Mercs.best_level(board[i]) <= 3, "green applicant %d at tier %d" % [i, tier])
+			check(board.size() == 8, "eight applicants")
+			for i in range(4):
+				var want: String = Mercs.ENTRY_TRADES[i] if i < 3 else Mercs.ROTATING_TRADES[posmod(epoch, 4)]
+				check(Mercs.best_trade(board[i]) == want and Mercs.best_level(board[i]) <= 3, "green applicant %d at tier %d (%s, wanted %s)" % [i, tier, Mercs.best_trade(board[i]), want])
 			for c in board:
 				best_seen = maxi(best_seen, Mercs.best_level(c))
 				check(Mercs.best_level(c) <= cap, "tier %d applicant within cap" % tier)

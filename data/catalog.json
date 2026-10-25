@@ -78,7 +78,7 @@
    "kind": "site",
    "trade": "foraging",
    "tier": 1,
-   "status": "planned",
+   "status": "live",
    "level": 0
   },
   "fenmire": {
@@ -86,7 +86,7 @@
    "kind": "site",
    "trade": "foraging",
    "tier": 2,
-   "status": "planned",
+   "status": "live",
    "level": 8
   },
   "sunreach": {
@@ -94,7 +94,7 @@
    "kind": "site",
    "trade": "foraging",
    "tier": 3,
-   "status": "planned",
+   "status": "live",
    "level": 18
   },
   "frostvale": {
@@ -102,7 +102,7 @@
    "kind": "site",
    "trade": "foraging",
    "tier": 4,
-   "status": "planned",
+   "status": "live",
    "level": 30
   },
   "millbrook_pond": {
@@ -110,7 +110,7 @@
    "kind": "site",
    "trade": "fishing",
    "tier": 1,
-   "status": "planned",
+   "status": "live",
    "level": 0
   },
   "silverrun": {
@@ -118,7 +118,7 @@
    "kind": "site",
    "trade": "fishing",
    "tier": 2,
-   "status": "planned",
+   "status": "live",
    "level": 8
   },
   "glasswater": {
@@ -126,7 +126,7 @@
    "kind": "site",
    "trade": "fishing",
    "tier": 3,
-   "status": "planned",
+   "status": "live",
    "level": 18
   },
   "greywater_coast": {
@@ -134,7 +134,7 @@
    "kind": "site",
    "trade": "fishing",
    "tier": 4,
-   "status": "planned",
+   "status": "live",
    "level": 30
   },
   "drowned_deep": {
@@ -142,7 +142,7 @@
    "kind": "site",
    "trade": "fishing",
    "tier": 5,
-   "status": "planned",
+   "status": "live",
    "level": 45
   },
   "hollow_fields": {
@@ -150,7 +150,7 @@
    "kind": "site",
    "trade": "hunting",
    "tier": 1,
-   "status": "planned",
+   "status": "live",
    "level": 0
   },
   "greyfang_hills": {
@@ -158,7 +158,7 @@
    "kind": "site",
    "trade": "hunting",
    "tier": 2,
-   "status": "planned",
+   "status": "live",
    "level": 8
   },
   "elkmoor": {
@@ -166,7 +166,7 @@
    "kind": "site",
    "trade": "hunting",
    "tier": 3,
-   "status": "planned",
+   "status": "live",
    "level": 18
   },
   "bleakridge": {
@@ -174,7 +174,7 @@
    "kind": "site",
    "trade": "hunting",
    "tier": 4,
-   "status": "planned",
+   "status": "live",
    "level": 30
   },
   "home_fields": {
@@ -182,7 +182,7 @@
    "kind": "farm",
    "trade": "farming",
    "tier": 1,
-   "status": "planned",
+   "status": "live",
    "level": 0
   },
   "tilled_acres": {
@@ -190,7 +190,7 @@
    "kind": "farm",
    "trade": "farming",
    "tier": 2,
-   "status": "planned",
+   "status": "live",
    "level": 8,
    "needs": "field_plots"
   },
@@ -199,7 +199,7 @@
    "kind": "farm",
    "trade": "farming",
    "tier": 2,
-   "status": "planned",
+   "status": "live",
    "level": 8,
    "needs": "apiary"
   },
@@ -208,7 +208,7 @@
    "kind": "farm",
    "trade": "farming",
    "tier": 3,
-   "status": "planned",
+   "status": "live",
    "level": 18,
    "needs": "glasshouse_build"
   },
@@ -460,7 +460,8 @@
    "value": 5,
    "sources": [
     "old_oakwood",
-    "mossward_meadows"
+    "mossward_meadows",
+    "fenmire"
    ],
    "note": "Healing draughts.",
    "sell_only": false
@@ -482,7 +483,8 @@
    "group": "herb",
    "value": 18,
    "sources": [
-    "fenmire"
+    "fenmire",
+    "frostvale"
    ],
    "note": "Greater healing and tonics.",
    "sell_only": false

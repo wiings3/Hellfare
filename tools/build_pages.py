@@ -780,7 +780,7 @@ def company_map():
     for i, (x, y) in enumerate(chimneys):
         s.node(M + "/Chimneys/Chimney%d" % (i + 1), "Marker2D", {"position": (float(x), float(y)), "gizmo_extents": 3.0})
     # Unsurveyed lands.
-    for name, text, x, y, w in [("Ruins", "Unsurveyed", 112, 18, 52), ("Fenmire", "Unsurveyed", 198, 248, 56)]:
+    for name, text, x, y, w in [("Ruins", "Unsurveyed", 112, 18, 52)]:
         label(s, M + "/" + name, text, "MapLabel", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 12), "horizontal_alignment": 1, "mouse_filter": 1,
             "tooltip_text": "Not yet surveyed. New work sites will open here."})
@@ -788,7 +788,10 @@ def company_map():
     s.node(M + "/Sites", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
     for site, text, x, y, w in [("mossward_copse", "Mossward Copse", 14, 190, 76), ("old_oakwood", "Old Oakwood", 8, 24, 104),
                                 ("harlow", "Harlow Mines", 174, 98, 66), ("town", "Mossward", 104, 222, 40),
-                                ("deepdelve", "Deepdelve", 196, 28, 52)]:
+                                ("deepdelve", "Deepdelve", 196, 28, 52),
+                                # The newer trades: one label per region, shared by its sites.
+                                ("foraging", "Fenmire", 196, 230, 50), ("fishing", "Millbrook", 166, 212, 48),
+                                ("hunting", "Greyfang Hills", 4, 100, 70), ("farming", "Home Fields", 36, 258, 56)]:
         button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 13)})
     # Grave markers: gear of the fallen this company could find at each site.

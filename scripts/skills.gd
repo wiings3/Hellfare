@@ -3,8 +3,8 @@ class_name TradeSkills
 ## Per-mercenary trade skills, RuneScape-style: experience per trade, levels 1 to 50.
 ## Stored on each mercenary as merc["skills"] = {"logging": xp, "mining": xp, ...}.
 
-const TRADES := ["logging", "mining", "foraging", "combat"]
-const NAMES := {"logging": "Logging", "mining": "Mining", "foraging": "Foraging", "combat": "Combat"}
+const TRADES := ["logging", "mining", "foraging", "fishing", "hunting", "farming", "combat"]
+const NAMES := {"logging": "Logging", "mining": "Mining", "foraging": "Foraging", "fishing": "Fishing", "hunting": "Hunting", "farming": "Farming", "combat": "Combat"}
 const MAX_LEVEL := 50
 ## Which trade an old hiring role specialised in (only used to migrate older saves).
 const ROLE_TRADE := {"Woodcutter": "logging", "Miner": "mining", "Forager": "foraging", "Guard": "combat", "Scout": "foraging"}

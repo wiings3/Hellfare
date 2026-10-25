@@ -105,6 +105,10 @@ func _test() -> void:
 	var roles: Dictionary = {}
 	for candidate in restored.recruitment_board():
 		roles[Mercs.best_trade(candidate)] = true
+	# A hand this company already signed from the same board counts as on it.
+	for merc in restored.crew:
+		if str(merc["id"]).begins_with("candidate_%d_" % int(GameClock.now() / 1800.0)):
+			roles[Mercs.best_trade(merc)] = true
 	assert(roles.has("logging") and roles.has("mining") and roles.has("combat"))
 	restored.harlow["fallen"] = memorial.slice(0, memorial.size() - MercsV05.FIRST_NAMES.size() * MercsV05.LAST_NAMES.size())
 	assert(restored.next_item_id >= 3)

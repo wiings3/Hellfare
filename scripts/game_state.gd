@@ -420,7 +420,27 @@ func _haul(merc: Dictionary, trade: String, buffs: Dictionary) -> float:
 ## The right tool works at full pace; anything else (a weapon, the wrong tool, bare hands)
 ## at half pace. Whoever holds a weapon stands guard.
 func _effort(merc: Dictionary, trade: String) -> float:
+	if trade == "hunting":
+		return 1.0 if Gear.hunts(merc) else 0.5
 	return 1.0 if Mercs.job(merc) == trade else 0.5
+
+## Bone meal spread on the fields: +15% on a farming trip (one is used per trip).
+const BONE_MEAL_BONUS := 1.15
+
+func _fertilised(trade: String) -> bool:
+	return trade == "farming" and int(resources.get("bone_meal", 0)) > 0
+
+## Blueprints that can turn up at a site: its tier's tools, food, trinkets and packs not yet
+## owned. Chance per trip, more on long trips.
+const BLUEPRINT_FIND := 0.02
+
+func site_blueprints(site_id: String) -> Array:
+	var out: Array = []
+	for key in Catalog.items():
+		if (Catalog.items()[key].get("blueprint", []) as Array).has(site_id) and not blueprints.has(key):
+			out.append(key)
+	out.sort()
+	return out
 
 ## Rare-find chance for a crew (longer trips find more; a Keen eye finds half again as often).
 func _rare_chance(rare: Dictionary, order: Dictionary, workers: Array, buffs: Dictionary = {}) -> float:
@@ -453,7 +473,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 	var wages: int = 0
 	var share: float = 0.0
 	var units: Dictionary = {}
-	var leader: float = 1.1 if Mercs.crew_has(workers, "born_leader") else 1.0
+	var leader: float = (1.1 if Mercs.crew_has(workers, "born_leader") else 1.0) * (BONE_MEAL_BONUS if _fertilised(trade) else 1.0)
 	var saved: float = 0.0
 	var quicker: float = 0.0
 	var guarded: float = 0.0
@@ -496,6 +516,8 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 	var cost: int = int(round(float(int(site.get("supplies", 0)) + wages) * float(order.get("cost", 1.0))))
 	return {
 		"site": site_id, "trade": trade, "workers": workers.size(), "guards": guards,
+		"needs": str(site.get("needs", "")) if not has_upgrade(str(site.get("needs", ""))) else "",
+		"fertilised": _fertilised(trade),
 		"best_level": best_level, "meets_level": best_level >= int(site.get("level", 1)),
 		"units": units, "share": share, "value": int(round(value)), "cost": cost,
 		"profit": int(round(value)) - cost, "injury": injury, "death": death,
@@ -521,6 +543,8 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 		if int(merc.get("health", 100)) < 25:
 			return "%s is too injured for work." % str(merc["name"])
 	var plan: Dictionary = site_forecast(site_id, ids, approach)
+	if str(plan["needs"]) != "":
+		return "Build the %s first." % str(Catalog.data()["upgrades"][str(plan["needs"])]["name"])
 	if not bool(plan["meets_level"]):
 		return "%s needs a crew member with %s level %d." % [str(site["name"]), TradeSkills.NAMES.get(str(site["trade"]), "trade"), int(site["level"])]
 	if gold < int(plan["cost"]):
@@ -544,8 +568,10 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 		"ids": ids.duplicate(), "tactic": approach, "cost": int(plan["cost"]),
 		"share": float(plan["share"]), "injury": float(plan["injury"]), "death": float(plan["death"]),
 		"xp": int(plan["xp"]), "seed": randi(), "started": now, "finish": now + int(plan["duration"]),
-		"buffs": fed
+		"buffs": fed, "fertilised": bool(plan["fertilised"])
 	})
+	if bool(plan["fertilised"]):
+		resources["bone_meal"] = int(resources["bone_meal"]) - 1
 	_roll_fallen(missions.back(), site_id)
 	save_game()
 	return "The crew set out for %s." % str(site["name"])
@@ -572,7 +598,9 @@ func _site_finish(mission: Dictionary) -> void:
 	for merc_id in mission.get("ids", []):
 		if not merc_by_id(str(merc_id)).is_empty():
 			team.append(merc_by_id(str(merc_id)))
-	var leader: float = 1.1 if Mercs.crew_has(team, "born_leader") else 1.0
+	var leader: float = (1.1 if Mercs.crew_has(team, "born_leader") else 1.0) * (BONE_MEAL_BONUS if bool(mission.get("fertilised", false)) else 1.0)
+	if bool(mission.get("fertilised", false)):
+		events.append("Bone meal went on the fields first.")
 	for merc_id in mission.get("ids", []):
 		var id: String = str(merc_id)
 		var worker: Dictionary = merc_by_id(id)
@@ -663,6 +691,14 @@ func _site_finish(mission: Dictionary) -> void:
 			loot[good] = int(loot.get(good, 0)) + int(rare.get("count", 1))
 			finds.append(str(RESOURCE_NAMES.get(good, good)))
 			events.append("A rare find: %s." % str(rare.get("note", good)))
+	var found_bp: Array = site_blueprints(str(mission.get("site", "")))
+	if survivors > 0 and not found_bp.is_empty():
+		var bp_chance: float = minf(0.5, BLUEPRINT_FIND * maxf(1.0, float(order.get("duration", 1.0))) * (1.5 if Mercs.crew_has(team, "keen_eye") else 1.0))
+		if rng.randf() < bp_chance:
+			var bp: String = str(found_bp[rng.randi_range(0, found_bp.size() - 1)])
+			blueprints.append(bp)
+			finds.append("Blueprint: " + str(Catalog.item(bp)["name"]))
+			events.append("Found a blueprint: %s. The company can make it now." % str(Catalog.item(bp)["name"]))
 	var hauled: Array[String] = []
 	var value: int = _settle_finds(mission, str(mission.get("site", "")), dead_ids, events, finds)
 	for good in loot:

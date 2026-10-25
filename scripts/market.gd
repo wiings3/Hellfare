@@ -51,6 +51,11 @@ var saturation: Dictionary = {}
 ## good -> Array of {"t": int, "p": int} reference price samples, oldest first
 var history: Dictionary = {}
 
+## How many units merchants absorb before prices sag, for goods without a set depth:
+## cheap bulk goods move in large lots, dear ones in small.
+func auto_depth(good: String) -> float:
+	return clampf(600.0 / maxf(1.0, float(base_prices.get(good, 10))), 4.0, 120.0)
+
 func _init(bases: Dictionary = {}) -> void:
 	base_prices = bases
 
@@ -122,7 +127,7 @@ func saturation_units(good: String, now: int = -1) -> float:
 ## Price multiplier from saturation: below 1 when flooded, above 1 when scarce.
 func saturation_factor(good: String, extra_units: float = 0.0, now: int = -1) -> float:
 	var s: float = saturation_units(good, now) + extra_units
-	var depth: float = float(DEPTH.get(good, 50.0))
+	var depth: float = float(DEPTH.get(good, auto_depth(good)))
 	var pull: float = absf(s) / (absf(s) + depth) * SATURATION_PULL
 	return 1.0 - pull if s >= 0.0 else 1.0 + pull
 

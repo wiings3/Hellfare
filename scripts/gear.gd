@@ -205,7 +205,20 @@ static func job(merc: Dictionary) -> String:
 		"weapon": return "combat"
 	return ""
 
+## True if the weapon in hand is good for hunting (bows best, then crossbows and spears).
+static func hunts(merc: Dictionary) -> bool:
+	if job(merc) != "combat":
+		return false
+	return float((def(str(in_slot(merc, "main_hand").get("key", ""))).get("stats", {}) as Dictionary).get("hunt", 0)) > 0.0
+
 static func tool_power(merc: Dictionary, trade: String) -> float:
+	if trade == "hunting":
+		if not hunts(merc):
+			return 0.0
+		var w: Dictionary = in_slot(merc, "main_hand")
+		var wd: Dictionary = def(str(w["key"]))
+		var tier: float = 4.5 if bool(wd.get("found_only", false)) else float(wd.get("tier", 1))
+		return round(tier * float(wd["stats"]["hunt"]) / 2.0) * effect(w)
 	if job(merc) != trade:
 		return 0.0
 	var item: Dictionary = in_slot(merc, "main_hand")

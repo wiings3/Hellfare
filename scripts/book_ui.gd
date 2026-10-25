@@ -39,6 +39,8 @@ const ROW_CREW_SLOT := preload("res://scenes/journal/rows/crew_slot.tscn")
 const ROW_ROSTER_CARD := preload("res://scenes/journal/rows/roster_card.tscn")
 const ROW_EXPEDITION := preload("res://scenes/journal/rows/expedition_row.tscn")
 const ROW_EMPTY_EXPEDITION := preload("res://scenes/journal/rows/empty_expedition.tscn")
+## Shelves shown on the company page (two rows of nine).
+const WAREHOUSE_SLOTS := 18
 const ITEM_SLOT := preload("res://scenes/journal/widgets/item_slot.tscn")
 
 const BUSTS := {
@@ -269,6 +271,30 @@ func _draw_region_map() -> void:
 		if locked:
 			btn.modulate = Color(1, 1, 1, 0.7)
 		btn.pressed.connect(_open_site.bind(id))
+	# Regions of the newer trades: one label each, opening the best site the company can work.
+	for trade in ["foraging", "fishing", "hunting", "farming"]:
+		if not left.has_node(sites + trade):
+			continue
+		var region := left.get_node(sites + trade) as Button
+		var best: int = int(_best_in(trade)["level"])
+		var open_sites: Array[String] = []
+		var target: String = ""
+		for site in TradeSites.for_trade(trade):
+			var ready: bool = best >= int(site["level"]) and game.has_upgrade(str(site.get("needs", "")))
+			open_sites.append("%s%s" % [str(site["name"]), "" if ready else "  (%s %d%s)" % [TradeSkills.NAMES[trade], int(site["level"]), ", needs building" if not game.has_upgrade(str(site.get("needs", ""))) else ""]])
+			if ready:
+				target = str(site["id"])
+		var out: int = 0
+		for mission in game.missions:
+			if RegionMap.road_for(mission) == trade:
+				out += 1
+		region.tooltip_text = "%s
+%s%s" % [TradeSkills.NAMES[trade], "
+".join(open_sites), ("
+%d crew working here." % out) if out > 0 else ""]
+		if target == "":
+			target = str(TradeSites.for_trade(trade)[0]["id"])
+		region.pressed.connect(_open_site.bind(target))
 	_bind_fallen(left)
 	var town := left.get_node(sites + "town") as Button
 	town.tooltip_text = "Mossward, home of the company.\n%d resting in town." % game.free_crew()
@@ -371,14 +397,32 @@ func _draw_standing() -> void:
 	for merc in game.crew:
 		pieces += (merc.get("equipment", {}) as Dictionary).size()
 	left.get_node(c + "Stats/Gear").value = _plural(pieces, "piece")
-	# Warehouse slots.
+	# Warehouse: the goods held, most valuable stack first, over two rows of slots.
+	var grid := left.get_node(c + "Goods") as GridContainer
+	var held: Array = []
 	for key in MoneyMercsState.RESOURCE_ORDER:
-		var slot := left.get_node(c + "Goods/" + str(key))
-		slot.icon = _item_icon(str(key))
-		var amount: int = int(game.resources.get(str(key), 0))
-		slot.count = amount if amount > 0 else -1
-		slot.dim = amount <= 0
-		slot.tooltip_text = "%s: %d stored\nSells for %d G each" % [_resource_name(str(key)), amount, game.sell_price(str(key))]
+		if int(game.resources.get(str(key), 0)) > 0:
+			held.append(str(key))
+	held.sort_custom(func(a, b): return int(game.resources[a]) * game.sell_price(a) > int(game.resources[b]) * game.sell_price(b))
+	var shown: int = WAREHOUSE_SLOTS - 1 if held.size() > WAREHOUSE_SLOTS else held.size()
+	for i in range(WAREHOUSE_SLOTS):
+		var slot := ITEM_SLOT.instantiate()
+		grid.add_child(slot)
+		if i < shown:
+			var key: String = held[i]
+			var amount: int = int(game.resources[key])
+			slot.name = key
+			slot.icon = _item_icon(key)
+			slot.count = amount
+			slot.tooltip_text = "%s: %d stored\nSells for %d G each" % [_resource_name(key), amount, game.sell_price(key)]
+		elif i == shown and held.size() > shown:
+			slot.name = "More"
+			slot.count = held.size() - shown
+			slot.tooltip_text = "%d more goods in the warehouse. The Exchange lists them all." % (held.size() - shown)
+			slot.gui_input.connect(func(e): if e is InputEventMouseButton and e.pressed: _turn_to("market"))
+		else:
+			slot.dim = true
+			slot.tooltip_text = "Empty shelf"
 	_bind_advice(left)
 
 ## Right page: expeditions in the field, then the latest report.
@@ -1162,7 +1206,7 @@ func _draw_exchange() -> void:
 	(right.get_node(c + "Head/Id/Name") as Label).text = _resource_name(key)
 	(right.get_node(c + "Head/Id/Desc") as Label).text = str(MoneyMercsState.RESOURCE_DESC.get(key, ""))
 	right.get_node(c + "Prices/Sell").value = _money(sell_price)
-	var buyable: bool = key != "relic" and key != "sovereign"
+	var buyable: bool = game.merchants_sell(key)
 	right.get_node(c + "Prices/Buy").value = _money(buy_price) if buyable else "Not sold"
 	right.get_node(c + "Prices/Owned").value = str(owned)
 	# Why the price is what it is: the day's drift and news, and merchant saturation.
@@ -1214,7 +1258,7 @@ func _draw_exchange() -> void:
 		sell.pressed.connect(_trade.bind(key, false, n))
 		var buy := right.get_node(desk + "BuyRow/" + str(pair[0])) as Button
 		buy.disabled = not buyable or game.gold < game.buy_price(key, n) * n
-		buy.tooltip_text = "-%s (%s each)" % [_money(game.buy_price(key, n) * n), _money(game.buy_price(key, n))] if buyable else "Merchants never sell these. Find them in the field."
+		buy.tooltip_text = "-%s (%s each)" % [_money(game.buy_price(key, n) * n), _money(game.buy_price(key, n))] if buyable else ("Merchants never sell these. Find them in the field." if key in ["relic", "sovereign"] else "Merchants don't stock food or potions: cook or brew them, or buy from players.")
 		buy.pressed.connect(_trade.bind(key, true, n))
 	var sell_all := right.get_node(desk + "SellRow/All") as Button
 	sell_all.disabled = owned <= 0

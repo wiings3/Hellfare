@@ -2,8 +2,9 @@ extends RefCounted
 class_name MercsV05
 
 # Items live in data/catalog.json now (see Catalog and Gear). The quartermaster still sells
-# the eight pieces the game started with; everything else is crafted or found.
-const SHOP := ["hand_axe", "felling_axe", "basic_pick", "reinforced_pick", "rusted_sword", "steel_sword", "leather", "chainmail"]
+# the starter pieces for every trade; everything else is crafted or found.
+const SHOP := ["hand_axe", "felling_axe", "basic_pick", "reinforced_pick", "rusted_sword", "steel_sword", "leather", "chainmail",
+	"copper_sickle", "birch_rod", "birch_shortbow", "iron_hoe"]
 
 const FIRST_NAMES := [
 	"Edric", "Nessa", "Tobin", "Cora", "Lukas", "Yara", "Fenna", "Rurik",

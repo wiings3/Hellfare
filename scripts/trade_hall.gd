@@ -710,7 +710,7 @@ func _npc_message(t: int) -> Dictionary:
 		qty = 1
 	else:
 		good = _pick_good(kind == "collector")
-		var span: Array = GOOD_QTY.get(good, [1, 10])
+		var span: Array = GOOD_QTY.get(good, _auto_qty(good))
 		qty = rng.randi_range(int(span[0]), int(span[1]))
 		if kind == "quartermaster":
 			qty *= 2
@@ -724,17 +724,22 @@ func _npc_message(t: int) -> Dictionary:
 		"qty": qty, "price": price, "offer": kind == "haggler", "left": qty,
 		"until": t + (rng.randi_range(1800, 3600) if kind == "contractor" else rng.randi_range(180, 1200))}
 
+## Typical lot for goods without a set size: about 60 to 300 gold's worth.
+func _auto_qty(good: String) -> Array:
+	var price: float = maxf(1.0, float(market.base_prices.get(good, 10)) if market != null else 10.0)
+	return [maxi(1, int(60.0 / price)), maxi(3, int(300.0 / price))]
+
 func _pick_good(rare_only: bool) -> String:
 	var total: float = 0.0
 	for good in goods:
 		if rare_only and not RARE.has(good):
 			continue
-		total += float(GOOD_WEIGHT.get(good, 1.0))
+		total += float(GOOD_WEIGHT.get(good, 0.4))
 	var roll: float = rng.randf() * total
 	for good in goods:
 		if rare_only and not RARE.has(good):
 			continue
-		roll -= float(GOOD_WEIGHT.get(good, 1.0))
+		roll -= float(GOOD_WEIGHT.get(good, 0.4))
 		if roll <= 0.0:
 			return str(good)
 	return str(goods[0])

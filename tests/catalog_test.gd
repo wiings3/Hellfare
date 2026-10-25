@@ -193,8 +193,11 @@ func _initialize() -> void:
 	# every warehouse good is a catalog material or craftable good with the same name and price.
 	var old_prices := {"hand_axe": 26, "felling_axe": 98, "basic_pick": 28, "reinforced_pick": 105, "rusted_sword": 30, "steel_sword": 125, "leather": 38, "chainmail": 138}
 	for key in MercsV05.SHOP:
-		check(items.has(key) and not bool(items[key].get("found_only", false)), "shop item in catalog: " + key)
-		check(int(items.get(key, {}).get("value", 0)) == int(old_prices.get(key, -1)), "shop price unchanged: " + key)
+		check(items.has(key) and not bool(items[key].get("found_only", false)) and int(items[key]["tier"]) == 1 or old_prices.has(key), "shop sells tier-1 starter gear: " + key)
+	for key in old_prices:
+		check(MercsV05.SHOP.has(key) and int(items.get(key, {}).get("value", 0)) == int(old_prices[key]), "shop price unchanged: " + key)
+	for trade in ["foraging", "fishing", "hunting", "farming"]:
+		check(MercsV05.SHOP.has(str(Mercs.STARTER_TOOL[trade])), "the quartermaster stocks a starter tool for " + trade)
 	for key in ["dwarven_pick", "wardens_axe", "knights_blade", "gilded_plate"]:
 		check(bool(items.get(key, {}).get("found_only", false)), "still found-only: " + key)
 	for good in MoneyMercsState.RESOURCE_ORDER:

@@ -70,7 +70,8 @@ func _verify() -> void:
 	var map_page: Control = view.left_leaf.get_child(0)
 	check(map_page.scene_file_path == "res://scenes/journal/pages/company_map.tscn", "company opens on the region map")
 	var region_map := map_page.get_node("Margin/Content/Map") as RegionMap
-	check(region_map._roads.size() == TradeSites.SITES.size(), "a road to each site")
+	for site in TradeSites.SITES:
+		check(region_map._roads.has(RegionMap.road_for({"region": "site", "site": str(site["id"])})), "a road to " + str(site["id"]))
 	check(region_map.get_node("Crews").get_child_count() == 0, "no crews and nobody idle at the start")
 	check((map_page.get_node("Margin/Content/Map/Sites/old_oakwood") as Button).text.contains("Logging 8"), "locked site shows its requirement")
 	var grave := map_page.get_node("Margin/Content/Map/Fallen/harlow") as Button
@@ -89,7 +90,7 @@ func _verify() -> void:
 	check(company_right.scene_file_path == "res://scenes/journal/pages/company_right.tscn", "company right scene")
 	check(view.money_label.text.contains("350"), "purse shows starting gold")
 	check((company_left.get_node("Margin/Content/Hero/Worth/WorthValue") as Label).text.contains("350"), "worth shown")
-	check(company_left.get_node("Margin/Content/Goods").get_child_count() == MoneyMercsState.RESOURCE_ORDER.size(), "warehouse slot per resource")
+	check(company_left.get_node("Margin/Content/Goods").get_child_count() == view.WAREHOUSE_SLOTS, "two rows of warehouse shelves")
 	check((company_left.get_node("Margin/Content/AdviceAction") as Button).visible, "advice offers a next step")
 	check((company_right.get_node("Margin/Content/EmptyReport") as Control).visible, "empty report note")
 	check(company_right.get_node("Margin/Content/Expeditions").get_child_count() == view.game.expedition_slots, "one row per expedition slot")

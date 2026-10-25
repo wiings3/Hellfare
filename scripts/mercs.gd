@@ -8,10 +8,15 @@ extends RefCounted
 const V05 = preload("res://scripts/v05_rules.gd")
 
 ## Trades a recruit can be good at today (more join as their expeditions open).
-const RECRUIT_TRADES := ["logging", "mining", "combat"]
-const JOB_NAMES := {"logging": "Woodcutter", "mining": "Miner", "combat": "Guard", "": "Labourer"}
+const RECRUIT_TRADES := ["logging", "mining", "combat", "foraging", "fishing", "hunting", "farming"]
+## Always on the board: a green hand for each of these, plus one for a rotating newer trade.
+const ENTRY_TRADES := ["logging", "mining", "combat"]
+const ROTATING_TRADES := ["foraging", "fishing", "hunting", "farming"]
+const JOB_NAMES := {"logging": "Woodcutter", "mining": "Miner", "combat": "Guard", "foraging": "Forager",
+	"fishing": "Angler", "hunting": "Hunter", "farming": "Farmhand", "": "Labourer"}
 ## Basic tool a new recruit brings for their best trade.
-const STARTER_TOOL := {"logging": "hand_axe", "mining": "basic_pick", "combat": "rusted_sword"}
+const STARTER_TOOL := {"logging": "hand_axe", "mining": "basic_pick", "combat": "rusted_sword",
+	"foraging": "copper_sickle", "fishing": "birch_rod", "hunting": "birch_shortbow", "farming": "iron_hoe"}
 
 const RARITY_ORDER := ["common", "uncommon", "rare", "legendary"]
 const TRAITS := {
@@ -24,6 +29,10 @@ const TRAITS := {
 	"steady_hands": {"name": "Steady hands", "rarity": "uncommon", "text": "Mining experience +25%.", "value": 120},
 	"brawler": {"name": "Brawler", "rarity": "uncommon", "text": "Combat experience +25%.", "value": 120},
 	"quick_healer": {"name": "Quick healer", "rarity": "uncommon", "text": "Rests back to health twice as fast.", "value": 100},
+	"herbalist": {"name": "Herbalist", "rarity": "uncommon", "text": "Foraging experience +25%.", "value": 120},
+	"patient": {"name": "Patient", "rarity": "uncommon", "text": "Fishing experience +25%.", "value": 120},
+	"tracker": {"name": "Tracker", "rarity": "uncommon", "text": "Hunting experience +25%.", "value": 120},
+	"green_thumb": {"name": "Green thumb", "rarity": "uncommon", "text": "Farming experience +25%.", "value": 120},
 	"strong_back": {"name": "Strong back", "rarity": "rare", "text": "Brings back 10% more from work sites.", "value": 450},
 	"keen_eye": {"name": "Keen eye", "rarity": "rare", "text": "The crew is 50% more likely to make rare finds and find gear of the fallen.", "value": 450},
 	"lucky": {"name": "Lucky", "rarity": "rare", "text": "Survives one killing blow in three.", "value": 500},
@@ -31,7 +40,8 @@ const TRAITS := {
 	"born_leader": {"name": "Born leader", "rarity": "legendary", "text": "The whole crew brings back 10% more.", "value": 2500},
 	"ironhide": {"name": "Ironhide", "rarity": "legendary", "text": "Half as likely to die.", "value": 2500},
 }
-const XP_TRAITS := {"woodsman": "logging", "steady_hands": "mining", "brawler": "combat"}
+const XP_TRAITS := {"woodsman": "logging", "steady_hands": "mining", "brawler": "combat", "herbalist": "foraging",
+	"patient": "fishing", "tracker": "hunting", "green_thumb": "farming"}
 
 ## Reputation tiers. "rep" is the reputation needed; "cap" the best skill level an applicant
 ## can have; "rare" and "legendary" the odds per applicant of such a trait. Simulated full-time
@@ -97,19 +107,24 @@ static func best_level(merc: Dictionary) -> int:
 static func job(merc: Dictionary) -> String:
 	return Gear.job(merc)
 
-## What they're doing today, as a job name ("Miner"). Applicants, who carry nothing yet,
-## are named for their best trade.
-static func role_of(merc: Dictionary) -> String:
+## The job as people would describe it: a bow or spear in the hands of someone better at
+## hunting than fighting makes a hunter, not a guard. Applicants (no gear yet) go by their
+## best trade.
+static func shown_job(merc: Dictionary) -> String:
 	var j: String = job(merc)
 	if j == "" and not merc.has("equipment"):
-		j = best_trade(merc)
-	return str(JOB_NAMES.get(j, "Labourer"))
+		return best_trade(merc)
+	if j == "combat" and Gear.hunts(merc) and level(merc, "hunting") > level(merc, "combat"):
+		return "hunting"
+	return j
+
+## What they're doing today, as a job name ("Miner").
+static func role_of(merc: Dictionary) -> String:
+	return str(JOB_NAMES.get(shown_job(merc), "Labourer"))
 
 ## An earned title: rank from their skill in today's job, e.g. "Veteran Miner · Mining 31".
 static func title(merc: Dictionary) -> String:
-	var j: String = job(merc)
-	if j == "" and not merc.has("equipment"):
-		j = best_trade(merc)
+	var j: String = shown_job(merc)
 	if j == "":
 		var best: String = best_trade(merc)
 		return "No tool · best at %s %d" % [TradeSkills.NAMES[best], level(merc, best)]
@@ -270,25 +285,31 @@ static func make_person(rng: RandomNumberGenerator, id: String, focus: String, b
 	person["min_tier"] = min_tier(person)
 	return person
 
-## The recruit board for one half-hour epoch, for a company of this tier. Three entry-level
-## applicants (one per trade) are always there; four more can be as good as the tier allows.
+## The recruit board for one half-hour epoch, for a company of this tier. Four green hands
+## are always there (logging, mining, guarding, and one of the newer trades in turn); four more
+## can be as good as the tier allows.
 static func generate_board(epoch: int, tier: int) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(77933 + epoch * 99437 + tier * 7919)
 	var cap: int = int(TIERS[clampi(tier, 0, TIERS.size() - 1)]["cap"])
 	var board: Array[Dictionary] = []
-	for i in range(7):
-		var entry: bool = i < 3
-		var focus: String = RECRUIT_TRADES[i] if entry else RECRUIT_TRADES[rng.randi_range(0, RECRUIT_TRADES.size() - 1)]
+	for i in range(8):
+		var entry: bool = i < 4
+		var focus: String
+		if i < 3:
+			focus = ENTRY_TRADES[i]
+		elif i == 3:
+			focus = ROTATING_TRADES[posmod(epoch, ROTATING_TRADES.size())]
+		else:
+			focus = RECRUIT_TRADES[rng.randi_range(0, RECRUIT_TRADES.size() - 1)]
 		var floor_level: int = maxi(2, cap / 4)
 		var best: int = rng.randi_range(2, 3) if entry else floor_level + int(float(cap - floor_level) * pow(rng.randf(), 1.4))
 		var person: Dictionary = make_person(rng, "candidate_%d_%d" % [epoch, i], focus, best, tier, entry)
 		var worth: int = value(person, false) + int(Catalog.item(str(person["kit"])).get("value", 0))
 		if entry:
-			# Green hands sign for their skills and tool alone, so a new company can always start.
-			for t in person["traits"]:
-				worth -= int(TRAITS[t]["value"])
-		person["hire"] = maxi(30, int(round(float(worth) * rng.randf_range(0.85, 1.05))))
+			# Green hands sign for their best skill and tool alone, so a new company can always start.
+			worth = 20 + 4 * best * best + int(Catalog.item(str(person["kit"])).get("value", 0))
+		person["hire"] = maxi(30, int(round(float(worth) * (rng.randf_range(0.85, 1.0) if entry else rng.randf_range(0.85, 1.05)))))
 		person["kind"] = "recruit"
 		board.append(person)
 	return board
