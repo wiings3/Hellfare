@@ -1,7 +1,8 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="1_info_box"]
+
+[sub_resource type="ButtonGroup" id="filter"]
 
 [node name="PersonnelWorkshopLeft" type="Control"]
 layout_mode = 3
@@ -25,14 +26,80 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+[node name="Filter" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
-text = "Blueprints"
+theme_override_constants/separation = 2
+
+[node name="All" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "All"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Every blueprint you know."
+
+[node name="Tools" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Tools"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Axes, picks, sickles, rods and hoes."
+
+[node name="Weapons" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Arms"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Weapons for guards and hunters."
+
+[node name="Armour" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Armour"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Armour, shields, packs and trinkets."
+
+[node name="Supplies" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Food"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Food and potions for the next trip."
+
+[node name="Materials" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Goods"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Ingots, flour, cloth and other made goods."
 
 [node name="Summary" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Anyone can craft with the materials and the blueprint."
+text = ""
 autowrap_mode = 3
 
 [node name="Known" type="ScrollContainer" parent="Margin/Content"]
@@ -46,23 +113,15 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
 
-[node name="KnownEmpty" parent="Margin/Content" instance=ExtResource("2_info_box")]
+[node name="KnownEmpty" parent="Margin/Content" instance=ExtResource("1_info_box")]
 layout_mode = 2
 visible = false
-text = "No blueprints yet. The quartermaster sells tier 1 and 2; better ones turn up in dungeons."
+text = "No blueprints here yet. Buy them in the Shop; better ones turn up in dungeons."
 icon_kind = "plus"
 
-[node name="ShopHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+[node name="ShopLink" type="Button" parent="Margin/Content"]
 layout_mode = 2
-text = "Quartermaster's blueprints"
-
-[node name="Shop" type="ScrollContainer" parent="Margin/Content"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 90)
-horizontal_scroll_mode = 0
-size_flags_vertical = 3
-
-[node name="Items" type="VBoxContainer" parent="Margin/Content/Shop"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 3
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TextButton"
+text = "Blueprints for sale in the Shop  >"
+size_flags_horizontal = 8

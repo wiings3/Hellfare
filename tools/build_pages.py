@@ -16,6 +16,11 @@ KIT = "res://assets/ui/kit/"
 # Trade skill rows, in the order pages list them.
 TRADE_LABELS = ["Logging", "Mining", "Foraging", "Fishing", "Hunting", "Farming", "Combat"]
 
+# The Workshop's recipe filters: (node, label, tooltip).
+CRAFT_GROUPS = [("All", "All", "Every blueprint you know."), ("Tools", "Tools", "Axes, picks, sickles, rods and hoes."),
+                ("Weapons", "Arms", "Weapons for guards and hunters."), ("Armour", "Armour", "Armour, shields, packs and trinkets."),
+                ("Supplies", "Food", "Food and potions for the next trip."), ("Materials", "Goods", "Ingots, flour, cloth and other made goods.")]
+
 def header(s, path, text):
     s.inst(path, HEADER, {"text": text})
 
@@ -222,24 +227,45 @@ def personnel_recruit():
 # --- Workshop: storeroom and quartermaster ------------------------------------------
 def workshop_store():
     s = page("WorkshopStoreLeft", top=36)
-    header(s, C + "/Header", "Storeroom")
-    label(s, C + "/Caption", "Gear nobody is wearing, and food and potions. Equip them from a mercenary's Gear page.", "LabelCaption", {"autowrap_mode": 3})
+    header(s, C + "/Header", "Gear")
+    label(s, C + "/Caption", "Spare gear nobody is wearing. Equip it from a mercenary's Gear page.", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Store", 80)
-    s.inst(C + "/StoreEmpty", INFO, {"visible": False, "text": "Nothing in storage. Buy starter gear from the Quartermaster, or craft better.", "icon_kind": "home"})
-    s.inst(C + "/Tip", INFO, {"text": "Gear wears with every trip and works at half effect once worn out. If its wearer dies, it's lost with them.", "icon_kind": "alert"})
+    s.inst(C + "/StoreEmpty", INFO, {"visible": False, "text": "No spare gear. Buy it in the Shop, or craft better.", "icon_kind": "home"})
     s.save(P + "workshop_store_left.tscn")
 
     s = page("WorkshopStoreRight")
-    header(s, C + "/ShopHeader", "Quartermaster")
-    label(s, C + "/ShopCaption", "Starter gear, ready-made. Everything better is crafted.", "LabelCaption", {"autowrap_mode": 3})
-    scroll(s, C + "/Shop", 80)
+    header(s, C + "/Header", "Supplies")
+    label(s, C + "/Caption", "Food and potions. Pack them into a mercenary's food and potion slots from their Gear page.", "LabelCaption", {"autowrap_mode": 3})
+    scroll(s, C + "/Supplies", 80)
+    s.inst(C + "/SuppliesEmpty", INFO, {"visible": False, "text": "No food or potions. Craft them, or buy them from traders in the Trade Hall.", "icon_kind": "home"})
+    s.inst(C + "/Tip", INFO, {"text": "Gear wears with every trip and works at half effect once worn out. If its wearer dies, it's lost with them.", "icon_kind": "alert"})
     s.save(P + "workshop_store_right.tscn")
+
+
+def workshop_shop():
+    s = page("WorkshopShopLeft", top=36)
+    header(s, C + "/Header", "Ready-made Gear")
+    label(s, C + "/Caption", "The quartermaster's starter gear. It goes to the storeroom.", "LabelCaption", {"autowrap_mode": 3})
+    scroll(s, C + "/Gear", 80)
+    s.save(P + "workshop_shop_left.tscn")
+
+    s = page("WorkshopShopRight")
+    header(s, C + "/Header", "Blueprints")
+    grp = s.sub("filter", "ButtonGroup", {})
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 2})
+    for name, text, tip in CRAFT_GROUPS:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                               "custom_minimum_size": (0, 16), "tooltip_text": tip})
+    label(s, C + "/Caption", "Learn a recipe once; anyone in the company can craft it.", "LabelCaption", {"autowrap_mode": 3})
+    scroll(s, C + "/Blueprints", 80)
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "You know every blueprint the quartermaster sells.", "icon_kind": "check"})
+    s.save(P + "workshop_shop_right.tscn")
 
 
 def chapter_tabs():
     """Tab strips over the left page of the Workshop and Ledger chapters."""
-    for scene, names in [("WorkshopTabs", [("CraftTab", "Craft"), ("StoreTab", "Storeroom")]),
-                         ("LedgerTabs", [("AccountsTab", "Accounts"), ("ReportsTab", "Reports")])]:
+    for scene, names in [("WorkshopTabs", [("CraftTab", "Craft"), ("ShopTab", "Shop"), ("StoreTab", "Storeroom")]),
+                         ("LedgerTabs", [("AccountsTab", "Accounts"), ("ReportsTab", "Reports"), ("WarehouseTab", "Warehouse")])]:
         s = Scene(scene, "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
         grp = s.sub("tabs", "ButtonGroup", {})
         s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
@@ -251,12 +277,15 @@ def chapter_tabs():
 # --- Personnel: workshop ----------------------------------------------------------
 def personnel_workshop():
     s = page("PersonnelWorkshopLeft", top=36)
-    header(s, C + "/Header", "Blueprints")
-    label(s, C + "/Summary", "Anyone can craft with the materials and the blueprint.", "LabelCaption", {"autowrap_mode": 3})
+    grp = s.sub("filter", "ButtonGroup", {})
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 2})
+    for name, text, tip in CRAFT_GROUPS:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                               "custom_minimum_size": (0, 16), "tooltip_text": tip})
+    label(s, C + "/Summary", "", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Known", 110)
-    s.inst(C + "/KnownEmpty", INFO, {"visible": False, "text": "No blueprints yet. The quartermaster sells tier 1 and 2; better ones turn up in dungeons.", "icon_kind": "plus"})
-    header(s, C + "/ShopHeader", "Quartermaster's blueprints")
-    scroll(s, C + "/Shop", 90)
+    s.inst(C + "/KnownEmpty", INFO, {"visible": False, "text": "No blueprints here yet. Buy them in the Shop; better ones turn up in dungeons.", "icon_kind": "plus"})
+    button(s, C + "/ShopLink", "Blueprints for sale in the Shop  >", "TextButton", {"size_flags_horizontal": 8})
     s.save(P + "personnel_workshop_left.tscn")
 
     s = page("PersonnelWorkshopRight")
@@ -271,7 +300,7 @@ def personnel_workshop():
     tile(s, C + "/Stats/Cost", "Materials", extra={"tooltip_text": "What the materials would fetch at today's prices."})
     header(s, C + "/MatHeader", "Materials")
     s.node(C + "/Materials", "VBoxContainer", {"theme_override_constants/separation": 2})
-    s.inst(C + "/Rolls", INFO, {"text": "Rolls", "icon_kind": "alert"})
+    label(s, C + "/Rolls", "", "LabelMuted", {"autowrap_mode": 3})
     spacer(s, C + "/Spacer")
     button(s, C + "/Craft", "Craft", None, {"custom_minimum_size": (0, 26)})
     label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
@@ -285,7 +314,7 @@ def exchange():
     header(s, C + "/Header", "Goods")
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Shift", "Prices shift in 6h", "LabelCaption", {"size_flags_horizontal": 3, "tooltip_text": "Merchants reprice every six hours. Arrows compare today's price with the usual one.", "mouse_filter": 1})
-    label(s, C + "/Summary/Hint", "Merchant pays", "LabelCaption")
+    label(s, C + "/Summary/Hint", "", "LabelCaption")
     grp = s.sub("filter", "ButtonGroup", {})
     s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 3})
     for name, text, tip in [("All", "All", "Every good the merchants trade."), ("Held", "Held", "Goods in your warehouse."),
@@ -293,8 +322,28 @@ def exchange():
                             ("Food", "Food", "Meals a mercenary can carry on an expedition.")]:
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 16), "tooltip_text": tip})
+    s.node(C + "/Columns", "HBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/Columns/Good", "Good", "LabelCaption", {"size_flags_horizontal": 3})
+    label(s, C + "/Columns/Held", "Held", "LabelCaption", {"custom_minimum_size": (34, 0), "horizontal_alignment": 2})
+    label(s, C + "/Columns/Pays", "Pays", "LabelCaption", {"custom_minimum_size": (52, 0), "horizontal_alignment": 2})
     scroll(s, C + "/List", 80)
     s.save(P + "exchange_left.tscn")
+
+
+def market_row():
+    """One good in the Market's table: icon, name, how many are held, what merchants pay."""
+    s = Scene("MarketRow", "Button", {"custom_minimum_size": (0, 22), "size_flags_horizontal": 3, "mouse_default_cursor_shape": 2,
+        "theme_type_variation": Raw('&"CardButton"'), "toggle_mode": True})
+    s.node("Body", "HBoxContainer", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "offset_left": 4.0, "offset_right": -6.0, "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2, "theme_override_constants/separation": 4})
+    s.node("Body/Icon", "TextureRect", {"custom_minimum_size": (16, 16), "size_flags_vertical": 4, "mouse_filter": 2, "stretch_mode": 3})
+    label(s, "Body/Name", "Good", None, {"size_flags_horizontal": 3, "size_flags_vertical": 4, "text_overrun_behavior": 3})
+    label(s, "Body/Held", "", None, {"custom_minimum_size": (30, 0), "size_flags_vertical": 4, "horizontal_alignment": 2})
+    # The price, with today's trend arrow right beside it.
+    s.node("Body/Price", "HBoxContainer", {"custom_minimum_size": (50, 0), "mouse_filter": 2, "alignment": 2, "theme_override_constants/separation": 2})
+    s.node("Body/Price/Trend", "TextureRect", {"custom_minimum_size": (7, 0), "size_flags_vertical": 4, "mouse_filter": 2, "stretch_mode": 3})
+    label(s, "Body/Price/Pays", "0 G", None, {"size_flags_vertical": 4, "horizontal_alignment": 2})
+    s.save(R + "market_row.tscn")
 
     s = page("ExchangeRight")
     header(s, C + "/Header", "Trade")
@@ -382,10 +431,35 @@ def finances():
     tile(s, C + "/Totals/Earned", "Haul value", extra={"tooltip_text": "Coin plus goods at the merchant price when each crew returned."})
     tile(s, C + "/Totals/Spent", "Spent")
     tile(s, C + "/Totals/Net", "Net")
-    header(s, C + "/StoreHeader", "Warehouse Value")
-    scroll(s, C + "/Stores", 60)
-    label(s, C + "/StoresEmpty", "Nothing stored in the warehouse.", "LabelMuted")
+    header(s, C + "/TradeHeader", "By Trade")
+    scroll(s, C + "/Trades", 60)
+    label(s, C + "/TradesEmpty", "No expeditions have come home yet.", "LabelMuted")
     s.save(P + "finance_right.tscn")
+
+
+def ledger_warehouse():
+    """The Ledger's Warehouse tab: every good held, and what it is worth."""
+    s = page("WarehouseLeft", top=36)
+    header(s, C + "/Header", "Warehouse")
+    s.node(C + "/Columns", "HBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/Columns/Good", "Good  ·  click to trade", "LabelCaption", {"size_flags_horizontal": 3})
+    label(s, C + "/Columns/Held", "Held", "LabelCaption", {"custom_minimum_size": (34, 0), "horizontal_alignment": 2})
+    label(s, C + "/Columns/Worth", "Worth", "LabelCaption", {"custom_minimum_size": (52, 0), "horizontal_alignment": 2})
+    scroll(s, C + "/List", 80)
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "The warehouse is empty. Goods your crews bring home are kept here.", "icon_kind": "home"})
+    s.save(P + "warehouse_left.tscn")
+
+    s = page("WarehouseRight")
+    header(s, C + "/Header", "Worth Today")
+    tile(s, C + "/Total", "Everything, at merchant prices", "0 G")
+    s.node(C + "/Kinds", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, C + "/Kinds/Raw", "Raw", "0 G", extra={"tooltip_text": "What expeditions bring home."})
+    tile(s, C + "/Kinds/Crafted", "Crafted", "0 G", extra={"tooltip_text": "Ingots, cloth, potions and other made goods."})
+    tile(s, C + "/Kinds/Food", "Food", "0 G", extra={"tooltip_text": "Meals for the next trip."})
+    label(s, C + "/Note", "Merchants pay less when you sell a lot of one good at once; it recovers within a day. Traders in the Trade Hall often pay more.", "LabelMuted", {"autowrap_mode": 3})
+    spacer(s, C + "/Spacer")
+    button(s, C + "/Market", "Sell in the Market  >", None, {"custom_minimum_size": (0, 26)})
+    s.save(P + "warehouse_right.tscn")
 
 
 # --- Chronicle -------------------------------------------------------------------
@@ -848,12 +922,15 @@ if __name__ == "__main__":
     personnel_roster()
     personnel_recruit()
     workshop_store()
+    workshop_shop()
     chapter_tabs()
     personnel_workshop()
     gear_slot()
     material_row()
     exchange()
+    market_row()
     finances()
+    ledger_warehouse()
     chronicle()
     guildwork()
     board()

@@ -1,0 +1,78 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="2_stat_tile"]
+
+[node name="WarehouseRight" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Worth Today"
+
+[node name="Total" parent="Margin/Content" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Everything, at merchant prices"
+value = "0 G"
+
+[node name="Kinds" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Raw" parent="Margin/Content/Kinds" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Raw"
+value = "0 G"
+tooltip_text = "What expeditions bring home."
+
+[node name="Crafted" parent="Margin/Content/Kinds" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Crafted"
+value = "0 G"
+tooltip_text = "Ingots, cloth, potions and other made goods."
+
+[node name="Food" parent="Margin/Content/Kinds" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Food"
+value = "0 G"
+tooltip_text = "Meals for the next trip."
+
+[node name="Note" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Merchants pay less when you sell a lot of one good at once; it recovers within a day. Traders in the Trade Hall often pay more."
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Market" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Sell in the Market  >"
+custom_minimum_size = Vector2(0, 26)

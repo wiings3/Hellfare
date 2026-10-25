@@ -51,8 +51,9 @@ var crew_filter: String = "trade"
 var roster_filter: String = "all"
 var dossier_view: String = "overview"
 var workshop_tab: String = "craft"
+var craft_filter: String = "all"
 ## Exchange list filter: "all", "held", "raw", "crafted" or "food".
-var market_filter: String = "all"
+var market_filter: String = "held"
 var selected_report_index: int = 0
 var tab_host: Control
 var pause_menu: Control
@@ -131,7 +132,7 @@ func _active_tab_index() -> int:
 		return 1
 	if page in ["hall", "market"]:
 		return 4
-	if page == "ledger":
+	if page in ["ledger", "warehouse"]:
 		return 5
 	if page == "standing":
 		return 0
@@ -139,6 +140,17 @@ func _active_tab_index() -> int:
 
 func _restore_tab_art() -> void:
 	_show_tab_art(_active_tab_index())
+	_mark_chapter_label(_active_tab_index())
+
+## The chapter names printed beside the bookmarks: the open chapter's name is lit.
+func _mark_chapter_label(active: int) -> void:
+	var labels := get_node_or_null("Stage/ChapterLabels") as Control
+	if labels == null and is_instance_valid(tab_host):
+		labels = tab_host.get_parent().get_node_or_null("ChapterLabels") as Control
+	if labels == null:
+		return
+	for i in range(labels.get_child_count()):
+		(labels.get_child(i) as Label).theme_type_variation = &"DeskLabel" if i == active else &"DeskCaption"
 
 func _preview_tab(index: int) -> void:
 	_show_tab_art(index)
@@ -151,6 +163,16 @@ func _render_tabs() -> void:
 		click.focus_entered.connect(_preview_tab.bind(index))
 		click.focus_exited.connect(_restore_tab_art)
 		click.pressed.connect(_turn_to.bind(str(PHYSICAL_TAB_PAGES[index])))
+		click.tooltip_text += "\nKey %d" % (index + 1)
+		# The printed name beside each bookmark opens it too.
+		var name_label := tab_host.get_parent().get_node_or_null("ChapterLabels/Label" + str(index)) as Label
+		if name_label != null:
+			name_label.tooltip_text = click.tooltip_text
+			name_label.mouse_entered.connect(_preview_tab.bind(index))
+			name_label.mouse_exited.connect(_restore_tab_art)
+			name_label.gui_input.connect(func(e: InputEvent) -> void:
+				if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+					_turn_to(str(PHYSICAL_TAB_PAGES[index])))
 
 func _turn_to(destination: String) -> void:
 	if page == destination:
@@ -161,7 +183,7 @@ func _turn_to(destination: String) -> void:
 	_start_page_flip(direction)
 
 func _tab_index(destination: String) -> int:
-	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "roster", "workshop", "market", "hall", "finance", "ledger"]
+	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "roster", "workshop", "market", "hall", "finance", "ledger", "warehouse"]
 	return keys.find(destination)
 
 func _start_page_flip(direction: String) -> void:

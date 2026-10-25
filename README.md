@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.21 — Fishing, hunting, farming and foraging**
+**Version 0.22 — The book, reorganised**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,22 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## V0.22 – The book, reorganised
+
+Six bookmarks, each with one job, their names printed beside them and keys 1–6 to jump:
+
+| Bookmark | Tabs | What it's for |
+|---|---|---|
+| Company | – | The region map, and a Today page: crews in the field, then only what needs you (crews back, the hurt, worn gear, idle hands, guild work), each with its button |
+| Expeditions | – | The trades and their sites; the planner gives choosing a crew a full page |
+| Mercenaries | Roster, Recruit | A compact roster with filters; each dossier has Overview and Gear (the old Armory) |
+| Workshop | Craft, Shop, Storeroom | What can I make, what can I buy, what do I have; Craft and Shop share category filters |
+| Market | Merchants, Trade Hall | A compact goods table, held goods first, price arrows beside the price |
+| Ledger | Accounts, Reports, Warehouse | Money and profit by trade; expedition reports; the one full list of goods held |
+
+The Regional Contracts and Standing pages are retired; their old links open the board and the
+Company page. Explanations moved into tooltips; locked sites and empty states take one line.
 
 ## V0.21 – Fishing, hunting, farming and foraging
 

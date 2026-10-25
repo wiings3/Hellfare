@@ -44,7 +44,7 @@ mouse_filter = 1
 [node name="Hint" type="Label" parent="Margin/Content/Summary"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Merchant pays"
+text = ""
 
 [node name="Filter" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
@@ -104,6 +104,30 @@ toggle_mode = true
 button_group = SubResource("filter")
 custom_minimum_size = Vector2(0, 16)
 tooltip_text = "Meals a mercenary can carry on an expedition."
+
+[node name="Columns" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Good" type="Label" parent="Margin/Content/Columns"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Good"
+size_flags_horizontal = 3
+
+[node name="Held" type="Label" parent="Margin/Content/Columns"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Held"
+custom_minimum_size = Vector2(34, 0)
+horizontal_alignment = 2
+
+[node name="Pays" type="Label" parent="Margin/Content/Columns"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Pays"
+custom_minimum_size = Vector2(52, 0)
+horizontal_alignment = 2
 
 [node name="List" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2

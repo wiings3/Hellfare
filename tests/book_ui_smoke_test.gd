@@ -108,6 +108,7 @@ func _verify() -> void:
 		"market": ["exchange_left", "exchange_right"],
 		"finance": ["finance_left", "finance_right"],
 		"ledger": ["chronicle_left", "chronicle_right"],
+		"warehouse": ["warehouse_left", "warehouse_right"],
 		"guildwork": ["guildwork_left", "guildwork_right"]
 	}
 	for chapter in scene_by_chapter:
@@ -128,10 +129,13 @@ func _verify() -> void:
 	check(view.page == "roster" and view.dossier_view == "gear", "outfitting opens the Gear page")
 	check((view.right_leaf.get_child(0).get_node("Margin/Content/Gear") as Control).visible, "gear view shown")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Gear/Slots").get_child_count() == Gear.SLOTS.size(), "a button per gear slot")
-	view.workshop_tab = "store"
+	view.workshop_tab = "shop"
 	view._nav_to("workshop")
-	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/workshop_store_left.tscn"), "storeroom page")
-	check(view.right_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == MercsV05.shop_keys().size(), "quartermaster catalog")
+	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/workshop_shop_left.tscn"), "shop page")
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Gear/Items").get_child_count() == MercsV05.shop_keys().size(), "quartermaster catalog")
+	view.craft_filter = "all"
+	view._refresh()
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Blueprints/Items").get_child_count() == view.game.blueprint_shop().size(), "blueprint shelf")
 	check(view._active_tab_index() == 3, "workshop bookmark")
 	view._buy_equipment("hand_axe")
 	view._nav_to("roster")
@@ -413,12 +417,15 @@ func _verify() -> void:
 	view.workshop_tab = "craft"
 	view._nav_to("workshop")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/personnel_workshop_left.tscn"), "workshop page")
-	check(view.left_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == view.game.blueprint_shop().size(), "blueprint shelf")
 	view._buy_blueprint("iron_war_axe")
 	check(view.game.knows("iron_war_axe"), "blueprint bought from the workshop")
 	view.game.resources["iron"] = 2
 	view.game.resources["timber"] = 2
 	view.selected_recipe = "iron_war_axe"
+	view.craft_filter = "weapons"
+	view._refresh()
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Known/Items").get_child_count() == 2, "weapons filter: a heading and the axe")
+	view.craft_filter = "all"
 	view._refresh()
 	var craft_button: Button = view.right_leaf.get_child(0).get_node("Margin/Content/Craft")
 	check(not craft_button.disabled, "craft button ready")

@@ -27,7 +27,11 @@ const PERSONNEL_RECRUITS_LEFT := preload("res://scenes/journal/pages/personnel_r
 const PERSONNEL_RECRUITS_RIGHT := preload("res://scenes/journal/pages/personnel_recruits_right.tscn")
 const WORKSHOP_STORE_LEFT := preload("res://scenes/journal/pages/workshop_store_left.tscn")
 const WORKSHOP_STORE_RIGHT := preload("res://scenes/journal/pages/workshop_store_right.tscn")
+const WORKSHOP_SHOP_LEFT := preload("res://scenes/journal/pages/workshop_shop_left.tscn")
+const WORKSHOP_SHOP_RIGHT := preload("res://scenes/journal/pages/workshop_shop_right.tscn")
 const WORKSHOP_TABS := preload("res://scenes/journal/pages/workshop_tabs.tscn")
+const WAREHOUSE_LEFT := preload("res://scenes/journal/pages/warehouse_left.tscn")
+const WAREHOUSE_RIGHT := preload("res://scenes/journal/pages/warehouse_right.tscn")
 const LEDGER_TABS := preload("res://scenes/journal/pages/ledger_tabs.tscn")
 const PERSONNEL_WORKSHOP_LEFT := preload("res://scenes/journal/pages/personnel_workshop_left.tscn")
 const PERSONNEL_WORKSHOP_RIGHT := preload("res://scenes/journal/pages/personnel_workshop_right.tscn")
@@ -35,6 +39,7 @@ const ROW_GEAR_SLOT := preload("res://scenes/journal/rows/gear_slot.tscn")
 const ROW_MATERIAL := preload("res://scenes/journal/rows/material_row.tscn")
 const ROW_CREW_SLOT := preload("res://scenes/journal/rows/crew_slot.tscn")
 const ROW_ROSTER_CARD := preload("res://scenes/journal/rows/roster_card.tscn")
+const ROW_MARKET := preload("res://scenes/journal/rows/market_row.tscn")
 const ROW_SITE := preload("res://scenes/journal/rows/site_card.tscn")
 const ROW_LOCKED := preload("res://scenes/journal/rows/locked_row.tscn")
 const ROW_EXPEDITION := preload("res://scenes/journal/rows/expedition_row.tscn")
@@ -97,6 +102,7 @@ const PAGE_TITLES := {
 	"hall": "The Trade Hall",
 	"finance": "The Ledger",
 	"ledger": "The Ledger",
+	"warehouse": "The Ledger",
 }
 
 ## Callables run once a second to move timers and bars without rebuilding pages.
@@ -140,6 +146,7 @@ func _refresh() -> void:
 		"hall": _draw_hall()
 		"finance": _draw_ledger()
 		"ledger": _draw_ledger()
+		"warehouse": _draw_ledger()
 		_: _draw_company()
 
 func _update_header() -> void:
@@ -305,7 +312,7 @@ func _draw_region_map() -> void:
 	_bind_fallen(left)
 	var town := left.get_node(sites + "town") as Button
 	town.tooltip_text = "Mossward, home of the company.\n%d resting in town." % game.free_crew()
-	town.pressed.connect(_turn_to.bind("finance"))
+	town.pressed.connect(_turn_to.bind("warehouse"))
 	var status := left.get_node("Margin/Content/Status") as Label
 	var update := func() -> void:
 		if game.missions.is_empty():
@@ -418,7 +425,11 @@ func _bind_today(right: Control) -> void:
 		stocked += int(game.resources.get(str(key), 0))
 	var warehouse := right.get_node(c + "Tiles/Warehouse")
 	warehouse.value = "Empty" if stocked == 0 else "%s goods" % _thousands(stocked)
-	warehouse.tooltip_text = "Worth %s to the merchants today." % _money(game.goods_value())
+	warehouse.tooltip_text = "Worth %s to the merchants today. Click to open the warehouse." % _money(game.goods_value())
+	warehouse.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	warehouse.gui_input.connect(func(e: InputEvent) -> void:
+		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+			_turn_to("warehouse"))
 
 ## What needs the player now, most pressing first (at most five).
 func _needs() -> Array:
@@ -925,73 +936,125 @@ func _draw_recruitment() -> void:
 	reason.text = "Not enough gold: %s." % _money(fee) if game.gold < fee else ""
 	reason.visible = not reason.text.is_empty()
 
-## The Workshop chapter: Craft, or the Storeroom with the Quartermaster.
+## The Workshop chapter: Craft (what can I make?), Shop (what can I buy?), Storeroom (what do I have?).
 func _draw_workshop_chapter() -> void:
-	if workshop_tab == "store":
-		_draw_workshop_store()
-	else:
-		_draw_workshop()
+	match workshop_tab:
+		"shop": _draw_workshop_shop()
+		"store": _draw_workshop_store()
+		_: _draw_workshop()
 	var tabs := _mount_page(WORKSHOP_TABS, left_leaf)
-	for tab in [["CraftTab", "craft"], ["StoreTab", "store"]]:
+	for tab in [["CraftTab", "craft"], ["ShopTab", "shop"], ["StoreTab", "store"]]:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
-		btn.set_pressed_no_signal(workshop_tab == str(tab[1]) or (str(tab[1]) == "craft" and workshop_tab != "store"))
-		btn.pressed.connect(func() -> void:
-			workshop_tab = str(tab[1])
+		btn.set_pressed_no_signal(workshop_tab == str(tab[1]) or (str(tab[1]) == "craft" and not workshop_tab in ["shop", "store"]))
+		btn.pressed.connect(_set_workshop_tab.bind(str(tab[1])))
+	var spare: int = game.equipment_inventory.size()
+	(tabs.get_node("Tabs/StoreTab") as Button).text = "Storeroom  ·  %d" % spare if spare > 0 else "Storeroom"
+
+func _set_workshop_tab(tab: String) -> void:
+	workshop_tab = tab
+	_refresh()
+
+## How many of a known recipe the warehouse can make right now.
+func _craftable_count(key: String) -> int:
+	if not game.craft_missing(key).is_empty():
+		return 0
+	var recipe: Variant = Catalog.item(key).get("recipe", {})
+	var most: int = 99
+	if recipe is Dictionary:
+		for part in recipe:
+			most = mini(most, int(game.resources.get(str(part), 0)) / maxi(1, int(recipe[part])))
+	return most
+
+## Which Workshop filter a catalog item belongs to.
+func _craft_group(key: String) -> String:
+	var d: Dictionary = Catalog.item(key)
+	var slot: String = str(d.get("slot", "none"))
+	var kind: String = str(d.get("kind", ""))
+	if slot in ["food", "potion"]:
+		return "supplies"
+	if slot == "none":
+		return "materials"
+	if slot == "main_hand":
+		return "tools" if kind in ["felling_axe_kind", "pickaxe", "sickle", "fishing_rod", "hoe"] else "weapons"
+	return "armour"
+
+## A row with the item's icon, name, a line of detail and up to two buttons.
+func _item_row(list: VBoxContainer, icon: Texture2D, title: String, details: String) -> Control:
+	var card := ROW_ITEM_CARD.instantiate()
+	list.add_child(card)
+	(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = icon
+	(card.get_node("Row/Info/Name") as Label).text = title
+	(card.get_node("Row/Info/Details") as Label).text = details
+	(card.get_node("Row/Primary") as Button).visible = false
+	return card
+
+func _row_button(card: Control, which: String, text: String, action: Callable, disabled: bool = false, tip: String = "") -> void:
+	var b := card.get_node("Row/" + which) as Button
+	b.visible = true
+	b.text = text
+	b.disabled = disabled
+	b.tooltip_text = tip
+	b.pressed.connect(action)
+
+func _draw_workshop_shop() -> void:
+	var left := _mount_page(WORKSHOP_SHOP_LEFT, left_leaf)
+	var right := _mount_page(WORKSHOP_SHOP_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var gear := left.get_node(c + "Gear/Items") as VBoxContainer
+	for key in MercsV05.shop_keys():
+		var definition: Dictionary = game.item_definition(str(key))
+		var card := _item_row(gear, _gear_icon(str(key)), str(definition["name"]), Gear.summary(str(key)))
+		var cost: int = int(definition["cost"])
+		_row_button(card, "Primary", "Buy  ·  %s" % _money(cost), _buy_equipment.bind(str(key)), game.gold < cost,
+			"A common one for the storeroom. Crafted pieces can roll better.")
+	for name in ["All", "Tools", "Weapons", "Armour", "Supplies", "Materials"]:
+		var tab := right.get_node(c + "Filter/" + name) as Button
+		tab.set_pressed_no_signal(craft_filter == name.to_lower())
+		tab.pressed.connect(func() -> void:
+			craft_filter = name.to_lower()
 			_refresh())
+	var prints := right.get_node(c + "Blueprints/Items") as VBoxContainer
+	for key in game.blueprint_shop():
+		if craft_filter != "all" and _craft_group(key) != craft_filter:
+			continue
+		var d: Dictionary = Catalog.item(key)
+		var price: int = int(d.get("blueprint_price", 40))
+		var card := _item_row(prints, _recipe_icon(key), str(d["name"]), Gear.summary(key) if game.makeable(key) else "Needs goods from sites you can't reach yet")
+		card.tooltip_text = "Recipe: %s" % _cost_line(d.get("recipe", {}) if d.get("recipe") is Dictionary else {})
+		_row_button(card, "Primary", "Learn  ·  %s" % _money(price), _buy_blueprint.bind(key), game.gold < price)
+	var empty_note := right.get_node(c + "Empty")
+	empty_note.visible = prints.get_child_count() == 0
+	if craft_filter != "all" and not game.blueprint_shop().is_empty():
+		empty_note.text = "No blueprints of this kind for sale. Try All."
+	(right.get_node(c + "Blueprints") as Control).visible = prints.get_child_count() > 0
 
 func _draw_workshop_store() -> void:
 	var left := _mount_page(WORKSHOP_STORE_LEFT, left_leaf)
 	var right := _mount_page(WORKSHOP_STORE_RIGHT, right_leaf)
 	var c := "Margin/Content/"
-	# Storeroom: loose gear (repair, sell) and the food and potions waiting to be packed.
+	# Spare gear: repair or sell. Equipping happens on a mercenary's Gear page.
 	var store := left.get_node(c + "Store/Items") as VBoxContainer
 	for item in game.equipment_inventory:
 		var key: String = str(item.get("key", ""))
-		var card := ROW_ITEM_CARD.instantiate()
-		store.add_child(card)
-		(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _gear_icon(key)
-		(card.get_node("Row/Info/Name") as Label).text = Gear.full_name(item)
 		var wear: String = ("  ·  %d/%d" % [Gear.durability(item), Gear.max_durability(item)]) if Gear.max_durability(item) > 0 else ""
-		(card.get_node("Row/Info/Details") as Label).text = Gear.summary(key) + wear
+		var card := _item_row(store, _gear_icon(key), Gear.full_name(item), Gear.summary(key) + wear)
 		card.tooltip_text = Gear.describe(item)
-		var sell := card.get_node("Row/Primary") as Button
 		var value: int = game.resale_value(item)
-		sell.text = "Sell %d" % value
-		sell.tooltip_text = "Sell for %s (65%% of its worth, less if worn)." % _money(value)
-		sell.pressed.connect(_sell_equipment.bind(str(item.get("uid", ""))))
+		_row_button(card, "Primary", "Sell  ·  %s" % _money(value), _sell_equipment.bind(str(item.get("uid", ""))), false,
+			"Sell for %s (65%% of its worth, less if worn)." % _money(value))
 		var cost: Dictionary = game.repair_cost(item)
-		var fix := card.get_node("Row/Secondary") as Button
-		fix.visible = not cost.is_empty()
-		if fix.visible:
-			fix.text = "Repair"
-			fix.disabled = game.gold < game.repair_gold(cost)
-			fix.tooltip_text = "Uses %s." % _cost_line(cost)
-			fix.pressed.connect(_repair.bind(str(item.get("uid", ""))))
+		if not cost.is_empty():
+			_row_button(card, "Secondary", "Repair", _repair.bind(str(item.get("uid", ""))), game.gold < game.repair_gold(cost), "Uses %s." % _cost_line(cost))
+	(left.get_node(c + "Store") as Control).visible = store.get_child_count() > 0
+	(left.get_node(c + "StoreEmpty") as Control).visible = store.get_child_count() == 0
+	# Food and potions.
+	var supplies := right.get_node(c + "Supplies/Items") as VBoxContainer
 	for key in MoneyMercsState.RESOURCE_ORDER:
 		if not Gear.consumable(str(key)) or int(game.resources.get(key, 0)) <= 0:
 			continue
-		var card := ROW_ITEM_CARD.instantiate()
-		store.add_child(card)
-		(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _item_icon(str(key))
-		(card.get_node("Row/Info/Name") as Label).text = "%s  ×%d" % [_resource_name(str(key)), int(game.resources[key])]
-		(card.get_node("Row/Info/Details") as Label).text = Gear.summary(str(key))
-		(card.get_node("Row/Primary") as Button).visible = false
-	(left.get_node(c + "Store") as Control).visible = store.get_child_count() > 0
-	(left.get_node(c + "StoreEmpty") as Control).visible = store.get_child_count() == 0
-	# Quartermaster: the starter gear, ready-made (everything else is crafted).
-	var shop := right.get_node(c + "Shop/Items") as VBoxContainer
-	for key in MercsV05.shop_keys():
-		var definition: Dictionary = game.item_definition(str(key))
-		var card := ROW_ITEM_CARD.instantiate()
-		shop.add_child(card)
-		(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _gear_icon(str(key))
-		(card.get_node("Row/Info/Name") as Label).text = str(definition["name"])
-		(card.get_node("Row/Info/Details") as Label).text = Gear.summary(str(key))
-		var buy := card.get_node("Row/Primary") as Button
-		buy.text = _money(int(definition["cost"]))
-		buy.disabled = game.gold < int(definition["cost"])
-		buy.tooltip_text = "Buy a common one for the storeroom. Crafted pieces can roll better."
-		buy.pressed.connect(_buy_equipment.bind(str(key)))
+		_item_row(supplies, _item_icon(str(key)), "%s  ×%d" % [_resource_name(str(key)), int(game.resources[key])], Gear.summary(str(key)))
+	(right.get_node(c + "Supplies") as Control).visible = supplies.get_child_count() > 0
+	(right.get_node(c + "SuppliesEmpty") as Control).visible = supplies.get_child_count() == 0
 
 const SLOT_HINTS := {
 	"main_hand": "A tool sets the job; a weapon makes a guard.", "off_hand": "A shield, or a lantern for rare finds.",
@@ -1041,46 +1104,48 @@ func _draw_workshop() -> void:
 	var left := _mount_page(PERSONNEL_WORKSHOP_LEFT, left_leaf)
 	var right := _mount_page(PERSONNEL_WORKSHOP_RIGHT, right_leaf)
 	var c := "Margin/Content/"
+	for name in ["All", "Tools", "Weapons", "Armour", "Supplies", "Materials"]:
+		var tab := left.get_node(c + "Filter/" + name) as Button
+		tab.set_pressed_no_signal(craft_filter == name.to_lower())
+		tab.pressed.connect(func() -> void:
+			craft_filter = name.to_lower()
+			_refresh())
 	var known: Array = []
 	for key in Catalog.items():
-		if game.knows(str(key)):
+		if game.knows(str(key)) and (craft_filter == "all" or _craft_group(str(key)) == craft_filter):
 			known.append(str(key))
-	# What can be made right now first, then by tier and value.
-	known.sort_custom(func(a, b):
-		var ra: int = (0 if game.craft_missing(a).is_empty() else 1) + (0 if game.makeable(a) else 2)
-		var rb: int = (0 if game.craft_missing(b).is_empty() else 1) + (0 if game.makeable(b) else 2)
-		if ra != rb:
-			return ra < rb
-		return int(Catalog.item(a)["tier"]) * 100000 + int(Catalog.item(a)["value"]) < int(Catalog.item(b)["tier"]) * 100000 + int(Catalog.item(b)["value"]))
-	var shop: Array = game.blueprint_shop()
-	if selected_recipe == "" or not Catalog.items().has(selected_recipe):
-		selected_recipe = str(known[0]) if not known.is_empty() else (str(shop[0]) if not shop.is_empty() else "")
+	known.sort_custom(func(a, b): return int(Catalog.item(a)["tier"]) * 100000 + int(Catalog.item(a)["value"]) < int(Catalog.item(b)["tier"]) * 100000 + int(Catalog.item(b)["value"]))
+	var ready: Array = known.filter(func(k): return game.craft_missing(k).is_empty())
+	var short: Array = known.filter(func(k): return not game.craft_missing(k).is_empty())
+	if selected_recipe == "" or not Catalog.items().has(selected_recipe) or not game.knows(selected_recipe):
+		selected_recipe = str(ready[0]) if not ready.is_empty() else (str(short[0]) if not short.is_empty() else "")
 	var list := left.get_node(c + "Known/Items") as VBoxContainer
-	for key in known:
-		var missing: Dictionary = game.craft_missing(key)
-		var ready: bool = missing.is_empty()
-		var line: String = "Ready to craft" if ready else ("Missing " + _cost_line(missing) if game.makeable(key) else "Needs goods from expeditions not open yet")
-		var card := _list_card(list, _recipe_icon(key), str(Catalog.item(key)["name"]),
-			line, "Worth", _money(int(Catalog.item(key)["value"])),
-			key == selected_recipe, _choose_recipe.bind(key))
-		card.custom_minimum_size.y = 30
-		if not ready:
-			(card.get_node("Body/Info/Details") as Label).theme_type_variation = &"LabelMuted"
-	(left.get_node(c + "Summary") as Label).text = "%d blueprints known. Anyone can craft with the materials and the blueprint." % known.size()
+	for group in [["Ready to craft", ready], ["Missing materials", short]]:
+		if (group[1] as Array).is_empty():
+			continue
+		var heading := Label.new()
+		heading.text = str(group[0])
+		heading.theme_type_variation = &"LabelCaption"
+		list.add_child(heading)
+		for key in group[1]:
+			var missing: Dictionary = game.craft_missing(key)
+			var can: int = _craftable_count(key)
+			var line: String = Gear.summary(key) if missing.is_empty() else ("Missing " + _cost_line(missing) if game.makeable(key) else "Needs goods from sites not open yet")
+			var card := _list_card(list, _recipe_icon(key), str(Catalog.item(key)["name"]), line, "", "×%d" % can if can > 0 else "",
+				key == selected_recipe, _choose_recipe.bind(key))
+			card.custom_minimum_size.y = 30
+			if can > 0:
+				(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelGood"
+			else:
+				(card.get_node("Body/Info/Details") as Label).theme_type_variation = &"LabelMuted"
+	(left.get_node(c + "Summary") as Label).text = "%d ready to craft  ·  %d short of materials" % [ready.size(), short.size()]
 	(left.get_node(c + "Known") as Control).visible = not known.is_empty()
 	(left.get_node(c + "KnownEmpty") as Control).visible = known.is_empty()
-	var shelf := left.get_node(c + "Shop/Items") as VBoxContainer
-	for key in shop:
-		var price: int = int(Catalog.item(key).get("blueprint_price", 40))
-		var card := _list_card(shelf, _recipe_icon(key), str(Catalog.item(key)["name"]), Gear.summary(key) if game.makeable(key) else "Not makeable yet  ·  " + Gear.summary(key),
-			"Blueprint", _money(price), key == selected_recipe, _choose_recipe.bind(key))
-		card.custom_minimum_size.y = 30
-		if not game.makeable(key):
-			(card.get_node("Body/Info/Details") as Label).theme_type_variation = &"LabelMuted"
-		if game.gold < price:
-			(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelMuted"
-	(left.get_node(c + "ShopHeader") as Control).visible = not shop.is_empty()
-	(left.get_node(c + "Shop") as Control).visible = not shop.is_empty()
+	var for_sale: int = game.blueprint_shop().size()
+	var link := left.get_node(c + "ShopLink") as Button
+	link.text = "%s for sale in the Shop  >" % _plural(for_sale, "blueprint")
+	link.visible = for_sale > 0
+	link.pressed.connect(_set_workshop_tab.bind("shop"))
 	# The recipe.
 	var none: bool = selected_recipe == ""
 	for child in (right.get_node("Margin/Content") as Control).get_children():
@@ -1182,26 +1247,40 @@ func _draw_exchange() -> void:
 	var right := _mount_page(EXCHANGE_RIGHT, right_leaf)
 	var c := "Margin/Content/"
 	var list := left.get_node(c + "List/Items") as VBoxContainer
+	# Held is the default, so selling is one click away; with nothing held, everything shows.
+	var chosen_filter: String = market_filter
+	if market_filter == "held" and not MoneyMercsState.RESOURCE_ORDER.any(func(k): return int(game.resources.get(str(k), 0)) > 0):
+		market_filter = "all"
 	for kind in ["All", "Held", "Raw", "Crafted", "Food"]:
 		var tab := left.get_node(c + "Filter/" + kind) as Button
 		tab.set_pressed_no_signal(market_filter == kind.to_lower())
 		tab.pressed.connect(func() -> void:
 			market_filter = kind.to_lower()
 			_refresh())
+	var held_total: int = 0
 	for id in MoneyMercsState.RESOURCE_ORDER:
 		var key: String = str(id)
 		var stored: int = int(game.resources.get(key, 0))
+		held_total += stored * game.sell_price(key)
 		if not _market_shows(key, stored):
 			continue
-		var card := _list_card(list, _item_icon(key), _resource_name(key),
-			"Stored %d" % stored if stored > 0 else "None stored", "", _money(game.sell_price(key)),
-			key == selected_market_item, _choose_commodity.bind(key))
-		var trend := card.get_node("Body/Side/Value/Trend") as TextureRect
+		var row := ROW_MARKET.instantiate() as Button
+		list.add_child(row)
+		(row.get_node("Body/Icon") as TextureRect).texture = _item_icon(key)
+		(row.get_node("Body/Name") as Label).text = _resource_name(key)
+		var held := row.get_node("Body/Held") as Label
+		held.text = str(stored) if stored > 0 else "-"
+		held.theme_type_variation = &"" if stored > 0 else &"LabelMuted"
+		(row.get_node("Body/Price/Pays") as Label).text = _money(game.sell_price(key))
+		var trend := row.get_node("Body/Price/Trend") as TextureRect
 		var base: int = int(MoneyMercsState.BASE_PRICE.get(key, 1))
 		var now_price: int = game.price(key)
-		trend.visible = now_price != base
-		trend.texture = TREND_UP if now_price > base else TREND_DOWN
-		card.tooltip_text = "Usual price %d G, today %d G." % [base, now_price]
+		trend.texture = null if now_price == base else (TREND_UP if now_price > base else TREND_DOWN)
+		row.tooltip_text = "%s\nUsual price %d G, today %d G." % [str(MoneyMercsState.RESOURCE_DESC.get(key, "")), base, now_price]
+		row.set_pressed_no_signal(key == selected_market_item)
+		row.pressed.connect(_choose_commodity.bind(key))
+	(left.get_node(c + "Summary/Hint") as Label).text = "Held goods worth %s" % _money(held_total)
+	market_filter = chosen_filter
 	var shift := left.get_node(c + "Summary/Shift") as Label
 	var tick := func() -> void:
 		shift.text = "Prices shift in " + _duration(21600 - _now() % 21600)
@@ -1325,12 +1404,12 @@ func _show_link_card(ref: String) -> void:
 
 ## The Ledger chapter: Accounts (the treasury) and Reports (the chronicle of expeditions).
 func _draw_ledger() -> void:
-	if page == "finance":
-		_draw_accounts()
-	else:
-		_draw_history()
+	match page:
+		"finance": _draw_accounts()
+		"warehouse": _draw_warehouse()
+		_: _draw_history()
 	var tabs := _mount_page(LEDGER_TABS, left_leaf)
-	for tab in [["AccountsTab", "finance"], ["ReportsTab", "ledger"]]:
+	for tab in [["AccountsTab", "finance"], ["ReportsTab", "ledger"], ["WarehouseTab", "warehouse"]]:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
 		btn.set_pressed_no_signal(page == str(tab[1]))
 		btn.pressed.connect(_nav_to.bind(str(tab[1])))
@@ -1419,20 +1498,62 @@ func _draw_accounts() -> void:
 	var net_tile := right.get_node(c + "Totals/Net")
 	net_tile.value = ("+" if earned - spent >= 0 else "") + _money(earned - spent)
 	net_tile.tone = "good" if earned - spent >= 0 else "accent"
-	# Warehouse valuation.
-	var stores := right.get_node(c + "Stores/Items") as VBoxContainer
-	var owned: int = 0
+	# Profit by trade, from the reports the company still keeps.
+	var by_trade: Dictionary = {}
+	var trips: Dictionary = {}
+	for report in game.reports:
+		var trade: String = str(TradeSites.by_id(str(report.get("site", ""))).get("trade", "mining" if str(report.get("region", "")).begins_with("Harlow") else "other"))
+		by_trade[trade] = int(by_trade.get(trade, 0)) + _report_value(report) - int(report.get("cost", 0))
+		trips[trade] = int(trips.get(trade, 0)) + 1
+	var trades := right.get_node(c + "Trades/Items") as VBoxContainer
+	var order: Array = by_trade.keys()
+	order.sort_custom(func(a, b): return int(by_trade[a]) > int(by_trade[b]))
+	for trade in order:
+		var net: int = int(by_trade[trade])
+		var card := _list_card(trades, TRADE_ICONS.get(trade, ICON_FIELD), str(TradeSkills.NAMES.get(trade, "Other work")), _plural(int(trips[trade]), "trip"),
+			"", ("+" if net >= 0 else "") + _money(net), false, func() -> void: pass)
+		card.toggle_mode = false
+		card.mouse_default_cursor_shape = Control.CURSOR_ARROW
+		(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelGood" if net >= 0 else &"LabelAccent"
+	(right.get_node(c + "Trades") as Control).visible = not order.is_empty()
+	(right.get_node(c + "TradesEmpty") as Control).visible = order.is_empty()
+
+## The Ledger's Warehouse tab: every good held and its worth; a click opens it in the Market.
+func _draw_warehouse() -> void:
+	var left := _mount_page(WAREHOUSE_LEFT, left_leaf)
+	var right := _mount_page(WAREHOUSE_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var list := left.get_node(c + "List/Items") as VBoxContainer
+	var kinds: Dictionary = {"raw": 0, "crafted": 0, "food": 0}
+	var held: Array = []
 	for id in MoneyMercsState.RESOURCE_ORDER:
-		var key: String = str(id)
-		var quantity: int = int(game.resources.get(key, 0))
-		if quantity <= 0:
-			continue
-		owned += 1
-		var card := _list_card(stores, _item_icon(key), _resource_name(key), "%d stored  ·  %s each" % [quantity, _money(game.sell_price(key))],
-			"", _money(quantity * game.sell_price(key)), false, _open_market.bind(key))
-		card.tooltip_text = "Open in the Exchange"
-	(right.get_node(c + "Stores") as Control).visible = owned > 0
-	(right.get_node(c + "StoresEmpty") as Control).visible = owned == 0
+		if int(game.resources.get(str(id), 0)) > 0:
+			held.append(str(id))
+	held.sort_custom(func(a, b): return int(game.resources[a]) * game.sell_price(a) > int(game.resources[b]) * game.sell_price(b))
+	for key in held:
+		var quantity: int = int(game.resources[key])
+		var worth: int = quantity * game.sell_price(key)
+		var kind: String = str(MoneyMercsState.RESOURCE_KIND.get(key, "raw"))
+		kinds[kind] = int(kinds.get(kind, 0)) + worth
+		var row := ROW_MARKET.instantiate() as Button
+		list.add_child(row)
+		row.toggle_mode = false
+		(row.get_node("Body/Icon") as TextureRect).texture = _item_icon(key)
+		(row.get_node("Body/Name") as Label).text = _resource_name(key)
+		(row.get_node("Body/Held") as Label).text = str(quantity)
+		(row.get_node("Body/Price/Pays") as Label).text = _money(worth)
+		row.tooltip_text = "%s\n%s each today. Click to trade it in the Market." % [str(MoneyMercsState.RESOURCE_DESC.get(key, "")), _money(game.sell_price(key))]
+		row.pressed.connect(_open_market.bind(key))
+	(left.get_node(c + "List") as Control).visible = not held.is_empty()
+	(left.get_node(c + "Empty") as Control).visible = held.is_empty()
+	right.get_node(c + "Total").value = _money(game.goods_value())
+	right.get_node(c + "Kinds/Raw").value = _money(int(kinds["raw"]))
+	right.get_node(c + "Kinds/Crafted").value = _money(int(kinds["crafted"]))
+	right.get_node(c + "Kinds/Food").value = _money(int(kinds["food"]))
+	var market := right.get_node(c + "Market") as Button
+	market.pressed.connect(func() -> void:
+		market_filter = "held"
+		_turn_to("market"))
 
 func _open_market(key: String) -> void:
 	selected_market_item = key
@@ -1603,10 +1724,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			if _hall().focus_composer():
 				get_viewport().set_input_as_handled()
 			return
-		var pages: Array[String] = ["hq", "expeditions", "roster", "market", "finance", "ledger", "guildwork"]
+		# 1-6 open the chapters, in bookmark order.
 		var index: int = int(event.keycode) - int(KEY_1)
-		if index >= 0 and index < pages.size():
-			_turn_to(pages[index])
+		if index >= 0 and index < PHYSICAL_TAB_PAGES.size():
+			_turn_to(str(PHYSICAL_TAB_PAGES[index]))
 
 # --- Expedition board ---------------------------------------------------------
 

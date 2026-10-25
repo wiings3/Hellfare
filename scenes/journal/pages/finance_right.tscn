@@ -95,22 +95,22 @@ size_flags_horizontal = 3
 caption = "Net"
 value = "0"
 
-[node name="StoreHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+[node name="TradeHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
-text = "Warehouse Value"
+text = "By Trade"
 
-[node name="Stores" type="ScrollContainer" parent="Margin/Content"]
+[node name="Trades" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 60)
 horizontal_scroll_mode = 0
 size_flags_vertical = 3
 
-[node name="Items" type="VBoxContainer" parent="Margin/Content/Stores"]
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Trades"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
 
-[node name="StoresEmpty" type="Label" parent="Margin/Content"]
+[node name="TradesEmpty" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Nothing stored in the warehouse."
+text = "No expeditions have come home yet."

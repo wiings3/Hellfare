@@ -236,6 +236,86 @@ offset_bottom = 267.0
 mouse_filter = 2
 texture = ExtResource("chronicle")
 
+[node name="ChapterLabels" type="Control" parent="."]
+anchors_preset = 0
+offset_left = 36.0
+offset_top = 145.0
+offset_right = 128.0
+offset_bottom = 409.0
+mouse_filter = 2
+
+[node name="Label0" type="Label" parent="ChapterLabels"]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 92.0
+offset_bottom = 24.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DeskCaption"
+text = "Company"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Label1" type="Label" parent="ChapterLabels"]
+layout_mode = 0
+offset_top = 53.0
+offset_right = 92.0
+offset_bottom = 73.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DeskCaption"
+text = "Expeditions"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Label2" type="Label" parent="ChapterLabels"]
+layout_mode = 0
+offset_top = 102.0
+offset_right = 92.0
+offset_bottom = 122.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DeskCaption"
+text = "Mercenaries"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Label3" type="Label" parent="ChapterLabels"]
+layout_mode = 0
+offset_top = 148.0
+offset_right = 92.0
+offset_bottom = 168.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DeskCaption"
+text = "Workshop"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Label4" type="Label" parent="ChapterLabels"]
+layout_mode = 0
+offset_top = 196.0
+offset_right = 92.0
+offset_bottom = 216.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DeskCaption"
+text = "Market"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Label5" type="Label" parent="ChapterLabels"]
+layout_mode = 0
+offset_top = 245.0
+offset_right = 92.0
+offset_bottom = 265.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DeskCaption"
+text = "Ledger"
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="ChapterTabHost" type="Control" parent="."]
 anchors_preset = 0
 offset_left = 132.0
