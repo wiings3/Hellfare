@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.10 — Trades, skills and a living market**
+**Version 0.21 — Fishing, hunting, farming and foraging**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,37 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## V0.21 – Fishing, hunting, farming and foraging
+
+Four new trades are live, with seventeen expedition sites between them (`scripts/sites.gd`):
+
+| Trade | Sites, tier 1 up |
+|---|---|
+| Foraging | Mossward Meadows, Fenmire, Sunreach Slopes, Frostvale |
+| Fishing | Millbrook Pond, Silverrun River, Glasswater Lake, Greywater Coast, The Drowned Deep |
+| Hunting | Hollow Fields, Greyfang Hills, Elkmoor, Bleakridge |
+| Farming | Home Fields, Tilled Acres, Beehives, Glasshouse |
+
+- **Tools.** Each trade has a shop tool to start (copper sickle, birch rod, birch shortbow, iron
+  hoe); better ones are crafted. Rods are almost all timber plus cord. Hunters use weapons:
+  bows hunt at full pace, other weapons at half.
+- **Farm buildings.** Tilled Acres, the Beehives and the Glasshouse open once the company
+  builds Field Plots, an Apiary or a Glasshouse. The site planner's button builds it; goods
+  come from the warehouse and anything missing is bought from the merchants. A farming trip
+  uses one bone meal from the warehouse, if there is any, for 15% more harvest.
+- **Goods.** 83 goods in all (fish, meat, hides, bone, herbs, grain, honey, flour, linen,
+  potions and 23 foods), each with an icon. `tools/goods_gen.py` writes the goods tables from
+  the catalog.
+- **Recruits.** The board has eight applicants: green hands for logging, mining and guarding
+  every half hour, a fourth for one of the new trades in turn, and four more as good as your
+  reputation allows. New traits: herbalist, patient, tracker and green thumb.
+- **Pages.** The region map shows a road and a label for each new trade (click one to open its
+  best site). Skill bars cover all seven trades. The company page shows the goods you hold;
+  the Exchange has an All / Held / Raw / Crafted / Food filter; the Trade Hall lists held goods.
+- **Art.** `tools/paint_trade_sites.py` paints the seventeen site banners and
+  `tools/paint_goods.py` the goods icons.
+- **Simulator.** `tools/econ_sim.gd` has forager, angler, hunter and farmer strategies.
 
 ## V0.20.1 – Idle wages
 
