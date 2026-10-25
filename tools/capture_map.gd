@@ -35,12 +35,9 @@ func _capture() -> void:
 				cutters.append(id)
 			elif role == "Miner":
 				miners.append(id)
-	game.harlow_send_scout()
-	game.harlow["scout_finish"] = now - 1
-	game.harlow_sync()
 	# Real expeditions, shifted so they are at different points of their trips.
 	print(game.site_dispatch("mossward_copse", cutters.slice(0, 2), "Balanced"))
-	print(game.harlow_dispatch(miners, "Balanced"))
+	print(game.site_dispatch("harlow", miners, "Balanced"))
 	var shifts := [float(args["shift"]), -0.02]
 	for i in range(mini(shifts.size(), game.missions.size())):
 		var m: Dictionary = game.missions[i]
