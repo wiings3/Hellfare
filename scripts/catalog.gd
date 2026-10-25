@@ -51,13 +51,27 @@ static func recipe_cost(recipe: Dictionary) -> float:
 		total += value_of(str(part)) * float(recipe[part])
 	return total
 
-## Kit rating of a set of equipped item ids (worn-out pieces count half).
+## Kit rating of a set of equipped item ids (worn-out pieces count half). Each piece's "kit"
+## is its tier times its slot weight; trinkets, packs, lanterns and food add nothing.
 static func kit_rating(keys: Array, worn: Array = []) -> int:
 	var total: float = 0.0
 	for key in keys:
 		var kit: float = float(item(str(key)).get("kit", 0))
 		total += kit * (float(rules().get("worn_effect", 0.5)) if worn.has(key) else 1.0)
 	return int(total)
+
+## Items in a category ("weapon", "armour", "shield", "tool", "food", "potion", "trinket", "pack", "lantern", "material").
+static func in_category(category: String) -> Array:
+	var out: Array = []
+	for key in items():
+		if str(items()[key].get("category", "")) == category:
+			out.append(key)
+	return out
+
+## Expected damage per second of a weapon's base stats, counting critical hits.
+static func expected_dps(stats: Dictionary) -> float:
+	var crit: float = float(stats.get("crit_chance", 0.0))
+	return float(stats.get("damage", 0)) * float(stats.get("attack_speed", 1.0)) * (1.0 + crit * (float(stats.get("crit_damage", 1.0)) - 1.0))
 
 ## Items whose recipe uses this material or intermediate.
 static func used_in(id: String) -> Array:

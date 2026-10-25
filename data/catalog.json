@@ -1,68 +1,219 @@
 {
- "version": 1,
+ "version": 2,
  "sources": {
   "mossward_copse": {
    "name": "Mossward Copse",
    "kind": "site",
    "trade": "logging",
    "tier": 1,
-   "status": "live"
+   "status": "live",
+   "level": 0
   },
   "old_oakwood": {
    "name": "Old Oakwood",
    "kind": "site",
    "trade": "logging",
    "tier": 2,
-   "status": "live"
-  },
-  "harlow": {
-   "name": "Harlow Mines",
-   "kind": "site",
-   "trade": "mining",
-   "tier": 1,
-   "status": "live"
-  },
-  "deepdelve": {
-   "name": "Deepdelve",
-   "kind": "site",
-   "trade": "mining",
-   "tier": 2,
-   "status": "live"
+   "status": "live",
+   "level": 8
   },
   "thornwald": {
    "name": "Thornwald",
    "kind": "site",
    "trade": "logging",
    "tier": 3,
-   "status": "planned"
+   "status": "planned",
+   "level": 18
   },
   "blackroot_weald": {
    "name": "Blackroot Weald",
    "kind": "site",
    "trade": "logging",
    "tier": 4,
-   "status": "planned"
+   "status": "planned",
+   "level": 30
+  },
+  "palewood": {
+   "name": "The Palewood",
+   "kind": "site",
+   "trade": "logging",
+   "tier": 5,
+   "status": "planned",
+   "level": 45
+  },
+  "harlow": {
+   "name": "Harlow Mines",
+   "kind": "site",
+   "trade": "mining",
+   "tier": 1,
+   "status": "live",
+   "level": 0
+  },
+  "deepdelve": {
+   "name": "Deepdelve",
+   "kind": "site",
+   "trade": "mining",
+   "tier": 2,
+   "status": "live",
+   "level": 8
   },
   "cinder_shaft": {
    "name": "Cinder Shaft",
    "kind": "site",
    "trade": "mining",
    "tier": 3,
-   "status": "planned"
+   "status": "planned",
+   "level": 18
+  },
+  "gloamhold": {
+   "name": "Gloamhold Deeps",
+   "kind": "site",
+   "trade": "mining",
+   "tier": 4,
+   "status": "planned",
+   "level": 30
   },
   "mossward_meadows": {
    "name": "Mossward Meadows",
    "kind": "site",
    "trade": "foraging",
    "tier": 1,
-   "status": "planned"
+   "status": "planned",
+   "level": 0
   },
   "fenmire": {
    "name": "Fenmire",
    "kind": "site",
    "trade": "foraging",
    "tier": 2,
-   "status": "planned"
+   "status": "planned",
+   "level": 8
+  },
+  "sunreach": {
+   "name": "Sunreach Slopes",
+   "kind": "site",
+   "trade": "foraging",
+   "tier": 3,
+   "status": "planned",
+   "level": 18
+  },
+  "frostvale": {
+   "name": "Frostvale",
+   "kind": "site",
+   "trade": "foraging",
+   "tier": 4,
+   "status": "planned",
+   "level": 30
+  },
+  "millbrook_pond": {
+   "name": "Millbrook Pond",
+   "kind": "site",
+   "trade": "fishing",
+   "tier": 1,
+   "status": "planned",
+   "level": 0
+  },
+  "silverrun": {
+   "name": "Silverrun River",
+   "kind": "site",
+   "trade": "fishing",
+   "tier": 2,
+   "status": "planned",
+   "level": 8
+  },
+  "glasswater": {
+   "name": "Glasswater Lake",
+   "kind": "site",
+   "trade": "fishing",
+   "tier": 3,
+   "status": "planned",
+   "level": 18,
+   "needs": "rowboat"
+  },
+  "greywater_coast": {
+   "name": "Greywater Coast",
+   "kind": "site",
+   "trade": "fishing",
+   "tier": 4,
+   "status": "planned",
+   "level": 30,
+   "needs": "skiff"
+  },
+  "drowned_deep": {
+   "name": "The Drowned Deep",
+   "kind": "site",
+   "trade": "fishing",
+   "tier": 5,
+   "status": "planned",
+   "level": 45,
+   "needs": "deepwater_cog"
+  },
+  "hollow_fields": {
+   "name": "Hollow Fields",
+   "kind": "site",
+   "trade": "hunting",
+   "tier": 1,
+   "status": "planned",
+   "level": 0
+  },
+  "greyfang_hills": {
+   "name": "Greyfang Hills",
+   "kind": "site",
+   "trade": "hunting",
+   "tier": 2,
+   "status": "planned",
+   "level": 8
+  },
+  "elkmoor": {
+   "name": "Elkmoor",
+   "kind": "site",
+   "trade": "hunting",
+   "tier": 3,
+   "status": "planned",
+   "level": 18
+  },
+  "bleakridge": {
+   "name": "Bleakridge",
+   "kind": "site",
+   "trade": "hunting",
+   "tier": 4,
+   "status": "planned",
+   "level": 30
+  },
+  "home_fields": {
+   "name": "Home Fields",
+   "kind": "farm",
+   "trade": "farming",
+   "tier": 1,
+   "status": "planned",
+   "level": 0
+  },
+  "tilled_acres": {
+   "name": "Tilled Acres",
+   "kind": "farm",
+   "trade": "farming",
+   "tier": 2,
+   "status": "planned",
+   "level": 8,
+   "needs": "field_plots"
+  },
+  "beehives": {
+   "name": "Beehives",
+   "kind": "farm",
+   "trade": "farming",
+   "tier": 2,
+   "status": "planned",
+   "level": 8,
+   "needs": "apiary"
+  },
+  "glasshouse": {
+   "name": "Glasshouse",
+   "kind": "farm",
+   "trade": "farming",
+   "tier": 3,
+   "status": "planned",
+   "level": 18,
+   "needs": "glasshouse_build"
   },
   "calder_keep": {
    "name": "Calder Keep",
@@ -100,7 +251,7 @@
    "status": "live"
   },
   "crafting": {
-   "name": "Crafting",
+   "name": "Known to everyone",
    "kind": "craft",
    "trade": "",
    "tier": 0,
@@ -116,7 +267,7 @@
    "sources": [
     "mossward_copse"
    ],
-   "note": "Handles for basic tools and weapons.",
+   "note": "Tier-1 handles, rods and bows; firewood for cooking.",
    "sell_only": false
   },
   "oak": {
@@ -127,7 +278,7 @@
    "sources": [
     "old_oakwood"
    ],
-   "note": "Handles for tier-2 gear, clubs and hunting bows.",
+   "note": "Tier-2 handles, rods, bows and shields.",
    "sell_only": false
   },
   "yew": {
@@ -138,7 +289,7 @@
    "sources": [
     "thornwald"
    ],
-   "note": "Longbows and tier-3 handles.",
+   "note": "Tier-3 handles, longbows and frame packs.",
    "sell_only": false
   },
   "ironwood": {
@@ -158,9 +309,33 @@
    "group": "timber",
    "value": 150,
    "sources": [
+    "palewood",
     "wyrms_hollow"
    ],
-   "note": "Pale wood from the wyrm's lair; tier-5 gear.",
+   "note": "Pale, light and hard; tier-5 gear.",
+   "sell_only": false
+  },
+  "resin": {
+   "name": "Thornwald Resin",
+   "tier": 3,
+   "group": "sap",
+   "value": 24,
+   "sources": [
+    "thornwald",
+    "blackroot_weald"
+   ],
+   "note": "Varnish for tier-3+ bows and shields.",
+   "sell_only": false
+  },
+  "amber": {
+   "name": "Amber",
+   "tier": 1,
+   "group": "gem",
+   "value": 10,
+   "sources": [
+    "mossward_copse"
+   ],
+   "note": "Old sap turned to stone. Charms.",
    "sell_only": false
   },
   "copper": {
@@ -171,7 +346,7 @@
    "sources": [
     "harlow"
    ],
-   "note": "Rivets, fittings, sickles.",
+   "note": "Fittings, sickles, hooks, flasks and lanterns.",
    "sell_only": false
   },
   "coal": {
@@ -196,7 +371,7 @@
     "deepdelve",
     "cinder_shaft"
    ],
-   "note": "Tools, blades, mail and most repairs. Harlow gives a little as a side find; Deepdelve is the main seam.",
+   "note": "Tier-1 metal and the base of steel. Harlow gives a little; Deepdelve is the main seam.",
    "sell_only": false
   },
   "silver": {
@@ -205,9 +380,21 @@
    "group": "ore",
    "value": 28,
    "sources": [
+    "deepdelve",
+    "gloamhold"
+   ],
+   "note": "Silversteel, rings and fine fittings.",
+   "sell_only": false
+  },
+  "garnet": {
+   "name": "Garnet",
+   "tier": 2,
+   "group": "gem",
+   "value": 45,
+   "sources": [
     "deepdelve"
    ],
-   "note": "Fine fittings, blades and healing draughts.",
+   "note": "Blood-red stones for rings of striking.",
    "sell_only": false
   },
   "crystal": {
@@ -217,17 +404,30 @@
    "value": 75,
    "sources": [
     "deepdelve",
-    "cinder_shaft"
+    "gloamhold"
    ],
-   "note": "Focus stones for tier-4 and tier-5 gear.",
+   "note": "Amulets and crystal lanterns.",
+   "sell_only": false
+  },
+  "emberstone": {
+   "name": "Emberstone",
+   "tier": 4,
+   "group": "gem",
+   "value": 110,
+   "sources": [
+    "cinder_shaft",
+    "gloamhold"
+   ],
+   "note": "Stones that never cool. Rings of fury.",
    "sell_only": false
   },
   "gloomiron": {
    "name": "Gloomiron",
    "tier": 4,
-   "group": "dungeon",
+   "group": "metal",
    "value": 120,
    "sources": [
+    "gloamhold",
     "sunken_abbey"
    ],
    "note": "Dark deep-metal; tier-4 gear.",
@@ -236,12 +436,23 @@
   "wyrmbone": {
    "name": "Wyrmbone",
    "tier": 5,
-   "group": "dungeon",
+   "group": "metal",
    "value": 400,
    "sources": [
     "wyrms_hollow"
    ],
-   "note": "Bone of the wyrm; tier-5 gear.",
+   "note": "Bone of the wyrm, harder than steel; tier-5 gear.",
+   "sell_only": false
+  },
+  "wyrmscale": {
+   "name": "Wyrmscale",
+   "tier": 5,
+   "group": "hide",
+   "value": 320,
+   "sources": [
+    "wyrms_hollow"
+   ],
+   "note": "Tier-5 light armour and packs.",
    "sell_only": false
   },
   "herbs": {
@@ -253,7 +464,18 @@
     "old_oakwood",
     "mossward_meadows"
    ],
-   "note": "Healing draughts and tanning.",
+   "note": "Healing draughts.",
+   "sell_only": false
+  },
+  "berries": {
+   "name": "Hedgeberries",
+   "tier": 1,
+   "group": "herb",
+   "value": 4,
+   "sources": [
+    "mossward_meadows"
+   ],
+   "note": "Tarts, porridge and quick draughts.",
    "sell_only": false
   },
   "bloodcap": {
@@ -264,7 +486,208 @@
    "sources": [
     "fenmire"
    ],
-   "note": "Greater healing draughts.",
+   "note": "Greater healing and tonics.",
+   "sell_only": false
+  },
+  "mushrooms": {
+   "name": "Fen Morels",
+   "tier": 2,
+   "group": "herb",
+   "value": 12,
+   "sources": [
+    "fenmire"
+   ],
+   "note": "Soups and tonics.",
+   "sell_only": false
+  },
+  "nightshade": {
+   "name": "Nightshade",
+   "tier": 3,
+   "group": "herb",
+   "value": 30,
+   "sources": [
+    "sunreach"
+   ],
+   "note": "Blade venom.",
+   "sell_only": false
+  },
+  "sunpetal": {
+   "name": "Sunpetal",
+   "tier": 3,
+   "group": "herb",
+   "value": 26,
+   "sources": [
+    "sunreach"
+   ],
+   "note": "Tea that sharpens the mind; fortune brews.",
+   "sell_only": false
+  },
+  "frostbloom": {
+   "name": "Frostbloom",
+   "tier": 4,
+   "group": "herb",
+   "value": 60,
+   "sources": [
+    "frostvale"
+   ],
+   "note": "Sorbets and brews.",
+   "sell_only": false
+  },
+  "perch": {
+   "name": "Perch",
+   "tier": 1,
+   "group": "fish",
+   "value": 5,
+   "sources": [
+    "millbrook_pond"
+   ],
+   "note": "Grilled, or pressed into fish oil.",
+   "sell_only": false
+  },
+  "trout": {
+   "name": "Silver Trout",
+   "tier": 2,
+   "group": "fish",
+   "value": 14,
+   "sources": [
+    "silverrun"
+   ],
+   "note": "Smoked trout.",
+   "sell_only": false
+  },
+  "eel": {
+   "name": "River Eel",
+   "tier": 2,
+   "group": "fish",
+   "value": 18,
+   "sources": [
+    "silverrun"
+   ],
+   "note": "Eel pie.",
+   "sell_only": false
+  },
+  "pike": {
+   "name": "Glass Pike",
+   "tier": 3,
+   "group": "fish",
+   "value": 30,
+   "sources": [
+    "glasswater"
+   ],
+   "note": "Chowder.",
+   "sell_only": false
+  },
+  "pearl": {
+   "name": "Pearl",
+   "tier": 3,
+   "group": "gem",
+   "value": 90,
+   "sources": [
+    "glasswater",
+    "greywater_coast"
+   ],
+   "note": "Pendants and fortune brews.",
+   "sell_only": false
+  },
+  "cod": {
+   "name": "Greywater Cod",
+   "tier": 4,
+   "group": "fish",
+   "value": 45,
+   "sources": [
+    "greywater_coast"
+   ],
+   "note": "Cod suppers.",
+   "sell_only": false
+  },
+  "crab": {
+   "name": "Rock Crab",
+   "tier": 4,
+   "group": "fish",
+   "value": 50,
+   "sources": [
+    "greywater_coast"
+   ],
+   "note": "Crab boils.",
+   "sell_only": false
+  },
+  "abyssal_eel": {
+   "name": "Abyssal Eel",
+   "tier": 5,
+   "group": "fish",
+   "value": 160,
+   "sources": [
+    "drowned_deep"
+   ],
+   "note": "The Abyssal Feast.",
+   "sell_only": false
+  },
+  "voidpearl": {
+   "name": "Voidpearl",
+   "tier": 5,
+   "group": "gem",
+   "value": 600,
+   "sources": [
+    "drowned_deep"
+   ],
+   "note": "Black pearls from the deep. Amulets and lanterns.",
+   "sell_only": false
+  },
+  "game_meat": {
+   "name": "Game Meat",
+   "tier": 1,
+   "group": "meat",
+   "value": 6,
+   "sources": [
+    "hollow_fields"
+   ],
+   "note": "Stews and jerky.",
+   "sell_only": false
+  },
+  "rabbit_hide": {
+   "name": "Rabbit Hide",
+   "tier": 1,
+   "group": "hide",
+   "value": 6,
+   "sources": [
+    "hollow_fields"
+   ],
+   "note": "Tier-1 light armour, satchels and grips.",
+   "sell_only": false
+  },
+  "feathers": {
+   "name": "Feathers",
+   "tier": 1,
+   "group": "hunt",
+   "value": 3,
+   "sources": [
+    "hollow_fields"
+   ],
+   "note": "Fletching for bows.",
+   "sell_only": false
+  },
+  "bone": {
+   "name": "Bone",
+   "tier": 1,
+   "group": "hunt",
+   "value": 2,
+   "sources": [
+    "hollow_fields",
+    "greyfang_hills",
+    "calder_keep"
+   ],
+   "note": "Charms, bone meal and tonics.",
+   "sell_only": false
+  },
+  "boar_meat": {
+   "name": "Boar Meat",
+   "tier": 2,
+   "group": "meat",
+   "value": 15,
+   "sources": [
+    "greyfang_hills"
+   ],
+   "note": "Roasts, pasties and chili.",
    "sell_only": false
   },
   "wolf_pelt": {
@@ -273,9 +696,153 @@
    "group": "hide",
    "value": 22,
    "sources": [
+    "greyfang_hills",
     "old_oakwood"
    ],
-   "note": "Hardened leather armour.",
+   "note": "Tier-2 light armour, packs and grips.",
+   "sell_only": false
+  },
+  "fang": {
+   "name": "Wolf Fang",
+   "tier": 2,
+   "group": "hunt",
+   "value": 12,
+   "sources": [
+    "greyfang_hills"
+   ],
+   "note": "Fang necklaces.",
+   "sell_only": false
+  },
+  "venison": {
+   "name": "Venison",
+   "tier": 3,
+   "group": "meat",
+   "value": 28,
+   "sources": [
+    "elkmoor"
+   ],
+   "note": "Steaks.",
+   "sell_only": false
+  },
+  "elk_hide": {
+   "name": "Elk Hide",
+   "tier": 3,
+   "group": "hide",
+   "value": 40,
+   "sources": [
+    "elkmoor"
+   ],
+   "note": "Tier-3 light armour and frame packs.",
+   "sell_only": false
+  },
+  "antler": {
+   "name": "Elk Antler",
+   "tier": 3,
+   "group": "hunt",
+   "value": 35,
+   "sources": [
+    "elkmoor"
+   ],
+   "note": "Hunting talismans.",
+   "sell_only": false
+  },
+  "bear_meat": {
+   "name": "Direbear Meat",
+   "tier": 4,
+   "group": "meat",
+   "value": 50,
+   "sources": [
+    "bleakridge"
+   ],
+   "note": "The Direbear Haunch.",
+   "sell_only": false
+  },
+  "direbear_pelt": {
+   "name": "Direbear Pelt",
+   "tier": 4,
+   "group": "hide",
+   "value": 85,
+   "sources": [
+    "bleakridge"
+   ],
+   "note": "Tier-4 light armour and packs.",
+   "sell_only": false
+  },
+  "wheat": {
+   "name": "Wheat",
+   "tier": 1,
+   "group": "crop",
+   "value": 3,
+   "sources": [
+    "home_fields"
+   ],
+   "note": "Milled into flour.",
+   "sell_only": false
+  },
+  "cabbage": {
+   "name": "Cabbage",
+   "tier": 1,
+   "group": "crop",
+   "value": 4,
+   "sources": [
+    "home_fields"
+   ],
+   "note": "Stews, soups and chowder.",
+   "sell_only": false
+  },
+  "flax": {
+   "name": "Flax",
+   "tier": 1,
+   "group": "crop",
+   "value": 4,
+   "sources": [
+    "home_fields"
+   ],
+   "note": "Spun into linen.",
+   "sell_only": false
+  },
+  "barley": {
+   "name": "Barley",
+   "tier": 2,
+   "group": "crop",
+   "value": 8,
+   "sources": [
+    "tilled_acres"
+   ],
+   "note": "Ale and porridge.",
+   "sell_only": false
+  },
+  "potato": {
+   "name": "Potatoes",
+   "tier": 2,
+   "group": "crop",
+   "value": 7,
+   "sources": [
+    "tilled_acres"
+   ],
+   "note": "Roasts, pasties, chowder and boils.",
+   "sell_only": false
+  },
+  "honey": {
+   "name": "Honey",
+   "tier": 2,
+   "group": "crop",
+   "value": 16,
+   "sources": [
+    "beehives"
+   ],
+   "note": "Cakes, ale, tea and sorbet.",
+   "sell_only": false
+  },
+  "emberpepper": {
+   "name": "Emberpepper",
+   "tier": 3,
+   "group": "crop",
+   "value": 24,
+   "sources": [
+    "glasshouse"
+   ],
+   "note": "Fiery peppers. Chili, steaks and elixirs.",
    "sell_only": false
   },
   "spider_silk": {
@@ -287,7 +854,18 @@
     "calder_keep",
     "deepdelve"
    ],
-   "note": "Bowstrings and padded linings.",
+   "note": "Tier 2-3 bowstrings, fishing line and linings.",
+   "sell_only": false
+  },
+  "shadowsilk": {
+   "name": "Shadowsilk",
+   "tier": 4,
+   "group": "fibre",
+   "value": 110,
+   "sources": [
+    "sunken_abbey"
+   ],
+   "note": "Tier 4-5 bowstrings, line and light armour.",
    "sell_only": false
   },
   "relic": {
@@ -300,7 +878,7 @@
     "calder_keep",
     "sunken_abbey"
    ],
-   "note": "Carved idols; tier-5 gear needs one.",
+   "note": "Carved idols. Collectors pay well; crafters make idols of them.",
    "sell_only": false
   },
   "sovereign": {
@@ -311,13 +889,14 @@
    "sources": [
     "wyrms_hollow"
    ],
-   "note": "The rarest prize. Reserved for a future mythic tier.",
+   "note": "The rarest prize. Kept for a future mythic tier.",
    "sell_only": true
   }
  },
  "items": {
   "steel_ingot": {
    "name": "Steel Ingot",
+   "category": "material",
    "kind": "intermediate",
    "slot": "none",
    "tier": 2,
@@ -328,14 +907,5445 @@
    "blueprint": [
     "crafting"
    ],
-   "note": "Smelted from iron and coal; most tier-3 and tier-4 gear needs it.",
+   "note": "Smelted iron. Tier-2 metal and the base of silversteel.",
    "value": 59
   },
-  "healing_draught": {
-   "name": "Healing Draught",
+  "silversteel_ingot": {
+   "name": "Silversteel Ingot",
+   "category": "material",
+   "kind": "intermediate",
+   "slot": "none",
+   "tier": 3,
+   "recipe": {
+    "steel_ingot": 1,
+    "silver": 1,
+    "coal": 1
+   },
+   "blueprint": [
+    "crafting"
+   ],
+   "note": "Tier-3 metal.",
+   "value": 133
+  },
+  "linen": {
+   "name": "Linen",
+   "category": "material",
+   "kind": "intermediate",
+   "slot": "none",
+   "tier": 1,
+   "recipe": {
+    "flax": 3
+   },
+   "blueprint": [
+    "crafting"
+   ],
+   "note": "Cloth for tier-1 armour, satchels, line and bowstrings.",
+   "value": 17
+  },
+  "flour": {
+   "name": "Flour",
+   "category": "material",
+   "kind": "intermediate",
+   "slot": "none",
+   "tier": 1,
+   "recipe": {
+    "wheat": 2
+   },
+   "blueprint": [
+    "crafting"
+   ],
+   "note": "Bread, pies and cakes.",
+   "value": 8
+  },
+  "fish_oil": {
+   "name": "Fish Oil",
+   "category": "material",
+   "kind": "intermediate",
+   "slot": "none",
+   "tier": 1,
+   "recipe": {
+    "perch": 2
+   },
+   "blueprint": [
+    "crafting"
+   ],
+   "note": "Lantern oil and blade venom.",
+   "value": 14
+  },
+  "bone_meal": {
+   "name": "Bone Meal",
+   "category": "material",
    "kind": "consumable",
    "slot": "none",
    "tier": 1,
+   "recipe": {
+    "bone": 3
+   },
+   "blueprint": [
+    "crafting"
+   ],
+   "note": "Spread on the fields: +15% harvest on the next farming trip.",
+   "value": 8
+  },
+  "iron_dagger": {
+   "name": "Iron Dagger",
+   "category": "weapon",
+   "kind": "dagger",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 6,
+    "attack_speed": 1.45,
+    "crit_chance": 0.12,
+    "crit_damage": 1.8
+   },
+   "rolls": [
+    "crit_chance",
+    "crit_damage",
+    "attack_speed",
+    "bleed",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 1,
+    "timber": 1,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 41,
+   "blueprint_price": 40
+  },
+  "rusted_sword": {
+   "name": "Rusted Sword",
+   "category": "weapon",
+   "kind": "sword",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 10,
+    "attack_speed": 1.0,
+    "crit_chance": 0.06,
+    "crit_damage": 1.6,
+    "parry": 0.05
+   },
+   "rolls": [
+    "damage",
+    "crit_chance",
+    "parry",
+    "attack_speed",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 30,
+   "legacy_slot": "tool",
+   "blueprint_price": 40
+  },
+  "iron_war_axe": {
+   "name": "Iron War Axe",
+   "category": "weapon",
+   "kind": "war_axe",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 11,
+    "attack_speed": 0.88,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "armour_pen": 0.15
+   },
+   "rolls": [
+    "damage",
+    "armour_pen",
+    "bleed",
+    "crit_damage",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 2,
+    "timber": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 64,
+   "blueprint_price": 40
+  },
+  "iron_mace": {
+   "name": "Iron Mace",
+   "category": "weapon",
+   "kind": "mace",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 11,
+    "attack_speed": 0.86,
+    "crit_chance": 0.04,
+    "crit_damage": 1.5,
+    "armour_pen": 0.2,
+    "stun": 0.08
+   },
+   "rolls": [
+    "damage",
+    "stun",
+    "armour_pen",
+    "health",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 3,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 80,
+   "blueprint_price": 40
+  },
+  "iron_spear": {
+   "name": "Iron Spear",
+   "category": "weapon",
+   "kind": "spear",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 10,
+    "attack_speed": 0.98,
+    "crit_chance": 0.05,
+    "crit_damage": 1.6,
+    "first_strike": 0.15,
+    "hunt": 1
+   },
+   "rolls": [
+    "first_strike",
+    "damage",
+    "parry",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 1,
+    "timber": 3
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 49,
+   "blueprint_price": 40
+  },
+  "iron_greatsword": {
+   "name": "Iron Greatsword",
+   "category": "weapon",
+   "kind": "greatsword",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 16,
+    "attack_speed": 0.7,
+    "crit_chance": 0.06,
+    "crit_damage": 1.7
+   },
+   "rolls": [
+    "damage",
+    "crit_damage",
+    "armour_pen",
+    "stun",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 6,
+   "recipe": {
+    "iron": 4,
+    "timber": 1,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 112,
+   "blueprint_price": 40
+  },
+  "birch_shortbow": {
+   "name": "Birch Shortbow",
+   "category": "weapon",
+   "kind": "bow",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 13,
+    "attack_speed": 0.9,
+    "crit_chance": 0.07,
+    "crit_damage": 1.6,
+    "first_strike": 0.3,
+    "hunt": 2
+   },
+   "rolls": [
+    "first_strike",
+    "crit_chance",
+    "damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 6,
+   "recipe": {
+    "timber": 3,
+    "linen": 1,
+    "feathers": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 53,
+   "blueprint_price": 40
+  },
+  "birch_crossbow": {
+   "name": "Birch Crossbow",
+   "category": "weapon",
+   "kind": "crossbow",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "damage": 20,
+    "attack_speed": 0.6,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "first_strike": 0.2,
+    "armour_pen": 0.25,
+    "hunt": 1
+   },
+   "rolls": [
+    "armour_pen",
+    "damage",
+    "crit_damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 6,
+   "recipe": {
+    "timber": 2,
+    "iron": 1,
+    "linen": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 64,
+   "blueprint_price": 40
+  },
+  "iron_buckler": {
+   "name": "Iron Buckler",
+   "category": "shield",
+   "kind": "buckler",
+   "slot": "off_hand",
+   "tier": 1,
+   "stats": {
+    "armour": 8,
+    "block": 0.0,
+    "parry": 0.08
+   },
+   "rolls": [
+    "parry",
+    "dodge",
+    "attack_speed",
+    "health",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 2,
+   "recipe": {
+    "iron": 1,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "iron_kite_shield": {
+   "name": "Iron Kite Shield",
+   "category": "shield",
+   "kind": "kite_shield",
+   "slot": "off_hand",
+   "tier": 1,
+   "stats": {
+    "armour": 12,
+    "block": 0.12
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 2,
+   "recipe": {
+    "timber": 2,
+    "iron": 1,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 49,
+   "blueprint_price": 40
+  },
+  "iron_tower_shield": {
+   "name": "Iron Tower Shield",
+   "category": "shield",
+   "kind": "tower_shield",
+   "slot": "off_hand",
+   "tier": 1,
+   "stats": {
+    "armour": 18,
+    "block": 0.22,
+    "attack_speed": -0.06
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 2,
+   "recipe": {
+    "timber": 3,
+    "iron": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 73,
+   "blueprint_price": 40
+  },
+  "leather_cap": {
+   "name": "Leather Cap",
+   "category": "armour",
+   "kind": "light/head",
+   "slot": "head",
+   "tier": 1,
+   "stats": {
+    "armour": 3,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "rabbit_hide": 1,
+    "linen": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "leather": {
+   "name": "Leather Armor",
+   "category": "armour",
+   "kind": "light/body",
+   "slot": "body",
+   "tier": 1,
+   "stats": {
+    "armour": 7,
+    "dodge": 0.036,
+    "attack_speed": 0.023
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 30,
+   "kit": 3,
+   "recipe": {
+    "rabbit_hide": 2,
+    "linen": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 38,
+   "legacy_slot": "armor",
+   "blueprint_price": 40
+  },
+  "leather_gloves": {
+   "name": "Leather Gloves",
+   "category": "armour",
+   "kind": "light/hands",
+   "slot": "hands",
+   "tier": 1,
+   "stats": {
+    "armour": 2,
+    "dodge": 0.012,
+    "attack_speed": 0.007
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "rabbit_hide": 1,
+    "linen": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "leather_boots": {
+   "name": "Leather Boots",
+   "category": "armour",
+   "kind": "light/feet",
+   "slot": "feet",
+   "tier": 1,
+   "stats": {
+    "armour": 3,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "rabbit_hide": 1,
+    "linen": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "ringmail_coif": {
+   "name": "Ringmail Coif",
+   "category": "armour",
+   "kind": "medium/head",
+   "slot": "head",
+   "tier": 1,
+   "stats": {
+    "armour": 5,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "iron": 1,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "ringmail_hauberk": {
+   "name": "Ringmail Hauberk",
+   "category": "armour",
+   "kind": "medium/body",
+   "slot": "body",
+   "tier": 1,
+   "stats": {
+    "armour": 11,
+    "injury_resist": 0.045
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 30,
+   "kit": 3,
+   "recipe": {
+    "iron": 3,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 80,
+   "blueprint_price": 40
+  },
+  "ringmail_gloves": {
+   "name": "Ringmail Gloves",
+   "category": "armour",
+   "kind": "medium/hands",
+   "slot": "hands",
+   "tier": 1,
+   "stats": {
+    "armour": 4,
+    "injury_resist": 0.015
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "iron": 1,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "ringmail_boots": {
+   "name": "Ringmail Boots",
+   "category": "armour",
+   "kind": "medium/feet",
+   "slot": "feet",
+   "tier": 1,
+   "stats": {
+    "armour": 5,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "iron": 1,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "iron_helm": {
+   "name": "Iron Helm",
+   "category": "armour",
+   "kind": "heavy/head",
+   "slot": "head",
+   "tier": 1,
+   "stats": {
+    "armour": 7,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "iron": 2,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 56,
+   "blueprint_price": 40
+  },
+  "iron_cuirass": {
+   "name": "Iron Cuirass",
+   "category": "armour",
+   "kind": "heavy/body",
+   "slot": "body",
+   "tier": 1,
+   "stats": {
+    "armour": 16,
+    "block": 0.027,
+    "attack_speed": -0.036
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 3,
+   "recipe": {
+    "iron": 4,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 104,
+   "blueprint_price": 40
+  },
+  "iron_gauntlets": {
+   "name": "Iron Gauntlets",
+   "category": "armour",
+   "kind": "heavy/hands",
+   "slot": "hands",
+   "tier": 1,
+   "stats": {
+    "armour": 5,
+    "block": 0.009,
+    "attack_speed": -0.012
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "iron": 2,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 56,
+   "blueprint_price": 40
+  },
+  "iron_greaves": {
+   "name": "Iron Greaves",
+   "category": "armour",
+   "kind": "heavy/feet",
+   "slot": "feet",
+   "tier": 1,
+   "stats": {
+    "armour": 7,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 1,
+   "recipe": {
+    "iron": 2,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 56,
+   "blueprint_price": 40
+  },
+  "hand_axe": {
+   "name": "Hand Axe",
+   "category": "tool",
+   "kind": "felling_axe_kind",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "logging": 1
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "logging",
+   "value": 26,
+   "legacy_slot": "tool",
+   "blueprint_price": 40
+  },
+  "basic_pick": {
+   "name": "Iron Pickaxe",
+   "category": "tool",
+   "kind": "pickaxe",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "mining": 1
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "mining",
+   "value": 28,
+   "legacy_slot": "tool",
+   "blueprint_price": 40
+  },
+  "copper_sickle": {
+   "name": "Copper Sickle",
+   "category": "tool",
+   "kind": "sickle",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "foraging": 1
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "copper": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "foraging",
+   "value": 36,
+   "blueprint_price": 40
+  },
+  "birch_rod": {
+   "name": "Birch Rod",
+   "category": "tool",
+   "kind": "fishing_rod",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "fishing": 1
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "timber": 3,
+    "linen": 1,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "fishing",
+   "value": 77,
+   "blueprint_price": 40
+  },
+  "iron_hoe": {
+   "name": "Iron Hoe",
+   "category": "tool",
+   "kind": "hoe",
+   "slot": "main_hand",
+   "tier": 1,
+   "stats": {
+    "farming": 1
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 30,
+   "kit": 4,
+   "recipe": {
+    "iron": 1,
+    "timber": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "farming",
+   "value": 41,
+   "blueprint_price": 40
+  },
+  "steel_dagger": {
+   "name": "Steel Dagger",
+   "category": "weapon",
+   "kind": "dagger",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 10,
+    "attack_speed": 1.45,
+    "crit_chance": 0.12,
+    "crit_damage": 1.8
+   },
+   "rolls": [
+    "crit_chance",
+    "crit_damage",
+    "attack_speed",
+    "bleed",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "steel_ingot": 1,
+    "oak": 1,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 133,
+   "blueprint_price": 150
+  },
+  "steel_sword": {
+   "name": "Steel Sword",
+   "category": "weapon",
+   "kind": "sword",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 16,
+    "attack_speed": 1.0,
+    "crit_chance": 0.06,
+    "crit_damage": 1.6,
+    "parry": 0.05
+   },
+   "rolls": [
+    "damage",
+    "crit_chance",
+    "parry",
+    "attack_speed",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "steel_ingot": 1,
+    "copper": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 125,
+   "legacy_slot": "tool",
+   "blueprint_price": 150
+  },
+  "steel_war_axe": {
+   "name": "Steel War Axe",
+   "category": "weapon",
+   "kind": "war_axe",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 18,
+    "attack_speed": 0.88,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "armour_pen": 0.15
+   },
+   "rolls": [
+    "damage",
+    "armour_pen",
+    "bleed",
+    "crit_damage",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "steel_ingot": 2,
+    "oak": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 204,
+   "blueprint_price": 150
+  },
+  "steel_mace": {
+   "name": "Steel Mace",
+   "category": "weapon",
+   "kind": "mace",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 18,
+    "attack_speed": 0.86,
+    "crit_chance": 0.04,
+    "crit_damage": 1.5,
+    "armour_pen": 0.2,
+    "stun": 0.08
+   },
+   "rolls": [
+    "damage",
+    "stun",
+    "armour_pen",
+    "health",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "steel_ingot": 3,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 267,
+   "blueprint_price": 150
+  },
+  "steel_spear": {
+   "name": "Steel Spear",
+   "category": "weapon",
+   "kind": "spear",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 16,
+    "attack_speed": 0.98,
+    "crit_chance": 0.05,
+    "crit_damage": 1.6,
+    "first_strike": 0.15,
+    "hunt": 1
+   },
+   "rolls": [
+    "first_strike",
+    "damage",
+    "parry",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "steel_ingot": 1,
+    "oak": 3
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 141,
+   "blueprint_price": 150
+  },
+  "steel_greatsword": {
+   "name": "Steel Greatsword",
+   "category": "weapon",
+   "kind": "greatsword",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 26,
+    "attack_speed": 0.7,
+    "crit_chance": 0.06,
+    "crit_damage": 1.7
+   },
+   "rolls": [
+    "damage",
+    "crit_damage",
+    "armour_pen",
+    "stun",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 12,
+   "recipe": {
+    "steel_ingot": 4,
+    "oak": 1,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 381,
+   "blueprint_price": 150
+  },
+  "oak_hunting_bow": {
+   "name": "Oak Hunting Bow",
+   "category": "weapon",
+   "kind": "bow",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 21,
+    "attack_speed": 0.9,
+    "crit_chance": 0.07,
+    "crit_damage": 1.6,
+    "first_strike": 0.3,
+    "hunt": 2
+   },
+   "rolls": [
+    "first_strike",
+    "crit_chance",
+    "damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 12,
+   "recipe": {
+    "oak": 3,
+    "spider_silk": 1,
+    "feathers": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 99,
+   "blueprint_price": 150
+  },
+  "oak_crossbow": {
+   "name": "Oak Crossbow",
+   "category": "weapon",
+   "kind": "crossbow",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "damage": 32,
+    "attack_speed": 0.6,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "first_strike": 0.2,
+    "armour_pen": 0.25,
+    "hunt": 1
+   },
+   "rolls": [
+    "armour_pen",
+    "damage",
+    "crit_damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 12,
+   "recipe": {
+    "oak": 2,
+    "steel_ingot": 1,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 158,
+   "blueprint_price": 150
+  },
+  "steel_buckler": {
+   "name": "Steel Buckler",
+   "category": "shield",
+   "kind": "buckler",
+   "slot": "off_hand",
+   "tier": 2,
+   "stats": {
+    "armour": 12,
+    "block": 0.0,
+    "parry": 0.08
+   },
+   "rolls": [
+    "parry",
+    "dodge",
+    "attack_speed",
+    "health",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 4,
+   "recipe": {
+    "steel_ingot": 1,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 113,
+   "blueprint_price": 150
+  },
+  "steel_kite_shield": {
+   "name": "Steel Kite Shield",
+   "category": "shield",
+   "kind": "kite_shield",
+   "slot": "off_hand",
+   "tier": 2,
+   "stats": {
+    "armour": 19,
+    "block": 0.12
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 4,
+   "recipe": {
+    "oak": 2,
+    "steel_ingot": 1,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 153,
+   "blueprint_price": 150
+  },
+  "steel_tower_shield": {
+   "name": "Steel Tower Shield",
+   "category": "shield",
+   "kind": "tower_shield",
+   "slot": "off_hand",
+   "tier": 2,
+   "stats": {
+    "armour": 29,
+    "block": 0.22,
+    "attack_speed": -0.06
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 4,
+   "recipe": {
+    "oak": 3,
+    "steel_ingot": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 224,
+   "blueprint_price": 150
+  },
+  "wolfhide_cap": {
+   "name": "Wolfhide Cap",
+   "category": "armour",
+   "kind": "light/head",
+   "slot": "head",
+   "tier": 2,
+   "stats": {
+    "armour": 5,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "wolf_pelt": 1,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 67,
+   "blueprint_price": 150
+  },
+  "wolfhide_jerkin": {
+   "name": "Wolfhide Jerkin",
+   "category": "armour",
+   "kind": "light/body",
+   "slot": "body",
+   "tier": 2,
+   "stats": {
+    "armour": 11,
+    "dodge": 0.036,
+    "attack_speed": 0.023
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 40,
+   "kit": 6,
+   "recipe": {
+    "wolf_pelt": 3,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 129,
+   "blueprint_price": 150
+  },
+  "wolfhide_gloves": {
+   "name": "Wolfhide Gloves",
+   "category": "armour",
+   "kind": "light/hands",
+   "slot": "hands",
+   "tier": 2,
+   "stats": {
+    "armour": 4,
+    "dodge": 0.012,
+    "attack_speed": 0.007
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "wolf_pelt": 1,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 67,
+   "blueprint_price": 150
+  },
+  "wolfhide_boots": {
+   "name": "Wolfhide Boots",
+   "category": "armour",
+   "kind": "light/feet",
+   "slot": "feet",
+   "tier": 2,
+   "stats": {
+    "armour": 5,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "wolf_pelt": 1,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 67,
+   "blueprint_price": 150
+  },
+  "chainmail_coif": {
+   "name": "Chainmail Coif",
+   "category": "armour",
+   "kind": "medium/head",
+   "slot": "head",
+   "tier": 2,
+   "stats": {
+    "armour": 8,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "steel_ingot": 1,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 113,
+   "blueprint_price": 150
+  },
+  "chainmail": {
+   "name": "Chainmail",
+   "category": "armour",
+   "kind": "medium/body",
+   "slot": "body",
+   "tier": 2,
+   "stats": {
+    "armour": 17,
+    "injury_resist": 0.045
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 40,
+   "kit": 6,
+   "recipe": {
+    "iron": 4,
+    "copper": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 138,
+   "legacy_slot": "armor",
+   "blueprint_price": 150
+  },
+  "chainmail_gloves": {
+   "name": "Chainmail Gloves",
+   "category": "armour",
+   "kind": "medium/hands",
+   "slot": "hands",
+   "tier": 2,
+   "stats": {
+    "armour": 6,
+    "injury_resist": 0.015
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "steel_ingot": 1,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 113,
+   "blueprint_price": 150
+  },
+  "chainmail_boots": {
+   "name": "Chainmail Boots",
+   "category": "armour",
+   "kind": "medium/feet",
+   "slot": "feet",
+   "tier": 2,
+   "stats": {
+    "armour": 8,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "steel_ingot": 1,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 113,
+   "blueprint_price": 150
+  },
+  "steel_helm": {
+   "name": "Steel Helm",
+   "category": "armour",
+   "kind": "heavy/head",
+   "slot": "head",
+   "tier": 2,
+   "stats": {
+    "armour": 11,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "steel_ingot": 2,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 196,
+   "blueprint_price": 150
+  },
+  "steel_cuirass": {
+   "name": "Steel Cuirass",
+   "category": "armour",
+   "kind": "heavy/body",
+   "slot": "body",
+   "tier": 2,
+   "stats": {
+    "armour": 25,
+    "block": 0.027,
+    "attack_speed": -0.036
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 6,
+   "recipe": {
+    "steel_ingot": 4,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 361,
+   "blueprint_price": 150
+  },
+  "steel_gauntlets": {
+   "name": "Steel Gauntlets",
+   "category": "armour",
+   "kind": "heavy/hands",
+   "slot": "hands",
+   "tier": 2,
+   "stats": {
+    "armour": 8,
+    "block": 0.009,
+    "attack_speed": -0.012
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "steel_ingot": 2,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 196,
+   "blueprint_price": 150
+  },
+  "steel_greaves": {
+   "name": "Steel Greaves",
+   "category": "armour",
+   "kind": "heavy/feet",
+   "slot": "feet",
+   "tier": 2,
+   "stats": {
+    "armour": 11,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 2,
+   "recipe": {
+    "steel_ingot": 2,
+    "wolf_pelt": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 196,
+   "blueprint_price": 150
+  },
+  "felling_axe": {
+   "name": "Felling Axe",
+   "category": "tool",
+   "kind": "felling_axe_kind",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "logging": 2
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "iron": 3,
+    "oak": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "logging",
+   "value": 98,
+   "legacy_slot": "tool",
+   "blueprint_price": 150
+  },
+  "reinforced_pick": {
+   "name": "Reinforced Pickaxe",
+   "category": "tool",
+   "kind": "pickaxe",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "mining": 2
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "iron": 3,
+    "copper": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "mining",
+   "value": 105,
+   "legacy_slot": "tool",
+   "blueprint_price": 150
+  },
+  "steel_sickle": {
+   "name": "Steel Sickle",
+   "category": "tool",
+   "kind": "sickle",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "foraging": 2
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "steel_ingot": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "foraging",
+   "value": 102,
+   "blueprint_price": 150
+  },
+  "oak_rod": {
+   "name": "Oak Rod",
+   "category": "tool",
+   "kind": "fishing_rod",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "fishing": 2
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "oak": 3,
+    "spider_silk": 1,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "fishing",
+   "value": 123,
+   "blueprint_price": 150
+  },
+  "steel_hoe": {
+   "name": "Steel Hoe",
+   "category": "tool",
+   "kind": "hoe",
+   "slot": "main_hand",
+   "tier": 2,
+   "stats": {
+    "farming": 2
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 40,
+   "kit": 8,
+   "recipe": {
+    "steel_ingot": 1,
+    "oak": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "trade": "farming",
+   "value": 122,
+   "blueprint_price": 150
+  },
+  "silversteel_dagger": {
+   "name": "Silversteel Dagger",
+   "category": "weapon",
+   "kind": "dagger",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 15,
+    "attack_speed": 1.45,
+    "crit_chance": 0.12,
+    "crit_damage": 1.8
+   },
+   "rolls": [
+    "crit_chance",
+    "crit_damage",
+    "attack_speed",
+    "bleed",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "yew": 1,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 284
+  },
+  "silversteel_sword": {
+   "name": "Silversteel Sword",
+   "category": "weapon",
+   "kind": "sword",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 24,
+    "attack_speed": 1.0,
+    "crit_chance": 0.06,
+    "crit_damage": 1.6,
+    "parry": 0.05
+   },
+   "rolls": [
+    "damage",
+    "crit_chance",
+    "parry",
+    "attack_speed",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 2,
+    "yew": 1,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 470
+  },
+  "silversteel_war_axe": {
+   "name": "Silversteel War Axe",
+   "category": "weapon",
+   "kind": "war_axe",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 27,
+    "attack_speed": 0.88,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "armour_pen": 0.15
+   },
+   "rolls": [
+    "damage",
+    "armour_pen",
+    "bleed",
+    "crit_damage",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 2,
+    "yew": 2
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 456
+  },
+  "silversteel_mace": {
+   "name": "Silversteel Mace",
+   "category": "weapon",
+   "kind": "mace",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 27,
+    "attack_speed": 0.86,
+    "crit_chance": 0.04,
+    "crit_damage": 1.5,
+    "armour_pen": 0.2,
+    "stun": 0.08
+   },
+   "rolls": [
+    "damage",
+    "stun",
+    "armour_pen",
+    "health",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 3,
+    "yew": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 601
+  },
+  "silversteel_spear": {
+   "name": "Silversteel Spear",
+   "category": "weapon",
+   "kind": "spear",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 24,
+    "attack_speed": 0.98,
+    "crit_chance": 0.05,
+    "crit_damage": 1.6,
+    "first_strike": 0.15,
+    "hunt": 1
+   },
+   "rolls": [
+    "first_strike",
+    "damage",
+    "parry",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "yew": 3
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 312
+  },
+  "silversteel_greatsword": {
+   "name": "Silversteel Greatsword",
+   "category": "weapon",
+   "kind": "greatsword",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 40,
+    "attack_speed": 0.7,
+    "crit_chance": 0.06,
+    "crit_damage": 1.7
+   },
+   "rolls": [
+    "damage",
+    "crit_damage",
+    "armour_pen",
+    "stun",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 18,
+   "recipe": {
+    "silversteel_ingot": 4,
+    "yew": 1,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 843
+  },
+  "yew_longbow": {
+   "name": "Yew Longbow",
+   "category": "weapon",
+   "kind": "bow",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 31,
+    "attack_speed": 0.9,
+    "crit_chance": 0.07,
+    "crit_damage": 1.6,
+    "first_strike": 0.3,
+    "hunt": 2
+   },
+   "rolls": [
+    "first_strike",
+    "crit_chance",
+    "damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 18,
+   "recipe": {
+    "yew": 3,
+    "spider_silk": 1,
+    "feathers": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 200
+  },
+  "yew_crossbow": {
+   "name": "Yew Crossbow",
+   "category": "weapon",
+   "kind": "crossbow",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "damage": 48,
+    "attack_speed": 0.6,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "first_strike": 0.2,
+    "armour_pen": 0.25,
+    "hunt": 1
+   },
+   "rolls": [
+    "armour_pen",
+    "damage",
+    "crit_damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 18,
+   "recipe": {
+    "yew": 2,
+    "silversteel_ingot": 1,
+    "spider_silk": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 340
+  },
+  "silversteel_buckler": {
+   "name": "Silversteel Buckler",
+   "category": "shield",
+   "kind": "buckler",
+   "slot": "off_hand",
+   "tier": 3,
+   "stats": {
+    "armour": 18,
+    "block": 0.0,
+    "parry": 0.08
+   },
+   "rolls": [
+    "parry",
+    "dodge",
+    "attack_speed",
+    "health",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 6,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 242
+  },
+  "silversteel_kite_shield": {
+   "name": "Silversteel Kite Shield",
+   "category": "shield",
+   "kind": "kite_shield",
+   "slot": "off_hand",
+   "tier": 3,
+   "stats": {
+    "armour": 29,
+    "block": 0.12
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 6,
+   "recipe": {
+    "yew": 2,
+    "silversteel_ingot": 1,
+    "elk_hide": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 360
+  },
+  "silversteel_tower_shield": {
+   "name": "Silversteel Tower Shield",
+   "category": "shield",
+   "kind": "tower_shield",
+   "slot": "off_hand",
+   "tier": 3,
+   "stats": {
+    "armour": 43,
+    "block": 0.22,
+    "attack_speed": -0.06
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 6,
+   "recipe": {
+    "yew": 3,
+    "silversteel_ingot": 2,
+    "resin": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 532
+  },
+  "elkhide_cap": {
+   "name": "Elkhide Cap",
+   "category": "armour",
+   "kind": "light/head",
+   "slot": "head",
+   "tier": 3,
+   "stats": {
+    "armour": 7,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "elk_hide": 1,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 92
+  },
+  "elkhide_jerkin": {
+   "name": "Elkhide Jerkin",
+   "category": "armour",
+   "kind": "light/body",
+   "slot": "body",
+   "tier": 3,
+   "stats": {
+    "armour": 16,
+    "dodge": 0.036,
+    "attack_speed": 0.023
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 50,
+   "kit": 9,
+   "recipe": {
+    "elk_hide": 3,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 204
+  },
+  "elkhide_gloves": {
+   "name": "Elkhide Gloves",
+   "category": "armour",
+   "kind": "light/hands",
+   "slot": "hands",
+   "tier": 3,
+   "stats": {
+    "armour": 5,
+    "dodge": 0.012,
+    "attack_speed": 0.007
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "elk_hide": 1,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 92
+  },
+  "elkhide_boots": {
+   "name": "Elkhide Boots",
+   "category": "armour",
+   "kind": "light/feet",
+   "slot": "feet",
+   "tier": 3,
+   "stats": {
+    "armour": 7,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "elk_hide": 1,
+    "spider_silk": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 92
+  },
+  "silversteel_scale_coif": {
+   "name": "Silversteel Scale Coif",
+   "category": "armour",
+   "kind": "medium/head",
+   "slot": "head",
+   "tier": 3,
+   "stats": {
+    "armour": 12,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 242
+  },
+  "silversteel_scale_hauberk": {
+   "name": "Silversteel Scale Hauberk",
+   "category": "armour",
+   "kind": "medium/body",
+   "slot": "body",
+   "tier": 3,
+   "stats": {
+    "armour": 26,
+    "injury_resist": 0.045
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 50,
+   "kit": 9,
+   "recipe": {
+    "silversteel_ingot": 3,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 615
+  },
+  "silversteel_scale_gloves": {
+   "name": "Silversteel Scale Gloves",
+   "category": "armour",
+   "kind": "medium/hands",
+   "slot": "hands",
+   "tier": 3,
+   "stats": {
+    "armour": 9,
+    "injury_resist": 0.015
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 242
+  },
+  "silversteel_scale_boots": {
+   "name": "Silversteel Scale Boots",
+   "category": "armour",
+   "kind": "medium/feet",
+   "slot": "feet",
+   "tier": 3,
+   "stats": {
+    "armour": 12,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 242
+  },
+  "silversteel_helm": {
+   "name": "Silversteel Helm",
+   "category": "armour",
+   "kind": "heavy/head",
+   "slot": "head",
+   "tier": 3,
+   "stats": {
+    "armour": 17,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "silversteel_ingot": 2,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 428
+  },
+  "silversteel_cuirass": {
+   "name": "Silversteel Cuirass",
+   "category": "armour",
+   "kind": "heavy/body",
+   "slot": "body",
+   "tier": 3,
+   "stats": {
+    "armour": 37,
+    "block": 0.027,
+    "attack_speed": -0.036
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 9,
+   "recipe": {
+    "silversteel_ingot": 4,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 801
+  },
+  "silversteel_gauntlets": {
+   "name": "Silversteel Gauntlets",
+   "category": "armour",
+   "kind": "heavy/hands",
+   "slot": "hands",
+   "tier": 3,
+   "stats": {
+    "armour": 12,
+    "block": 0.009,
+    "attack_speed": -0.012
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "silversteel_ingot": 2,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 428
+  },
+  "silversteel_greaves": {
+   "name": "Silversteel Greaves",
+   "category": "armour",
+   "kind": "heavy/feet",
+   "slot": "feet",
+   "tier": 3,
+   "stats": {
+    "armour": 17,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 3,
+   "recipe": {
+    "silversteel_ingot": 2,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 428
+  },
+  "silversteel_felling_axe": {
+   "name": "Silversteel Felling Axe",
+   "category": "tool",
+   "kind": "felling_axe_kind",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "logging": 3
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "yew": 2
+   },
+   "blueprint": [
+    "thornwald",
+    "calder_keep"
+   ],
+   "found_only": false,
+   "trade": "logging",
+   "value": 270
+  },
+  "silversteel_pickaxe": {
+   "name": "Silversteel Pickaxe",
+   "category": "tool",
+   "kind": "pickaxe",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "mining": 3
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 2,
+    "yew": 1
+   },
+   "blueprint": [
+    "cinder_shaft",
+    "calder_keep"
+   ],
+   "found_only": false,
+   "trade": "mining",
+   "value": 414
+  },
+  "silversteel_sickle": {
+   "name": "Silversteel Sickle",
+   "category": "tool",
+   "kind": "sickle",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "foraging": 3
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "yew": 1
+   },
+   "blueprint": [
+    "sunreach",
+    "calder_keep"
+   ],
+   "found_only": false,
+   "trade": "foraging",
+   "value": 228
+  },
+  "yew_rod": {
+   "name": "Yew Rod",
+   "category": "tool",
+   "kind": "fishing_rod",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "fishing": 3
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "yew": 3,
+    "spider_silk": 1,
+    "silver": 1
+   },
+   "blueprint": [
+    "glasswater",
+    "calder_keep"
+   ],
+   "found_only": false,
+   "trade": "fishing",
+   "value": 202
+  },
+  "silversteel_hoe": {
+   "name": "Silversteel Hoe",
+   "category": "tool",
+   "kind": "hoe",
+   "slot": "main_hand",
+   "tier": 3,
+   "stats": {
+    "farming": 3
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 50,
+   "kit": 12,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "yew": 2
+   },
+   "blueprint": [
+    "glasshouse",
+    "calder_keep"
+   ],
+   "found_only": false,
+   "trade": "farming",
+   "value": 270
+  },
+  "gloomiron_dagger": {
+   "name": "Gloomiron Dagger",
+   "category": "weapon",
+   "kind": "dagger",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 21,
+    "attack_speed": 1.45,
+    "crit_chance": 0.12,
+    "crit_damage": 1.8
+   },
+   "rolls": [
+    "crit_chance",
+    "crit_damage",
+    "attack_speed",
+    "bleed",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 1,
+    "ironwood": 1,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 378
+  },
+  "gloomiron_sword": {
+   "name": "Gloomiron Sword",
+   "category": "weapon",
+   "kind": "sword",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 34,
+    "attack_speed": 1.0,
+    "crit_chance": 0.06,
+    "crit_damage": 1.6,
+    "parry": 0.05
+   },
+   "rolls": [
+    "damage",
+    "crit_chance",
+    "parry",
+    "attack_speed",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 2,
+    "ironwood": 1,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 546
+  },
+  "gloomiron_war_axe": {
+   "name": "Gloomiron War Axe",
+   "category": "weapon",
+   "kind": "war_axe",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 38,
+    "attack_speed": 0.88,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "armour_pen": 0.15
+   },
+   "rolls": [
+    "damage",
+    "armour_pen",
+    "bleed",
+    "crit_damage",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 2,
+    "ironwood": 2
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 518
+  },
+  "gloomiron_mace": {
+   "name": "Gloomiron Mace",
+   "category": "weapon",
+   "kind": "mace",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 38,
+    "attack_speed": 0.86,
+    "crit_chance": 0.04,
+    "crit_damage": 1.5,
+    "armour_pen": 0.2,
+    "stun": 0.08
+   },
+   "rolls": [
+    "damage",
+    "stun",
+    "armour_pen",
+    "health",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 3,
+    "ironwood": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 595
+  },
+  "gloomiron_spear": {
+   "name": "Gloomiron Spear",
+   "category": "weapon",
+   "kind": "spear",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 33,
+    "attack_speed": 0.98,
+    "crit_chance": 0.05,
+    "crit_damage": 1.6,
+    "first_strike": 0.15,
+    "hunt": 1
+   },
+   "rolls": [
+    "first_strike",
+    "damage",
+    "parry",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 1,
+    "ironwood": 3
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 441
+  },
+  "gloomiron_greatsword": {
+   "name": "Gloomiron Greatsword",
+   "category": "weapon",
+   "kind": "greatsword",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 56,
+    "attack_speed": 0.7,
+    "crit_chance": 0.06,
+    "crit_damage": 1.7
+   },
+   "rolls": [
+    "damage",
+    "crit_damage",
+    "armour_pen",
+    "stun",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 24,
+   "recipe": {
+    "gloomiron": 4,
+    "ironwood": 1,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 882
+  },
+  "ironwood_warbow": {
+   "name": "Ironwood Warbow",
+   "category": "weapon",
+   "kind": "bow",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 44,
+    "attack_speed": 0.9,
+    "crit_chance": 0.07,
+    "crit_damage": 1.6,
+    "first_strike": 0.3,
+    "hunt": 2
+   },
+   "rolls": [
+    "first_strike",
+    "crit_chance",
+    "damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 24,
+   "recipe": {
+    "ironwood": 3,
+    "shadowsilk": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 461
+  },
+  "ironwood_crossbow": {
+   "name": "Ironwood Crossbow",
+   "category": "weapon",
+   "kind": "crossbow",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 68,
+    "attack_speed": 0.6,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "first_strike": 0.2,
+    "armour_pen": 0.25,
+    "hunt": 1
+   },
+   "rolls": [
+    "armour_pen",
+    "damage",
+    "crit_damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 24,
+   "recipe": {
+    "ironwood": 2,
+    "gloomiron": 1,
+    "shadowsilk": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 538
+  },
+  "gloomiron_buckler": {
+   "name": "Gloomiron Buckler",
+   "category": "shield",
+   "kind": "buckler",
+   "slot": "off_hand",
+   "tier": 4,
+   "stats": {
+    "armour": 26,
+    "block": 0.0,
+    "parry": 0.08
+   },
+   "rolls": [
+    "parry",
+    "dodge",
+    "attack_speed",
+    "health",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 8,
+   "recipe": {
+    "gloomiron": 1,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 287
+  },
+  "gloomiron_kite_shield": {
+   "name": "Gloomiron Kite Shield",
+   "category": "shield",
+   "kind": "kite_shield",
+   "slot": "off_hand",
+   "tier": 4,
+   "stats": {
+    "armour": 41,
+    "block": 0.12
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 8,
+   "recipe": {
+    "ironwood": 2,
+    "gloomiron": 1,
+    "direbear_pelt": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 503
+  },
+  "gloomiron_tower_shield": {
+   "name": "Gloomiron Tower Shield",
+   "category": "shield",
+   "kind": "tower_shield",
+   "slot": "off_hand",
+   "tier": 4,
+   "stats": {
+    "armour": 61,
+    "block": 0.22,
+    "attack_speed": -0.06
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 8,
+   "recipe": {
+    "ironwood": 3,
+    "gloomiron": 2,
+    "resin": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 643
+  },
+  "direbear_cap": {
+   "name": "Direbear Cap",
+   "category": "armour",
+   "kind": "light/head",
+   "slot": "head",
+   "tier": 4,
+   "stats": {
+    "armour": 10,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "direbear_pelt": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 273
+  },
+  "direbear_jerkin": {
+   "name": "Direbear Jerkin",
+   "category": "armour",
+   "kind": "light/body",
+   "slot": "body",
+   "tier": 4,
+   "stats": {
+    "armour": 23,
+    "dodge": 0.036,
+    "attack_speed": 0.023
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 60,
+   "kit": 12,
+   "recipe": {
+    "direbear_pelt": 3,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 511
+  },
+  "direbear_gloves": {
+   "name": "Direbear Gloves",
+   "category": "armour",
+   "kind": "light/hands",
+   "slot": "hands",
+   "tier": 4,
+   "stats": {
+    "armour": 8,
+    "dodge": 0.012,
+    "attack_speed": 0.007
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "direbear_pelt": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 273
+  },
+  "direbear_boots": {
+   "name": "Direbear Boots",
+   "category": "armour",
+   "kind": "light/feet",
+   "slot": "feet",
+   "tier": 4,
+   "stats": {
+    "armour": 10,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "direbear_pelt": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 273
+  },
+  "gloomiron_brigandine_coif": {
+   "name": "Gloomiron Brigandine Coif",
+   "category": "armour",
+   "kind": "medium/head",
+   "slot": "head",
+   "tier": 4,
+   "stats": {
+    "armour": 16,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "gloomiron": 1,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 287
+  },
+  "gloomiron_brigandine_hauberk": {
+   "name": "Gloomiron Brigandine Hauberk",
+   "category": "armour",
+   "kind": "medium/body",
+   "slot": "body",
+   "tier": 4,
+   "stats": {
+    "armour": 37,
+    "injury_resist": 0.045
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 60,
+   "kit": 12,
+   "recipe": {
+    "gloomiron": 3,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 623
+  },
+  "gloomiron_brigandine_gloves": {
+   "name": "Gloomiron Brigandine Gloves",
+   "category": "armour",
+   "kind": "medium/hands",
+   "slot": "hands",
+   "tier": 4,
+   "stats": {
+    "armour": 12,
+    "injury_resist": 0.015
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "gloomiron": 1,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 287
+  },
+  "gloomiron_brigandine_boots": {
+   "name": "Gloomiron Brigandine Boots",
+   "category": "armour",
+   "kind": "medium/feet",
+   "slot": "feet",
+   "tier": 4,
+   "stats": {
+    "armour": 16,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "gloomiron": 1,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 287
+  },
+  "gloomiron_helm": {
+   "name": "Gloomiron Helm",
+   "category": "armour",
+   "kind": "heavy/head",
+   "slot": "head",
+   "tier": 4,
+   "stats": {
+    "armour": 23,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "gloomiron": 2,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 455
+  },
+  "gloomiron_cuirass": {
+   "name": "Gloomiron Cuirass",
+   "category": "armour",
+   "kind": "heavy/body",
+   "slot": "body",
+   "tier": 4,
+   "stats": {
+    "armour": 53,
+    "block": 0.027,
+    "attack_speed": -0.036
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 12,
+   "recipe": {
+    "gloomiron": 4,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 791
+  },
+  "gloomiron_gauntlets": {
+   "name": "Gloomiron Gauntlets",
+   "category": "armour",
+   "kind": "heavy/hands",
+   "slot": "hands",
+   "tier": 4,
+   "stats": {
+    "armour": 18,
+    "block": 0.009,
+    "attack_speed": -0.012
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "gloomiron": 2,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 455
+  },
+  "gloomiron_greaves": {
+   "name": "Gloomiron Greaves",
+   "category": "armour",
+   "kind": "heavy/feet",
+   "slot": "feet",
+   "tier": 4,
+   "stats": {
+    "armour": 23,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 4,
+   "recipe": {
+    "gloomiron": 2,
+    "direbear_pelt": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 455
+  },
+  "gloomiron_felling_axe": {
+   "name": "Gloomiron Felling Axe",
+   "category": "tool",
+   "kind": "felling_axe_kind",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "logging": 4
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 1,
+    "ironwood": 2
+   },
+   "blueprint": [
+    "blackroot_weald",
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "trade": "logging",
+   "value": 350
+  },
+  "gloomiron_pickaxe": {
+   "name": "Gloomiron Pickaxe",
+   "category": "tool",
+   "kind": "pickaxe",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "mining": 4
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 2,
+    "ironwood": 1
+   },
+   "blueprint": [
+    "gloamhold",
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "trade": "mining",
+   "value": 427
+  },
+  "gloomiron_sickle": {
+   "name": "Gloomiron Sickle",
+   "category": "tool",
+   "kind": "sickle",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "foraging": 4
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "gloomiron": 1,
+    "ironwood": 1
+   },
+   "blueprint": [
+    "frostvale",
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "trade": "foraging",
+   "value": 259
+  },
+  "ironwood_rod": {
+   "name": "Ironwood Rod",
+   "category": "tool",
+   "kind": "fishing_rod",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "fishing": 4
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 60,
+   "kit": 16,
+   "recipe": {
+    "ironwood": 3,
+    "shadowsilk": 1,
+    "silver": 1
+   },
+   "blueprint": [
+    "greywater_coast",
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "trade": "fishing",
+   "value": 466
+  },
+  "wyrmbone_dagger": {
+   "name": "Wyrmbone Dagger",
+   "category": "weapon",
+   "kind": "dagger",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 30,
+    "attack_speed": 1.45,
+    "crit_chance": 0.12,
+    "crit_damage": 1.8
+   },
+   "rolls": [
+    "crit_chance",
+    "crit_damage",
+    "attack_speed",
+    "bleed",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "wyrmbone": 1,
+    "ghostwood": 1,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1218
+  },
+  "wyrmbone_sword": {
+   "name": "Wyrmbone Sword",
+   "category": "weapon",
+   "kind": "sword",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 48,
+    "attack_speed": 1.0,
+    "crit_chance": 0.06,
+    "crit_damage": 1.6,
+    "parry": 0.05
+   },
+   "rolls": [
+    "damage",
+    "crit_chance",
+    "parry",
+    "attack_speed",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "wyrmbone": 2,
+    "ghostwood": 1,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1778
+  },
+  "wyrmbone_war_axe": {
+   "name": "Wyrmbone War Axe",
+   "category": "weapon",
+   "kind": "war_axe",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 54,
+    "attack_speed": 0.88,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "armour_pen": 0.15
+   },
+   "rolls": [
+    "damage",
+    "armour_pen",
+    "bleed",
+    "crit_damage",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "wyrmbone": 2,
+    "ghostwood": 2
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1540
+  },
+  "wyrmbone_mace": {
+   "name": "Wyrmbone Mace",
+   "category": "weapon",
+   "kind": "mace",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 54,
+    "attack_speed": 0.86,
+    "crit_chance": 0.04,
+    "crit_damage": 1.5,
+    "armour_pen": 0.2,
+    "stun": 0.08
+   },
+   "rolls": [
+    "damage",
+    "stun",
+    "armour_pen",
+    "health",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "wyrmbone": 3,
+    "ghostwood": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1890
+  },
+  "wyrmbone_spear": {
+   "name": "Wyrmbone Spear",
+   "category": "weapon",
+   "kind": "spear",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 47,
+    "attack_speed": 0.98,
+    "crit_chance": 0.05,
+    "crit_damage": 1.6,
+    "first_strike": 0.15,
+    "hunt": 1
+   },
+   "rolls": [
+    "first_strike",
+    "damage",
+    "parry",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "wyrmbone": 1,
+    "ghostwood": 3
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1190
+  },
+  "wyrmbone_greatsword": {
+   "name": "Wyrmbone Greatsword",
+   "category": "weapon",
+   "kind": "greatsword",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 79,
+    "attack_speed": 0.7,
+    "crit_chance": 0.06,
+    "crit_damage": 1.7
+   },
+   "rolls": [
+    "damage",
+    "crit_damage",
+    "armour_pen",
+    "stun",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 30,
+   "recipe": {
+    "wyrmbone": 4,
+    "ghostwood": 1,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 2898
+  },
+  "ghostwood_bow": {
+   "name": "Ghostwood Bow",
+   "category": "weapon",
+   "kind": "bow",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 62,
+    "attack_speed": 0.9,
+    "crit_chance": 0.07,
+    "crit_damage": 1.6,
+    "first_strike": 0.3,
+    "hunt": 2
+   },
+   "rolls": [
+    "first_strike",
+    "crit_chance",
+    "damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 30,
+   "recipe": {
+    "ghostwood": 3,
+    "shadowsilk": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 818
+  },
+  "ghostwood_crossbow": {
+   "name": "Ghostwood Crossbow",
+   "category": "weapon",
+   "kind": "crossbow",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "damage": 96,
+    "attack_speed": 0.6,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "first_strike": 0.2,
+    "armour_pen": 0.25,
+    "hunt": 1
+   },
+   "rolls": [
+    "armour_pen",
+    "damage",
+    "crit_damage",
+    "yield",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 30,
+   "recipe": {
+    "ghostwood": 2,
+    "wyrmbone": 1,
+    "shadowsilk": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "hands": 2,
+   "value": 1168
+  },
+  "wyrmbone_buckler": {
+   "name": "Wyrmbone Buckler",
+   "category": "shield",
+   "kind": "buckler",
+   "slot": "off_hand",
+   "tier": 5,
+   "stats": {
+    "armour": 36,
+    "block": 0.0,
+    "parry": 0.08
+   },
+   "rolls": [
+    "parry",
+    "dodge",
+    "attack_speed",
+    "health",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 10,
+   "recipe": {
+    "wyrmbone": 1,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1008
+  },
+  "wyrmbone_kite_shield": {
+   "name": "Wyrmbone Kite Shield",
+   "category": "shield",
+   "kind": "kite_shield",
+   "slot": "off_hand",
+   "tier": 5,
+   "stats": {
+    "armour": 58,
+    "block": 0.12
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 10,
+   "recipe": {
+    "ghostwood": 2,
+    "wyrmbone": 1,
+    "wyrmscale": 1,
+    "resin": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1462
+  },
+  "wyrmbone_tower_shield": {
+   "name": "Wyrmbone Tower Shield",
+   "category": "shield",
+   "kind": "tower_shield",
+   "slot": "off_hand",
+   "tier": 5,
+   "stats": {
+    "armour": 86,
+    "block": 0.22,
+    "attack_speed": -0.06
+   },
+   "rolls": [
+    "block",
+    "armour",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 10,
+   "recipe": {
+    "ghostwood": 3,
+    "wyrmbone": 2,
+    "resin": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "value": 1784
+  },
+  "wyrmskin_cap": {
+   "name": "Wyrmskin Cap",
+   "category": "armour",
+   "kind": "light/head",
+   "slot": "head",
+   "tier": 5,
+   "stats": {
+    "armour": 14,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmscale": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 602
+  },
+  "wyrmskin_jerkin": {
+   "name": "Wyrmskin Jerkin",
+   "category": "armour",
+   "kind": "light/body",
+   "slot": "body",
+   "tier": 5,
+   "stats": {
+    "armour": 32,
+    "dodge": 0.036,
+    "attack_speed": 0.023
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 80,
+   "kit": 15,
+   "recipe": {
+    "wyrmscale": 3,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 1498
+  },
+  "wyrmskin_gloves": {
+   "name": "Wyrmskin Gloves",
+   "category": "armour",
+   "kind": "light/hands",
+   "slot": "hands",
+   "tier": 5,
+   "stats": {
+    "armour": 11,
+    "dodge": 0.012,
+    "attack_speed": 0.007
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmscale": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 602
+  },
+  "wyrmskin_boots": {
+   "name": "Wyrmskin Boots",
+   "category": "armour",
+   "kind": "light/feet",
+   "slot": "feet",
+   "tier": 5,
+   "stats": {
+    "armour": 14,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "rolls": [
+    "dodge",
+    "attack_speed",
+    "crit_chance",
+    "health",
+    "speed"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmscale": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "light",
+   "value": 602
+  },
+  "wyrmscale_coif": {
+   "name": "Wyrmscale Coif",
+   "category": "armour",
+   "kind": "medium/head",
+   "slot": "head",
+   "tier": 5,
+   "stats": {
+    "armour": 23,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmbone": 1,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 1008
+  },
+  "wyrmscale_hauberk": {
+   "name": "Wyrmscale Hauberk",
+   "category": "armour",
+   "kind": "medium/body",
+   "slot": "body",
+   "tier": 5,
+   "stats": {
+    "armour": 52,
+    "injury_resist": 0.045
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 80,
+   "kit": 15,
+   "recipe": {
+    "wyrmbone": 3,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 2128
+  },
+  "wyrmscale_gloves": {
+   "name": "Wyrmscale Gloves",
+   "category": "armour",
+   "kind": "medium/hands",
+   "slot": "hands",
+   "tier": 5,
+   "stats": {
+    "armour": 17,
+    "injury_resist": 0.015
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmbone": 1,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 1008
+  },
+  "wyrmscale_boots": {
+   "name": "Wyrmscale Boots",
+   "category": "armour",
+   "kind": "medium/feet",
+   "slot": "feet",
+   "tier": 5,
+   "stats": {
+    "armour": 23,
+    "injury_resist": 0.02
+   },
+   "rolls": [
+    "armour",
+    "health",
+    "injury_resist",
+    "dodge",
+    "carry"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmbone": 1,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "medium",
+   "value": 1008
+  },
+  "wyrmbone_helm": {
+   "name": "Wyrmbone Helm",
+   "category": "armour",
+   "kind": "heavy/head",
+   "slot": "head",
+   "tier": 5,
+   "stats": {
+    "armour": 33,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmbone": 2,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 1568
+  },
+  "wyrmbone_cuirass": {
+   "name": "Wyrmbone Cuirass",
+   "category": "armour",
+   "kind": "heavy/body",
+   "slot": "body",
+   "tier": 5,
+   "stats": {
+    "armour": 75,
+    "block": 0.027,
+    "attack_speed": -0.036
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 15,
+   "recipe": {
+    "wyrmbone": 4,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 2688
+  },
+  "wyrmbone_gauntlets": {
+   "name": "Wyrmbone Gauntlets",
+   "category": "armour",
+   "kind": "heavy/hands",
+   "slot": "hands",
+   "tier": 5,
+   "stats": {
+    "armour": 25,
+    "block": 0.009,
+    "attack_speed": -0.012
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmbone": 2,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 1568
+  },
+  "wyrmbone_greaves": {
+   "name": "Wyrmbone Greaves",
+   "category": "armour",
+   "kind": "heavy/feet",
+   "slot": "feet",
+   "tier": 5,
+   "stats": {
+    "armour": 33,
+    "block": 0.012,
+    "attack_speed": -0.016
+   },
+   "rolls": [
+    "armour",
+    "block",
+    "health",
+    "injury_resist",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 5,
+   "recipe": {
+    "wyrmbone": 2,
+    "wyrmscale": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "weight": "heavy",
+   "value": 1568
+  },
+  "wyrmbone_felling_axe": {
+   "name": "Wyrmbone Felling Axe",
+   "category": "tool",
+   "kind": "felling_axe_kind",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "logging": 6
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "wyrmbone": 1,
+    "ghostwood": 2
+   },
+   "blueprint": [
+    "palewood",
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "trade": "logging",
+   "value": 980
+  },
+  "wyrmbone_pickaxe": {
+   "name": "Wyrmbone Pickaxe",
+   "category": "tool",
+   "kind": "pickaxe",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "mining": 6
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "wyrmbone": 2,
+    "ghostwood": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "trade": "mining",
+   "value": 1330
+  },
+  "ghostwood_rod": {
+   "name": "Ghostwood Rod",
+   "category": "tool",
+   "kind": "fishing_rod",
+   "slot": "main_hand",
+   "tier": 5,
+   "stats": {
+    "fishing": 6
+   },
+   "rolls": [
+    "yield",
+    "rare_find",
+    "speed",
+    "sturdy",
+    "xp"
+   ],
+   "durability": 80,
+   "kit": 20,
+   "recipe": {
+    "ghostwood": 3,
+    "shadowsilk": 1,
+    "silver": 1
+   },
+   "blueprint": [
+    "drowned_deep",
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "trade": "fishing",
+   "value": 823
+  },
+  "copper_lantern": {
+   "name": "Copper Lantern",
+   "category": "lantern",
+   "kind": "lantern",
+   "slot": "off_hand",
+   "tier": 1,
+   "stats": {
+    "rare_find": 3
+   },
+   "rolls": [
+    "rare_find",
+    "xp",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 0,
+   "recipe": {
+    "copper": 2,
+    "fish_oil": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "note": "Lights the way in mines and dungeons: more rare finds, but no armour.",
+   "value": 76,
+   "blueprint_price": 40
+  },
+  "crystal_lantern": {
+   "name": "Crystal Lantern",
+   "category": "lantern",
+   "kind": "lantern",
+   "slot": "off_hand",
+   "tier": 3,
+   "stats": {
+    "rare_find": 6
+   },
+   "rolls": [
+    "rare_find",
+    "xp",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 0,
+   "recipe": {
+    "silver": 1,
+    "crystal": 1,
+    "fish_oil": 1
+   },
+   "blueprint": [
+    "cinder_shaft"
+   ],
+   "found_only": false,
+   "note": "Lights the way in mines and dungeons: more rare finds, but no armour.",
+   "value": 164
+  },
+  "voidpearl_lantern": {
+   "name": "Voidpearl Lantern",
+   "category": "lantern",
+   "kind": "lantern",
+   "slot": "off_hand",
+   "tier": 5,
+   "stats": {
+    "rare_find": 10
+   },
+   "rolls": [
+    "rare_find",
+    "xp",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 0,
+   "recipe": {
+    "silversteel_ingot": 1,
+    "voidpearl": 1
+   },
+   "blueprint": [
+    "wyrms_hollow"
+   ],
+   "found_only": false,
+   "note": "Lights the way in mines and dungeons: more rare finds, but no armour.",
+   "value": 1026
+  },
+  "amber_charm": {
+   "name": "Amber Charm",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 1,
+   "stats": {
+    "xp": 5
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "amber": 1,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 42,
+   "blueprint_price": 40
+  },
+  "bone_charm": {
+   "name": "Bone Charm",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 1,
+   "stats": {
+    "injury_resist": 5
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "bone": 3,
+    "linen": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 32,
+   "blueprint_price": 40
+  },
+  "fang_necklace": {
+   "name": "Fang Necklace",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 2,
+   "stats": {
+    "crit_chance": 3
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "fang": 3,
+    "linen": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 74,
+   "blueprint_price": 150
+  },
+  "garnet_ring": {
+   "name": "Garnet Ring",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 2,
+   "stats": {
+    "crit_damage": 15
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "garnet": 1,
+    "silver": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "value": 102,
+   "blueprint_price": 150
+  },
+  "pearl_pendant": {
+   "name": "Pearl Pendant",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 3,
+   "stats": {
+    "rare_find": 5
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "pearl": 1,
+    "silver": 1
+   },
+   "blueprint": [
+    "glasswater"
+   ],
+   "found_only": false,
+   "value": 165
+  },
+  "antler_talisman": {
+   "name": "Antler Talisman",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 3,
+   "stats": {
+    "yield": 12
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "antler": 2,
+    "elk_hide": 1
+   },
+   "blueprint": [
+    "elkmoor"
+   ],
+   "found_only": false,
+   "value": 154
+  },
+  "crystal_amulet": {
+   "name": "Crystal Amulet",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 3,
+   "stats": {
+    "rare_find": 8
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "crystal": 1,
+    "silver": 2
+   },
+   "blueprint": [
+    "calder_keep"
+   ],
+   "found_only": false,
+   "value": 183
+  },
+  "emberstone_ring": {
+   "name": "Emberstone Ring",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 4,
+   "stats": {
+    "damage": 8
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "emberstone": 1,
+    "silversteel_ingot": 1
+   },
+   "blueprint": [
+    "gloamhold"
+   ],
+   "found_only": false,
+   "value": 340
+  },
+  "relic_idol": {
+   "name": "Relic Idol",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 4,
+   "stats": {
+    "xp": 15
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "relic": 1,
+    "ironwood": 1
+   },
+   "blueprint": [
+    "sunken_abbey"
+   ],
+   "found_only": false,
+   "value": 861
+  },
+  "voidpearl_amulet": {
+   "name": "Voidpearl Amulet",
+   "category": "trinket",
+   "kind": "trinket",
+   "slot": "trinket",
+   "tier": 5,
+   "stats": {
+    "rare_find": 15
+   },
+   "rolls": [
+    "xp",
+    "rare_find",
+    "crit_chance",
+    "crit_damage",
+    "health",
+    "injury_resist",
+    "yield"
+   ],
+   "durability": null,
+   "kit": 0,
+   "recipe": {
+    "voidpearl": 1,
+    "silversteel_ingot": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "drowned_deep"
+   ],
+   "found_only": false,
+   "value": 1180
+  },
+  "linen_satchel": {
+   "name": "Linen Satchel",
+   "category": "pack",
+   "kind": "pack",
+   "slot": "back",
+   "tier": 1,
+   "stats": {
+    "carry": 10
+   },
+   "rolls": [
+    "carry",
+    "speed",
+    "sturdy"
+   ],
+   "durability": 30,
+   "kit": 0,
+   "recipe": {
+    "linen": 2,
+    "rabbit_hide": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "note": "Carries more home from gathering trips.",
+   "value": 56,
+   "blueprint_price": 40
+  },
+  "leather_pack": {
+   "name": "Wolfhide Pack",
+   "category": "pack",
+   "kind": "pack",
+   "slot": "back",
+   "tier": 2,
+   "stats": {
+    "carry": 15
+   },
+   "rolls": [
+    "carry",
+    "speed",
+    "sturdy"
+   ],
+   "durability": 40,
+   "kit": 0,
+   "recipe": {
+    "wolf_pelt": 2,
+    "linen": 1,
+    "copper": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "found_only": false,
+   "note": "Carries more home from gathering trips.",
+   "value": 113,
+   "blueprint_price": 150
+  },
+  "frame_pack": {
+   "name": "Yew Frame Pack",
+   "category": "pack",
+   "kind": "pack",
+   "slot": "back",
+   "tier": 3,
+   "stats": {
+    "carry": 20
+   },
+   "rolls": [
+    "carry",
+    "speed",
+    "sturdy"
+   ],
+   "durability": 50,
+   "kit": 0,
+   "recipe": {
+    "yew": 2,
+    "elk_hide": 2
+   },
+   "blueprint": [
+    "thornwald"
+   ],
+   "found_only": false,
+   "note": "Carries more home from gathering trips.",
+   "value": 196
+  },
+  "ironwood_frame": {
+   "name": "Ironwood Frame Pack",
+   "category": "pack",
+   "kind": "pack",
+   "slot": "back",
+   "tier": 4,
+   "stats": {
+    "carry": 25
+   },
+   "rolls": [
+    "carry",
+    "speed",
+    "sturdy"
+   ],
+   "durability": 60,
+   "kit": 0,
+   "recipe": {
+    "ironwood": 2,
+    "direbear_pelt": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "blackroot_weald"
+   ],
+   "found_only": false,
+   "note": "Carries more home from gathering trips.",
+   "value": 455
+  },
+  "ghostwood_frame": {
+   "name": "Ghostwood Frame Pack",
+   "category": "pack",
+   "kind": "pack",
+   "slot": "back",
+   "tier": 5,
+   "stats": {
+    "carry": 30
+   },
+   "rolls": [
+    "carry",
+    "speed",
+    "sturdy"
+   ],
+   "durability": 80,
+   "kit": 0,
+   "recipe": {
+    "ghostwood": 2,
+    "wyrmscale": 1,
+    "shadowsilk": 1
+   },
+   "blueprint": [
+    "palewood"
+   ],
+   "found_only": false,
+   "note": "Carries more home from gathering trips.",
+   "value": 1022
+  },
+  "grilled_perch": {
+   "name": "Grilled Perch",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 1,
+   "buffs": {
+    "yield": 5
+   },
+   "recipe": {
+    "perch": 2,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 22,
+   "blueprint_price": 40
+  },
+  "rabbit_stew": {
+   "name": "Rabbit Stew",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 1,
+   "buffs": {
+    "injury": -10
+   },
+   "recipe": {
+    "game_meat": 1,
+    "cabbage": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 22,
+   "blueprint_price": 40
+  },
+  "brown_bread": {
+   "name": "Brown Bread",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 1,
+   "buffs": {
+    "xp": 8
+   },
+   "recipe": {
+    "flour": 1,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 20,
+   "blueprint_price": 40
+  },
+  "berry_tart": {
+   "name": "Hedgeberry Tart",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 1,
+   "buffs": {
+    "duration": -5
+   },
+   "recipe": {
+    "berries": 2,
+    "flour": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 22,
+   "blueprint_price": 40
+  },
+  "hunters_jerky": {
+   "name": "Hunter's Jerky",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 1,
+   "buffs": {
+    "yield_hunting": 12
+   },
+   "recipe": {
+    "game_meat": 2,
+    "timber": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 25,
+   "blueprint_price": 40
+  },
+  "smoked_trout": {
+   "name": "Smoked Trout",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "yield_fishing": 12
+   },
+   "recipe": {
+    "trout": 2,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 59,
+   "blueprint_price": 150
+  },
+  "boar_roast": {
+   "name": "Boar Roast",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "damage": 8
+   },
+   "recipe": {
+    "boar_meat": 1,
+    "potato": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 50,
+   "blueprint_price": 150
+  },
+  "eel_pie": {
+   "name": "Eel Pie",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "rare_find": 10
+   },
+   "recipe": {
+    "eel": 1,
+    "flour": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 56,
+   "blueprint_price": 150
+  },
+  "honey_cakes": {
+   "name": "Honey Cakes",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "attack_speed": 6
+   },
+   "recipe": {
+    "honey": 1,
+    "flour": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 34,
+   "blueprint_price": 150
+  },
+  "barley_ale": {
+   "name": "Barley Ale",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "xp": 15,
+    "injury": 5
+   },
+   "recipe": {
+    "barley": 2,
+    "honey": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Strong stuff: they learn faster and fall over more.",
+   "value": 45,
+   "blueprint_price": 150
+  },
+  "miners_pasty": {
+   "name": "Miner's Pasty",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "yield_mining": 12
+   },
+   "recipe": {
+    "boar_meat": 1,
+    "potato": 1,
+    "flour": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 42,
+   "blueprint_price": 150
+  },
+  "woodsmans_porridge": {
+   "name": "Woodsman's Porridge",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "yield_logging": 12
+   },
+   "recipe": {
+    "barley": 1,
+    "honey": 1,
+    "berries": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 39,
+   "blueprint_price": 150
+  },
+  "morel_soup": {
+   "name": "Morel Soup",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "yield_foraging": 12
+   },
+   "recipe": {
+    "mushrooms": 2,
+    "cabbage": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 59,
+   "blueprint_price": 150
+  },
+  "harvest_loaf": {
+   "name": "Harvest Loaf",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 2,
+   "buffs": {
+    "yield_farming": 12
+   },
+   "recipe": {
+    "flour": 2,
+    "honey": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 64,
+   "blueprint_price": 150
+  },
+  "venison_steak": {
+   "name": "Peppered Venison",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 3,
+   "buffs": {
+    "damage": 12
+   },
+   "recipe": {
+    "venison": 1,
+    "emberpepper": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "elkmoor"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 92
+  },
+  "pike_chowder": {
+   "name": "Pike Chowder",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 3,
+   "buffs": {
+    "injury": -20
+   },
+   "recipe": {
+    "pike": 1,
+    "potato": 1,
+    "cabbage": 1
+   },
+   "blueprint": [
+    "glasswater"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 57
+  },
+  "sunpetal_tea": {
+   "name": "Sunpetal Tea",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 3,
+   "buffs": {
+    "xp": 20
+   },
+   "recipe": {
+    "sunpetal": 2,
+    "honey": 1
+   },
+   "blueprint": [
+    "sunreach"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 95
+  },
+  "ember_chili": {
+   "name": "Emberpepper Chili",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 3,
+   "buffs": {
+    "crit_chance": 5
+   },
+   "recipe": {
+    "emberpepper": 2,
+    "boar_meat": 1,
+    "oak": 1
+   },
+   "blueprint": [
+    "glasshouse"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 108
+  },
+  "crab_boil": {
+   "name": "Greywater Crab Boil",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 4,
+   "buffs": {
+    "yield": 12
+   },
+   "recipe": {
+    "crab": 2,
+    "potato": 1,
+    "yew": 1
+   },
+   "blueprint": [
+    "greywater_coast"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 192
+  },
+  "cod_supper": {
+   "name": "Cod Supper",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 4,
+   "buffs": {
+    "duration": -10
+   },
+   "recipe": {
+    "cod": 1,
+    "potato": 1,
+    "flour": 1
+   },
+   "blueprint": [
+    "greywater_coast"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 84
+  },
+  "direbear_haunch": {
+   "name": "Direbear Haunch",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 4,
+   "buffs": {
+    "health": 20
+   },
+   "recipe": {
+    "bear_meat": 1,
+    "emberpepper": 1,
+    "yew": 1
+   },
+   "blueprint": [
+    "bleakridge"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 146
+  },
+  "frostbloom_sorbet": {
+   "name": "Frostbloom Sorbet",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 4,
+   "buffs": {
+    "crit_damage": 20
+   },
+   "recipe": {
+    "frostbloom": 1,
+    "honey": 1,
+    "berries": 1
+   },
+   "blueprint": [
+    "frostvale"
+   ],
+   "note": "Eaten on the next trip.",
+   "value": 112
+  },
+  "abyssal_feast": {
+   "name": "The Abyssal Feast",
+   "category": "food",
+   "kind": "food",
+   "slot": "food",
+   "tier": 5,
+   "buffs": {
+    "rare_find": 20,
+    "find_fallen": 15
+   },
+   "recipe": {
+    "abyssal_eel": 1,
+    "emberpepper": 1,
+    "flour": 1,
+    "ironwood": 1
+   },
+   "blueprint": [
+    "drowned_deep"
+   ],
+   "note": "A feast before a deep run.",
+   "value": 360
+  },
+  "healing_draught": {
+   "name": "Healing Draught",
+   "category": "potion",
+   "kind": "potion",
+   "slot": "potion",
+   "tier": 1,
+   "buffs": {
+    "heal": 40
+   },
    "recipe": {
     "herbs": 3,
     "copper": 1
@@ -343,14 +6353,61 @@
    "blueprint": [
     "quartermaster"
    ],
-   "note": "Restores 40 health, in town or mid-dungeon.",
-   "value": 49
+   "note": "Drunk when hurt, in the field or mid-dungeon.",
+   "value": 49,
+   "blueprint_price": 40
+  },
+  "swiftfoot_draught": {
+   "name": "Swiftfoot Draught",
+   "category": "potion",
+   "kind": "potion",
+   "slot": "potion",
+   "tier": 2,
+   "buffs": {
+    "duration": -10
+   },
+   "recipe": {
+    "berries": 2,
+    "honey": 1,
+    "mushrooms": 1
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Drunk at the start of the next trip.",
+   "value": 50,
+   "blueprint_price": 150
+  },
+  "ironskin_tonic": {
+   "name": "Ironskin Tonic",
+   "category": "potion",
+   "kind": "potion",
+   "slot": "potion",
+   "tier": 2,
+   "buffs": {
+    "armour": 10
+   },
+   "recipe": {
+    "bloodcap": 1,
+    "mushrooms": 1,
+    "bone": 2
+   },
+   "blueprint": [
+    "quartermaster"
+   ],
+   "note": "Drunk at the start of the next trip.",
+   "value": 48,
+   "blueprint_price": 150
   },
   "greater_draught": {
    "name": "Greater Draught",
-   "kind": "consumable",
-   "slot": "none",
+   "category": "potion",
+   "kind": "potion",
+   "slot": "potion",
    "tier": 3,
+   "buffs": {
+    "heal": 100
+   },
    "recipe": {
     "bloodcap": 2,
     "herbs": 2,
@@ -359,669 +6416,695 @@
    "blueprint": [
     "calder_keep"
    ],
-   "note": "Restores full health, in town or mid-dungeon.",
+   "note": "Drunk when hurt; heals fully.",
    "value": 104
   },
-  "hand_axe": {
-   "name": "Hand Axe",
-   "kind": "axe",
-   "slot": "tool",
-   "tier": 1,
-   "stats": {
-    "logging": 1
-   },
-   "durability": 30,
-   "kit": 10,
-   "recipe": {
-    "iron": 1,
-    "timber": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 26,
-   "found_only": false,
-   "blueprint_price": 40
-  },
-  "felling_axe": {
-   "name": "Felling Axe",
-   "kind": "axe",
-   "slot": "tool",
-   "tier": 2,
-   "stats": {
-    "logging": 2
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "iron": 3,
-    "oak": 2
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 98,
-   "found_only": false,
-   "blueprint_price": 150
-  },
-  "steel_felling_axe": {
-   "name": "Steel Felling Axe",
-   "kind": "axe",
-   "slot": "tool",
+  "nightshade_venom": {
+   "name": "Nightshade Venom",
+   "category": "potion",
+   "kind": "potion",
+   "slot": "potion",
    "tier": 3,
-   "stats": {
-    "logging": 3
+   "buffs": {
+    "poison": 12
    },
-   "durability": 50,
-   "kit": 30,
    "recipe": {
-    "steel_ingot": 3,
-    "yew": 2
+    "nightshade": 2,
+    "fish_oil": 1
    },
    "blueprint": [
-    "calder_keep"
+    "sunreach"
    ],
-   "value": 332,
-   "found_only": false
+   "note": "Coats the blade for one run.",
+   "value": 104
   },
-  "gloomiron_axe": {
-   "name": "Gloomiron Axe",
-   "kind": "axe",
-   "slot": "tool",
+  "fortunes_brew": {
+   "name": "Fortune's Brew",
+   "category": "potion",
+   "kind": "potion",
+   "slot": "potion",
    "tier": 4,
-   "stats": {
-    "logging": 4
+   "buffs": {
+    "rare_find": 15
    },
-   "durability": 60,
-   "kit": 40,
    "recipe": {
-    "gloomiron": 2,
-    "ironwood": 2,
-    "steel_ingot": 1
+    "frostbloom": 1,
+    "pearl": 1,
+    "sunpetal": 1
+   },
+   "blueprint": [
+    "frostvale"
+   ],
+   "note": "Drunk at the start of the next trip.",
+   "value": 246
+  },
+  "elixir_of_fury": {
+   "name": "Elixir of Fury",
+   "category": "potion",
+   "kind": "potion",
+   "slot": "potion",
+   "tier": 4,
+   "buffs": {
+    "crit_damage": 25
+   },
+   "recipe": {
+    "emberpepper": 2,
+    "bloodcap": 1,
+    "emberstone": 1
    },
    "blueprint": [
     "sunken_abbey"
    ],
-   "value": 601,
-   "found_only": false
-  },
-  "wyrmbone_axe": {
-   "name": "Wyrmbone Axe",
-   "kind": "axe",
-   "slot": "tool",
-   "tier": 5,
-   "stats": {
-    "logging": 6
-   },
-   "durability": 80,
-   "kit": 50,
-   "recipe": {
-    "wyrmbone": 2,
-    "ghostwood": 2,
-    "relic": 1
-   },
-   "blueprint": [
-    "wyrms_hollow"
-   ],
-   "value": 2310,
-   "found_only": false
-  },
-  "basic_pick": {
-   "name": "Iron Pickaxe",
-   "kind": "pickaxe",
-   "slot": "tool",
-   "tier": 1,
-   "stats": {
-    "mining": 1
-   },
-   "durability": 30,
-   "kit": 10,
-   "recipe": {
-    "iron": 1,
-    "timber": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 28,
-   "found_only": false,
-   "blueprint_price": 40
-  },
-  "reinforced_pick": {
-   "name": "Reinforced Pickaxe",
-   "kind": "pickaxe",
-   "slot": "tool",
-   "tier": 2,
-   "stats": {
-    "mining": 2
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "iron": 3,
-    "copper": 1,
-    "oak": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 105,
-   "found_only": false,
-   "blueprint_price": 150
-  },
-  "steel_pick": {
-   "name": "Steel Pickaxe",
-   "kind": "pickaxe",
-   "slot": "tool",
-   "tier": 3,
-   "stats": {
-    "mining": 3
-   },
-   "durability": 50,
-   "kit": 30,
-   "recipe": {
-    "steel_ingot": 3,
-    "yew": 2
-   },
-   "blueprint": [
-    "calder_keep"
-   ],
-   "value": 332,
-   "found_only": false
-  },
-  "gloomiron_pick": {
-   "name": "Gloomiron Pickaxe",
-   "kind": "pickaxe",
-   "slot": "tool",
-   "tier": 4,
-   "stats": {
-    "mining": 4
-   },
-   "durability": 60,
-   "kit": 40,
-   "recipe": {
-    "gloomiron": 2,
-    "ironwood": 2,
-    "crystal": 1
-   },
-   "blueprint": [
-    "sunken_abbey"
-   ],
-   "value": 623,
-   "found_only": false
-  },
-  "wyrmbone_pick": {
-   "name": "Wyrmbone Pickaxe",
-   "kind": "pickaxe",
-   "slot": "tool",
-   "tier": 5,
-   "stats": {
-    "mining": 6
-   },
-   "durability": 80,
-   "kit": 50,
-   "recipe": {
-    "wyrmbone": 2,
-    "ghostwood": 2,
-    "relic": 1
-   },
-   "blueprint": [
-    "wyrms_hollow"
-   ],
-   "value": 2310,
-   "found_only": false
-  },
-  "copper_sickle": {
-   "name": "Copper Sickle",
-   "kind": "sickle",
-   "slot": "tool",
-   "tier": 1,
-   "stats": {
-    "foraging": 1
-   },
-   "durability": 30,
-   "kit": 10,
-   "recipe": {
-    "copper": 1,
-    "timber": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 36,
-   "found_only": false,
-   "blueprint_price": 40
-  },
-  "iron_sickle": {
-   "name": "Iron Sickle",
-   "kind": "sickle",
-   "slot": "tool",
-   "tier": 2,
-   "stats": {
-    "foraging": 2
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "iron": 2,
-    "oak": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 67,
-   "found_only": false,
-   "blueprint_price": 150
-  },
-  "silver_sickle": {
-   "name": "Silver Sickle",
-   "kind": "sickle",
-   "slot": "tool",
-   "tier": 3,
-   "stats": {
-    "foraging": 3
-   },
-   "durability": 50,
-   "kit": 30,
-   "recipe": {
-    "silver": 3,
-    "yew": 1,
-    "steel_ingot": 1
-   },
-   "blueprint": [
-    "calder_keep"
-   ],
-   "value": 242,
-   "found_only": false
-  },
-  "rusted_sword": {
-   "name": "Rusted Sword",
-   "kind": "sword",
-   "slot": "tool",
-   "tier": 1,
-   "stats": {
-    "guard": 1
-   },
-   "durability": 30,
-   "kit": 10,
-   "recipe": {
-    "iron": 1,
-    "timber": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 30,
-   "found_only": false,
-   "blueprint_price": 40
-  },
-  "steel_sword": {
-   "name": "Steel Sword",
-   "kind": "sword",
-   "slot": "tool",
-   "tier": 2,
-   "stats": {
-    "guard": 3
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "steel_ingot": 1,
-    "copper": 1,
-    "oak": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 125,
-   "found_only": false,
-   "blueprint_price": 150
-  },
-  "longsword": {
-   "name": "Longsword",
-   "kind": "sword",
-   "slot": "tool",
-   "tier": 3,
-   "stats": {
-    "guard": 4
-   },
-   "durability": 50,
-   "kit": 30,
-   "recipe": {
-    "steel_ingot": 3,
-    "silver": 1,
-    "yew": 1
-   },
-   "blueprint": [
-    "calder_keep"
-   ],
-   "value": 329,
-   "found_only": false
-  },
-  "gloomiron_blade": {
-   "name": "Gloomiron Blade",
-   "kind": "sword",
-   "slot": "tool",
-   "tier": 4,
-   "stats": {
-    "guard": 6
-   },
-   "durability": 60,
-   "kit": 40,
-   "recipe": {
-    "gloomiron": 2,
-    "steel_ingot": 1,
-    "ironwood": 1
-   },
-   "blueprint": [
-    "sunken_abbey"
-   ],
-   "value": 510,
-   "found_only": false
-  },
-  "wyrmbone_greatsword": {
-   "name": "Wyrmbone Greatsword",
-   "kind": "sword",
-   "slot": "tool",
-   "tier": 5,
-   "stats": {
-    "guard": 8
-   },
-   "durability": 80,
-   "kit": 50,
-   "recipe": {
-    "wyrmbone": 2,
-    "crystal": 2,
-    "ghostwood": 1,
-    "relic": 1
-   },
-   "blueprint": [
-    "wyrms_hollow"
-   ],
-   "value": 2310,
-   "found_only": false
-  },
-  "oak_club": {
-   "name": "Oak Club",
-   "kind": "club",
-   "slot": "tool",
-   "tier": 2,
-   "stats": {
-    "guard": 2
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "oak": 2,
-    "copper": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 67,
-   "found_only": false,
-   "blueprint_price": 150
-  },
-  "hunting_bow": {
-   "name": "Hunting Bow",
-   "kind": "bow",
-   "slot": "tool",
-   "tier": 2,
-   "stats": {
-    "guard": 2
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "oak": 3,
-    "spider_silk": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 95,
-   "found_only": false,
-   "blueprint_price": 150,
-   "perk": "Strikes first when hunting rival crews."
-  },
-  "yew_longbow": {
-   "name": "Yew Longbow",
-   "kind": "bow",
-   "slot": "tool",
-   "tier": 3,
-   "stats": {
-    "guard": 4
-   },
-   "durability": 50,
-   "kit": 30,
-   "recipe": {
-    "yew": 3,
-    "spider_silk": 2
-   },
-   "blueprint": [
-    "calder_keep"
-   ],
-   "value": 199,
-   "found_only": false,
-   "perk": "Strikes first when hunting rival crews."
-  },
-  "ghostwood_bow": {
-   "name": "Ghostwood Bow",
-   "kind": "bow",
-   "slot": "tool",
-   "tier": 5,
-   "stats": {
-    "guard": 7
-   },
-   "durability": 80,
-   "kit": 50,
-   "recipe": {
-    "ghostwood": 3,
-    "spider_silk": 2,
-    "wyrmbone": 1
-   },
-   "blueprint": [
-    "wyrms_hollow"
-   ],
-   "value": 1263,
-   "found_only": false,
-   "perk": "Strikes first when hunting rival crews."
-  },
-  "leather": {
-   "name": "Leather Armor",
-   "kind": "armour",
-   "slot": "armor",
-   "tier": 1,
-   "stats": {
-    "protection": 1
-   },
-   "durability": 30,
-   "kit": 10,
-   "recipe": {
-    "herbs": 2,
-    "copper": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 38,
-   "found_only": false,
-   "blueprint_price": 40
-  },
-  "hardened_leather": {
-   "name": "Hardened Leather",
-   "kind": "armour",
-   "slot": "armor",
-   "tier": 2,
-   "stats": {
-    "protection": 2
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "wolf_pelt": 3,
-    "herbs": 2,
-    "copper": 1
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 134,
-   "found_only": false,
-   "blueprint_price": 150
-  },
-  "chainmail": {
-   "name": "Chainmail",
-   "kind": "armour",
-   "slot": "armor",
-   "tier": 2,
-   "stats": {
-    "protection": 3
-   },
-   "durability": 40,
-   "kit": 20,
-   "recipe": {
-    "iron": 4,
-    "copper": 2
-   },
-   "blueprint": [
-    "quartermaster"
-   ],
-   "value": 138,
-   "found_only": false,
-   "blueprint_price": 150
-  },
-  "steel_plate": {
-   "name": "Steel Plate",
-   "kind": "armour",
-   "slot": "armor",
-   "tier": 3,
-   "stats": {
-    "protection": 4
-   },
-   "durability": 50,
-   "kit": 30,
-   "recipe": {
-    "steel_ingot": 4,
-    "wolf_pelt": 1
-   },
-   "blueprint": [
-    "calder_keep"
-   ],
-   "value": 361,
-   "found_only": false
-  },
-  "gloomiron_plate": {
-   "name": "Gloomiron Plate",
-   "kind": "armour",
-   "slot": "armor",
-   "tier": 4,
-   "stats": {
-    "protection": 6
-   },
-   "durability": 60,
-   "kit": 40,
-   "recipe": {
-    "gloomiron": 3,
-    "steel_ingot": 2,
-    "spider_silk": 1
-   },
-   "blueprint": [
-    "sunken_abbey"
-   ],
-   "value": 706,
-   "found_only": false
-  },
-  "wyrmscale_armour": {
-   "name": "Wyrmscale Armour",
-   "kind": "armour",
-   "slot": "armor",
-   "tier": 5,
-   "stats": {
-    "protection": 8
-   },
-   "durability": 80,
-   "kit": 50,
-   "recipe": {
-    "wyrmbone": 3,
-    "spider_silk": 2,
-    "relic": 1
-   },
-   "blueprint": [
-    "wyrms_hollow"
-   ],
-   "value": 2523,
-   "found_only": false
+   "note": "Drunk at the start of the next trip.",
+   "value": 246
   },
   "dwarven_pick": {
    "name": "Dwarven Pickaxe",
+   "category": "tool",
    "kind": "pickaxe",
-   "slot": "tool",
+   "slot": "main_hand",
    "tier": 4,
    "stats": {
     "mining": 5
    },
+   "fixed_rolls": {
+    "yield": 12,
+    "rare_find": 5
+   },
    "durability": 100,
-   "kit": 45,
+   "kit": 18,
    "recipe": null,
    "blueprint": [],
    "value": 900,
-   "found_only": true
+   "found_only": true,
+   "trade": "mining",
+   "legacy_slot": "tool"
   },
   "wardens_axe": {
    "name": "Warden's Axe",
-   "kind": "axe",
-   "slot": "tool",
+   "category": "tool",
+   "kind": "felling_axe_kind",
+   "slot": "main_hand",
    "tier": 4,
    "stats": {
     "logging": 5
    },
+   "fixed_rolls": {
+    "yield": 12,
+    "speed": 6
+   },
    "durability": 100,
-   "kit": 45,
+   "kit": 18,
    "recipe": null,
    "blueprint": [],
    "value": 800,
-   "found_only": true
+   "found_only": true,
+   "trade": "logging",
+   "legacy_slot": "tool"
   },
   "knights_blade": {
    "name": "Knight's Blade",
+   "category": "weapon",
    "kind": "sword",
-   "slot": "tool",
+   "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "guard": 7
+    "damage": 41,
+    "attack_speed": 1.0,
+    "crit_chance": 0.06,
+    "crit_damage": 1.6,
+    "parry": 0.05
+   },
+   "fixed_rolls": {
+    "damage": 10,
+    "parry": 6
    },
    "durability": 100,
-   "kit": 45,
+   "kit": 18,
    "recipe": null,
    "blueprint": [],
    "value": 1100,
-   "found_only": true
+   "found_only": true,
+   "legacy_slot": "tool"
   },
   "gilded_plate": {
    "name": "Gilded Plate",
-   "kind": "armour",
-   "slot": "armor",
+   "category": "armour",
+   "kind": "heavy/body",
+   "slot": "body",
    "tier": 4,
    "stats": {
-    "protection": 7
+    "armour": 64,
+    "block": 0.027,
+    "attack_speed": -0.036
+   },
+   "fixed_rolls": {
+    "armour": 8,
+    "health": 15
    },
    "durability": 100,
-   "kit": 45,
+   "kit": 14,
    "recipe": null,
    "blueprint": [],
    "value": 1500,
+   "found_only": true,
+   "weight": "heavy",
+   "legacy_slot": "armor"
+  },
+  "nightfang": {
+   "name": "Nightfang",
+   "category": "weapon",
+   "kind": "dagger",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 25,
+    "attack_speed": 1.45,
+    "crit_chance": 0.12,
+    "crit_damage": 1.8
+   },
+   "fixed_rolls": {
+    "crit_chance": 6,
+    "bleed": 8
+   },
+   "durability": 100,
+   "kit": 18,
+   "recipe": null,
+   "blueprint": [],
+   "value": 1000,
    "found_only": true
+  },
+  "graveward_maul": {
+   "name": "Graveward Maul",
+   "category": "weapon",
+   "kind": "mace",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 46,
+    "attack_speed": 0.86,
+    "crit_chance": 0.04,
+    "crit_damage": 1.5,
+    "armour_pen": 0.2,
+    "stun": 0.08
+   },
+   "fixed_rolls": {
+    "stun": 7,
+    "health": 15
+   },
+   "durability": 100,
+   "kit": 18,
+   "recipe": null,
+   "blueprint": [],
+   "value": 1050,
+   "found_only": true
+  },
+  "huntmasters_spear": {
+   "name": "Huntmaster's Spear",
+   "category": "weapon",
+   "kind": "spear",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 40,
+    "attack_speed": 0.98,
+    "crit_chance": 0.05,
+    "crit_damage": 1.6,
+    "first_strike": 0.15,
+    "hunt": 1
+   },
+   "fixed_rolls": {
+    "first_strike": 15,
+    "yield": 12
+   },
+   "durability": 100,
+   "kit": 18,
+   "recipe": null,
+   "blueprint": [],
+   "value": 950,
+   "found_only": true
+  },
+  "stormstring": {
+   "name": "Stormstring",
+   "category": "weapon",
+   "kind": "bow",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 53,
+    "attack_speed": 0.9,
+    "crit_chance": 0.07,
+    "crit_damage": 1.6,
+    "first_strike": 0.3,
+    "hunt": 2
+   },
+   "fixed_rolls": {
+    "first_strike": 15,
+    "crit_chance": 5
+   },
+   "durability": 100,
+   "kit": 27,
+   "recipe": null,
+   "blueprint": [],
+   "value": 1200,
+   "found_only": true,
+   "hands": 2
+  },
+  "widowmaker": {
+   "name": "Widowmaker",
+   "category": "weapon",
+   "kind": "crossbow",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "damage": 82,
+    "attack_speed": 0.6,
+    "crit_chance": 0.05,
+    "crit_damage": 1.7,
+    "first_strike": 0.2,
+    "armour_pen": 0.25,
+    "hunt": 1
+   },
+   "fixed_rolls": {
+    "armour_pen": 12,
+    "crit_damage": 25
+   },
+   "durability": 100,
+   "kit": 27,
+   "recipe": null,
+   "blueprint": [],
+   "value": 1250,
+   "found_only": true,
+   "hands": 2
+  },
+  "wanderers_rod": {
+   "name": "Old Wanderer's Rod",
+   "category": "tool",
+   "kind": "fishing_rod",
+   "slot": "main_hand",
+   "tier": 4,
+   "stats": {
+    "fishing": 5
+   },
+   "fixed_rolls": {
+    "yield": 12,
+    "rare_find": 6
+   },
+   "durability": 100,
+   "kit": 18,
+   "recipe": null,
+   "blueprint": [],
+   "value": 850,
+   "found_only": true,
+   "trade": "fishing"
+  },
+  "veil_of_ashes": {
+   "name": "Veil of Ashes",
+   "category": "armour",
+   "kind": "light/head",
+   "slot": "head",
+   "tier": 4,
+   "stats": {
+    "armour": 12,
+    "dodge": 0.016,
+    "attack_speed": 0.01
+   },
+   "fixed_rolls": {
+    "dodge": 5,
+    "crit_chance": 4
+   },
+   "durability": 100,
+   "kit": 4,
+   "recipe": null,
+   "blueprint": [],
+   "value": 900,
+   "found_only": true,
+   "weight": "light"
+  }
+ },
+ "affixes": {
+  "damage": {
+   "name": "Keen",
+   "text": "+{}% damage",
+   "low": 3,
+   "high": 6
+  },
+  "attack_speed": {
+   "name": "Swift",
+   "text": "+{}% attack speed",
+   "low": 2,
+   "high": 4
+  },
+  "crit_chance": {
+   "name": "Precise",
+   "text": "+{}% critical chance",
+   "low": 1,
+   "high": 3
+  },
+  "crit_damage": {
+   "name": "Brutal",
+   "text": "+{}% critical damage",
+   "low": 5,
+   "high": 12
+  },
+  "armour_pen": {
+   "name": "Piercing",
+   "text": "+{}% armour piercing",
+   "low": 3,
+   "high": 6
+  },
+  "bleed": {
+   "name": "Serrated",
+   "text": "{}% chance to cause bleeding",
+   "low": 2,
+   "high": 5
+  },
+  "stun": {
+   "name": "Crushing",
+   "text": "{}% chance to stun",
+   "low": 2,
+   "high": 4
+  },
+  "first_strike": {
+   "name": "Vigilant",
+   "text": "+{}% chance to strike first",
+   "low": 5,
+   "high": 10
+  },
+  "parry": {
+   "name": "Deflecting",
+   "text": "+{}% parry",
+   "low": 2,
+   "high": 4
+  },
+  "block": {
+   "name": "Bulwark",
+   "text": "+{}% block",
+   "low": 2,
+   "high": 5
+  },
+  "dodge": {
+   "name": "Nimble",
+   "text": "+{}% dodge",
+   "low": 1,
+   "high": 3
+  },
+  "armour": {
+   "name": "Reinforced",
+   "text": "+{} armour",
+   "low": 2,
+   "high": 4
+  },
+  "health": {
+   "name": "Hale",
+   "text": "+{} health",
+   "low": 4,
+   "high": 8
+  },
+  "injury_resist": {
+   "name": "Warding",
+   "text": "-{}% injury chance",
+   "low": 3,
+   "high": 6
+  },
+  "yield": {
+   "name": "Bountiful",
+   "text": "+{}% haul",
+   "low": 3,
+   "high": 6
+  },
+  "rare_find": {
+   "name": "Lucky",
+   "text": "+{}% rare finds",
+   "low": 1,
+   "high": 3
+  },
+  "xp": {
+   "name": "Studious",
+   "text": "+{}% experience",
+   "low": 2,
+   "high": 5
+  },
+  "carry": {
+   "name": "Roomy",
+   "text": "+{}% carrying",
+   "low": 3,
+   "high": 6
+  },
+  "speed": {
+   "name": "Hasty",
+   "text": "-{}% trip time",
+   "low": 2,
+   "high": 4
+  },
+  "sturdy": {
+   "name": "Durable",
+   "text": "+{}% durability",
+   "low": 10,
+   "high": 25
+  }
+ },
+ "rarity": [
+  {
+   "id": "common",
+   "name": "Common",
+   "affixes": 0,
+   "chance": 0.6,
+   "value_mult": 1.0
+  },
+  {
+   "id": "fine",
+   "name": "Fine",
+   "affixes": 1,
+   "chance": 0.28,
+   "value_mult": 1.25
+  },
+  {
+   "id": "superior",
+   "name": "Superior",
+   "affixes": 2,
+   "chance": 0.1,
+   "value_mult": 1.6
+  },
+  {
+   "id": "masterwork",
+   "name": "Masterwork",
+   "affixes": 3,
+   "chance": 0.02,
+   "value_mult": 2.2
+  }
+ ],
+ "families": {
+  "dagger": {
+   "name": "Dagger",
+   "hands": 1,
+   "blurb": "Fast, with the best critical chance. Rolls favour crits and speed."
+  },
+  "sword": {
+   "name": "Sword",
+   "hands": 1,
+   "blurb": "The all-rounder: solid damage, average speed and crits, a little parry."
+  },
+  "war_axe": {
+   "name": "War Axe",
+   "hands": 1,
+   "blurb": "Heavier and slower than a sword; bites through armour."
+  },
+  "mace": {
+   "name": "Mace",
+   "hands": 1,
+   "blurb": "Slow, stuns, and best of all against plate."
+  },
+  "spear": {
+   "name": "Spear",
+   "hands": 1,
+   "blurb": "Reach: often strikes first. A fair hunting weapon."
+  },
+  "greatsword": {
+   "name": "Greatsword",
+   "hands": 2,
+   "blurb": "Two hands, huge hits, slow swings. No shield."
+  },
+  "bow": {
+   "name": "Bow",
+   "hands": 2,
+   "blurb": "Shoots first. The best hunting weapon."
+  },
+  "crossbow": {
+   "name": "Crossbow",
+   "hands": 2,
+   "blurb": "Very slow, very heavy bolts that pierce armour."
+  },
+  "buckler": {
+   "name": "Buckler",
+   "hands": 1,
+   "blurb": "Small and quick: parry, no slowdown."
+  },
+  "kite_shield": {
+   "name": "Kite Shield",
+   "hands": 1,
+   "blurb": "Balanced block and armour."
+  },
+  "tower_shield": {
+   "name": "Tower Shield",
+   "hands": 1,
+   "blurb": "A wall: the most block, slows its bearer."
+  }
+ },
+ "armour_weights": {
+  "light": {
+   "blurb": "Hide and cloth: dodge and speed."
+  },
+  "medium": {
+   "blurb": "Mail and scale: balanced, and fewer injuries."
+  },
+  "heavy": {
+   "blurb": "Plate: the most armour and some block, but slower."
+  }
+ },
+ "buffs": {
+  "yield": "+{}% haul on any trip",
+  "yield_logging": "+{}% logging haul",
+  "yield_mining": "+{}% mining haul",
+  "yield_foraging": "+{}% foraging haul",
+  "yield_fishing": "+{}% fishing haul",
+  "yield_hunting": "+{}% hunting haul",
+  "yield_farming": "+{}% harvest",
+  "injury": "{:+}% injury chance",
+  "xp": "+{}% experience",
+  "duration": "{:+}% trip time",
+  "rare_find": "+{}% rare finds",
+  "find_fallen": "+{}% chance to find gear of the fallen",
+  "damage": "+{}% damage",
+  "attack_speed": "+{}% attack speed",
+  "crit_chance": "+{}% critical chance",
+  "crit_damage": "+{}% critical damage",
+  "armour": "+{}% armour",
+  "health": "+{}% health",
+  "heal": "Heals {} health",
+  "poison": "Blade venom: +{}% damage as poison"
+ },
+ "upgrades": {
+  "charter_1": {
+   "name": "Expedition Charter I",
+   "cost": {
+    "timber": 40,
+    "iron": 20
+   },
+   "effect": "+1 expedition slot",
+   "unlocks": []
+  },
+  "charter_2": {
+   "name": "Expedition Charter II",
+   "cost": {
+    "oak": 40,
+    "steel_ingot": 10
+   },
+   "effect": "+1 expedition slot",
+   "unlocks": []
+  },
+  "charter_3": {
+   "name": "Expedition Charter III",
+   "cost": {
+    "yew": 30,
+    "silversteel_ingot": 8
+   },
+   "effect": "+1 expedition slot",
+   "unlocks": []
+  },
+  "field_plots": {
+   "name": "Field Plots",
+   "cost": {
+    "timber": 30,
+    "iron": 6
+   },
+   "effect": "Opens the Tilled Acres (barley, potatoes)",
+   "unlocks": [
+    "tilled_acres"
+   ]
+  },
+  "apiary": {
+   "name": "Apiary",
+   "cost": {
+    "timber": 20,
+    "linen": 4
+   },
+   "effect": "Opens the Beehives (honey)",
+   "unlocks": [
+    "beehives"
+   ]
+  },
+  "glasshouse_build": {
+   "name": "Glasshouse",
+   "cost": {
+    "oak": 30,
+    "crystal": 2,
+    "iron": 8
+   },
+   "effect": "Opens the Glasshouse (emberpepper)",
+   "unlocks": [
+    "glasshouse"
+   ]
+  },
+  "rowboat": {
+   "name": "Rowboat",
+   "cost": {
+    "oak": 30,
+    "linen": 6,
+    "copper": 6
+   },
+   "effect": "Fish Glasswater Lake",
+   "unlocks": [
+    "glasswater"
+   ]
+  },
+  "skiff": {
+   "name": "Sailing Skiff",
+   "cost": {
+    "yew": 40,
+    "linen": 12,
+    "silversteel_ingot": 4
+   },
+   "effect": "Fish the Greywater Coast",
+   "unlocks": [
+    "greywater_coast"
+   ]
+  },
+  "deepwater_cog": {
+   "name": "Deepwater Cog",
+   "cost": {
+    "ironwood": 50,
+    "silversteel_ingot": 10,
+    "shadowsilk": 6
+   },
+   "effect": "Fish the Drowned Deep",
+   "unlocks": [
+    "drowned_deep"
+   ]
   }
  },
  "rules": {
   "craft_markup": 1.4,
-  "kit_per_tier": 10,
-  "found_kit_bonus": 5,
+  "affix_scale": {
+   "1": 1.0,
+   "2": 1.3,
+   "3": 1.6,
+   "4": 2.0,
+   "5": 2.5
+  },
+  "slot_weight": {
+   "main_hand": 4,
+   "off_hand": 2,
+   "body": 3,
+   "head": 1,
+   "hands": 1,
+   "feet": 1
+  },
+  "two_hand_weight": 6,
   "dungeon_min_kit": {
-   "1": 10,
-   "2": 40,
-   "3": 70
+   "1": 8,
+   "2": 24,
+   "3": 36
   },
   "wear": {
    "site_trip": 1,
