@@ -12,8 +12,6 @@ const ROW_FALLEN := preload("res://scenes/journal/rows/fallen_row.tscn")
 const FALLEN_ROWS := 6
 const FINANCE_LEFT := preload("res://scenes/journal/pages/finance_left.tscn")
 const FINANCE_RIGHT := preload("res://scenes/journal/pages/finance_right.tscn")
-const HARLOW_LEFT := preload("res://scenes/journal/pages/harlow_left.tscn")
-const HARLOW_RIGHT := preload("res://scenes/journal/pages/harlow_right.tscn")
 const EXCHANGE_LEFT := preload("res://scenes/journal/pages/exchange_left.tscn")
 const EXCHANGE_RIGHT := preload("res://scenes/journal/pages/exchange_right.tscn")
 const EXCHANGE_TABS := preload("res://scenes/journal/pages/exchange_tabs.tscn")
@@ -101,12 +99,15 @@ func _refresh() -> void:
 	_clear(right_leaf)
 	_restore_tab_art()
 	title_label.text = str(PAGE_TITLES.get(page, "The Company"))
+	if page == "harlow":
+		page = "site"
+		selected_site = "harlow"
 	if page == "site":
 		title_label.text = str(TradeSites.by_id(selected_site).get("name", "Expedition"))
 	match page:
 		"hq": _draw_company()
 		"standing": _draw_company()
-		"harlow": _draw_harlow()
+		"harlow": _draw_site()  # Old links to the retired Harlow page open its planner.
 		"expeditions": _draw_board()
 		"site": _draw_site()
 		"contracts": _draw_regions()
@@ -489,270 +490,6 @@ func _bind_latest_report(right: Control) -> void:
 		selected_report_index = 0
 		_turn_to("ledger"))
 
-# --- Harlow Mines -----------------------------------------------------------
-
-func _draw_harlow() -> void:
-	var left := _mount_page(HARLOW_LEFT, left_leaf)
-	var right := _mount_page(HARLOW_RIGHT, right_leaf)
-	_bind_harlow_site(left)
-	_bind_harlow_plan(right)
-
-func _bind_harlow_site(left: Control) -> void:
-	var c := "Margin/Content/"
-	var report: Dictionary = game.harlow.get("report", {})
-	var surveyed: bool = not report.is_empty()
-	var finish: int = int(game.harlow.get("scout_finish", 0))
-	var scouting: bool = finish > 0
-	var level: int = int(game.harlow.get("scout_level", 1))
-	# Site picture and its state.
-	(left.get_node(c + "Site/Veil") as Control).visible = not surveyed
-	(left.get_node(c + "Site/Status") as Control).visible = not surveyed
-	(left.get_node(c + "Site/Status/Text/Title") as Label).text = "Surveying..." if scouting else "Unsurveyed"
-	(left.get_node(c + "Site/Status/Text/Hint") as Label).text = "Your scout is mapping the shafts" if scouting else "Send your scout to learn what lies below"
-	var remaining_ore: int = 0
-	for amount in (game.harlow.get("deposits", {}) as Dictionary).values():
-		remaining_ore += int(amount)
-	var badge := left.get_node(c + "Site/Badge") as Control
-	badge.visible = surveyed
-	(left.get_node(c + "Site/Badge/Text") as Label).text = "Surveyed" if remaining_ore > 0 else "Exhausted"
-	# Ore estimates.
-	var ore_known: Dictionary = report.get("all_ore", {})
-	var exact: bool = bool(report.get("exact", false))
-	for key in ["copper", "iron", "silver", "crystal"]:
-		var slot := left.get_node(c + "Intel/Ore/Slots/" + key)
-		var count: int = -2
-		if surveyed:
-			if ore_known.has(key):
-				count = int(ore_known[key])
-			elif str(report.get("primary", "")) == key:
-				count = int(report.get("minimum", 0))
-		slot.count = count
-		slot.dim = count == 0
-		var what: String = "unknown"
-		if count >= 0:
-			what = ("%d" if exact else "about %d") % count
-			if not exact and str(report.get("primary", "")) == key and not ore_known.has(key):
-				what = "at least %d" % count
-		slot.tooltip_text = "%s: %s" % [_resource_name(key), what]
-	# Threat.
-	var threat_name := left.get_node(c + "Intel/Threat/Body/Name") as Label
-	threat_name.text = str(report.get("creature", "Unknown")) if surveyed else "Unknown"
-	threat_name.tooltip_text = str(report.get("threat_note", ""))
-	var danger := left.get_node(c + "Intel/Threat/Body/Danger")
-	danger.value = int(report.get("danger", -1)) if report.has("danger") else -1
-	var threat_caption := left.get_node(c + "Intel/Threat/Body/Caption") as Label
-	threat_caption.text = "Threat  ·  " + str(report.get("danger_band")) if report.has("danger_band") else "Threat"
-	var note := left.get_node(c + "IntelNote") as Label
-	if not surveyed:
-		note.text = "Nothing is known yet. Going in blind is a gamble."
-	elif level == 1:
-		note.text = "A rough count: at least %d %s. Train your scout for a full survey." % [
-			int(report.get("minimum", 0)), _resource_name(str(report.get("primary", "copper"))).to_lower()]
-	elif not exact:
-		note.text = str(report.get("threat_note", "")) + ". Counts are approximate."
-	else:
-		note.text = str(report.get("threat_note", "")) + ". The survey is exact."
-	# Scout.
-	var scout := c + "Scout/Row/Info/"
-	left.get_node(scout + "Top/Level").value = level
-	(left.get_node(scout + "Top/Level") as Control).tooltip_text = "Scout training %d / 3" % level
-	var send := left.get_node(scout + "SendScout") as Button
-	send.visible = not surveyed and not scouting
-	send.text = "Send scout  ·  %ds" % game.harlow_scout_seconds()
-	send.pressed.connect(_scout)
-	var progress := left.get_node(scout + "Progress") as Control
-	progress.visible = scouting
-	(left.get_node(scout + "Done") as Control).visible = surveyed
-	if scouting:
-		var bar := left.get_node(scout + "Progress/Bar") as ProgressBar
-		var time_label := left.get_node(scout + "Progress/Time") as Label
-		var duration: int = game.harlow_scout_seconds()
-		var update := func() -> void:
-			var left_s: int = maxi(0, finish - _now())
-			bar.value = clampf(1.0 - float(left_s) / float(maxi(1, duration)), 0.0, 1.0) * 100.0
-			time_label.text = "Surveying  ·  back in " + _duration(left_s)
-		update.call()
-		live_updaters.append(update)
-	var train := left.get_node(scout + "Train") as Button
-	train.visible = level < 3
-	if level < 3:
-		var price: int = 200 if level == 1 else 650
-		train.text = "Train scout  ·  %d G" % price
-		train.disabled = game.gold < price or scouting
-		train.tooltip_text = ("Level %d scouts survey faster and report more: " % (level + 1)) + \
-			("approximate counts of every ore and the threat's nature." if level == 1 else "exact counts and the threat's danger level.")
-		if scouting:
-			train.tooltip_text += "\nWait for the current survey to finish."
-		train.pressed.connect(_train_scout)
-	# Footer.
-	var rotation := left.get_node(c + "Footer/Rotation") as Label
-	var rotate := func() -> void:
-		rotation.text = "Site shifts in " + _duration(game.harlow_rotation_remaining())
-	rotate.call()
-	live_updaters.append(rotate)
-	var back := left.get_node(c + "Footer/OtherContracts") as Button
-	back.text = "All expeditions  >"
-	back.pressed.connect(_turn_to.bind("expeditions"))
-
-func _bind_harlow_plan(right: Control) -> void:
-	var c := "Margin/Content/"
-	var plan := c + "Planning/"
-	var report: Dictionary = game.harlow.get("report", {})
-	var surveyed: bool = not report.is_empty()
-	var busy: bool = game.missions.size() >= game.expedition_slots
-	# A team already underground.
-	var in_field := right.get_node(c + "InField") as Control
-	in_field.visible = false
-	var field_mission: Dictionary = {}
-	for mission in game.missions:
-		if str(mission.get("region", "")) == "harlow":
-			field_mission = mission
-			in_field.visible = true
-			_bind_expedition_row(in_field, mission)
-			(in_field.get_node("Row/Info/Top/Name") as Label).text = "Team underground"
-			break
-	# While a Harlow team is out, the planner shows that team read-only.
-	var watching: bool = busy and not field_mission.is_empty()
-	# Assigned crew slots.
-	var ids: Array[String] = _selected_available()
-	if watching:
-		ids.clear()
-		for id in field_mission.get("ids", []):
-			ids.append(str(id))
-		(right.get_node(plan + "CrewCaption/Label") as Label).text = "Crew underground"
-	var miners: int = 0
-	var guards: int = 0
-	for i in range(3):
-		var slot := right.get_node(plan + "Slots/Slot" + str(i)) as Button
-		var bust := slot.get_node("Body/Bust") as TextureRect
-		if i < ids.size():
-			var merc: Dictionary = game.merc_by_id(ids[i])
-			var role: String = str(merc.get("role", ""))
-			miners += 1 if role == "Miner" else 0
-			guards += 1 if role == "Guard" else 0
-			bust.texture = BUSTS.get(role, BUSTS["Scout"])
-			bust.modulate = Color.WHITE
-			(slot.get_node("Body/Name") as Label).text = str(merc.get("name", "?"))
-			(slot.get_node("Body/Role") as Label).text = role
-			if watching:
-				slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			else:
-				slot.tooltip_text = "Click to remove %s from the crew." % str(merc.get("name", ""))
-				slot.pressed.connect(_toggle_crew.bind(false, ids[i]))
-		else:
-			bust.texture = SIGN_PLUS
-			bust.modulate = Color(1, 1, 1, 0.45)
-			(slot.get_node("Body/Name") as Label).text = "Empty"
-			(slot.get_node("Body/Role") as Label).text = "Not sent" if watching else "Choose below"
-			slot.disabled = true
-	(right.get_node(plan + "CrewCaption/Roles") as Label).text = "%s  ·  %s" % [_plural(miners, "miner"), _plural(guards, "guard")]
-	# Available roster.
-	var list := right.get_node(plan + "Roster/Items") as VBoxContainer
-	var eligible: int = 0
-	for merc in game.available_guild_workers():
-		var role: String = str(merc.get("role", ""))
-		if role not in ["Miner", "Guard"]:
-			continue
-		eligible += 1
-		var id: String = str(merc["id"])
-		var assigned: bool = ids.has(id)
-		var health: int = int(merc.get("health", 100))
-		var card := ROW_ROSTER_CARD.instantiate() as Button
-		list.add_child(card)
-		card.toggle_mode = true
-		card.button_pressed = assigned
-		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
-		(card.get_node("Body/Info/Name") as Label).text = str(merc.get("name", "?"))
-		(card.get_node("Body/Info/Details") as Label).text = "%s  ·  Skill %d  ·  Gear %d/2" % [role, int(merc.get("skill", 0)), _equipped_count(merc)]
-		(card.get_node("Body/Health/HealthText") as Label).text = "Health %d%%" % health
-		var hp := card.get_node("Body/Health/HealthBar") as ProgressBar
-		hp.value = health
-		hp.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
-		var tag := card.get_node("Body/Tag") as Label
-		if assigned:
-			tag.text = "Assigned"
-			card.tooltip_text = "Click to remove from the crew."
-		elif health < 25:
-			tag.text = "Too hurt"
-			card.disabled = true
-			card.tooltip_text = "Below 25% health. Heal in Personnel before deploying."
-		elif ids.size() >= 3:
-			tag.text = "Crew full"
-			card.disabled = true
-		else:
-			tag.text = "+ Assign"
-			card.tooltip_text = "Add %s to the crew." % str(merc.get("name", ""))
-		card.pressed.connect(_toggle_crew.bind(not assigned, id))
-	(right.get_node(plan + "Roster") as Control).visible = eligible > 0 and not watching
-	(right.get_node(plan + "RosterCaption") as Control).visible = eligible > 0 and not watching
-	var no_crew := right.get_node(plan + "NoCrew") as Control
-	no_crew.visible = eligible == 0 and not watching
-	var hire := right.get_node(plan + "Hire") as Button
-	hire.visible = no_crew.visible
-	hire.pressed.connect(_open_recruitment)
-	# Standing orders (Harlow has no Long Shift).
-	var orders: String = str(field_mission.get("tactic", harlow_view.stance)) if watching else harlow_view.stance
-	for pair in [["Cautious", "Cautious"], ["Balanced", "Balanced"], ["DeepPush", "Deep Push"]]:
-		var btn := right.get_node(plan + "Orders/" + str(pair[0])) as Button
-		btn.set_pressed_no_signal(orders == str(pair[1]))
-		if watching:
-			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		else:
-			btn.pressed.connect(_set_tactic.bind(str(pair[1])))
-	# Forecast (for a team already out, the odds they left with).
-	var stats: Dictionary = game.harlow_crew_stats(ids, tactic)
-	if watching:
-		stats = {"capacity": int(field_mission.get("capacity", 0)), "wage": int(field_mission.get("cost", 0)),
-			"success": float(field_mission.get("chance", 0.0)), "miners": 1}
-	right.get_node(plan + "Forecast/Haul").value = _plural(int(stats["capacity"]), "vein")
-	right.get_node(plan + "Forecast/Cost").value = _money(int(stats["wage"]))
-	var odds := right.get_node(plan + "Forecast/Odds")
-	var odds_bar := right.get_node(plan + "OddsBar") as ProgressBar
-	var success: float = float(stats["success"])
-	odds_bar.visible = not ids.is_empty() and surveyed
-	if ids.is_empty():
-		odds.value = "-"
-		odds.tone = "normal"
-		odds_bar.value = 0
-	elif not surveyed:
-		odds.value = "?"
-		odds.tone = "accent"
-		odds_bar.value = 0
-		odds.tooltip_text = "Unknown until the site is scouted."
-	else:
-		odds.value = "%d%%" % int(round(success * 100.0))
-		odds.tone = "good" if success >= 0.6 else ("accent" if success < 0.35 else "normal")
-		odds_bar.value = success * 100.0
-		odds_bar.theme_type_variation = &"GreenBar" if success >= 0.6 else (&"GoldBar" if success >= 0.35 else &"")
-	# Fund button and the reason it may be unavailable.
-	var fund := right.get_node(c + "Fund") as Button
-	var reason := right.get_node(c + "Reason") as Label
-	var ore_left: int = 0
-	for amount in (game.harlow.get("deposits", {}) as Dictionary).values():
-		ore_left += int(amount)
-	var wage: int = int(stats["wage"])
-	var why: String = ""
-	if busy:
-		why = "All expedition slots are busy. Wait for your team to return."
-	elif ids.is_empty() and eligible == 0:
-		why = "Hire a miner in Personnel to start."
-	elif ids.is_empty():
-		why = "Choose a crew: click mercenaries in the list above."
-	elif int(stats["miners"]) == 0:
-		why = "Add a miner. Guards protect the crew but cannot dig."
-	elif ore_left <= 0:
-		why = "The mine is exhausted until the site shifts."
-	elif game.gold < wage:
-		why = "Not enough gold: wages and provisions cost %s." % _money(wage)
-	fund.text = "Fund expedition  ·  " + _money(wage) if not busy else "Expedition underway"
-	fund.disabled = not why.is_empty()
-	fund.pressed.connect(_dispatch_harlow)
-	if why.is_empty() and not surveyed:
-		why = "Unscouted: you are sending them in blind."
-	reason.text = why
-	reason.visible = not why.is_empty()
-	(right.get_node(c + "Warning") as Control).visible = not busy
-
 # --- Shared chapter helpers ----------------------------------------------------
 
 const ROW_LIST_CARD := preload("res://scenes/journal/rows/list_card.tscn")
@@ -781,9 +518,9 @@ const CONTRACT_NOTES := {
 }
 const ROLE_NOTES := {
 	"Woodcutter": "Woodcutters fell timber at the logging sites. Safe, steady work.",
-	"Miner": "Miners dig ore at Harlow Mines. Every expedition needs at least one.",
+	"Miner": "Miners dig copper at Harlow Mines and iron and silver at Deepdelve.",
 	"Guard": "Guards cannot dig, but they protect the crew from the site's threat.",
-	"Scout": "Scouts travel ahead of the company. Harlow's survey is handled by the guild scout.",
+	"Scout": "Scouts travel ahead of the company.",
 }
 
 var selected_candidate: String = ""
@@ -1348,7 +1085,7 @@ func _draw_guild_jobs() -> void:
 	var office := left.get_node(c + "Office/Row/Accept") as Button
 	office.disabled = not can_take
 	office.pressed.connect(_guild_work.bind(""))
-	(left.get_node(c + "ReturnHarlow") as Button).pressed.connect(_turn_to.bind("harlow"))
+	(left.get_node(c + "ReturnBoard") as Button).pressed.connect(_turn_to.bind("expeditions"))
 	if not can_take:
 		var why: String = "Not available: " + ("every expedition slot is busy." if not slot_free else "the guild only helps companies with under 120 G cash and under 250 G in cash, goods and spare gear.")
 		var caption := right.get_node(c + "Caption") as Label
@@ -1411,9 +1148,9 @@ func _draw_history() -> void:
 	(left.get_node(c + "Summary") as Control).visible = not empty
 	(left.get_node(c + "List") as Control).visible = not empty
 	(left.get_node(c + "Empty") as Control).visible = empty
-	var go := left.get_node(c + "GoHarlow") as Button
+	var go := left.get_node(c + "PlanExpedition") as Button
 	go.visible = empty
-	go.pressed.connect(_turn_to.bind("harlow"))
+	go.pressed.connect(_turn_to.bind("expeditions"))
 	for child in (right.get_node("Margin/Content") as Control).get_children():
 		(child as CanvasItem).visible = (child.name == "Empty" or child.name == "Header") if empty else child.name != "Empty"
 	if empty:
@@ -1583,9 +1320,6 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func _open_site(id: String) -> void:
 	var site: Dictionary = TradeSites.by_id(id)
-	if str(site.get("special", "")) == "harlow":
-		_turn_to("harlow")
-		return
 	if selected_site != id:
 		selected_crew.clear()
 	selected_site = id

@@ -1,5 +1,5 @@
 extends SceneTree
-## End-to-end BookUI navigation, layout structure and Harlow/Company bindings.
+## End-to-end BookUI navigation, layout structure and Company bindings.
 ## Isolated to CI profiles because it resets the company.
 ## Uses check() rather than assert() so a failure exits with an error instead of hanging.
 
@@ -103,7 +103,6 @@ func _verify() -> void:
 	check(view.book_art.texture.resource_path.ends_with("/4.png"), "personnel tab art")
 	# Every chapter mounts its scenes.
 	var scene_by_chapter := {
-		"harlow": ["harlow_left", "harlow_right"],
 		"expeditions": ["board_left", "board_right"],
 		"contracts": ["regions_left", "regions_right"],
 		"site": ["site_left", "site_right"],
@@ -308,28 +307,27 @@ func _verify() -> void:
 	check(reloaded.hall.is_blocked("Marrow"), "the block list is saved")
 	view.game.hall_block("Marrow", false)
 	view._nav_to("market")
-	# Harlow: unsurveyed, crew selection, fund state.
+	# Harlow Mines: the ordinary site planner, crew selection, fund state.
 	view._nav_to("hq")
 	view._turn_to("harlow")
-	check(view.page == "harlow", "turned to harlow")
+	check(view.page == "site" and view.selected_site == "harlow", "Harlow opens its site planner")
 	check(view.flip_art.visible, "page flip playing")
-	var hl: Control = view.left_leaf.get_child(0)
 	var hr: Control = view.right_leaf.get_child(0)
-	check((hl.get_node("Margin/Content/Site/Veil") as Control).visible, "unsurveyed veil")
-	check((hl.get_node("Margin/Content/Scout/Row/Info/SendScout") as Button).visible, "send scout offered")
 	var roster: VBoxContainer = hr.get_node("Margin/Content/Planning/Roster/Items")
-	check(roster.get_child_count() == 2, "two roster cards")
+	check(roster.get_child_count() == view.game.available_guild_workers().size(), "a roster card per free mercenary")
 	check(roster.get_child(0).scene_file_path.ends_with("/rows/roster_card.tscn"), "roster card scene")
 	check((hr.get_node("Margin/Content/Fund") as Button).disabled, "fund disabled with no crew")
-	check((hr.get_node("Margin/Content/Reason") as Label).visible, "reason shown when disabled")
 	(roster.get_child(0) as Button).pressed.emit()
 	check(view.selected_crew.size() == 1, "card click assigns")
 	hr = view.right_leaf.get_child(0)
 	check((hr.get_node("Margin/Content/Planning/Slots/Slot0/Body/Name") as Label).text != "Empty", "slot shows assigned merc")
-	check(not (hr.get_node("Margin/Content/Fund") as Button).disabled, "fund enabled with a miner")
-	# Orders toggle.
+	check(not (hr.get_node("Margin/Content/Fund") as Button).disabled, "fund enabled with a crew")
+	# Orders toggle, including the long orders.
 	(hr.get_node("Margin/Content/Planning/Orders/Cautious") as Button).pressed.emit()
 	check(view.tactic == "Cautious", "orders toggle")
+	hr = view.right_leaf.get_child(0)
+	(hr.get_node("Margin/Content/Planning/Away/Overnight") as Button).pressed.emit()
+	check(view.tactic == "Overnight", "Overnight toggle")
 	# Live tick updates without rebuilding the page.
 	var before: Control = view.left_leaf.get_child(0)
 	view._live_tick()

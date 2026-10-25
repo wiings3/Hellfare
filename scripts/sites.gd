@@ -15,8 +15,9 @@ class_name TradeSites
 ##   injury/death base chance per worker under Balanced orders
 ##   xp           trade experience per worker
 ##   tool         optional: how much of a tool's bonus counts per trip (default 1)
-## Harlow Mines keeps its own rotating-deposit rules (game_state.gd) and is listed with
-## "special": "harlow" so the board can link to it.
+## Harlow Mines was the first mining expedition (the MVP). It is now an ordinary tier-1
+## site; its old scouting and rotating-deposit rules in game_state.gd only finish trips
+## and saves made before the change.
 
 const LEVEL_YIELD_BONUS := 0.03
 const GUARD_PROTECTION := 0.25
@@ -61,13 +62,13 @@ const SITES := [
 		"art": "res://assets/ui/art/forest_oakwood.png",
 	},
 	{
-		"id": "greyvein_quarry", "name": "Greyvein Quarry", "trade": "mining", "tier": 1, "level": 1,
-		"tagline": "An open copper cut in the eastern hills. Hard work, little danger.",
+		"id": "harlow", "name": "Harlow Mines", "trade": "mining", "tier": 1, "level": 1,
+		"tagline": "Old copper workings in the foothills. Hard work, little danger.",
 		"duration": 300, "supplies": 4,
 		"yields": {"copper": [0, 2]},
-		"threat": {"name": "Loose rock", "danger": 0, "note": "Rockfalls bruise more than they kill"},
+		"threat": {"name": "Loose rock", "danger": 0, "note": "Rockfalls in the old shafts bruise more than they kill"},
 		"injury": 0.06, "death": 0.0, "xp": 30, "tool": 0.5,
-		"art": "res://assets/ui/art/quarry_greyvein.png",
+		"art": "res://assets/ui/art/harlow_site.png",
 	},
 	{
 		"id": "deepdelve", "name": "Deepdelve", "trade": "mining", "tier": 2, "level": 8,
@@ -80,15 +81,6 @@ const SITES := [
 		"injury": 0.09, "death": 0.007, "xp": 55, "tool": 0.5,
 		"art": "res://assets/ui/art/mine_deepdelve.png",
 	},
-	{
-		"id": "harlow", "name": "Harlow Mines", "trade": "mining", "tier": 1, "level": 1,
-		"tagline": "A rotating copper and iron mine. Scout before you dig.",
-		"special": "harlow", "duration": 300, "supplies": 18,
-		"yields": {"copper": [25, 40], "iron": [10, 22]},
-		"threat": {"name": "Changes every rotation", "danger": 2, "note": ""},
-		"injury": 0.0, "death": 0.0, "xp": 40,
-		"art": "res://assets/ui/art/harlow_site.png",
-	},
 ]
 
 ## Trades shown on the expedition board, in order, with those not built yet.
@@ -99,7 +91,11 @@ const BOARD := [
 	{"trade": "dungeon", "name": "Dungeon delving", "ready": false},
 ]
 
+## Sites renamed or merged since, mapped to the site that replaced them (old saves).
+const ALIASES := {"greyvein_quarry": "harlow"}
+
 static func by_id(id: String) -> Dictionary:
+	id = str(ALIASES.get(id, id))
 	for site in SITES:
 		if str(site["id"]) == id:
 			return site

@@ -17,22 +17,22 @@ func _initialize() -> void:
 	var b := FallenGear.new()
 	a.player = 11
 	b.player = 22
-	var pool: int = a.size("harlow", now)
-	check(pool > 400 and pool < 800, "Harlow pool holds hundreds of items (%d)" % pool)
-	var share_a: Array = _uids(a.share("harlow", now))
-	var share_b: Array = _uids(b.share("harlow", now))
+	var pool: int = a.size("deepdelve", now)
+	check(pool > 250 and pool < 600, "Deepdelve pool holds hundreds of items (%d)" % pool)
+	var share_a: Array = _uids(a.share("deepdelve", now))
+	var share_b: Array = _uids(b.share("deepdelve", now))
 	check(share_a.size() > 0 and share_a.size() < 20, "share is a handful (%d)" % share_a.size())
 	check(share_a != share_b, "two players see different shares")
-	var tomorrow: Array = _uids(a.share("harlow", now + FallenGear.RESHUFFLE))
+	var tomorrow: Array = _uids(a.share("deepdelve", now + FallenGear.RESHUFFLE))
 	check(tomorrow != share_a, "share reshuffles after a day")
 	# Averaged over many players: about 1.25% of a pool, minus what others took.
 	var seen: int = 0
 	for p in range(300):
 		var f := FallenGear.new()
 		f.player = 1000 + p
-		seen += f.share("harlow", now).size()
+		seen += f.share("deepdelve", now).size()
 	var avg: float = float(seen) / 300.0
-	check(avg > 3.5 and avg < 8.0, "average Harlow share about six (%.1f)" % avg)
+	check(avg > 2.0 and avg < 6.0, "average Deepdelve share about four (%.1f)" % avg)
 	# Deaths: 40% leave 1-3 pieces.
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5
@@ -45,7 +45,7 @@ func _initialize() -> void:
 			dropped += 1
 			pieces += left.size()
 			check(left.size() >= 1 and left.size() <= 3, "1-3 pieces per drop")
-	check(dropped > 700 and dropped < 900, "about 40% of deaths drop gear (%d of 2000)" % dropped)
+	check(dropped > 700 and dropped < 900, "about 40%% of deaths drop gear (%d of 2000)" % dropped)
 	check(float(pieces) / float(dropped) > 1.6, "drops average about two pieces")
 	# Own drops expire after 24 hours.
 	var own := FallenGear.new()
@@ -61,13 +61,13 @@ func _initialize() -> void:
 	for attempt in range(40):
 		var r := RandomNumberGenerator.new()
 		r.seed = attempt
-		found = finder.roll_finds("harlow", "Deep Push", now, r)
+		found = finder.roll_finds("deepdelve", "Deep Push", now, r)
 		if not found.is_empty():
 			break
 	check(not found.is_empty(), "Deep Push finds something eventually")
 	check(found.size() <= FallenGear.MAX_FINDS, "at most two finds")
 	if not found.is_empty():
-		check(not _uids(finder.share("harlow", now)).has(str(found[0]["uid"])), "a found item leaves the share")
+		check(not _uids(finder.share("deepdelve", now)).has(str(found[0]["uid"])), "a found item leaves the share")
 	# The trip home: a living finder brings it to the storeroom, a dead finder drops it.
 	var g := MoneyMercsState.new()
 	g.reset_company()

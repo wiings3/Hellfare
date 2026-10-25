@@ -51,7 +51,7 @@ visible = false
 text = "No expedition has returned yet. Every report is kept here."
 icon_kind = "home"
 
-[node name="GoHarlow" type="Button" parent="Margin/Content"]
+[node name="PlanExpedition" type="Button" parent="Margin/Content"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Plan an expedition"

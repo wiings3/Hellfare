@@ -21,7 +21,7 @@ func _run() -> void:
 	assert(view.game.crew.size() == 1)
 	assert(view.roster_tab == "employed")
 	view._nav_to("harlow")
-	assert(view.game.harlow.has("rotation"))
+	assert(view.page == "site" and view.selected_site == "harlow")
 	view._nav_to("market")
 	view._select_item("iron")
 	view._nav_to("expeditions")

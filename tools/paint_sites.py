@@ -1,4 +1,4 @@
-"""Paint the site banners for Greyvein Quarry and Deepdelve (246x126, three ink tones on
+"""Paint the site banner for Deepdelve (246x126, three ink tones on
 transparent parchment, like forest_copse.png). Run from the project root."""
 import math, random
 from PIL import Image, ImageDraw
@@ -13,51 +13,6 @@ GROUND = 108
 def base():
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     return img, ImageDraw.Draw(img)
-
-
-def quarry():
-    img, d = base()
-    rnd = random.Random(3)
-    # Distant hills.
-    d.polygon([(0, 70), (40, 52), (80, 62), (130, 44), (180, 58), (246, 40), (246, GROUND), (0, GROUND)], fill=FAINT)
-    # Terraced cut: a stepped cliff rising to the right, with strata and ledges.
-    profile = [(84, GROUND), (84, 94), (106, 94), (106, 78), (128, 78), (128, 62), (150, 62), (150, 46), (172, 46), (172, 30), (246, 30), (246, GROUND)]
-    d.polygon(profile, fill=SOFT)
-    for y in range(34, GROUND, 5):
-        x0 = next(px for (px, py) in profile[1:-1:2] if py <= y) if any(py <= y for (px, py) in profile[1:-1:2]) else 84
-        d.line([(x0 + 2, y), (246, y + rnd.randint(-1, 1))], fill=FAINT)
-    for (xa, ya), (xb, yb) in zip(profile[1:-1], profile[2:-1]):
-        if ya == yb:
-            d.line([(xa, ya), (xb, yb)], fill=FAINT)
-        else:
-            d.line([(xa, ya), (xb, yb)], fill=INK, width=2)
-    for x in range(176, 246, 9):
-        d.line([(x, 31), (x + 4, 44)], fill=INK)
-    # Derrick: an A-frame with a boom and a hanging bucket.
-    d.line([(46, GROUND), (62, 34)], fill=INK, width=3)
-    d.line([(78, GROUND), (62, 34)], fill=INK, width=3)
-    d.line([(52, 80), (72, 80)], fill=INK, width=2)
-    d.line([(62, 34), (112, 28)], fill=INK, width=2)
-    d.line([(108, 29), (108, 70)], fill=SOFT, width=1)
-    d.rectangle([103, 70, 113, 78], fill=INK)
-    d.line([(62, 34), (40, GROUND - 4)], fill=SOFT, width=1)
-    # Rubble piles and a cart.
-    for cx, cy, r in [(20, GROUND, 14), (36, GROUND, 9), (140, GROUND, 10), (204, GROUND, 13)]:
-        d.pieslice([cx - r, cy - r, cx + r, cy + r], 180, 360, fill=INK)
-        for k in range(5):
-            a = math.radians(200 + k * 30)
-            d.point((cx + int(r * 0.6 * math.cos(a)), cy + int(r * 0.6 * math.sin(a))), fill=FAINT)
-    d.rectangle([84, GROUND - 14, 106, GROUND - 4], fill=INK)
-    d.ellipse([86, GROUND - 6, 92, GROUND], fill=SOFT)
-    d.ellipse([98, GROUND - 6, 104, GROUND], fill=SOFT)
-    for x in range(86, 105, 4):
-        d.point((x, GROUND - 16), fill=SOFT)
-    # Ground line and pebbles.
-    d.line([(0, GROUND), (W, GROUND)], fill=INK)
-    for _ in range(40):
-        x, y = rnd.randrange(0, W), rnd.randrange(GROUND + 2, H - 4)
-        d.point((x, y), fill=FAINT)
-    img.save("assets/ui/art/quarry_greyvein.png")
 
 
 def deepdelve():
@@ -98,6 +53,5 @@ def deepdelve():
     img.save("assets/ui/art/mine_deepdelve.png")
 
 
-quarry()
 deepdelve()
-print("painted quarry_greyvein.png, mine_deepdelve.png")
+print("painted mine_deepdelve.png")

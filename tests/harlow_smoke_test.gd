@@ -1,5 +1,6 @@
 extends SceneTree
-## Harlow scout/crew/casualty integration. Only resets CI-only save.
+## Harlow Mines as an ordinary tier-1 mining site, plus the trips and saves made under its
+## old MVP rules (scouting, rotating deposits). Only resets the CI-only save.
 func _initialize() -> void:
 	if OS.get_environment("CI") != "true":
 		push_error("CI only")
@@ -11,46 +12,46 @@ func _run() -> void:
 	var view: Control = load("res://scenes/journal/widgets/main.tscn").instantiate()
 	root.add_child(view)
 	view.game.reset_company()
+	var site: Dictionary = TradeSites.by_id("harlow")
+	assert(str(site["trade"]) == "mining" and int(site["tier"]) == 1 and not site.has("special"))
+	assert(TradeSites.by_id("greyvein_quarry")["id"] == "harlow")  # old saves
+	# Old links to the Harlow page open its ordinary planner.
 	view._nav_to("harlow")
-	assert(view.page == "harlow")
-	assert(view.game.harlow.has("rotation"))
-	var rotation: int = int(view.game.harlow["rotation"])
-	assert(view.game.harlow.get("report", {}).is_empty())
-	assert(view.game.harlow_send_scout().begins_with("Scout dispatched"))
-	assert(int(view.game.harlow["scout_finish"]) > 0)
+	assert(view.page == "site" and view.selected_site == "harlow")
+	assert(view.right_leaf.get_child(0).scene_file_path.ends_with("/site_right.tscn"))
+	# A new miner can work it with any orders, Overnight included.
+	var miner: String = ""
+	for c in view.game.recruitment_board():
+		if str(c["role"]) == "Miner":
+			miner = str(c["id"])
+			break
+	view.game.gold = 900
+	assert(view.game.hire(miner).contains("joined"))
+	view._refresh()
+	view._toggle_crew(true, miner)
+	assert(view.selected_crew.size() == 1)
+	var ids: Array[String] = [miner]
+	assert(bool(view.game.site_forecast("harlow", ids, "Overnight")["meets_level"]))
+	view._dispatch_site()
+	assert(view.game.missions.size() == 1)
+	assert(str(view.game.missions[0]["region"]) == "site" and str(view.game.missions[0]["site"]) == "harlow")
+	assert(view.game.complete_due(int(Time.get_unix_time_from_system()) + 1000) == 1)
+	assert(str(view.game.reports[0]["site"]) == "harlow")
+	assert(TradeSkills.xp_of(view.game.merc_by_id(miner), "mining") > 0)
+	# A trip sent under the old rules still settles, and its state survives a save.
+	view.game.harlow_send_scout()
 	view.game.harlow["scout_finish"] = int(Time.get_unix_time_from_system()) - 1
 	view.game.harlow_sync()
-	assert(not (view.game.harlow["report"] as Dictionary).is_empty())
-	view._refresh()
-	assert(view.game.hire("garrick").contains("joined"))
-	assert(view.game.hire("oswin").contains("joined"))
-	var workers: Array[String] = ["garrick", "oswin"]
-	var stats: Dictionary = view.game.harlow_crew_stats(workers, "Balanced")
-	assert(int(stats["miners"]) == 1 and int(stats["guards"]) == 1)
-	assert(int(stats["capacity"]) == 6)  # 6 ore per miner, guards carry none
-	var solo: Array[String] = ["garrick"]
-	assert(float(stats["success"]) > float(view.game.harlow_crew_stats(solo,"Balanced")["success"]))
-	view._toggle_crew(true, "garrick")
-	view._toggle_crew(true, "oswin")
-	assert(view.selected_crew.size() == 2)
-	view._dispatch_harlow()
-	assert(view.game.missions.size() == 1)
+	var crew: Array[String] = [miner]
+	assert(view.game.harlow_dispatch(crew, "Balanced").begins_with("Harlow expedition funded"))
 	assert(str(view.game.missions[0]["region"]) == "harlow")
-	assert(view.game.free_crew() == 0)
 	view._nav_to("hq")
-	view._nav_to("harlow")
-	assert(view.game.complete_due(int(Time.get_unix_time_from_system())+1000) == 1)
-	assert(view.game.missions.is_empty())
-	assert(view.game.reports.size() == 1)
-	assert(view.game.reports[0].has("casualties"))
+	assert(view.game.complete_due(int(Time.get_unix_time_from_system()) + 2000) == 1)
 	assert(view.game.reports[0].has("extracted"))
-	view._nav_to("ledger")
-	view._nav_to("market")
-	assert(view.game.resources.has("copper"))
 	view.game.save_game()
 	var restored := MoneyMercsState.new()
-	assert(int(restored.harlow["rotation"]) == rotation)
-	assert(restored.reports.size() == 1)
+	assert(restored.harlow.has("rotation"))
+	assert(restored.reports.size() == 2)
 	view.game.reset_company()
-	print("Harlow Mines crew/scouting/permadeath UI integration passed.")
+	print("Harlow Mines site and legacy trip settlement passed.")
 	quit(0)

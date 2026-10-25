@@ -304,7 +304,7 @@ def chronicle():
     label(s, C + "/Summary", "", "LabelCaption")
     scroll(s, C + "/List", 80)
     s.inst(C + "/Empty", INFO, {"visible": False, "text": "No expedition has returned yet. Every report is kept here.", "icon_kind": "home"})
-    button(s, C + "/GoHarlow", "Plan an expedition", None, {"visible": False, "size_flags_horizontal": 4})
+    button(s, C + "/PlanExpedition", "Plan an expedition", None, {"visible": False, "size_flags_horizontal": 4})
     s.save(P + "chronicle_left.tscn")
 
     s = page("ChronicleRight")
@@ -382,7 +382,7 @@ def guildwork():
     label(s, C + "/Office/Row/Info/Details", "3 min  ·  9 G  ·  no worker needed", "LabelCaption")
     button(s, C + "/Office/Row/Accept", "Accept", "PaperButton", {"size_flags_vertical": 4})
     spacer(s, C + "/Spacer")
-    button(s, C + "/ReturnHarlow", "Back to Harlow Mines  >", "TextButton", {"size_flags_horizontal": 8})
+    button(s, C + "/ReturnBoard", "Back to the expedition board  >", "TextButton", {"size_flags_horizontal": 8})
     s.save(P + "guildwork_left.tscn")
 
     s = page("GuildWorkRight")
@@ -723,12 +723,12 @@ def company_map():
     s.node(M + "/Sites", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
     for site, text, x, y, w in [("mossward_copse", "Mossward Copse", 14, 190, 76), ("old_oakwood", "Old Oakwood", 8, 24, 104),
                                 ("harlow", "Harlow Mines", 174, 98, 66), ("town", "Mossward", 104, 222, 40),
-                                ("greyvein_quarry", "Greyvein Quarry", 194, 162, 62), ("deepdelve", "Deepdelve", 196, 28, 52)]:
+                                ("deepdelve", "Deepdelve", 196, 28, 52)]:
         button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 13)})
     # Grave markers: gear of the fallen this company could find at each site.
     s.node(M + "/Fallen", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
-    for site, x, y in [("mossward_copse", 40, 203), ("old_oakwood", 30, 37), ("harlow", 192, 111), ("greyvein_quarry", 214, 175), ("deepdelve", 172, 30)]:
+    for site, x, y in [("mossward_copse", 40, 203), ("old_oakwood", 30, 37), ("harlow", 192, 111), ("deepdelve", 172, 30)]:
         button(s, M + "/Fallen/" + site, "0", "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + 22), "offset_bottom": float(y + 12), "icon": Res("res://assets/ui/art/crew/grave.png")})
     # Crew figures are added here while expeditions run.

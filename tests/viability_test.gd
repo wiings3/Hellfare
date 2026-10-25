@@ -12,7 +12,7 @@ func _initialize() -> void:
 	var now: int = 1_900_000_000
 	GameClock.fixed = now
 	# Long orders last the same at every site.
-	for site_id in ["mossward_copse", "old_oakwood", "greyvein_quarry", "deepdelve"]:
+	for site_id in ["mossward_copse", "old_oakwood", "harlow", "deepdelve"]:
 		var site: Dictionary = TradeSites.by_id(site_id)
 		check(not site.is_empty(), "site exists: " + site_id)
 		var night: Dictionary = TradeSites.order_for(site, "Overnight")
@@ -42,16 +42,16 @@ func _initialize() -> void:
 	check(int(g.missions[0]["finish"]) - int(g.missions[0]["started"]) == 8 * 3600, "mission lasts eight hours")
 	g.complete_due(now + 8 * 3600 + 1)
 	check(int(g.resources.get("timber", 0)) > 30, "an Overnight haul is a real haul (%d timber)" % int(g.resources.get("timber", 0)))
-	# Mining sites: the quarry takes a new miner, Deepdelve needs Mining 8.
+	# Mining sites: Harlow takes a new miner, Deepdelve needs Mining 8.
 	g.gold = 2000
 	g.hire(miner)
 	var mids: Array[String] = [miner]
-	check(bool(g.site_forecast("greyvein_quarry", mids, "Balanced")["meets_level"]), "a new miner can work the quarry")
+	check(bool(g.site_forecast("harlow", mids, "Balanced")["meets_level"]), "a new miner can work Harlow")
 	check(not bool(g.site_forecast("deepdelve", mids, "Balanced")["meets_level"]), "Deepdelve needs Mining 8")
-	check(g.site_dispatch("greyvein_quarry", mids, "Balanced").begins_with("The crew set out"), "quarry dispatch")
+	check(g.site_dispatch("harlow", mids, "Balanced").begins_with("The crew set out"), "Harlow dispatch")
 	g.complete_due(now + 9 * 3600)
-	check(int(g.resources.get("copper", 0)) >= 0 and g.reports[0].get("site", "") == "greyvein_quarry", "quarry trip reported")
-	check(TradeSkills.xp_of(g.merc_by_id(miner), "mining") > 0, "quarry trains mining")
+	check(int(g.resources.get("copper", 0)) >= 0 and g.reports[0].get("site", "") == "harlow", "Harlow trip reported")
+	check(TradeSkills.xp_of(g.merc_by_id(miner), "mining") > 0, "Harlow trains mining")
 	# Guild contractors post big orders above fair value, and filling one leaves NPC demand alone.
 	var hall: TradeHall = g.hall
 	hall.rng.seed = 4

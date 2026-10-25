@@ -10,9 +10,6 @@ func _capture() -> void:
 	instance.game.reset_company()
 	instance.game.hire("garrick")
 	instance.game.hire("oswin")
-	instance.game.harlow_send_scout()
-	instance.game.harlow["scout_finish"] = int(Time.get_unix_time_from_system()) - 1
-	instance.game.harlow_sync()
 	instance._toggle_crew(true, "garrick")
 	instance._toggle_crew(true, "oswin")
 	var widescreen: bool = OS.get_environment("MM_CAPTURE_WIDE") == "1"
@@ -51,7 +48,7 @@ func _capture() -> void:
 			instance._outfit("garrick")
 		elif name == "ledger":
 			instance._nav_to("harlow")
-			instance._dispatch_harlow()
+			instance._dispatch_site()
 			if not instance.game.missions.is_empty():
 				instance.game.complete_due(int(Time.get_unix_time_from_system()) + 500)
 			instance._nav_to("ledger")

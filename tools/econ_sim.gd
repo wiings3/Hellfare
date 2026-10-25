@@ -1,6 +1,6 @@
 extends SceneTree
 ## Economy simulator. Plays the real game rules (MoneyMercsState, TradeHall, sites,
-## Harlow, regional contracts, merchants) with scripted player strategies, fast-forwarding
+## regional contracts, merchants) with scripted player strategies, fast-forwarding
 ## the clock (GameClock.fixed). Nothing is read from or written to the save file.
 ##
 ## Usage (from the project root):
@@ -9,16 +9,16 @@ extends SceneTree
 ## Strategies:
 ##   logging        woodcutters only, sell everything to the merchants
 ##   logging_hall   woodcutters, sell through Trade Hall posts and messages, merchants as fallback
-##   harlow         miners and a guard at Harlow Mines, scouting each rotation
+##   miner          miners at Harlow Mines, then Deepdelve from Mining 8; Trade Hall
 ##   contracts      the older regional contracts, climbing to the best region reputation allows
 ##   lowlands       the older regional contracts, staying on Mossward Lowlands
 ##   hall_trader    no crew: buy cheap posts and resell in the Trade Hall
-##   mixed          one slot mines Harlow, the rest log; sales through the Trade Hall
 ##   casual         logging on Long Shift; the player only checks in for a minute every 30 minutes
 ##   minimal        the least the game needs: one woodcutter at the Copse, merchants only, nothing else
-##   everything     mixed, plus equipping gear found among the fallen when it's an upgrade
-##   evening        "everything" for two hours a day; Long Shifts sent out before logging off
-##   idle           checks in for a minute three times a day; Long Shift logging
+##   everything     one slot mining, the rest logging, Trade Hall, and wears gear found among the
+##                  fallen when it's an upgrade
+##   evening        "everything" for two hours a day; Full Day trips sent out before logging off
+##   idle           checks in for a minute three times a day; Overnight logging
 ## Every strategy except minimal expands expedition slots and buys tools when it can afford them.
 ## Hours are hours since the company started (crews keep working while the game is closed).
 ## While the player is away the clock jumps ahead to the next return or check-in.
@@ -27,7 +27,7 @@ const STEP := 10
 const SAMPLE := 900
 const MILESTONES := [1000, 10000, 100000, 1000000, 10000000]
 const CHECKPOINTS := [10, 100, 1000, 3000, 12000]
-const ALL := ["minimal", "logging", "logging_hall", "miner", "harlow", "mixed", "everything", "hall_trader", "contracts", "casual", "evening", "idle"]
+const ALL := ["minimal", "logging", "logging_hall", "miner", "everything", "hall_trader", "contracts", "casual", "evening", "idle"]
 
 var hours: float = 150.0
 var seeds: int = 4
@@ -49,7 +49,7 @@ func _initialize() -> void:
 			"first": first = int(kv[1])
 	MoneyMercsState.persist = false
 	var results: Array = []
-	var strategies: Array = ["logging", "logging_hall", "mixed", "harlow", "casual"]
+	var strategies: Array = ["logging", "logging_hall", "miner", "everything", "casual"]
 	if only != "":
 		strategies = ALL + ["lowlands"]
 	for strategy in strategies:
@@ -111,7 +111,6 @@ func run(name: String, seed_value: int) -> Dictionary:
 	while t <= end:
 		GameClock.fixed = t
 		_settle()
-		g.harlow_sync(t)
 		var active: bool = _active()
 		if active:
 			_policy()
@@ -207,7 +206,7 @@ func _checkpoint(h: int) -> void:
 
 func _trade() -> String:
 	match strategy:
-		"harlow", "contracts", "miner": return "mining"
+		"contracts", "miner": return "mining"
 	return "logging"
 
 func _add(key: String, amount: float) -> void:
@@ -242,7 +241,7 @@ func _settle() -> void:
 					rec["rare_finds"] = int(rec.get("rare_finds", 0)) + 1
 					if not rec.has("first_rare_h"):
 						rec["first_rare_h"] = snappedf(_elapsed_h(), 0.01)
-	if strategy in ["logging_hall", "hall_trader", "mixed", "everything", "evening", "miner"] or g.hall.session != null:
+	if strategy in ["logging_hall", "hall_trader", "everything", "evening", "miner"] or g.hall.session != null:
 		var events: Array = g.hall_tick(t)
 		for e in events:
 			if str(e["type"]) == "trade_done":
@@ -256,11 +255,9 @@ func _policy() -> void:
 	match strategy:
 		"logging", "casual": _logging(false)
 		"logging_hall": _logging(true)
-		"harlow": _harlow()
 		"contracts": _contracts(false)
 		"lowlands": _contracts(true)
 		"hall_trader": _hall_trader()
-		"mixed": _mixed()
 		"everything": _everything()
 		"miner": _miner()
 		"minimal": _minimal()
@@ -392,9 +389,9 @@ func _sell_to_merchants(keep: Array = []) -> void:
 func _logging(use_hall: bool, slots_for_logging: int = -1) -> void:
 	_work("logging", "Woodcutter", ["mossward_copse", "old_oakwood"], ["hand_axe", "felling_axe"], use_hall, slots_for_logging)
 
-## Mining sites the same way: Greyvein Quarry, then Deepdelve from Mining 8.
+## Mining sites the same way: Harlow Mines, then Deepdelve from Mining 8.
 func _mining(use_hall: bool, slots_for_mining: int = -1) -> void:
-	_work("mining", "Miner", ["greyvein_quarry", "deepdelve"], ["basic_pick", "reinforced_pick"], use_hall, slots_for_mining)
+	_work("mining", "Miner", ["harlow", "deepdelve"], ["basic_pick", "reinforced_pick"], use_hall, slots_for_mining)
 
 ## The orders a player away from the keyboard uses: Long Shift for a half-hour check-in,
 ## Overnight for three visits a day, Full Day for a once-a-day player logging off.
@@ -478,16 +475,9 @@ func _running(kind: String) -> int:
 			n += 1
 	return n
 
-# Miner: mining sites, plus one slot at Harlow whenever its deposits allow.
+# Miner: Harlow Mines, then Deepdelve; sales through the Trade Hall.
 func _miner() -> void:
-	var left: int = 0
-	for ore in g.harlow.get("deposits", {}):
-		left += int(g.harlow["deposits"][ore])
-	if g.expedition_slots >= 2 and (left > 0 or _running("harlow") > 0):
-		_harlow(1)
-		_mining(true, g.expedition_slots - _running("harlow"))
-	else:
-		_mining(true)
+	_mining(true)
 
 # Everything: one slot mining (Harlow or the mining sites), the rest logging; Trade Hall.
 func _everything() -> void:
@@ -496,46 +486,6 @@ func _everything() -> void:
 		_logging(true, g.expedition_slots - 1)
 	else:
 		_logging(true)
-
-# Mixed: one slot mines Harlow, the rest log; sales through the Trade Hall.
-func _mixed() -> void:
-	if g.expedition_slots >= 2:
-		_harlow(1)
-		_logging(true, g.expedition_slots - 1)
-	else:
-		_logging(true)
-
-# Harlow Mines: two miners and a guard per slot, scout every rotation.
-func _harlow(slots_for_harlow: int = -1) -> void:
-	var slots: int = g.expedition_slots if slots_for_harlow < 0 else slots_for_harlow
-	_hire("Miner", 2 * slots)
-	_hire("Guard", slots)
-	_outfit("Miner", ["basic_pick", "reinforced_pick"])
-	_outfit("Guard", ["rusted_sword", "steel_sword"])
-	if (g.harlow.get("report", {}) as Dictionary).is_empty() and int(g.harlow.get("scout_finish", 0)) == 0:
-		g.harlow_send_scout()
-	var left: int = 0
-	for ore in g.harlow.get("deposits", {}):
-		left += int(g.harlow["deposits"][ore])
-	while left > 0 and _running("harlow") < slots and g.missions.size() < g.expedition_slots:
-		var miners: Array[String] = _free("Miner")
-		if miners.is_empty():
-			break
-		var crew: Array[String] = []
-		for id in miners.slice(0, 2):
-			crew.append(id)
-		var guards: Array[String] = _free("Guard")
-		if not guards.is_empty():
-			crew.append(guards[0])
-		var danger: int = int((g.harlow.get("enemy", {}) as Dictionary).get("danger", 2))
-		var orders: String = "Cautious" if danger >= 3 else "Balanced"
-		if not g.harlow_dispatch(crew, orders).begins_with("Harlow expedition funded"):
-			break
-		left = 0
-		for ore in g.harlow.get("deposits", {}):
-			left += int(g.harlow["deposits"][ore])
-	if slots_for_harlow < 0:
-		_sell_to_merchants()
 
 # Regional contracts: the best region the company's reputation allows, three mercs.
 func _contracts(lowlands_only: bool) -> void:

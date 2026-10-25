@@ -94,7 +94,6 @@ roads = {
     "mossward_copse": smooth([(112, 208), (96, 200), (80, 190), (64, 181)], 2),
     "old_oakwood": smooth([(117, 197), (104, 168), (94, 132), (78, 100), (66, 84)], 2),
     "harlow": smooth([(137, 199), (150, 178), (163, 152), (182, 124), (197, 102), (205, 92)], 2),
-    "greyvein_quarry": smooth([(137, 199), (150, 178), (157, 167), (172, 162), (195, 159), (214, 156), (224, 153)], 2),
     "deepdelve": smooth([(137, 199), (150, 178), (163, 152), (182, 124), (197, 102), (205, 92), (211, 82), (218, 71), (226, 61)], 2),
 }
 fog_roads = {
@@ -196,17 +195,6 @@ for y in range(54, 62):
 rect(224, 55, 229, 61, INK)
 put(225, 54, INK); put(228, 54, INK)
 put(221, 56, (214, 160, 62, 255)); put(232, 56, (214, 160, 62, 255))
-# Greyvein Quarry: a stepped pit in the eastern hills with a small derrick.
-for i, (x0, y0, x1, y1) in enumerate([(214, 144, 240, 160), (217, 147, 237, 158), (220, 150, 234, 156)]):
-    rect(x0, y0, x1, y1, [FAINT, SOFT, INK][i])
-    for x in range(x0, x1 + 1):
-        put(x, y0, INK if i == 0 else FAINT)
-for y in range(136, 146):
-    put(212 + (146 - y) // 3, y, INK)
-    put(216 - (146 - y) // 3 + 4, y, INK)
-for x in range(212, 226):
-    put(x, 136, INK)
-put(225, 137, SOFT); put(225, 138, SOFT); put(225, 139, INK)
 # Mine entrance with timber frame.
 rect(204, 82, 210, 88, INK)
 rect(203, 81, 211, 81, SOFT)

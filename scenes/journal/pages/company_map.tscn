@@ -57,10 +57,6 @@ width = 1.0
 points = PackedVector2Array(137, 199, 137.8, 197.7, 139.4, 195.1, 141.9, 191.1, 145.1, 185.9, 148.4, 180.3, 151.6, 174.4, 154.9, 168.2, 158.1, 161.8, 161.8, 155.1, 165.8, 148.4, 170.1, 141.5, 174.9, 134.5, 179.4, 127.9, 183.6, 121.6, 187.6, 115.8, 191.4, 110.2, 194.7, 105.5, 197.6, 101.5, 200.0, 98.2, 202.0, 95.8, 203.5, 93.9, 204.5, 92.6, 205, 92)
 width = 1.0
 
-[node name="greyvein_quarry" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(137, 199, 137.8, 197.7, 139.4, 195.1, 141.9, 191.1, 145.1, 185.9, 148.0, 181.2, 150.5, 177.2, 152.6, 173.9, 154.4, 171.1, 156.6, 168.8, 159.4, 166.8, 162.6, 165.1, 166.4, 163.9, 170.6, 162.8, 175.4, 161.8, 180.6, 160.9, 186.4, 160.1, 191.9, 159.4, 197.1, 158.6, 202.1, 157.9, 206.9, 157.1, 211.1, 156.4, 214.7, 155.6, 217.8, 154.9, 220.2, 154.1, 222.1, 153.6, 223.4, 153.2, 224, 153)
-width = 1.0
-
 [node name="deepdelve" type="Line2D" parent="Margin/Content/Map/Roads"]
 points = PackedVector2Array(137, 199, 137.8, 197.7, 139.4, 195.1, 141.9, 191.1, 145.1, 185.9, 148.4, 180.3, 151.6, 174.4, 154.9, 168.2, 158.1, 161.8, 161.8, 155.1, 165.8, 148.4, 170.1, 141.5, 174.9, 134.5, 179.4, 127.9, 183.6, 121.6, 187.6, 115.8, 191.4, 110.2, 194.7, 105.5, 197.6, 101.5, 200.0, 98.2, 202.0, 95.8, 203.9, 93.2, 205.6, 90.8, 207.2, 88.2, 208.8, 85.8, 210.3, 83.2, 211.9, 80.6, 213.6, 77.9, 215.4, 75.1, 217.2, 72.4, 219.1, 69.8, 221.0, 67.2, 223.0, 64.8, 224.5, 62.9, 225.5, 61.6, 226, 61)
 width = 1.0
@@ -154,16 +150,6 @@ offset_top = 222.0
 offset_right = 144.0
 offset_bottom = 235.0
 
-[node name="greyvein_quarry" type="Button" parent="Margin/Content/Map/Sites"]
-mouse_default_cursor_shape = 2
-theme_type_variation = &"MapButton"
-text = "Greyvein Quarry"
-layout_mode = 0
-offset_left = 194.0
-offset_top = 162.0
-offset_right = 256.0
-offset_bottom = 175.0
-
 [node name="deepdelve" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
@@ -212,17 +198,6 @@ offset_left = 192.0
 offset_top = 111.0
 offset_right = 214.0
 offset_bottom = 123.0
-icon = ExtResource("3_grave")
-
-[node name="greyvein_quarry" type="Button" parent="Margin/Content/Map/Fallen"]
-mouse_default_cursor_shape = 2
-theme_type_variation = &"MapButton"
-text = "0"
-layout_mode = 0
-offset_left = 214.0
-offset_top = 175.0
-offset_right = 236.0
-offset_bottom = 187.0
 icon = ExtResource("3_grave")
 
 [node name="deepdelve" type="Button" parent="Margin/Content/Map/Fallen"]

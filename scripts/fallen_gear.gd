@@ -26,14 +26,13 @@ const FIND_CHANCE := {"Cautious": 0.09, "Balanced": 0.12, "Deep Push": 0.18, "Lo
 ## Chance another player picks up an item from your share before it expires.
 const TAKEN_CHANCE := 0.4
 ## NPC pool items added per hour at each site (dangerous sites see more deaths).
-const NPC_RATE := {"mossward_copse": 6.0, "old_oakwood": 14.0, "harlow": 25.0, "greyvein_quarry": 5.0, "deepdelve": 16.0}
+const NPC_RATE := {"mossward_copse": 6.0, "old_oakwood": 14.0, "harlow": 6.0, "deepdelve": 16.0}
 ## What fallen NPC mercenaries carried, by site. Weights.
 const NPC_LOOT := {
 	"mossward_copse": {"hand_axe": 30, "leather": 30, "felling_axe": 12, "rusted_sword": 10, "chainmail": 4, "steel_sword": 3, "wardens_axe": 1.2, "knights_blade": 0.3, "gilded_plate": 0.2},
 	"old_oakwood": {"felling_axe": 20, "hand_axe": 15, "leather": 15, "rusted_sword": 8, "chainmail": 8, "steel_sword": 6, "wardens_axe": 2.5, "knights_blade": 1.0, "gilded_plate": 0.5},
-	"greyvein_quarry": {"basic_pick": 30, "leather": 30, "reinforced_pick": 10, "rusted_sword": 10, "chainmail": 4, "steel_sword": 3, "dwarven_pick": 0.8, "knights_blade": 0.3, "gilded_plate": 0.2},
 	"deepdelve": {"basic_pick": 18, "reinforced_pick": 15, "leather": 12, "chainmail": 9, "rusted_sword": 8, "steel_sword": 8, "dwarven_pick": 2.5, "knights_blade": 1.0, "gilded_plate": 0.7},
-	"harlow": {"basic_pick": 25, "leather": 15, "reinforced_pick": 12, "rusted_sword": 12, "steel_sword": 8, "chainmail": 8, "dwarven_pick": 1.5, "knights_blade": 1.0, "gilded_plate": 0.7},
+	"harlow": {"basic_pick": 30, "leather": 30, "reinforced_pick": 10, "rusted_sword": 10, "chainmail": 4, "steel_sword": 3, "dwarven_pick": 0.8, "knights_blade": 0.3, "gilded_plate": 0.2},
 }
 const COMPANIES := ["Iron Hands", "Grey Lanterns", "Red Wolves", "Ashford Free Company", "Black Pines", "Copper Crowns", "Hollow Oaks", "Brightwater Guild", "Lantern Road Co.", "Salt Kings"]
 const NAMES := ["Aldo", "Berin", "Cass", "Dunstan", "Edda", "Fenn", "Garth", "Hilde", "Ivo", "Jory", "Kell", "Lisbet", "Mott", "Nessa", "Orrin", "Pell", "Rook", "Sable", "Tamsin", "Wick"]

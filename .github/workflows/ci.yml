@@ -35,13 +35,14 @@ jobs:
           timeout 70s godot --headless --path . --script res://tests/book_ui_smoke_test.gd 2>&1 | tee /tmp/book_ui.log
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/book_ui.log; then exit 1; fi
           grep -F 'BookUI page navigation, equipment desk, merchant selection, and page-turn assets passed.' /tmp/book_ui.log
-      - name: Exercise Harlow scouting and dispatch
+      - name: Harlow Mines as a site, and old Harlow trips
         run: |
           set -o pipefail
           timeout 45s godot --headless --path . --script res://tests/harlow_smoke_test.gd 2>&1 | tee /tmp/harlow_test.log
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/harlow_test.log; then
             exit 1
           fi
+          grep -F 'Harlow Mines site and legacy trip settlement passed.' /tmp/harlow_test.log
 
       - name: V0.5 regression (gear, permadeath, recruitment, migration)
         run: |

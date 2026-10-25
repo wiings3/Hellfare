@@ -146,9 +146,9 @@ layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="ReturnHarlow" type="Button" parent="Margin/Content"]
+[node name="ReturnBoard" type="Button" parent="Margin/Content"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"TextButton"
-text = "Back to Harlow Mines  >"
+text = "Back to the expedition board  >"
 size_flags_horizontal = 8
