@@ -86,7 +86,7 @@ MATERIALS = {
     "resin": ("Thornwald Resin", 3, "sap", 24, ["thornwald", "blackroot_weald"], "Varnish for tier-3+ bows and shields."),
     "amber": ("Amber", 1, "gem", 10, ["mossward_copse"], "Old sap turned to stone. Charms."),
     # Ores, metal and gems
-    "copper": ("Copper Ore", 1, "ore", 20, ["harlow"], "Fittings, sickles, hooks, flasks and lanterns."),
+    "copper": ("Copper Ore", 1, "ore", 20, ["harlow", "deepdelve"], "Fittings, sickles, hooks, flasks and lanterns."),
     "coal": ("Coal", 1, "ore", 8, ["harlow", "cinder_shaft"], "Fuel for smelting steel."),
     "iron": ("Iron Ore", 1, "ore", 17, ["harlow", "deepdelve", "cinder_shaft"], "Tier-1 metal and the base of steel. Harlow gives a little; Deepdelve is the main seam."),
     "silver": ("Silver", 2, "ore", 28, ["deepdelve", "gloamhold"], "Silversteel, rings and fine fittings."),

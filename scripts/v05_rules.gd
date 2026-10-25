@@ -1,23 +1,9 @@
 extends RefCounted
 class_name MercsV05
 
-# Data-only item catalogue: each entry represents a real inventory object.
-# The legacy "gear" tier is read as a temporary bonus for older saves.
-const ITEMS := {
-	"basic_pick": {"name": "Iron Pickaxe", "slot": "tool", "role": "Miner", "cost": 28, "mining": 1, "guard": 0, "protection": 0},
-	"reinforced_pick": {"name": "Reinforced Pickaxe", "slot": "tool", "role": "Miner", "cost": 105, "mining": 2, "guard": 0, "protection": 0},
-	"rusted_sword": {"name": "Rusted Sword", "slot": "tool", "role": "Guard", "cost": 30, "mining": 0, "guard": 1, "protection": 0},
-	"steel_sword": {"name": "Steel Sword", "slot": "tool", "role": "Guard", "cost": 125, "mining": 0, "guard": 3, "protection": 0},
-	"hand_axe": {"name": "Hand Axe", "slot": "tool", "role": "Woodcutter", "cost": 26, "mining": 0, "guard": 0, "protection": 0, "logging": 1},
-	"felling_axe": {"name": "Felling Axe", "slot": "tool", "role": "Woodcutter", "cost": 98, "mining": 0, "guard": 0, "protection": 0, "logging": 2},
-	"leather": {"name": "Leather Armor", "slot": "armor", "role": "Any", "cost": 38, "mining": 0, "guard": 0, "protection": 1},
-	"chainmail": {"name": "Chainmail", "slot": "armor", "role": "Any", "cost": 138, "mining": 0, "guard": 0, "protection": 3},
-	# Found only on the fallen: never sold by the quartermaster. "cost" is their worth.
-	"dwarven_pick": {"name": "Dwarven Pickaxe", "slot": "tool", "role": "Miner", "cost": 900, "mining": 4, "guard": 0, "protection": 0, "found": true},
-	"wardens_axe": {"name": "Warden's Axe", "slot": "tool", "role": "Woodcutter", "cost": 800, "mining": 0, "guard": 0, "protection": 0, "logging": 4, "found": true},
-	"knights_blade": {"name": "Knight's Blade", "slot": "tool", "role": "Guard", "cost": 1100, "mining": 0, "guard": 5, "protection": 0, "found": true},
-	"gilded_plate": {"name": "Gilded Plate", "slot": "armor", "role": "Any", "cost": 1500, "mining": 0, "guard": 0, "protection": 5, "found": true}
-}
+# Items live in data/catalog.json now (see Catalog and Gear). The quartermaster still sells
+# the eight pieces the game started with; everything else is crafted or found.
+const SHOP := ["hand_axe", "felling_axe", "basic_pick", "reinforced_pick", "rusted_sword", "steel_sword", "leather", "chainmail"]
 
 const FIRST_NAMES := [
 	"Edric", "Nessa", "Tobin", "Cora", "Lukas", "Yara", "Fenna", "Rurik",
@@ -31,40 +17,25 @@ const LAST_NAMES := [
 
 # The recruit board lives in mercs.gd (Mercs.generate_board): applicants depend on reputation.
 
+## The old four numbers, now read from catalog gear: tool power per trade, a guard's
+## weapon tier, and armour (one point of protection per 5 armour).
 static func equipment_stats(merc: Dictionary) -> Dictionary:
-	var mining := 0
-	var guard := 0
-	var protection := 0
-	var logging := 0
-	var equipment: Dictionary = merc.get("equipment", {})
-	for slot in ["tool", "armor"]:
-		var item: Dictionary = equipment.get(slot, {})
-		var key: String = str(item.get("key", ""))
-		if not ITEMS.has(key):
-			continue
-		var definition: Dictionary = ITEMS[key]
-		mining += int(definition.get("mining", 0))
-		guard += int(definition.get("guard", 0))
-		protection += int(definition.get("protection", 0))
-		logging += int(definition.get("logging", 0))
-	# Legacy tier still has value, without creating a phantom physical item.
-	var legacy: int = int(merc.get("gear", 0))
-	return {"mining": mining, "guard": guard, "protection": protection + legacy, "logging": logging}
+	var weapon: int = 0
+	if Gear.job(merc) == "combat":
+		weapon = int(round(float(Gear.weapon_levels(merc)) / 2.0))
+	return {"mining": int(Gear.tool_power(merc, "mining")), "logging": int(Gear.tool_power(merc, "logging")),
+		"guard": weapon, "protection": int(Gear.armour(merc) / 5.0) + int(merc.get("gear", 0))}
 
-## Gear the quartermaster sells (everything except found-only pieces).
+## Gear the quartermaster sells.
 static func shop_keys() -> Array:
-	var keys: Array = []
-	for key in ITEMS:
-		if not bool(ITEMS[key].get("found", false)):
-			keys.append(key)
-	return keys
+	return SHOP.duplicate()
 
 static func item_name(item: Dictionary) -> String:
-	return str(ITEMS.get(str(item.get("key", "")), {}).get("name", "Unknown item"))
+	return Gear.item_name(item)
 
-## Anyone can hold any tool or weapon: the tool sets the job. Only unknown items are refused.
+## Anyone can hold anything that goes in a slot: the tool sets the job.
 static func validate_role(key: String, _merc: Dictionary = {}) -> bool:
-	return ITEMS.has(key)
+	return Gear.exists(key) and Gear.equippable(key)
 
 static func assess_party(mercs: Array[Dictionary], approach: String, danger: int, supplies: int) -> Dictionary:
 	var miners := 0
@@ -87,11 +58,8 @@ static func assess_party(mercs: Array[Dictionary], approach: String, danger: int
 			guards += 1
 			guard_points += 1 + int(stats["guard"])
 		protection += int(stats["protection"])
-		for slot in ["tool", "armor"]:
-			var equipped: Dictionary = (merc.get("equipment", {}) as Dictionary).get(slot, {})
-			var id: String = str(equipped.get("key", ""))
-			if ITEMS.has(id):
-				gear_value += int(ITEMS[id]["cost"])
+		for equipped in Gear.worn(merc):
+			gear_value += Gear.value(equipped)
 		gear_value += int(merc.get("gear", 0)) * 60
 		# Use the same staged casualty odds that the resolver will roll.
 		var risk: float = 0.10 + danger * 0.065 - guard_points * 0.028

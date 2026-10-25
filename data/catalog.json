@@ -344,7 +344,8 @@
    "group": "ore",
    "value": 20,
    "sources": [
-    "harlow"
+    "harlow",
+    "deepdelve"
    ],
    "note": "Fittings, sickles, hooks, flasks and lanterns.",
    "sell_only": false

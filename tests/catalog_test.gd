@@ -189,19 +189,30 @@ func _initialize() -> void:
 	check(Catalog.kit_rating(["hand_axe", "leather"]) == 7, "kit rating adds up (%d)" % Catalog.kit_rating(["hand_axe", "leather"]))
 	check(Catalog.kit_rating(["iron_greatsword"]) == 6, "two-handers count both hands")
 
-	# In step with the live game: every equippable item and every good keeps its id.
-	for key in MercsV05.ITEMS:
-		var live: Dictionary = MercsV05.ITEMS[key]
-		check(items.has(key), "live item in catalog: " + key)
-		if items.has(key):
-			check(str(items[key].get("legacy_slot", "")) == str(live["slot"]), "slot unchanged: " + key)
-			check(str(items[key]["name"]) == str(live["name"]), "name unchanged: " + key)
-			check(int(items[key]["value"]) == int(live["cost"]), "price unchanged: " + key)
-			check(bool(items[key].get("found_only", false)) == bool(live.get("found", false)), "found-only unchanged: " + key)
+	# In step with the live game: the quartermaster's stock exists at its old prices, and
+	# every warehouse good is a catalog material or craftable good with the same name and price.
+	var old_prices := {"hand_axe": 26, "felling_axe": 98, "basic_pick": 28, "reinforced_pick": 105, "rusted_sword": 30, "steel_sword": 125, "leather": 38, "chainmail": 138}
+	for key in MercsV05.SHOP:
+		check(items.has(key) and not bool(items[key].get("found_only", false)), "shop item in catalog: " + key)
+		check(int(items.get(key, {}).get("value", 0)) == int(old_prices.get(key, -1)), "shop price unchanged: " + key)
+	for key in ["dwarven_pick", "wardens_axe", "knights_blade", "gilded_plate"]:
+		check(bool(items.get(key, {}).get("found_only", false)), "still found-only: " + key)
 	for good in MoneyMercsState.RESOURCE_ORDER:
-		check(mats.has(good), "live good in catalog: " + good)
-		if mats.has(good):
-			check(int(mats[good]["value"]) == int(MoneyMercsState.BASE_PRICE[good]), "base price unchanged: " + good)
+		var d: Dictionary = mats.get(good, items.get(good, {}))
+		check(not d.is_empty(), "warehouse good in catalog: " + good)
+		check(int(d.get("value", -1)) == int(MoneyMercsState.BASE_PRICE[good]), "base price matches the catalog: " + good)
+		check(str(d.get("name", "")) == str(MoneyMercsState.RESOURCE_NAMES[good]), "name matches the catalog: " + good)
+	# Every material a live site yields is a warehouse good.
+	for site in TradeSites.SITES:
+		for k in ["yields", "side"]:
+			for good in site.get(k, {}):
+				check(MoneyMercsState.RESOURCE_ORDER.has(good), "%s's %s can be stored" % [site["id"], good])
+		for k in ["rare", "rare2"]:
+			if site.has(k):
+				check(MoneyMercsState.RESOURCE_ORDER.has(str(site[k]["good"])), "%s's rare find can be stored" % site["id"])
+				check(mats.has(str(site[k]["good"])) and (mats[str(site[k]["good"])]["sources"] as Array).has(str(site["id"])), "catalog lists %s as a source of %s" % [site["id"], site[k]["good"]])
+		for good in site.get("yields", {}):
+			check(mats.has(good) and (mats[good]["sources"] as Array).has(str(site["id"])), "catalog lists %s as a source of %s" % [site["id"], good])
 	for s in sources:
 		if sources[s]["kind"] == "site" and sources[s]["status"] == "live":
 			check(not TradeSites.by_id(s).is_empty(), "live site exists in the game: " + s)

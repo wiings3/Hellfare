@@ -95,15 +95,7 @@ static func best_level(merc: Dictionary) -> int:
 
 ## The trade the tool in their hands is for: "logging", "mining", "combat" or "" (none).
 static func job(merc: Dictionary) -> String:
-	var tool: Dictionary = (merc.get("equipment", {}) as Dictionary).get("tool", {})
-	var item: Dictionary = V05.ITEMS.get(str(tool.get("key", "")), {})
-	if int(item.get("logging", 0)) > 0:
-		return "logging"
-	if int(item.get("mining", 0)) > 0:
-		return "mining"
-	if int(item.get("guard", 0)) > 0:
-		return "combat"
-	return ""
+	return Gear.job(merc)
 
 ## What they're doing today, as a job name ("Miner"). Applicants, who carry nothing yet,
 ## are named for their best trade.
@@ -195,7 +187,7 @@ static func rest_mult(merc: Dictionary) -> float:
 
 ## Combat level used when they stand guard.
 static func guard_level(merc: Dictionary) -> int:
-	return level(merc, "combat") + (5 if has_trait(merc, "reckless") else 0)
+	return level(merc, "combat") + (5 if has_trait(merc, "reckless") else 0) + Gear.weapon_levels(merc)
 
 static func _pick(rng: RandomNumberGenerator, rarities: Array, exclude: Array) -> String:
 	var pool: Array[String] = []
@@ -233,9 +225,8 @@ static func value(merc: Dictionary, with_gear: bool = true) -> int:
 	for t in merc.get("traits", []):
 		total += float(TRAITS.get(str(t), {}).get("value", 0))
 	if with_gear:
-		for slot in ["tool", "armor"]:
-			var item: Dictionary = (merc.get("equipment", {}) as Dictionary).get(slot, {})
-			total += float(V05.ITEMS.get(str(item.get("key", "")), {}).get("cost", 0))
+		for item in Gear.worn(merc):
+			total += float(Gear.value(item))
 	return maxi(20, int(round(total)))
 
 ## The lowest reputation tier a mercenary will serve: the best skill a company of that tier
@@ -292,7 +283,7 @@ static func generate_board(epoch: int, tier: int) -> Array[Dictionary]:
 		var floor_level: int = maxi(2, cap / 4)
 		var best: int = rng.randi_range(2, 3) if entry else floor_level + int(float(cap - floor_level) * pow(rng.randf(), 1.4))
 		var person: Dictionary = make_person(rng, "candidate_%d_%d" % [epoch, i], focus, best, tier, entry)
-		var worth: int = value(person, false) + int(V05.ITEMS.get(str(person["kit"]), {}).get("cost", 0))
+		var worth: int = value(person, false) + int(Catalog.item(str(person["kit"])).get("value", 0))
 		if entry:
 			# Green hands sign for their skills and tool alone, so a new company can always start.
 			for t in person["traits"]:
@@ -318,7 +309,7 @@ static func guild_contracts(epoch: int, tier: int) -> Array[Dictionary]:
 		if int(person["min_tier"]) > tier:
 			continue
 		person["from"] = GUILDS[rng.randi_range(0, GUILDS.size() - 1)]
-		var worth: int = value(person, false) + int(V05.ITEMS.get(str(person["kit"]), {}).get("cost", 0))
+		var worth: int = value(person, false) + int(Catalog.item(str(person["kit"])).get("value", 0))
 		var price: int = int(round(float(worth) * NPC_ASK))
 		person["price"] = price
 		person["hire"] = price + int(round(float(price) * TRANSFER_FEE))

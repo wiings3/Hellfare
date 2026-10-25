@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/item_slot.tscn" id="2_item_slot"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="3_info_box"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
 
 [node name="PersonnelArmoryLeft" type="Control"]
 layout_mode = 3
@@ -60,77 +59,68 @@ theme_override_constants/separation = 4
 layout_mode = 2
 theme_type_variation = &"LabelTitle"
 text = "Nobody selected"
-
-[node name="ToolRow" type="HBoxContainer" parent="Margin/Content/Loadout/Body"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Slot" parent="Margin/Content/Loadout/Body/ToolRow" instance=ExtResource("2_item_slot")]
-layout_mode = 2
-custom_minimum_size = Vector2(30, 30)
-
-[node name="Info" type="VBoxContainer" parent="Margin/Content/Loadout/Body/ToolRow"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-theme_override_constants/separation = -4
-
-[node name="Caption" type="Label" parent="Margin/Content/Loadout/Body/ToolRow/Info"]
-layout_mode = 2
-theme_type_variation = &"LabelCaption"
-text = "Tool"
-
-[node name="Name" type="Label" parent="Margin/Content/Loadout/Body/ToolRow/Info"]
-layout_mode = 2
-text = "Empty"
 text_overrun_behavior = 3
 
-[node name="Remove" type="Button" parent="Margin/Content/Loadout/Body/ToolRow"]
+[node name="Slots" type="GridContainer" parent="Margin/Content/Loadout/Body"]
 layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_type_variation = &"PaperButton"
-text = "Unequip"
-size_flags_vertical = 4
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 3
+columns = 5
 
-[node name="ArmorRow" type="HBoxContainer" parent="Margin/Content/Loadout/Body"]
+[node name="Picked" type="HBoxContainer" parent="Margin/Content/Loadout/Body"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
-[node name="Slot" parent="Margin/Content/Loadout/Body/ArmorRow" instance=ExtResource("2_item_slot")]
-layout_mode = 2
-custom_minimum_size = Vector2(30, 30)
-
-[node name="Info" type="VBoxContainer" parent="Margin/Content/Loadout/Body/ArmorRow"]
+[node name="Info" type="VBoxContainer" parent="Margin/Content/Loadout/Body/Picked"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
 theme_override_constants/separation = -4
 
-[node name="Caption" type="Label" parent="Margin/Content/Loadout/Body/ArmorRow/Info"]
+[node name="Name" type="Label" parent="Margin/Content/Loadout/Body/Picked/Info"]
 layout_mode = 2
-theme_type_variation = &"LabelCaption"
-text = "Armor"
-
-[node name="Name" type="Label" parent="Margin/Content/Loadout/Body/ArmorRow/Info"]
-layout_mode = 2
-text = "Empty"
+text = "Main hand: empty"
 text_overrun_behavior = 3
 
-[node name="Remove" type="Button" parent="Margin/Content/Loadout/Body/ArmorRow"]
-layout_mode = 2
-mouse_default_cursor_shape = 2
-theme_type_variation = &"PaperButton"
-text = "Unequip"
-size_flags_vertical = 4
-
-[node name="Bonus" type="Label" parent="Margin/Content/Loadout/Body"]
+[node name="Detail" type="Label" parent="Margin/Content/Loadout/Body/Picked/Info"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 text = ""
-tooltip_text = "Mining adds haul, guard protects the crew, protection lowers each wearer's risk."
+text_overrun_behavior = 3
+
+[node name="Repair" type="Button" parent="Margin/Content/Loadout/Body/Picked"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Repair"
+size_flags_vertical = 4
+
+[node name="Remove" type="Button" parent="Margin/Content/Loadout/Body/Picked"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Unequip"
+size_flags_vertical = 4
+
+[node name="Foot" type="HBoxContainer" parent="Margin/Content/Loadout/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Bonus" type="Label" parent="Margin/Content/Loadout/Body/Foot"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+size_flags_horizontal = 3
+autowrap_mode = 3
 mouse_filter = 1
 
-[node name="Empty" parent="Margin/Content" instance=ExtResource("3_info_box")]
+[node name="RepairAll" type="Button" parent="Margin/Content/Loadout/Body/Foot"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Repair all"
+size_flags_vertical = 4
+
+[node name="Empty" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
 visible = false
 text = "Hire a mercenary before buying equipment for them."
@@ -141,7 +131,7 @@ layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="Tip" parent="Margin/Content" instance=ExtResource("3_info_box")]
+[node name="Tip" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
-text = "Gear is company property. If its wearer dies in the field, the gear is lost with them."
+text = "Gear wears with every trip and works at half effect once worn out. If its wearer dies, it's lost with them."
 icon_kind = "alert"

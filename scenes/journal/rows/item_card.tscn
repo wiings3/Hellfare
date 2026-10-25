@@ -35,6 +35,14 @@ theme_type_variation = &"LabelCaption"
 text = "Details"
 text_overrun_behavior = 3
 
+[node name="Tertiary" type="Button" parent="Row"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Repair"
+visible = false
+size_flags_vertical = 4
+
 [node name="Secondary" type="Button" parent="Row"]
 layout_mode = 2
 mouse_default_cursor_shape = 2

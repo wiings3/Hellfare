@@ -100,7 +100,7 @@ func run(name: String, seed_value: int) -> Dictionary:
 		"strategy": name, "seed": seed_value, "hours": hours, "samples": [], "milestones": {},
 		"income": {}, "trips": {}, "deaths": 0, "hires": 0, "hire_spend": 0, "gear_spend": 0,
 		"merchant_sales": 0, "merchant_units": 0, "hall_sales": 0, "hall_units": 0, "hall_buys": 0,
-		"hall_trades": 0, "tax_paid": 0, "slots": [], "levels": [], "treat_spend": 0, "wages": 0,
+		"hall_trades": 0, "tax_paid": 0, "slots": [], "levels": [], "treat_spend": 0, "repair_spend": 0, "repairs": 0, "wages": 0,
 		"active_s": 0, "checkpoints": {}, "no_recruit": 0, "finds": 0, "find_value": 0, "rare_finds": 0,
 		"slot_busy_s": 0, "slot_s": 0, "costs": 0,
 	}
@@ -187,17 +187,14 @@ func _checkpoint(h: int) -> void:
 		levels.append(lv)
 	var gear: int = 0
 	for merc in g.crew:
-		for slot in ["tool", "armor"]:
-			var item: Dictionary = (merc.get("equipment", {}) as Dictionary).get(slot, {})
-			if not item.is_empty():
-				gear += 1
+		gear += Gear.worn(merc).size()
 	rec["checkpoints"][str(h)] = {
 		"worth": g.wealth(), "gold": g.gold, "goods": g.goods_value(), "crew": g.crew.size(), "slots": g.expedition_slots,
 		"best_level": best, "levels": levels, "gear_worn": gear, "deaths": int(rec["deaths"]),
 		"income": (rec["income"] as Dictionary).duplicate(), "trips": (rec["trips"] as Dictionary).duplicate(),
 		"merchant_sales": int(rec["merchant_sales"]), "hall_sales": int(rec["hall_sales"]), "hall_buys": int(rec["hall_buys"]),
 		"tax_paid": int(rec["tax_paid"]), "hire_spend": int(rec["hire_spend"]), "gear_spend": int(rec["gear_spend"]),
-		"treat_spend": int(rec["treat_spend"]), "finds": int(rec["finds"]), "find_value": int(rec["find_value"]),
+		"treat_spend": int(rec["treat_spend"]), "repair_spend": int(rec["repair_spend"]), "repairs": int(rec["repairs"]), "finds": int(rec["finds"]), "find_value": int(rec["find_value"]),
 		"rare_finds": int(rec["rare_finds"]), "guild_jobs": int(rec.get("guild_jobs", 0)), "no_recruit": int(rec["no_recruit"]),
 		"active_h": snappedf(float(rec["active_s"]) / 3600.0, 0.1),
 		"utilization": snappedf(float(rec["slot_busy_s"]) / maxf(1.0, float(rec["slot_s"])), 0.001),
@@ -236,8 +233,8 @@ func _settle() -> void:
 			rec["deaths"] = int(rec["deaths"]) + (r.get("casualties", []) as Array).size()
 			for k in r.get("found_gear", []):
 				rec["finds"] = int(rec.get("finds", 0)) + 1
-				rec["find_value"] = int(rec.get("find_value", 0)) + int(int(MercsV05.ITEMS[str(k)]["cost"]) * 0.65)
-				if bool(MercsV05.ITEMS[str(k)].get("found", false)):
+				rec["find_value"] = int(rec.get("find_value", 0)) + int(Catalog.value_of(str(k)) * 0.65)
+				if bool(Catalog.item(str(k)).get("found_only", false)):
 					rec["rare_finds"] = int(rec.get("rare_finds", 0)) + 1
 					if not rec.has("first_rare_h"):
 						rec["first_rare_h"] = snappedf(_elapsed_h(), 0.01)
@@ -252,6 +249,7 @@ func _settle() -> void:
 func _policy() -> void:
 	_sell_spare_gear()
 	_treat()
+	_repair()
 	match strategy:
 		"logging", "casual": _logging(false)
 		"logging_hall": _logging(true)
@@ -298,17 +296,38 @@ func _sell_spare_gear() -> void:
 
 ## Put a found piece on the mercenary it improves most. Returns true if it was equipped.
 func _equip_upgrade(item: Dictionary) -> bool:
-	var def: Dictionary = MercsV05.ITEMS[str(item["key"])]
-	var slot: String = str(def["slot"])
+	var key: String = str(item["key"])
+	var slot: String = Gear.slot_of(key)
+	if not Gear.equippable(key) or Gear.consumable(key):
+		return false
+	# A tool or weapon only goes to someone already doing that job.
+	var d: Dictionary = Catalog.item(key)
+	var job: String = str(d.get("trade", "")) if str(d.get("category", "")) == "tool" else ("combat" if str(d.get("category", "")) == "weapon" else "")
 	for merc in g.crew:
-		if not g.is_available(merc) or not MercsV05.validate_role(str(item["key"]), merc):
+		if not g.is_available(merc) or (slot == "main_hand" and Mercs.job(merc) != job):
 			continue
-		var worn: Dictionary = (merc.get("equipment", {}) as Dictionary).get(slot, {})
-		var worn_cost: int = int(MercsV05.ITEMS.get(str(worn.get("key", "")), {}).get("cost", 0))
-		if int(def["cost"]) > worn_cost and g.equip_item(str(merc["id"]), str(item["uid"])).contains(" equipped "):
+		if int(d.get("hands", 1)) == 2 or (slot == "off_hand" and int(Catalog.item(str(Gear.in_slot(merc, "main_hand").get("key", ""))).get("hands", 1)) == 2):
+			continue
+		var worn: Dictionary = Gear.in_slot(merc, slot)
+		var worn_cost: int = 0 if worn.is_empty() else Gear.value(worn)
+		if Gear.value(item) > worn_cost and g.equip_item(str(merc["id"]), str(item["uid"])).contains(" equipped "):
 			rec["equipped_finds"] = int(rec.get("equipped_finds", 0)) + 1
 			return true
 	return false
+
+## Repair anything worn halfway down, if the company can spare the gold.
+func _repair() -> void:
+	for item in g.needs_repair():
+		if Gear.durability(item) * 2 > Gear.max_durability(item):
+			continue
+		var cost: Dictionary = g.repair_cost(item)
+		var gold_before: int = g.gold
+		var value_before: int = g.goods_value()
+		if g.gold < g.repair_gold(cost) + 80:
+			continue
+		if g.repair(str(item["uid"])).begins_with("Repaired"):
+			rec["repairs"] = int(rec["repairs"]) + 1
+			rec["repair_spend"] = int(rec["repair_spend"]) + (gold_before - g.gold) + maxi(0, value_before - g.goods_value())
 
 func _treat() -> void:
 	for merc in g.crew:
@@ -366,12 +385,12 @@ func _outfit(role: String, keys: Array) -> void:
 	for merc in g.crew:
 		if Mercs.role_of(merc) != role or not g.is_available(merc):
 			continue
-		var tool: Dictionary = (merc.get("equipment", {}) as Dictionary).get("tool", {})
+		var tool: Dictionary = Gear.in_slot(merc, "main_hand")
 		var current: int = keys.find(str(tool.get("key", "")))
-		var worn_cost: int = int(MercsV05.ITEMS.get(str(tool.get("key", "")), {}).get("cost", 0))
+		var worn_cost: int = 0 if tool.is_empty() else Gear.value(tool)
 		for i in range(keys.size() - 1, current, -1):
 			var key: String = str(keys[i])
-			var cost: int = int(MercsV05.ITEMS[key]["cost"])
+			var cost: int = int(Catalog.item(key)["value"])
 			if cost <= worn_cost:
 				break  # Already wears something better (a piece found among the fallen).
 			if g.gold >= cost * 3 + 100:

@@ -35,7 +35,7 @@ func _test() -> void:
 	assert(Mercs.job(g.merc_by_id("garrick")) == "mining" and Mercs.job(g.merc_by_id("oswin")) == "combat")
 	assert(g.equip_item("garrick", tool_uid).contains("equipped"))
 	assert(g.equipment_inventory.size() == 2)
-	assert(str(g.merc_by_id("garrick")["equipment"]["tool"]["uid"]) == tool_uid)
+	assert(str(g.merc_by_id("garrick")["equipment"]["main_hand"]["uid"]) == tool_uid)
 	assert(g.equip_item("oswin", tool_uid).contains("not found"))
 	var armor_uid: String = str(g.equipment_inventory[0]["uid"])
 	assert(g.equip_item("garrick", armor_uid).contains("equipped"))
@@ -182,12 +182,12 @@ func _test() -> void:
 	# Gear worn by the crew never locks a broke company out of guild help: worth above
 	# 250 G from equipped gear alone must not block it (simulator soft-lock regression).
 	restored.merc_by_id("garrick")["gear"] = 5
-	(restored.merc_by_id("garrick")["equipment"] as Dictionary)["armor"] = restored.make_item("chainmail")
+	(restored.merc_by_id("garrick")["equipment"] as Dictionary)["body"] = restored.make_item("chainmail")
 	assert(restored.wealth() > 250)
 	assert(restored.liquid_worth() < 250)
 	assert(restored.can_accept_guild_work())
 	restored.merc_by_id("garrick")["gear"] = 0
-	(restored.merc_by_id("garrick")["equipment"] as Dictionary)["armor"] = {}
+	(restored.merc_by_id("garrick")["equipment"] as Dictionary)["body"] = {}
 	# Recovery is possible even with no mercenaries, gold or remaining credit.
 	restored.reset_company()
 	restored.gold = 0

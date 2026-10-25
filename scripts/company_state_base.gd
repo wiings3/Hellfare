@@ -5,22 +5,39 @@ extends RefCounted
 const V05 = preload("res://scripts/v05_rules.gd")
 
 const SAVE_PATH := "user://money_mercs_save.json"
-const RESOURCE_ORDER := ["copper", "iron", "timber", "herbs", "silver", "crystal", "relic", "sovereign"]
+## Goods the warehouse holds and the markets trade: every material a live expedition yields,
+## plus what anyone can craft from them. Names and base prices match data/catalog.json
+## (tests/catalog_test.gd checks).
+const RESOURCE_ORDER := ["timber", "oak", "copper", "coal", "iron", "silver", "herbs", "wolf_pelt", "spider_silk",
+	"amber", "garnet", "crystal", "relic", "sovereign", "steel_ingot", "silversteel_ingot", "healing_draught"]
 const RESOURCE_NAMES := {
-	"copper": "Copper Ore", "iron": "Iron Ore", "timber": "Timber", "herbs": "Moonleaf", "silver": "Silver", 
-	"crystal": "Azure Crystal", "relic": "Ancient Relic", "sovereign": "Sovereign Orb"
+	"timber": "Birch Timber", "oak": "Oak Timber", "copper": "Copper Ore", "coal": "Coal", "iron": "Iron Ore",
+	"silver": "Silver", "herbs": "Moonleaf", "wolf_pelt": "Wolf Pelt", "spider_silk": "Spider Silk", "amber": "Amber",
+	"garnet": "Garnet", "crystal": "Azure Crystal", "relic": "Ancient Relic", "sovereign": "Sovereign Orb",
+	"steel_ingot": "Steel Ingot", "silversteel_ingot": "Silversteel Ingot", "healing_draught": "Healing Draught"
 }
 const RESOURCE_DESC := {
-	"copper": "A reliable metal harvested from Harlow Mines.",
-	"iron": "Basic tools, repairs, and early equipment.",
-	"timber": "A staple material for trade and construction.",
-	"herbs": "Medicinal plants gathered on safer routes.",
-	"silver": "Used in advanced equipment and valuable to merchants.",
-	"crystal": "A scarce material for elite gear.",
-	"relic": "Recovered from forgotten sites. Used by master craftsmen.",
-	"sovereign": "The rarest currency. Required for a mythical-tier equipment upgrade."
+	"timber": "Birch from the Mossward Copse. Tier-1 handles, and firewood.",
+	"oak": "Oak from the Old Oakwood. Tier-2 handles, shields and bows.",
+	"copper": "Harlow's copper. Fittings, sickles and flasks.",
+	"coal": "Fuel for smelting steel.",
+	"iron": "Tier-1 metal and the base of steel.",
+	"silver": "Silversteel, rings and fine fittings.",
+	"herbs": "Moonleaf. Healing draughts.",
+	"wolf_pelt": "Tier-2 light armour, grips and padding.",
+	"spider_silk": "Bowstrings, fishing line and linings.",
+	"amber": "Old sap turned to stone. Charms.",
+	"garnet": "Blood-red stones for rings.",
+	"crystal": "A scarce stone for amulets and lanterns.",
+	"relic": "Recovered from forgotten sites. Collectors pay well.",
+	"sovereign": "The rarest prize. Kept for a mythic tier.",
+	"steel_ingot": "Smelted from iron and coal. Tier-2 metal.",
+	"silversteel_ingot": "Steel, silver and coal. Tier-3 metal.",
+	"healing_draught": "Heals 40 health when a mercenary is hurt on a trip."
 }
-const BASE_PRICE := {"copper": 20, "iron": 17, "timber": 6, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
+const BASE_PRICE := {"timber": 6, "oak": 14, "copper": 20, "coal": 8, "iron": 17, "silver": 28, "herbs": 5, "wolf_pelt": 22,
+	"spider_silk": 26, "amber": 10, "garnet": 45, "crystal": 75, "relic": 550, "sovereign": 12500,
+	"steel_ingot": 59, "silversteel_ingot": 133, "healing_draught": 49}
 
 ## Named mercenaries who turn up on the board once a company is reputable enough for them.
 const RECRUITS := [
@@ -41,6 +58,8 @@ const TACTICS := ["Cautious", "Balanced", "Deep Push"]
 const CONTRACTS := ["Balanced", "Guaranteed Wage", "Profit Share"]
 
 var equipment_inventory: Array[Dictionary] = []
+## Blueprints the company owns (catalog item keys). Intermediates are known to everyone.
+var blueprints: Array[String] = []
 var next_item_id: int = 1
 var relief_debt: int = 0
 var relief_count: int = 0
@@ -106,11 +125,13 @@ func load_game() -> void:
 	for value in state.get("retired_ids", []):
 		retired_ids.append(str(value))
 	for item in state.get("equipment_inventory", []):
-		if typeof(item) == TYPE_DICTIONARY and V05.ITEMS.has(str(item.get("key", ""))):
+		if typeof(item) == TYPE_DICTIONARY and Gear.exists(str(item.get("key", ""))):
+			Gear.ensure_item(item)
 			equipment_inventory.append(item)
+	for key in state.get("blueprints", []):
+		blueprints.append(str(key))
 	for merc in crew:
-		if not merc.has("equipment"):
-			merc["equipment"] = {"tool": {}, "armor": {}}
+		Gear.ensure(merc)
 		TradeSkills.ensure(merc)
 		Mercs.migrate(merc)
 	market.load_dict(state.get("market", {}))
@@ -135,7 +156,7 @@ func save_game() -> void:
 		"expedition_slots": expedition_slots, "next_mission_id": next_mission_id,
 		"resources": resources, "crew": crew, "missions": missions, "reports": reports,
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
-		"next_item_id": next_item_id, "relief_debt": relief_debt,
+		"next_item_id": next_item_id, "relief_debt": relief_debt, "blueprints": blueprints,
 		"relief_count": relief_count, "retired_ids": retired_ids,
 		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict()
 	}
@@ -221,10 +242,10 @@ func hire(id: String) -> String:
 		return "%s won't join a company of your reputation." % str(candidate["name"])
 	var merc: Dictionary = candidate.duplicate(true)
 	merc["gear"] = 0
-	merc["equipment"] = {"tool": {}, "armor": {}}
+	merc["equipment"] = Gear.empty_equipment()
 	var kit: String = str(merc.get("kit", ""))
-	if V05.ITEMS.has(kit):
-		merc["equipment"]["tool"] = make_item(kit)
+	if Gear.exists(kit):
+		merc["equipment"]["main_hand"] = make_item(kit, "common")
 	merc["health"] = 100
 	merc["xp"] = 0
 	merc["contract"] = "Balanced"
@@ -825,35 +846,51 @@ func trade_complete(now: int = -1) -> String:
 	save_game()
 	return "Traded with %s. Received %s." % [trader, ", ".join(got) if not got.is_empty() else "nothing"]
 
+## A catalog item's definition, with "cost" (its value) for older callers.
 func item_definition(key: String) -> Dictionary:
-	return V05.ITEMS.get(key, {})
+	var d: Dictionary = Catalog.item(key)
+	if d.is_empty():
+		return {}
+	d = d.duplicate()
+	d["cost"] = int(d.get("value", 0))
+	return d
 
 func owned_equipment_value() -> int:
 	var amount: int = 0
 	for item in equipment_inventory:
-		amount += int(item_definition(str(item.get("key", ""))).get("cost", 0))
+		amount += Gear.value(item)
 	for merc in crew:
-		var worn: Dictionary = merc.get("equipment", {})
-		for slot in ["tool", "armor"]:
-			amount += int(item_definition(str((worn.get(slot, {}) as Dictionary).get("key", ""))).get("cost", 0))
+		for item in Gear.worn(merc):
+			amount += Gear.value(item)
 	return amount
 
-func make_item(key: String) -> Dictionary:
-	var item: Dictionary = {"uid": "gear_%d" % next_item_id, "key": key}
+## A new piece with its own uid. Rarity is rolled unless given ("common" for shop stock).
+func make_item(key: String, rarity: String = "") -> Dictionary:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var item: Dictionary = Gear.make(key, "gear_%d" % next_item_id, rng, rarity)
 	next_item_id += 1
 	return item
+
+## What a piece sells for to the quartermaster: 65% of its worth, less if it's worn down.
+func resale_value(item: Dictionary) -> int:
+	var top: int = Gear.max_durability(item)
+	var condition: float = 1.0 if top <= 0 else 0.5 + 0.5 * float(Gear.durability(item)) / float(top)
+	return maxi(1, int(floor(float(Gear.value(item)) * 0.65 * condition)))
 
 func buy_equipment(key: String) -> String:
 	var definition: Dictionary = item_definition(key)
 	if definition.is_empty():
 		return "That equipment does not exist."
-	if bool(definition.get("found", false)):
+	if bool(definition.get("found_only", false)):
 		return "That piece can't be bought. It's only found on the fallen."
+	if not V05.SHOP.has(key):
+		return "The quartermaster doesn't stock that. It has to be crafted."
 	var cost: int = int(definition["cost"])
 	if gold < cost:
 		return "You need %d gold." % cost
 	gold -= cost
-	equipment_inventory.append(make_item(key))
+	equipment_inventory.append(make_item(key, "common"))
 	save_game()
 	return "Purchased %s for %d gold." % [str(definition["name"]), cost]
 
@@ -862,15 +899,16 @@ func sell_equipment(uid: String) -> String:
 		var item: Dictionary = equipment_inventory[i]
 		if str(item.get("uid", "")) != uid:
 			continue
-		var name: String = V05.item_name(item)
-		var value: int = maxi(1, int(floor(float(item_definition(str(item["key"]))["cost"]) * 0.65)))
+		var value: int = resale_value(item)
 		equipment_inventory.remove_at(i)
 		gold += value
 		_apply_relief_payment()
 		save_game()
-		return "Sold %s for %d gold." % [name, value]
+		return "Sold %s for %d gold." % [Gear.full_name(item), value]
 	return "Only loose equipment in the armory may be sold."
 
+## Put a piece from the storeroom on a mercenary; whatever was in that slot goes back.
+## A two-handed weapon also clears the off hand.
 func equip_item(merc_id: String, uid: String) -> String:
 	var merc: Dictionary = merc_by_id(merc_id)
 	if merc.is_empty() or not is_available(merc):
@@ -884,30 +922,220 @@ func equip_item(merc_id: String, uid: String) -> String:
 		return "Equipment not found in the armory."
 	var item: Dictionary = equipment_inventory[index]
 	var key: String = str(item.get("key", ""))
-	var slot: String = str(item_definition(key)["slot"])
-	var worn: Dictionary = merc.get("equipment", {"tool": {}, "armor": {}})
-	var previous: Dictionary = worn.get(slot, {})
+	if not V05.validate_role(key, merc) or Gear.consumable(key):
+		return "That can't be worn."
+	Gear.ensure(merc)
+	var slot: String = Gear.slot_of(key)
+	var worn: Dictionary = merc["equipment"]
+	if slot == "off_hand" and int(Gear.def(str((worn["main_hand"] as Dictionary).get("key", ""))).get("hands", 1)) == 2:
+		return "%s's two-handed weapon needs both hands." % str(merc["name"])
 	equipment_inventory.remove_at(index)
+	var previous: Dictionary = worn.get(slot, {})
 	if not previous.is_empty():
 		equipment_inventory.append(previous)
 	worn[slot] = item
-	merc["equipment"] = worn
+	if int(Gear.def(key).get("hands", 1)) == 2 and not (worn["off_hand"] as Dictionary).is_empty():
+		equipment_inventory.append(worn["off_hand"])
+		worn["off_hand"] = {}
 	save_game()
-	return "%s equipped %s." % [str(merc["name"]), str(item_definition(key)["name"])]
+	return "%s equipped %s." % [str(merc["name"]), Gear.full_name(item)]
+
+## Food and potions come from the warehouse, one at a time.
+func equip_supply(merc_id: String, key: String) -> String:
+	var merc: Dictionary = merc_by_id(merc_id)
+	if merc.is_empty() or not is_available(merc):
+		return "Select an available mercenary."
+	if not Gear.consumable(key) or int(resources.get(key, 0)) <= 0:
+		return "None in the warehouse."
+	Gear.ensure(merc)
+	var slot: String = Gear.slot_of(key)
+	var previous: Dictionary = merc["equipment"][slot]
+	if not previous.is_empty():
+		resources[str(previous["key"])] = int(resources.get(str(previous["key"]), 0)) + 1
+	resources[key] = int(resources[key]) - 1
+	merc["equipment"][slot] = {"key": key}
+	save_game()
+	return "%s packed a %s." % [str(merc["name"]), str(Gear.def(key).get("name", key))]
+
+const LEGACY_SLOT_NAMES := {"tool": "main_hand", "armor": "body"}
 
 func unequip_item(merc_id: String, slot: String) -> String:
 	var merc: Dictionary = merc_by_id(merc_id)
-	if merc.is_empty() or not is_available(merc) or not ["tool", "armor"].has(slot):
+	if LEGACY_SLOT_NAMES.has(slot):
+		slot = str(LEGACY_SLOT_NAMES[slot])
+	if merc.is_empty() or not is_available(merc) or not Gear.SLOTS.has(slot):
 		return "Worker unavailable for outfitting."
-	var worn: Dictionary = merc.get("equipment", {})
+	Gear.ensure(merc)
+	var worn: Dictionary = merc["equipment"]
 	var item: Dictionary = worn.get(slot, {})
 	if item.is_empty():
 		return "Nothing equipped in that slot."
-	equipment_inventory.append(item)
+	if Gear.CONSUMABLE_SLOTS.has(slot):
+		resources[str(item["key"])] = int(resources.get(str(item["key"]), 0)) + 1
+	else:
+		equipment_inventory.append(item)
 	worn[slot] = {}
-	merc["equipment"] = worn
 	save_game()
-	return "%s placed %s into the armory." % [str(merc["name"]), V05.item_name(item)]
+	return "%s put away %s." % [str(merc["name"]), Gear.full_name(item)]
+
+# --- Crafting -------------------------------------------------------------------------
+
+## Can the company make this? Intermediates are known to everyone; everything else needs
+## its blueprint.
+func knows(key: String) -> bool:
+	var d: Dictionary = Catalog.item(key)
+	if d.is_empty() or d.get("recipe") == null:
+		return false
+	return (d.get("blueprint", []) as Array).has("crafting") or blueprints.has(key)
+
+## True if everything the recipe needs can be had today: warehouse goods, or things
+## craftable from them (some recipes wait on expeditions that aren't open yet).
+func makeable(key: String, depth: int = 0) -> bool:
+	var recipe: Variant = Catalog.item(key).get("recipe")
+	if not (recipe is Dictionary) or depth > 4:
+		return false
+	for part in recipe:
+		if RESOURCE_ORDER.has(part):
+			continue
+		if not Catalog.items().has(part) or not makeable(str(part), depth + 1):
+			return false
+	return true
+
+## Blueprints the quartermaster sells (tiers 1 and 2) that the company doesn't have yet.
+func blueprint_shop() -> Array:
+	var out: Array = []
+	for key in Catalog.items():
+		var d: Dictionary = Catalog.items()[key]
+		if (d.get("blueprint", []) as Array).has("quartermaster") and not blueprints.has(key):
+			out.append(key)
+	# What can be made today first, then by tier and value.
+	out.sort_custom(func(a, b): return (0 if makeable(a) else 1000000) + int(Catalog.item(a)["tier"]) * 100000 + int(Catalog.item(a)["value"]) < (0 if makeable(b) else 1000000) + int(Catalog.item(b)["tier"]) * 100000 + int(Catalog.item(b)["value"]))
+	return out
+
+func buy_blueprint(key: String) -> String:
+	var d: Dictionary = Catalog.item(key)
+	if d.is_empty() or not (d.get("blueprint", []) as Array).has("quartermaster"):
+		return "The quartermaster doesn't have that blueprint. Better ones are found in dungeons."
+	if blueprints.has(key):
+		return "You already have that blueprint."
+	var price: int = int(d.get("blueprint_price", 40))
+	if gold < price:
+		return "The blueprint costs %d gold." % price
+	gold -= price
+	blueprints.append(key)
+	save_game()
+	return "Bought the blueprint for %s (%d G)." % [str(d["name"]), price]
+
+## Materials still missing to craft `count` (empty when everything is in the warehouse).
+func craft_missing(key: String, count: int = 1) -> Dictionary:
+	var missing: Dictionary = {}
+	var recipe: Variant = Catalog.item(key).get("recipe")
+	if not (recipe is Dictionary):
+		return {"blueprint": 1}
+	for part in recipe:
+		var need: int = int(recipe[part]) * count - int(resources.get(str(part), 0))
+		if need > 0:
+			missing[part] = need
+	return missing
+
+## Make one: the materials are used up. Gear rolls a rarity and goes to the storeroom;
+## ingots, draughts and food go to the warehouse.
+func craft(key: String) -> String:
+	if not knows(key):
+		return "You need the blueprint first."
+	var missing: Dictionary = craft_missing(key)
+	if not missing.is_empty():
+		var parts: Array[String] = []
+		for m in missing:
+			parts.append("%d %s" % [int(missing[m]), item_ref_name(str(m))])
+		return "Not enough materials: missing " + ", ".join(parts) + "."
+	var recipe: Dictionary = Catalog.item(key)["recipe"]
+	for part in recipe:
+		resources[part] = int(resources[part]) - int(recipe[part])
+	if Gear.equippable(key) and not Gear.consumable(key):
+		var item: Dictionary = make_item(key)
+		equipment_inventory.append(item)
+		save_game()
+		var extra: String = Gear.rolls_text(item)
+		return "Crafted %s%s." % [Gear.full_name(item), (": " + extra) if extra != "" else ""]
+	resources[key] = int(resources.get(key, 0)) + 1
+	save_game()
+	return "Crafted %s." % str(Catalog.item(key)["name"])
+
+# --- Repairs --------------------------------------------------------------------------
+
+## A piece by uid, from the storeroom or worn by a mercenary: [item, owner or {}].
+func find_item(uid: String) -> Array:
+	for item in equipment_inventory:
+		if str(item.get("uid", "")) == uid:
+			return [item, {}]
+	for merc in crew:
+		for item in Gear.worn(merc):
+			if str(item.get("uid", "")) == uid:
+				return [item, merc]
+	return [{}, {}]
+
+func repair_cost(item: Dictionary) -> Dictionary:
+	return Gear.repair_cost(item, RESOURCE_ORDER)
+
+## Gold a repair takes: gold parts plus merchant prices for materials not in the warehouse.
+func repair_gold(cost: Dictionary) -> int:
+	var total: int = int(cost.get("gold", 0))
+	for part in cost:
+		if part == "gold":
+			continue
+		var short: int = int(cost[part]) - int(resources.get(str(part), 0))
+		if short > 0:
+			total += buy_price(str(part), short) * short
+	return total
+
+## Repair a piece to full. Materials come from the warehouse; anything missing is bought from
+## the merchants.
+func repair(uid: String) -> String:
+	var found: Array = find_item(uid)
+	var item: Dictionary = found[0]
+	var owner: Dictionary = found[1]
+	if item.is_empty():
+		return "That piece isn't here."
+	if not owner.is_empty() and not is_available(owner):
+		return "%s is in the field." % str(owner["name"])
+	var cost: Dictionary = repair_cost(item)
+	if cost.is_empty():
+		return "%s doesn't need repairs." % Gear.full_name(item)
+	var spend: int = repair_gold(cost)
+	if gold < spend:
+		return "Repairs need %d gold for parts and materials." % spend
+	for part in cost:
+		if part == "gold":
+			continue
+		var short: int = int(cost[part]) - int(resources.get(str(part), 0))
+		if short > 0:
+			market.record_npc_trade(str(part), -short)
+			resources[part] = int(resources.get(str(part), 0)) + short
+		resources[part] = int(resources[part]) - int(cost[part])
+	gold -= spend
+	item["dur"] = Gear.max_durability(item)
+	save_game()
+	var parts: Array[String] = []
+	for part in cost:
+		if part != "gold":
+			parts.append("%d %s" % [int(cost[part]), item_ref_name(str(part))])
+	if spend > 0:
+		parts.append("%d G" % spend)
+	return "Repaired %s (%s)." % [Gear.full_name(item), ", ".join(parts)]
+
+## Everything stored or worn by a mercenary in town that needs repairs.
+func needs_repair() -> Array:
+	var out: Array = []
+	for item in equipment_inventory:
+		if not repair_cost(item).is_empty():
+			out.append(item)
+	for merc in crew:
+		if is_available(merc):
+			for item in Gear.worn(merc):
+				if not repair_cost(item).is_empty():
+					out.append(item)
+	return out
 
 func guild_relief() -> String:
 	if not missions.is_empty() or gold >= 28:
@@ -943,7 +1171,7 @@ func goods_value() -> int:
 func liquid_worth() -> int:
 	var total: int = gold + goods_value() - relief_debt
 	for item in equipment_inventory:
-		total += maxi(1, int(floor(float(item_definition(str(item.get("key", ""))).get("cost", 0)) * 0.65)))
+		total += resale_value(item)
 	return total
 
 func wealth() -> int:
@@ -978,6 +1206,7 @@ func reset_company() -> void:
 	reports.clear()
 	harlow.clear()
 	equipment_inventory.clear()
+	blueprints.clear()
 	next_item_id = 1
 	relief_debt = 0
 	relief_count = 0
@@ -1028,7 +1257,7 @@ func _settle_finds(mission: Dictionary, site_id: String, dead_ids: Array, events
 	for find in mission.get("finds", []):
 		var key: String = str(find.get("key", ""))
 		var definition: Dictionary = item_definition(key)
-		if definition.is_empty():
+		if definition.is_empty() or not Gear.equippable(key):
 			continue
 		var from: String = str(find.get("from", ""))
 		if dead_ids.has(str(find.get("finder", ""))):
@@ -1041,19 +1270,16 @@ func _settle_finds(mission: Dictionary, site_id: String, dead_ids: Array, events
 		kept.append(key)
 		mission["found_keys"] = kept
 		equipment_inventory.append(item)
-		found_names.append(str(definition["name"]))
-		value += int(floor(float(definition["cost"]) * 0.65))
+		found_names.append(Gear.full_name(item))
+		value += resale_value(item)
 		events.append("Found among the fallen: %s%s." % [str(definition["name"]), (", once carried by " + from) if from != "" else ""])
 	return value
 
 ## A mercenary died at a site: some of their gear may stay there for others to find.
 func _drop_on_death(site_id: String, worker: Dictionary, t: int, rng: RandomNumberGenerator) -> Array[String]:
 	var keys: Array = []
-	var equipped: Dictionary = worker.get("equipment", {})
-	for slot in ["tool", "armor"]:
-		var item: Dictionary = equipped.get(slot, {})
-		if not item.is_empty():
-			keys.append(str(item.get("key", "")))
+	for item in Gear.worn(worker):
+		keys.append(str(item.get("key", "")))
 	var names: Array[String] = []
 	for key in fallen.drop_from_death(site_id, keys, str(worker.get("name", "")), t, rng):
 		names.append(str(item_definition(key).get("name", key)))

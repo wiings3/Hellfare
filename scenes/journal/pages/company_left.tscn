@@ -198,50 +198,71 @@ icon = ExtResource("9_armor")
 layout_mode = 2
 text = "Warehouse"
 
-[node name="Goods" type="HBoxContainer" parent="Margin/Content"]
+[node name="Goods" type="GridContainer" parent="Margin/Content"]
 layout_mode = 2
-theme_override_constants/separation = 4
-alignment = 1
-
-[node name="copper" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
-layout_mode = 2
-tooltip_text = "Copper Ore"
-icon = ExtResource("10_copper")
-
-[node name="iron" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
-layout_mode = 2
-tooltip_text = "Iron Ore"
-icon = ExtResource("11_iron")
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 3
+columns = 9
 
 [node name="timber" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
 layout_mode = 2
-tooltip_text = "Timber"
 icon = ExtResource("12_timber")
 
-[node name="herbs" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+[node name="oak" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
 layout_mode = 2
-tooltip_text = "Herbs"
-icon = ExtResource("13_herbs")
+
+[node name="copper" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+icon = ExtResource("10_copper")
+
+[node name="coal" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+
+[node name="iron" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+icon = ExtResource("11_iron")
 
 [node name="silver" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
 layout_mode = 2
-tooltip_text = "Silver"
 icon = ExtResource("14_silver")
+
+[node name="herbs" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+icon = ExtResource("13_herbs")
+
+[node name="wolf_pelt" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+
+[node name="spider_silk" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+
+[node name="amber" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+
+[node name="garnet" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
 
 [node name="crystal" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
 layout_mode = 2
-tooltip_text = "Crystal"
 icon = ExtResource("7_star")
 
 [node name="relic" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
 layout_mode = 2
-tooltip_text = "Relic"
 icon = ExtResource("15_relic")
 
 [node name="sovereign" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
 layout_mode = 2
-tooltip_text = "Sovereign"
 icon = ExtResource("16_sovereign")
+
+[node name="steel_ingot" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+
+[node name="silversteel_ingot" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
+
+[node name="healing_draught" parent="Margin/Content/Goods" instance=ExtResource("3_slot")]
+layout_mode = 2
 
 [node name="Spacer" type="Control" parent="Margin/Content"]
 layout_mode = 2

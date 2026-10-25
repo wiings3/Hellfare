@@ -15,6 +15,49 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.20 – Crafting, gear and repairs
+
+Equipment is made of catalog items now (`scripts/gear.gd`, `Gear`).
+
+- **Ten slots:** main hand, off hand, head, body, hands, feet, trinket, back, food and potion.
+  Two-handed weapons take the off hand too. The main hand sets the job: a tool for its trade, a
+  weapon to stand guard (each weapon tier adds two guarding levels).
+- **Gear matters at work sites:**
+  - armour and dodge lower each wearer's chance of injury and death;
+  - packs and "Bountiful" rolls raise the haul; lanterns and trinkets add rare finds;
+  - "Hasty" rolls shorten trips.
+- **Rarity:** every crafted or found piece rolls Common (60%), Fine (28%), Superior (10%) or
+  Masterwork (2%), with 0–3 extra stats from its family's pool. Finer pieces are worth more.
+  The quartermaster's stock is always common.
+- **Wear:** each trip uses 1 durability from everything worn; long orders use 3. Worn-out gear
+  works at half effect until repaired.
+- **Repairs:** cost about 35% of the recipe for a full repair (rounded), always with at least one timber
+  of the piece's tier (birch for tier 1, oak for tier 2). Anything missing from the warehouse is
+  bought from the merchants. Found-only pieces are repaired for gold.
+- **Crafting (Personnel > Workshop):**
+  - Anyone can craft with the materials and the blueprint.
+  - Ingots and other intermediates are known to everyone.
+  - The quartermaster sells tier 1–2 blueprints (40 G and 150 G); better ones will come from
+    dungeons.
+  - Recipes that need goods from expeditions not open yet (fish, crops, hunting) are listed but
+    marked.
+- **Food and potions** go in their own slots from the warehouse. Food is eaten at the start of a
+  trip for its buff; a Healing Draught (Moonleaf and copper) is drunk when its carrier is hurt.
+- **New goods:**
+  - Oak Timber: the Old Oakwood now yields oak instead of birch, at about the same value.
+  - Coal and a little iron from Harlow.
+  - Wolf pelts now and then from the Oakwood; spider silk and garnets from Deepdelve; amber from the Copse.
+  - Steel and Silversteel Ingots and Healing Draughts, crafted.
+- **Kit rating** (tier × slot weight) shows on the dossier and in the Armory, ready for
+  dungeons.
+- **Skills train half as fast** (twice the experience per level).
+- **Older saves:** "tool" and "armor" become main hand and body; items become common at full
+  durability.
+
+`tests/crafting_test.gd` covers blueprints, recipes, rarity odds, slots and two-handers, wear,
+repairs, armour, food, potions, kit rating and migration. New icons come from
+`tools/paint_icons.py`.
+
 ## V0.19 – Mercenaries without archetypes
 
 Nobody is hired as a Woodcutter, Miner or Guard any more (`scripts/mercs.gd`, `Mercs`).

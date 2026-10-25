@@ -77,13 +77,17 @@ const TRADERS := [
 const GOOD_WEIGHT := {
 	"copper": 4.0, "iron": 4.0, "timber": 5.0, "herbs": 4.0,
 	"silver": 2.0, "crystal": 1.0, "relic": 0.3, "sovereign": 0.05,
+	"oak": 3.0, "coal": 3.0, "wolf_pelt": 1.5, "spider_silk": 1.2, "amber": 1.0, "garnet": 0.6,
+	"steel_ingot": 1.5, "silversteel_ingot": 0.6, "healing_draught": 1.0,
 }
 ## Typical post size per good, [low, high].
 const GOOD_QTY := {
 	"copper": [10, 50], "iron": [10, 50], "timber": [10, 80], "herbs": [10, 60],
 	"silver": [3, 20], "crystal": [1, 6], "relic": [1, 2], "sovereign": [1, 1],
+	"oak": [10, 50], "coal": [10, 60], "wolf_pelt": [3, 15], "spider_silk": [3, 15], "amber": [2, 10], "garnet": [1, 6],
+	"steel_ingot": [3, 20], "silversteel_ingot": [1, 8], "healing_draught": [2, 10],
 }
-const RARE := ["silver", "crystal", "relic", "sovereign"]
+const RARE := ["silver", "crystal", "relic", "sovereign", "garnet", "silversteel_ingot"]
 
 ## [side, low ratio, high ratio, weight] per kind. Ratios are of fair value.
 const KIND_POSTS := {
@@ -186,7 +190,7 @@ func _clean_message(m: Dictionary) -> Dictionary:
 ## valued at 85% of the quartermaster's price.
 func fair(ref: String, now: int = -1) -> float:
 	if ref.begins_with("gear:"):
-		return float(MercsV05.ITEMS.get(ref.substr(5), {}).get("cost", 10)) * GEAR_FAIR
+		return maxf(10.0, Catalog.value_of(ref.substr(5))) * GEAR_FAIR
 	return float(market.reference_price(ref, now)) * market.saturation_factor(ref, 0.0, now)
 
 ## How many units NPC buyers can absorb at most for a good.

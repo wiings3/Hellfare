@@ -31,7 +31,7 @@ text = "Storeroom"
 [node name="StoreCaption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Owned gear not being worn"
+text = "Gear not being worn, and food and potions to pack"
 
 [node name="Store" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2

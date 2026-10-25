@@ -54,7 +54,7 @@ func _initialize() -> void:
 	g.gold = 5000
 	check(g.hire("garrick").contains("joined"), "hire Garrick")
 	var garrick: Dictionary = g.merc_by_id("garrick")
-	check(str(garrick["equipment"]["tool"].get("key", "")) == "basic_pick", "brings a pickaxe")
+	check(str(garrick["equipment"]["main_hand"].get("key", "")) == "basic_pick", "brings a pickaxe")
 	check(Mercs.job(garrick) == "mining" and Mercs.role_of(garrick) == "Miner", "the pickaxe makes him a miner")
 	check(Mercs.title(garrick) == "Miner · Mining 4", "earned title (%s)" % Mercs.title(garrick))
 	check(Mercs.has_trait(garrick, "steady_hands"), "Garrick has steady hands")

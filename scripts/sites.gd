@@ -11,6 +11,7 @@ class_name TradeSites
 ##   yields       good -> [low, high] units per worker before skill and tools
 ##   side         optional extra goods, good -> [low, high] per worker
 ##   rare         optional jackpot, {"good", "chance" per expedition, "count", "note"}
+##   rare2        optional second jackpot, same shape
 ##   threat       {"name", "danger" 0-4, "note"}
 ##   injury/death base chance per worker under Balanced orders
 ##   xp           trade experience per worker
@@ -46,17 +47,19 @@ const SITES := [
 		"tagline": "Young birch and pine a short walk from town. Safe, honest work.",
 		"duration": 300, "supplies": 2,
 		"yields": {"timber": [3, 5]},
+		"rare": {"good": "amber", "chance": 0.05, "count": 1, "note": "a lump of amber in an old stump"},
 		"threat": {"name": "Nothing worse than splinters", "danger": 0, "note": "No predators this close to town"},
 		"injury": 0.04, "death": 0.0, "xp": 30,
 		"art": "res://assets/ui/art/forest_copse.png",
 	},
 	{
 		"id": "old_oakwood", "name": "Old Oakwood", "trade": "logging", "tier": 2, "level": 8,
-		"tagline": "Ancient oaks a day's walk out. Rich timber, and wolves.",
+		"tagline": "Ancient oaks a day's walk out. Oak for better handles, and wolves.",
 		"duration": 600, "supplies": 20,
-		"yields": {"timber": [8, 11]},
+		"yields": {"oak": [3, 4]},
 		"side": {"herbs": [0, 2]},
 		"rare": {"good": "relic", "chance": 0.015, "count": 1, "note": "a carved idol in a hollow oak"},
+		"rare2": {"good": "wolf_pelt", "chance": 0.25, "count": 1, "note": "a wolf pelt from a pack that came too close"},
 		"threat": {"name": "Grey wolf packs", "danger": 2, "note": "They hunt the edges of the clearings"},
 		"injury": 0.08, "death": 0.006, "xp": 55,
 		"art": "res://assets/ui/art/forest_oakwood.png",
@@ -66,6 +69,7 @@ const SITES := [
 		"tagline": "Old copper workings in the foothills. Hard work, little danger.",
 		"duration": 300, "supplies": 4,
 		"yields": {"copper": [0, 2]},
+		"side": {"coal": [0, 1], "iron": [0, 1]},
 		"threat": {"name": "Loose rock", "danger": 0, "note": "Rockfalls in the old shafts bruise more than they kill"},
 		"injury": 0.06, "death": 0.0, "xp": 30, "tool": 0.5,
 		"art": "res://assets/ui/art/harlow_site.png",
@@ -75,8 +79,9 @@ const SITES := [
 		"tagline": "Old dwarven galleries high in the range. Iron and silver, and things that crawl.",
 		"duration": 600, "supplies": 22,
 		"yields": {"iron": [1, 2], "copper": [0, 1]},
-		"side": {"silver": [0, 1]},
+		"side": {"silver": [0, 1], "spider_silk": [0, 1]},
 		"rare": {"good": "crystal", "chance": 0.04, "count": 1, "note": "a geode in a collapsed gallery"},
+		"rare2": {"good": "garnet", "chance": 0.06, "count": 1, "note": "a seam of garnets in the gallery wall"},
 		"threat": {"name": "Cave crawlers", "danger": 2, "note": "They nest in the old galleries"},
 		"injury": 0.09, "death": 0.007, "xp": 55, "tool": 0.5,
 		"art": "res://assets/ui/art/mine_deepdelve.png",

@@ -28,6 +28,8 @@ const SAMPLE_INTERVAL := 3600
 const DEPTH := {
 	"copper": 60.0, "iron": 60.0, "timber": 100.0, "herbs": 80.0,
 	"silver": 25.0, "crystal": 8.0, "relic": 3.0, "sovereign": 1.0,
+	"oak": 45.0, "coal": 90.0, "wolf_pelt": 30.0, "spider_silk": 25.0, "amber": 30.0, "garnet": 10.0,
+	"steel_ingot": 30.0, "silversteel_ingot": 12.0, "healing_draught": 30.0,
 }
 
 ## Demand events: one good, a price swing and a line of news. Picked per 12-hour period.

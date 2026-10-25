@@ -13,7 +13,8 @@ const ROLE_TRADE := {"Woodcutter": "logging", "Miner": "mining", "Forager": "for
 static func xp_for_level(level: int) -> int:
 	if level <= 1:
 		return 0
-	return int(round(12.0 * pow(float(level - 1), 1.9)))
+	# Doubled (from 12) so a mercenary takes about twice as long to master a trade.
+	return int(round(24.0 * pow(float(level - 1), 1.9)))
 
 static func level_for_xp(xp: int) -> int:
 	var level: int = 1

@@ -207,7 +207,7 @@ func _verify() -> void:
 	var hv: HallView = view._hall()
 	hv.link_target = "chat"
 	hv.link_item("timber")
-	check(hv.composer.text.find("[Timber]") >= 0 and hv.composer_links.size() == 1, "shift+click links an item into the message")
+	check(hv.composer.text.find("[Birch Timber]") >= 0 and hv.composer_links.size() == 1, "shift+click links an item into the message")
 	hv.composer.text = "WTS " + hv.composer.text + "x40 6g each"
 	hv.composer_text = hv.composer.text
 	view.game.resources["timber"] = 60
@@ -358,9 +358,32 @@ func _verify() -> void:
 	check(not paused, "game unpaused")
 	check(view.book_art.visible and view.left_leaf.visible and view.tab_host.visible, "book restored")
 	check(not view.flip_art.visible, "page flip stays hidden after resume")
-	# Every item the quartermaster sells must have an icon in the slots and lists.
-	for item_key in MercsV05.ITEMS.keys():
-		check(view._gear_icon(str(item_key)) != null, "icon for item " + str(item_key))
+	# Every catalog item and every warehouse good has an icon in the slots and lists.
+	for item_key in Catalog.items().keys():
+		check(view._recipe_icon(str(item_key)) != null, "icon for item " + str(item_key))
+	for good in MoneyMercsState.RESOURCE_ORDER:
+		check(view._item_icon(str(good)) != null, "icon for good " + str(good))
+	for slot in Gear.SLOTS:
+		check(view.EMPTY_SLOT_ICONS.get(slot) != null, "empty icon for " + slot)
+	# The Workshop: buy a blueprint, gather materials, craft, and find it in the storeroom.
+	view.game.reset_company()
+	view.game.gold = 1000
+	view._nav_to("roster")
+	view._set_roster_tab("workshop")
+	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/personnel_workshop_left.tscn"), "workshop page")
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == view.game.blueprint_shop().size(), "blueprint shelf")
+	view._buy_blueprint("iron_war_axe")
+	check(view.game.knows("iron_war_axe"), "blueprint bought from the workshop")
+	view.game.resources["iron"] = 2
+	view.game.resources["timber"] = 2
+	view.selected_recipe = "iron_war_axe"
+	view._refresh()
+	var craft_button: Button = view.right_leaf.get_child(0).get_node("Margin/Content/Craft")
+	check(not craft_button.disabled, "craft button ready")
+	craft_button.pressed.emit()
+	check(view.game.equipment_inventory.size() == 1 and str(view.game.equipment_inventory[0]["key"]) == "iron_war_axe", "crafted into the storeroom")
+	view._set_roster_tab("armory")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Store/Items").get_child_count() == 1, "storeroom shows the crafted axe")
 	view.game.reset_company()
 	if failures > 0:
 		push_error("%d BookUI checks failed." % failures)

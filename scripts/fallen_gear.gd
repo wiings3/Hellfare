@@ -29,10 +29,10 @@ const TAKEN_CHANCE := 0.4
 const NPC_RATE := {"mossward_copse": 6.0, "old_oakwood": 14.0, "harlow": 6.0, "deepdelve": 16.0}
 ## What fallen NPC mercenaries carried, by site. Weights.
 const NPC_LOOT := {
-	"mossward_copse": {"hand_axe": 30, "leather": 30, "felling_axe": 12, "rusted_sword": 10, "chainmail": 4, "steel_sword": 3, "wardens_axe": 1.2, "knights_blade": 0.3, "gilded_plate": 0.2},
-	"old_oakwood": {"felling_axe": 20, "hand_axe": 15, "leather": 15, "rusted_sword": 8, "chainmail": 8, "steel_sword": 6, "wardens_axe": 2.5, "knights_blade": 1.0, "gilded_plate": 0.5},
-	"deepdelve": {"basic_pick": 18, "reinforced_pick": 15, "leather": 12, "chainmail": 9, "rusted_sword": 8, "steel_sword": 8, "dwarven_pick": 2.5, "knights_blade": 1.0, "gilded_plate": 0.7},
-	"harlow": {"basic_pick": 30, "leather": 30, "reinforced_pick": 10, "rusted_sword": 10, "chainmail": 4, "steel_sword": 3, "dwarven_pick": 0.8, "knights_blade": 0.3, "gilded_plate": 0.2},
+	"mossward_copse": {"hand_axe": 30, "leather": 24, "felling_axe": 12, "rusted_sword": 10, "leather_cap": 6, "leather_boots": 6, "iron_spear": 4, "chainmail": 4, "steel_sword": 3, "birch_shortbow": 3, "wardens_axe": 1.2, "veil_of_ashes": 0.4, "knights_blade": 0.3, "gilded_plate": 0.2},
+	"old_oakwood": {"felling_axe": 20, "hand_axe": 15, "leather": 12, "rusted_sword": 8, "chainmail": 8, "steel_sword": 6, "wolfhide_jerkin": 6, "oak_hunting_bow": 5, "steel_war_axe": 4, "steel_kite_shield": 3, "wardens_axe": 2.5, "huntmasters_spear": 1.0, "stormstring": 0.6, "knights_blade": 1.0, "gilded_plate": 0.5},
+	"deepdelve": {"basic_pick": 18, "reinforced_pick": 15, "leather": 10, "chainmail": 9, "rusted_sword": 8, "steel_sword": 8, "steel_helm": 5, "steel_mace": 4, "steel_buckler": 4, "copper_lantern": 3, "dwarven_pick": 2.5, "graveward_maul": 0.8, "nightfang": 0.6, "knights_blade": 1.0, "gilded_plate": 0.7, "widowmaker": 0.4},
+	"harlow": {"basic_pick": 30, "leather": 24, "reinforced_pick": 10, "rusted_sword": 10, "ringmail_coif": 5, "iron_dagger": 4, "chainmail": 4, "steel_sword": 3, "iron_helm": 3, "dwarven_pick": 0.8, "knights_blade": 0.3, "gilded_plate": 0.2},
 }
 const COMPANIES := ["Iron Hands", "Grey Lanterns", "Red Wolves", "Ashford Free Company", "Black Pines", "Copper Crowns", "Hollow Oaks", "Brightwater Guild", "Lantern Road Co.", "Salt Kings"]
 const NAMES := ["Aldo", "Berin", "Cass", "Dunstan", "Edda", "Fenn", "Garth", "Hilde", "Ivo", "Jory", "Kell", "Lisbet", "Mott", "Nessa", "Orrin", "Pell", "Rook", "Sable", "Tamsin", "Wick"]
@@ -83,7 +83,7 @@ func share(site: String, now: int) -> Array[Dictionary]:
 	for item in drops:
 		if str(item["site"]) == site and _mine(item, now):
 			out.append(item)
-	out.sort_custom(func(a, b): return int(MercsV05.ITEMS.get(a["key"], {}).get("cost", 0)) > int(MercsV05.ITEMS.get(b["key"], {}).get("cost", 0)))
+	out.sort_custom(func(a, b): return Catalog.value_of(str(a["key"])) > Catalog.value_of(str(b["key"])))
 	return out
 
 ## Roll a trip's finds from the share. Found items are claimed at once (the crew has them),
@@ -185,6 +185,6 @@ func load_dict(data: Dictionary) -> void:
 	_next_drop = int(data.get("next", 1))
 	drops.clear()
 	for item in data.get("drops", []):
-		if typeof(item) == TYPE_DICTIONARY and MercsV05.ITEMS.has(str(item.get("key", ""))):
+		if typeof(item) == TYPE_DICTIONARY and Gear.exists(str(item.get("key", ""))):
 			drops.append(item)
 	claimed = (data.get("claimed", {}) as Dictionary).duplicate()

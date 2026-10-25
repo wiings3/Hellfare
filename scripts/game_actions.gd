@@ -164,23 +164,22 @@ func _sell_contract(id: String) -> void:
 	_action(game.sell_contract(id))
 
 func _equipped_count(merc: Dictionary) -> int:
-	var worn: Dictionary = merc.get("equipment", {})
-	var result: int = 0
-	for slot in ["tool", "armor"]:
-		if not (worn.get(slot, {}) as Dictionary).is_empty():
-			result += 1
-	return result
+	return Gear.worn(merc).size()
 
 func _equipment_name(item: Dictionary) -> String:
 	if item.is_empty():
 		return "Empty"
-	return str(game.item_definition(str(item.get("key", ""))).get("name", "Unknown"))
+	return Gear.full_name(item)
 
 func _outfit(id: String) -> void:
 	selected_merc = id
 	roster_tab = "armory"
 	page = "roster"
 	_refresh()
+
+func _outfit_slot(id: String, slot: String) -> void:
+	set("selected_slot", slot)
+	_outfit(id)
 
 func _choose_worker(id: String) -> void:
 	selected_merc = id
@@ -194,6 +193,25 @@ func _equip(id: String, uid: String) -> void:
 
 func _sell_equipment(uid: String) -> void:
 	_action(game.sell_equipment(uid))
+
+func _repair(uid: String) -> void:
+	_action(game.repair(uid))
+
+func _repair_all(id: String) -> void:
+	var said: Array[String] = []
+	for item in Gear.worn(game.merc_by_id(id)):
+		if not game.repair_cost(item).is_empty():
+			said.append(game.repair(str(item["uid"])))
+	_action("\n".join(said) if not said.is_empty() else "Nothing needs repairs.")
+
+func _supply(id: String, key: String) -> void:
+	_action(game.equip_supply(id, key))
+
+func _craft(key: String) -> void:
+	_action(game.craft(key))
+
+func _buy_blueprint(key: String) -> void:
+	_action(game.buy_blueprint(key))
 
 func _unequip(id: String, slot: String) -> void:
 	_action(game.unequip_item(id, slot))

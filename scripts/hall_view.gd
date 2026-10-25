@@ -22,6 +22,8 @@ const WHISPER := Color("#7d4a6e")
 const RARITY := {
 	"copper": "Common", "iron": "Common", "timber": "Common", "herbs": "Common",
 	"silver": "Uncommon", "crystal": "Rare", "relic": "Very rare", "sovereign": "Legendary",
+	"oak": "Common", "coal": "Common", "wolf_pelt": "Uncommon", "spider_silk": "Uncommon", "amber": "Uncommon",
+	"garnet": "Rare", "steel_ingot": "Crafted", "silversteel_ingot": "Crafted", "healing_draught": "Crafted",
 }
 
 var ui: Control
