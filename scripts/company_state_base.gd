@@ -251,6 +251,7 @@ func hire(id: String) -> String:
 	merc["contract"] = "Balanced"
 	merc["mission_id"] = ""
 	merc["hired_at"] = GameClock.now()
+	merc["idle_t"] = GameClock.now()
 	var bought: bool = str(merc.get("kind", "")) == "contract"
 	if bought:
 		merc["settle_until"] = GameClock.now() + Mercs.SETTLE_SECONDS
@@ -405,6 +406,47 @@ func rest(now: int = -1) -> void:
 		else:
 			merc["rest_t"] = int(merc["rest_t"]) + int(float(gain) * per_point)
 
+## Idle mercenaries still draw half their trip wage each day (paid as time passes, including
+## while the game is closed), so holding mercenaries as an investment costs something.
+const IDLE_WAGE_SHARE := 0.5
+
+## Gold a mercenary costs per day while idle in town.
+func idle_upkeep(merc: Dictionary) -> float:
+	return float(terms(merc)["wage"]) * IDLE_WAGE_SHARE
+
+## Upkeep for the whole crew per day if nobody worked.
+func idle_upkeep_total() -> int:
+	var total: float = 0.0
+	for merc in crew:
+		total += idle_upkeep(merc)
+	return int(round(total))
+
+## Charge idle upkeep up to `now`. Whole gold only; the rest carries over. A company with no
+## gold left isn't charged (its mercenaries go unpaid rather than into debt).
+func upkeep(now: int = -1) -> int:
+	if now < 0:
+		now = GameClock.now()
+	var paid: int = 0
+	for merc in crew:
+		if not is_available(merc):
+			merc.erase("idle_t")
+			continue
+		if not merc.has("idle_t"):
+			merc["idle_t"] = now
+			continue
+		var per_day: float = idle_upkeep(merc)
+		if per_day <= 0.0:
+			merc["idle_t"] = now
+			continue
+		var owed: int = int(float(now - int(merc["idle_t"])) * per_day / 86400.0)
+		if owed <= 0:
+			continue
+		var charge: int = mini(owed, maxi(0, gold))
+		gold -= charge
+		paid += charge
+		merc["idle_t"] = int(merc["idle_t"]) + int(ceil(float(owed) * 86400.0 / per_day))
+	return paid
+
 func treat(id: String) -> String:
 	var merc := merc_by_id(id)
 	if merc.is_empty():
@@ -528,6 +570,7 @@ func complete_due(now: int = -1) -> int:
 			var back: Dictionary = merc_by_id(str(id))
 			if not back.is_empty():
 				back["rest_t"] = int(mission["finish"])
+				back["idle_t"] = int(mission["finish"])
 		if mission.has("site"):
 			_site_finish(mission)
 		elif str(mission.get("region", "")) == "harlow":
@@ -539,6 +582,8 @@ func complete_due(now: int = -1) -> int:
 		missions.remove_at(i)
 		completed += 1
 	rest(now)
+	if upkeep(now) > 0 and completed == 0:
+		save_game()
 	if completed > 0:
 		save_game()
 	return completed

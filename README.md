@@ -15,6 +15,13 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.20.1 – Idle wages
+
+- Mercenaries in town draw half their trip wage each day, charged as time passes (including
+  while the game is closed), so a roster held as an investment costs something. A company with
+  no gold isn't pushed into debt. The roster shows the daily total next to the payroll.
+- The two unused interface scripts (`ledger_ui.gd`, `guildhall_ui.gd`) are gone.
+
 ## V0.20 – Crafting, gear and repairs
 
 Equipment is made of catalog items now (`scripts/gear.gd`, `Gear`).
@@ -243,7 +250,7 @@ Navigation uses the pack's actual tab art and flip animations. Pixel art is near
 
 **Actual screenshots:** [Open Book](docs/ui_office_wide_preview.jpg), [Harlow Dossier](docs/ui_harlow_wide_preview.jpg), [Exchange](docs/ui_trading_wide_preview.jpg), [Personnel](docs/ui_mercenaries_preview.jpg), [Armory](docs/ui_armory_preview.jpg), [Chronicle](docs/ui_journal_preview.jpg).
 
-The prior `scripts/guildhall_ui.gd` and `scripts/ledger_ui.gd` remain as historical UI implementations. Neither is in the current game's inheritance chain. `scenes/main.tscn` loads `scripts/book_ui.gd`. The refactor preserves the existing game-state API and save-file format.
+The earlier `scripts/guildhall_ui.gd` and `scripts/ledger_ui.gd` interfaces were removed in V0.20.1; nothing loaded them. The journal (`scripts/book_ui.gd`) is the only interface.
 
 ## Editor-node UI migration
 
@@ -267,7 +274,6 @@ The game intentionally uses a small number of focused scripts rather than a fram
 | `scripts/game_state.gd` | Harlow mine scouting, dispatch, rotation and resolution (public `MoneyMercsState`) |
 | `scripts/company_state_base.gd` | Company state, saves, employees, equipment, money, trading, other jobs |
 | `scripts/v05_rules.gd` | Data-only equipment and party calculations |
-| `scripts/ledger_ui.gd`, `scripts/guildhall_ui.gd` | Inactive historical UIs; do not add new features here |
 
 Active presentation inheritance: `BookUI → BookShell → GameActions → Control`. Active game state: `MoneyMercsState → CompanyStateBase → RefCounted`.
 
@@ -290,7 +296,7 @@ Money Mercs now launches into a **functional rustic guildhall interface**, not t
 
 The redesigned Overview, Harlow scouting/dispatch dossier, Mercenary recruitment/armory, Trading Post, regional contracts, safe Guild Work, finances and Chronicle are interactive **native Godot controls** wired to live data and existing game saves. V0.5.1 mechanics, permanent casualties, injuries, item ownership, offline missions and recovery work remain unchanged.
 
-Main scene: `scripts/guildhall_ui.gd` (the old `ledger_ui.gd` remains the compatibility base). Art: `assets/ui/guildhall_desk.svg`, `skin_parchment.svg`, `skin_wood.svg`, `skin_burgundy.svg`, `skin_wax_seal.svg`, `harlow_ink_sketch.svg`. The UI is scalable from a 1600×900 design canvas.
+Main scene at the time: `scripts/guildhall_ui.gd` (removed in V0.20.1). Art: `assets/ui/guildhall_desk.svg`, `skin_parchment.svg`, `skin_wood.svg`, `skin_burgundy.svg`, `skin_wax_seal.svg`, `harlow_ink_sketch.svg`. The UI is scalable from a 1600×900 design canvas.
 
 **Actual in-game screenshots:** [Overview](docs/ui_office_preview.jpg) · [Harlow](docs/ui_harlow_preview.jpg) · [Mercenaries](docs/ui_mercenaries_preview.jpg) · [Armory](docs/ui_armory_preview.jpg) · [Trading Post](docs/ui_trading_preview.jpg).
 

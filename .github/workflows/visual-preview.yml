@@ -4,8 +4,6 @@ on:
     paths:
       - "tests/capture_ui.gd"
       - ".github/workflows/visual-preview.yml"
-      - "scripts/ledger_ui.gd"
-      - "scripts/guildhall_ui.gd"
       - "scripts/book_ui.gd"
       - "scripts/book_shell.gd"
       - "scenes/journal/**"

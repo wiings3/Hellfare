@@ -626,7 +626,9 @@ func _draw_employees() -> void:
 		card.pressed.connect(_focus_person.bind(id))
 	var empty: bool = game.crew.is_empty()
 	(left.get_node(c + "Summary/Count") as Label).text = "%s  ·  %d ready" % ["%d hired" % game.crew.size(), game.free_crew()]
-	(left.get_node(c + "Summary/Payroll") as Label).text = "Payroll %s" % _money(payroll)
+	var payroll_label := left.get_node(c + "Summary/Payroll") as Label
+	payroll_label.text = "Payroll %s  ·  idle %s/day" % [_money(payroll), _money(game.idle_upkeep_total())]
+	payroll_label.tooltip_text = "Payroll: what one trip with every mercenary would cost in wages.\nIdle: mercenaries in town still draw half their wage each day."
 	(left.get_node(c + "List") as Control).visible = not empty
 	(left.get_node(c + "Empty") as Control).visible = empty
 	var recruit := left.get_node(c + "Recruit") as Button
@@ -659,7 +661,9 @@ func _draw_employees() -> void:
 	var job: String = Mercs.job(merc)
 	var exp_tile := right.get_node(c + "Stats/Experience")
 	exp_tile.value = "No tool" if job == "" else "%s %d" % [TradeSkills.NAMES.get(job, job), TradeSkills.level_of(merc, job)]
-	right.get_node(c + "Stats/Wage").value = _money(int(terms["wage"]))
+	var wage_tile := right.get_node(c + "Stats/Wage")
+	wage_tile.value = _money(int(terms["wage"]))
+	wage_tile.tooltip_text = "Paid for each trip. In town they draw half of it each day (%s/day)." % _money(int(round(game.idle_upkeep(merc))))
 	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(terms["cut"]) * 100.0))
 	var health: int = int(merc.get("health", 100))
 	var bar := right.get_node(c + "Health/Bar") as ProgressBar

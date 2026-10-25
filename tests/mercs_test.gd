@@ -165,6 +165,28 @@ func _initialize() -> void:
 		GameClock.fixed += Mercs.SETTLE_SECONDS + 1
 		check(g.sell_contract(str(contract["id"])).begins_with("Sold"), "can sell once settled")
 
+	# Idle mercenaries draw half their trip wage each day, charged as time passes.
+	var idle_co := MoneyMercsState.new()
+	idle_co.reset_company()
+	idle_co.gold = 1000
+	check(idle_co.hire("garrick").contains("joined"), "hire for upkeep")
+	var g_merc: Dictionary = idle_co.merc_by_id("garrick")
+	var per_day: float = float(idle_co.terms(g_merc)["wage"]) * 0.5
+	var gold_after_hire: int = idle_co.gold
+	idle_co.upkeep(GameClock.now() + 2 * 86400)
+	check(gold_after_hire - idle_co.gold == int(per_day * 2.0), "two idle days cost a full wage (%d G)" % (gold_after_hire - idle_co.gold))
+	idle_co.gold = 0
+	idle_co.upkeep(GameClock.now() + 4 * 86400)
+	check(idle_co.gold == 0, "a broke company isn't pushed into debt")
+	var crew_ids: Array[String] = ["garrick"]
+	idle_co.gold = 1000
+	idle_co.upkeep(GameClock.now() + 4 * 86400)
+	var before_trip: int = idle_co.gold
+	idle_co.site_dispatch("harlow", crew_ids, "Balanced")
+	var trip_cost: int = before_trip - idle_co.gold
+	idle_co.upkeep(GameClock.now() + 4 * 86400 + 200)
+	check(before_trip - idle_co.gold == trip_cost, "no upkeep while in the field")
+
 	# Older saves: archetypes become background, and each mercenary gains one trait.
 	var old: Dictionary = {"id": "old", "name": "Old Hand", "role": "Guard", "skill": 14}
 	TradeSkills.ensure(old)
