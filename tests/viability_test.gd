@@ -52,6 +52,30 @@ func _initialize() -> void:
 	g.complete_due(now + 9 * 3600)
 	check(int(g.resources.get("copper", 0)) >= 0 and g.reports[0].get("site", "") == "harlow", "Harlow trip reported")
 	check(TradeSkills.xp_of(g.merc_by_id(miner), "mining") > 0, "Harlow trains mining")
+	# Resting heals for free over time; treatment is cheap and instant.
+	var patient: Dictionary = g.merc_by_id(cutter)
+	patient["health"] = 40
+	check(MoneyMercsState.treat_cost(patient) == 36, "treatment costs 0.6 G a point (%d)" % MoneyMercsState.treat_cost(patient))
+	patient["health"] = 97
+	check(MoneyMercsState.treat_cost(patient) == MoneyMercsState.TREAT_MIN, "treatment has a small minimum")
+	patient["health"] = 40
+	patient.erase("rest_t")
+	var later: int = now + 10 * 3600
+	g.rest(later)
+	check(int(patient["health"]) == 40, "resting starts when first seen")
+	g.rest(later + 3600)
+	check(int(patient["health"]) == 60, "an hour of rest heals 20 (%d)" % int(patient["health"]))
+	g.rest(later + 3 * 3600 + 30)
+	check(int(patient["health"]) == 100 and not patient.has("rest_t"), "rest stops at full health")
+	# A crew back from the field rests from the moment it got home (even if the game was closed).
+	g.gold = 2000
+	var hurt: Array[String] = [cutter]
+	patient["health"] = 100
+	check(g.site_dispatch("mossward_copse", hurt, "Balanced").begins_with("The crew set out"), "dispatch for rest check")
+	var back_at: int = int(g.missions.back()["finish"])
+	patient["health"] = 50
+	g.complete_due(back_at + 3600)
+	check(int(patient["health"]) >= 70, "resting counts from the return (%d)" % int(patient["health"]))
 	# Guild contractors post big orders above fair value, and filling one leaves NPC demand alone.
 	var hall: TradeHall = g.hall
 	hall.rng.seed = 4

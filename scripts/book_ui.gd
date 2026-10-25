@@ -547,9 +547,9 @@ func _merc_status(merc: Dictionary) -> Array:
 	if not game.is_available(merc):
 		return ["In the field", &"LabelAccent"]
 	if int(merc.get("health", 100)) < 25:
-		return ["Too hurt to deploy", &"LabelAccent"]
+		return ["Resting, too hurt to work", &"LabelAccent"]
 	if int(merc.get("health", 100)) < 100:
-		return ["Wounded", &"LabelAccent"]
+		return ["Resting  ·  full in " + _duration(MoneyMercsState.rest_eta(merc)), &"LabelAccent"]
 	return ["Ready", &"LabelGood"]
 
 func _set_bust(rect: TextureRect, role: String) -> void:
@@ -641,9 +641,10 @@ func _draw_employees() -> void:
 	var heal := right.get_node(c + "Health/Heal") as Button
 	heal.visible = health < 100
 	if heal.visible:
-		var cost: int = maxi(12, int(ceil(float(100 - health) * 1.5)))
+		var cost: int = MoneyMercsState.treat_cost(merc)
 		heal.text = "Treat  ·  %d G" % cost
 		heal.disabled = game.gold < cost or not game.is_available(merc)
+		heal.tooltip_text = "Resting in town heals %d health an hour for free: back to full in %s.\nTreat now to send them out sooner." % [MoneyMercsState.REST_PER_HOUR, _duration(MoneyMercsState.rest_eta(merc))]
 		heal.pressed.connect(_heal.bind(selected_merc))
 	for trade in ["logging", "mining", "combat"]:
 		var base := c + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
@@ -1532,6 +1533,7 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 		elif health < 25:
 			tag.text = "Too hurt"
 			card.disabled = true
+			card.tooltip_text = "Resting: fit to work in %s, or treat them in Personnel." % _duration(int(ceil(float(25 - health) * 3600.0 / float(MoneyMercsState.REST_PER_HOUR))))
 		elif ids.size() >= 3:
 			tag.text = "Crew full"
 			card.disabled = true

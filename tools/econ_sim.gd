@@ -313,7 +313,7 @@ func _equip_upgrade(item: Dictionary) -> bool:
 func _treat() -> void:
 	for merc in g.crew:
 		if g.is_available(merc) and int(merc.get("health", 100)) < 60:
-			var cost: int = maxi(12, int(ceil(float(100 - int(merc["health"])) * 1.5)))
+			var cost: int = MoneyMercsState.treat_cost(merc)
 			if g.gold > cost + 60:
 				g.treat(str(merc["id"]))
 				rec["treat_spend"] = int(rec["treat_spend"]) + cost

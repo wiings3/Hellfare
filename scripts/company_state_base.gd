@@ -281,6 +281,42 @@ func improve_gear(id: String) -> String:
 	save_game()
 	return "%s now has equipment tier %d." % [str(merc["name"]), level + 1]
 
+## Mercenaries resting in town recover REST_PER_HOUR health an hour for free; treatment
+## heals them at once for TREAT_PER_POINT gold per missing point (TREAT_MIN at least).
+const REST_PER_HOUR := 20
+const TREAT_PER_POINT := 0.6
+const TREAT_MIN := 5
+
+static func treat_cost(merc: Dictionary) -> int:
+	var missing: int = 100 - int(merc.get("health", 100))
+	return 0 if missing <= 0 else maxi(TREAT_MIN, int(ceil(float(missing) * TREAT_PER_POINT)))
+
+## Seconds until a resting mercenary is back to full health (0 if healthy).
+static func rest_eta(merc: Dictionary) -> int:
+	var missing: int = 100 - int(merc.get("health", 100))
+	return 0 if missing <= 0 else int(ceil(float(missing) * 3600.0 / float(REST_PER_HOUR)))
+
+## Resting: idle mercenaries heal over time, including while the game is closed.
+func rest(now: int = -1) -> void:
+	if now < 0:
+		now = GameClock.now()
+	var per_point: float = 3600.0 / float(REST_PER_HOUR)
+	for merc in crew:
+		if not is_available(merc) or int(merc.get("health", 100)) >= 100:
+			merc.erase("rest_t")
+			continue
+		if not merc.has("rest_t"):
+			merc["rest_t"] = now
+			continue
+		var gain: int = int(float(now - int(merc["rest_t"])) / per_point)
+		if gain <= 0:
+			continue
+		merc["health"] = mini(100, int(merc.get("health", 100)) + gain)
+		if int(merc["health"]) >= 100:
+			merc.erase("rest_t")
+		else:
+			merc["rest_t"] = int(merc["rest_t"]) + int(float(gain) * per_point)
+
 func treat(id: String) -> String:
 	var merc := merc_by_id(id)
 	if merc.is_empty():
@@ -289,11 +325,12 @@ func treat(id: String) -> String:
 		return "Mercenary is still in the field."
 	if int(merc.get("health", 100)) >= 100:
 		return "No treatment required."
-	var cost: int = maxi(12, int(ceil(float(100 - int(merc["health"])) * 1.5)))
+	var cost: int = treat_cost(merc)
 	if gold < cost:
 		return "Treatment requires %d gold." % cost
 	gold -= cost
 	merc["health"] = 100
+	merc.erase("rest_t")
 	save_game()
 	return "%s recovered for %d gold." % [str(merc["name"]), cost]
 
@@ -398,6 +435,11 @@ func complete_due(now: int = -1) -> int:
 		var mission: Dictionary = missions[i]
 		if int(mission["finish"]) > now:
 			continue
+		# Returning crews start resting from the moment they got home, not from now.
+		for id in mission.get("ids", []):
+			var back: Dictionary = merc_by_id(str(id))
+			if not back.is_empty():
+				back["rest_t"] = int(mission["finish"])
 		if mission.has("site"):
 			_site_finish(mission)
 		elif str(mission.get("region", "")) == "harlow":
@@ -408,6 +450,7 @@ func complete_due(now: int = -1) -> int:
 			_finish(mission)
 		missions.remove_at(i)
 		completed += 1
+	rest(now)
 	if completed > 0:
 		save_game()
 	return completed
