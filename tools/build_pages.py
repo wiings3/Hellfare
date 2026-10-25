@@ -13,6 +13,9 @@ ICON = "res://assets/ui/icons/"
 KIT = "res://assets/ui/kit/"
 
 
+# Trade skill rows, in the order pages list them.
+TRADE_LABELS = ["Logging", "Mining", "Foraging", "Fishing", "Hunting", "Farming", "Combat"]
+
 def header(s, path, text):
     s.inst(path, HEADER, {"text": text})
 
@@ -119,8 +122,9 @@ def personnel_roster():
     s.node(C + "/Health/Bar", "ProgressBar", {"custom_minimum_size": (0, 6), "size_flags_horizontal": 3, "size_flags_vertical": 4, "mouse_filter": 2, "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0, "show_percentage": False})
     label(s, C + "/Health/Value", "100%")
     button(s, C + "/Health/Heal", "Treat", "PaperButton", {"tooltip_text": "Pay a healer to restore full health."})
-    s.node(C + "/Skills", "HBoxContainer", {"theme_override_constants/separation": 8, "tooltip_text": "Trade levels rise with experience. Higher levels haul more and unlock better sites.", "mouse_filter": 1})
-    for trade in ["Logging", "Mining", "Combat"]:
+    s.node(C + "/Skills", "GridContainer", {"columns": 4, "theme_override_constants/h_separation": 8, "theme_override_constants/v_separation": 2, "mouse_filter": 1,
+        "tooltip_text": "Trade levels rise with experience. Higher levels haul more and unlock better sites."})
+    for trade in TRADE_LABELS:
         base = C + "/Skills/" + trade
         s.node(base, "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 0, "mouse_filter": 2})
         label(s, base + "/Level", trade + " 1", "LabelCaption")
@@ -178,9 +182,9 @@ def personnel_recruit():
     tile(s, C + "/Stats/Fee", "Signing fee", icon=ICON + "gold.png", extra={"tooltip_text": "Paid once, when they sign."})
     tile(s, C + "/Stats/Wage", "Wage", extra={"tooltip_text": "Paid up front for each expedition."})
     tile(s, C + "/Stats/Share", "Share of haul")
-    s.node(C + "/Skills", "HBoxContainer", {"theme_override_constants/separation": 8, "mouse_filter": 1,
+    s.node(C + "/Skills", "GridContainer", {"columns": 4, "theme_override_constants/h_separation": 8, "theme_override_constants/v_separation": 2, "mouse_filter": 1,
         "tooltip_text": "Trade levels. Higher levels haul more and open better sites."})
-    for trade in ["Logging", "Mining", "Combat"]:
+    for trade in TRADE_LABELS:
         base = C + "/Skills/" + trade
         s.node(base, "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 0, "mouse_filter": 2})
         label(s, base + "/Level", trade + " 1", "LabelCaption")
@@ -267,6 +271,13 @@ def exchange():
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Shift", "Prices shift in 6h", "LabelCaption", {"size_flags_horizontal": 3, "tooltip_text": "Merchants reprice every six hours. Arrows compare today's price with the usual one.", "mouse_filter": 1})
     label(s, C + "/Summary/Hint", "Merchant pays", "LabelCaption")
+    grp = s.sub("filter", "ButtonGroup", {})
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 3})
+    for name, text, tip in [("All", "All", "Every good the merchants trade."), ("Held", "Held", "Goods in your warehouse."),
+                            ("Raw", "Raw", "What expeditions bring home."), ("Crafted", "Crafted", "Ingots, cloth, potions and other made goods."),
+                            ("Food", "Food", "Meals a mercenary can carry on an expedition.")]:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                               "custom_minimum_size": (0, 16), "tooltip_text": tip})
     scroll(s, C + "/List", 80)
     s.save(P + "exchange_left.tscn")
 
@@ -468,17 +479,17 @@ def board():
     s = page("BoardRight")
     header(s, C + "/Header", "Company Skills")
     label(s, C + "/Caption", "Your best mercenary in each trade", "LabelCaption")
-    s.node(C + "/Skills", "VBoxContainer", {"theme_override_constants/separation": 4})
-    for trade in ["Logging", "Mining", "Foraging", "Combat"]:
+    s.node(C + "/Skills", "GridContainer", {"columns": 2, "theme_override_constants/h_separation": 4, "theme_override_constants/v_separation": 4})
+    for trade in TRADE_LABELS:
         base = C + "/Skills/" + trade
-        s.node(base, "PanelContainer", {"theme_type_variation": Raw('&"InsetPanel"')})
+        s.node(base, "PanelContainer", {"size_flags_horizontal": 3, "theme_type_variation": Raw('&"InsetPanel"')})
         s.node(base + "/Row", "HBoxContainer", {"theme_override_constants/separation": 6})
         s.node(base + "/Row/Icon", "TextureRect", {"custom_minimum_size": (16, 16), "size_flags_vertical": 4, "mouse_filter": 2, "stretch_mode": 3})
         s.node(base + "/Row/Text", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -3})
         label(s, base + "/Row/Text/Name", trade)
         label(s, base + "/Row/Text/Who", "Nobody trained", "LabelCaption", {"text_overrun_behavior": 3})
-        s.node(base + "/Row/Level", "VBoxContainer", {"custom_minimum_size": (64, 0), "size_flags_vertical": 4, "theme_override_constants/separation": 0})
-        label(s, base + "/Row/Level/Value", "Level 1", None, {"horizontal_alignment": 2})
+        s.node(base + "/Row/Level", "VBoxContainer", {"custom_minimum_size": (38, 0), "size_flags_vertical": 4, "theme_override_constants/separation": 0})
+        label(s, base + "/Row/Level/Value", "Lv 1", None, {"horizontal_alignment": 2})
         s.node(base + "/Row/Level/Bar", "ProgressBar", {"custom_minimum_size": (0, 4), "mouse_filter": 2, "theme_type_variation": Raw('&"GoldBar"'), "show_percentage": False})
     header(s, C + "/OtherHeader", "Other Work")
     scroll(s, C + "/Other", 40, expand=False)
@@ -610,7 +621,9 @@ def trade_hall():
     s = page("HallRight")
     header(s, C + "/Header", "Inventory")
     label(s, C + "/Caption", "Shift+click to link an item in chat. During a trade, click to put it in.", "LabelCaption", {"autowrap_mode": 3})
-    s.node(C + "/Goods", "GridContainer", {"columns": 8, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3})
+    s.node(C + "/GoodsScroll", "ScrollContainer", {"custom_minimum_size": (0, 64), "horizontal_scroll_mode": 0})
+    s.node(C + "/GoodsScroll/Goods", "GridContainer", {"size_flags_horizontal": 3, "columns": 8, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3})
+    label(s, C + "/GoodsEmpty", "The warehouse is empty. Goods your crews bring home show here.", "LabelMuted", {"autowrap_mode": 3})
     header(s, C + "/GearHeader", "Spare gear")
     s.node(C + "/GearScroll", "ScrollContainer", {"custom_minimum_size": (0, 31), "horizontal_scroll_mode": 0})
     s.node(C + "/GearScroll/Gear", "GridContainer", {"size_flags_horizontal": 3, "columns": 8, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3})

@@ -192,13 +192,17 @@ func _draw_inventory(right: Control) -> void:
 	var game := _game()
 	var s: TradeSession = game.hall.session
 	var trading: bool = s != null and s.is_open()
-	var grid := right.get_node(c + "Goods") as GridContainer
+	# Only goods the company holds: with every trade's goods, a full grid would be mostly empty.
+	var grid := right.get_node(c + "GoodsScroll/Goods") as GridContainer
 	for key in MoneyMercsState.RESOURCE_ORDER:
 		var good: String = str(key)
 		var count: int = int(game.resources.get(good, 0))
-		var slot := _slot(grid, ui._item_icon(good), str(count) if count > 0 else "", good, "")
-		slot.modulate.a = 1.0 if count > 0 else 0.5
+		if count <= 0:
+			continue
+		var slot := _slot(grid, ui._item_icon(good), str(count), good, "")
 		slot.set_pressed_no_signal(trading and s.mine_goods.has(good))
+	(right.get_node(c + "GoodsEmpty") as Control).visible = grid.get_child_count() == 0
+	(right.get_node(c + "GoodsScroll") as Control).visible = grid.get_child_count() > 0
 	var gear_grid := right.get_node(c + "GearScroll/Gear") as GridContainer
 	for item in game.equipment_inventory:
 		var key: String = str(item.get("key", ""))

@@ -49,6 +49,10 @@ const BUSTS := {
 	"Miner": preload("res://assets/ui/portraits/miner_bust.png"),
 	"Guard": preload("res://assets/ui/portraits/guard_bust.png"),
 	"Scout": preload("res://assets/ui/portraits/scout_bust.png"),
+	"Forager": preload("res://assets/ui/portraits/scout_bust.png"),
+	"Angler": preload("res://assets/ui/portraits/scout_bust.png"),
+	"Hunter": preload("res://assets/ui/portraits/scout_bust.png"),
+	"Farmhand": preload("res://assets/ui/portraits/miner_bust.png"),
 }
 const ROLE_ICONS := {
 	"Labourer": preload("res://assets/ui/icons/herbs.png"),
@@ -56,11 +60,20 @@ const ROLE_ICONS := {
 	"Guard": preload("res://assets/ui/icons/helmet.png"),
 	"Woodcutter": preload("res://assets/ui/icons/axe.png"),
 	"Scout": preload("res://assets/ui/icons/herbs.png"),
+	"Forager": preload("res://assets/ui/icons/item_sickle.png"),
+	"Angler": preload("res://assets/ui/icons/item_rod.png"),
+	"Hunter": preload("res://assets/ui/icons/item_bow.png"),
+	"Farmhand": preload("res://assets/ui/icons/item_hoe.png"),
 }
+## Trade skill rows, in the order pages list them.
+const SKILL_ORDER := ["logging", "mining", "foraging", "fishing", "hunting", "farming", "combat"]
 const TRADE_ICONS := {
 	"logging": preload("res://assets/ui/icons/axe.png"),
 	"mining": preload("res://assets/ui/icons/pickaxe.png"),
 	"foraging": preload("res://assets/ui/icons/herbs.png"),
+	"fishing": preload("res://assets/ui/icons/item_rod.png"),
+	"hunting": preload("res://assets/ui/icons/item_bow.png"),
+	"farming": preload("res://assets/ui/icons/item_hoe.png"),
 	"combat": preload("res://assets/ui/icons/sword_steel.png"),
 	"dungeon": preload("res://assets/ui/icons/relic.png"),
 }
@@ -722,7 +735,7 @@ func _draw_employees() -> void:
 		heal.disabled = game.gold < cost or not game.is_available(merc)
 		heal.tooltip_text = "Resting in town heals %d health an hour for free: back to full in %s.\nTreat now to send them out sooner." % [MoneyMercsState.REST_PER_HOUR, _duration(MoneyMercsState.rest_eta(merc))]
 		heal.pressed.connect(_heal.bind(selected_merc))
-	for trade in ["logging", "mining", "combat"]:
+	for trade in SKILL_ORDER:
 		var base := c + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
 		(right.get_node(base + "Level") as Label).text = "%s %d" % [TradeSkills.NAMES[trade], TradeSkills.level_of(merc, trade)]
 		(right.get_node(base + "Bar") as ProgressBar).value = TradeSkills.progress(merc, trade) * 100.0
@@ -836,7 +849,7 @@ func _draw_recruitment() -> void:
 	fee_tile.value = _money(int(chosen["hire"]))
 	right.get_node(c + "Stats/Wage").value = _money(int(game.terms(chosen)["wage"]))
 	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(game.terms(chosen)["cut"]) * 100.0))
-	for trade in ["logging", "mining", "combat"]:
+	for trade in SKILL_ORDER:
 		var base := c + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
 		(right.get_node(base + "Level") as Label).text = "%s %d" % [TradeSkills.NAMES[trade], Mercs.level(chosen, trade)]
 		(right.get_node(base + "Bar") as ProgressBar).value = TradeSkills.progress(chosen, trade) * 100.0
@@ -1171,6 +1184,12 @@ const MATERIAL_GROUP_ICONS := {"timber": "timber", "sap": "amber", "gem": "cryst
 
 # --- Exchange -----------------------------------------------------------------
 
+func _market_shows(key: String, stored: int) -> bool:
+	match market_filter:
+		"held": return stored > 0
+		"raw", "crafted", "food": return str(MoneyMercsState.RESOURCE_KIND.get(key, "raw")) == market_filter
+	return true
+
 func _choose_commodity(id: String) -> void:
 	selected_market_item = id
 	_refresh()
@@ -1180,9 +1199,17 @@ func _draw_exchange() -> void:
 	var right := _mount_page(EXCHANGE_RIGHT, right_leaf)
 	var c := "Margin/Content/"
 	var list := left.get_node(c + "List/Items") as VBoxContainer
+	for kind in ["All", "Held", "Raw", "Crafted", "Food"]:
+		var tab := left.get_node(c + "Filter/" + kind) as Button
+		tab.set_pressed_no_signal(market_filter == kind.to_lower())
+		tab.pressed.connect(func() -> void:
+			market_filter = kind.to_lower()
+			_refresh())
 	for id in MoneyMercsState.RESOURCE_ORDER:
 		var key: String = str(id)
 		var stored: int = int(game.resources.get(key, 0))
+		if not _market_shows(key, stored):
+			continue
 		var card := _list_card(list, _item_icon(key), _resource_name(key),
 			"Stored %d" % stored if stored > 0 else "None stored", "", _money(game.sell_price(key)),
 			key == selected_market_item, _choose_commodity.bind(key))
@@ -1724,13 +1751,13 @@ func _draw_board() -> void:
 			elif busy:
 				(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelAccent"
 	# Company skills.
-	for trade in ["logging", "mining", "foraging", "combat"]:
+	for trade in SKILL_ORDER:
 		var base := c + "Skills/" + str(TradeSkills.NAMES[trade]) + "/Row/"
 		(right.get_node(base + "Icon") as TextureRect).texture = TRADE_ICONS.get(trade)
 		var best: Dictionary = _best_in(trade)
 		var merc: Dictionary = best["merc"]
 		(right.get_node(base + "Text/Who") as Label).text = "Nobody trained yet" if merc.is_empty() else "Best: %s" % str(merc.get("name", ""))
-		(right.get_node(base + "Level/Value") as Label).text = "Level %d" % int(best["level"])
+		(right.get_node(base + "Level/Value") as Label).text = "Lv %d" % int(best["level"])
 		(right.get_node(base + "Level/Bar") as ProgressBar).value = 0.0 if merc.is_empty() else TradeSkills.progress(merc, trade) * 100.0
 	# Other work.
 	var other := right.get_node(c + "Other/Items") as VBoxContainer
@@ -1930,6 +1957,27 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 	var fund := right.get_node(c + "Fund") as Button
 	var reason := right.get_node(c + "Reason") as Label
 	var why: String = ""
+	var needs: String = str(site.get("needs", ""))
+	if not game.has_upgrade(needs):
+		# The site opens once its building stands: the button builds it instead.
+		var building: Dictionary = Catalog.data()["upgrades"][needs]
+		var spend: int = game.upgrade_gold(needs)
+		var parts: Array[String] = []
+		for part in building["cost"]:
+			parts.append("%d %s" % [int(building["cost"][part]), _resource_name(str(part))])
+		fund.text = "Build %s  ·  %s" % [str(building["name"]), _money(spend) if spend > 0 else "from stores"]
+		fund.tooltip_text = "%s\nCosts %s. Goods come from the warehouse; anything missing is bought from the merchants." % [str(building["effect"]), ", ".join(parts)]
+		for part in building["cost"]:
+			if int(game.resources.get(str(part), 0)) < int(building["cost"][part]) and not game.merchants_sell(str(part)):
+				why = "Bring home %s first: merchants don't sell it." % _resource_name(str(part))
+		if why.is_empty() and game.gold < spend:
+			why = "Building needs %s for the missing materials." % _money(spend)
+		fund.disabled = not why.is_empty()
+		fund.pressed.connect(func() -> void: _action(game.build_upgrade(needs)))
+		reason.text = why if not why.is_empty() else "%s must be built before any crew can work here." % str(building["name"])
+		reason.visible = true
+		(right.get_node(c + "Warning") as Control).visible = false
+		return
 	if busy:
 		why = "All expedition slots are busy. Wait for a crew to return."
 	elif ids.is_empty() and eligible == 0:

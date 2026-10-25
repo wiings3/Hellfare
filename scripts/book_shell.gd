@@ -44,6 +44,8 @@ var toast_label: Label
 var current_flip: int = 0
 var clear_notice_at: int = 0
 var selected_market_item: String = "copper"
+## Exchange list filter: "all", "held", "raw", "crafted" or "food".
+var market_filter: String = "all"
 var selected_report_index: int = 0
 var tab_host: Control
 var pause_menu: Control

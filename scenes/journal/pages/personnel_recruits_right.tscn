@@ -110,9 +110,11 @@ size_flags_horizontal = 3
 caption = "Share of haul"
 value = "0"
 
-[node name="Skills" type="HBoxContainer" parent="Margin/Content"]
+[node name="Skills" type="GridContainer" parent="Margin/Content"]
 layout_mode = 2
-theme_override_constants/separation = 8
+columns = 4
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 2
 mouse_filter = 1
 tooltip_text = "Trade levels. Higher levels haul more and open better sites."
 
@@ -146,6 +148,78 @@ theme_type_variation = &"LabelCaption"
 text = "Mining 1"
 
 [node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Mining"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Foraging" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Foraging"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Foraging 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Foraging"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Fishing" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Fishing"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Fishing 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Fishing"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Hunting" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Hunting"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Hunting 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Hunting"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Farming" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Farming"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Farming 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Farming"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 4)
 mouse_filter = 2

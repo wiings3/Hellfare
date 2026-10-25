@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+
+[sub_resource type="ButtonGroup" id="filter"]
 
 [node name="ExchangeLeft" type="Control"]
 layout_mode = 3
@@ -43,6 +45,65 @@ mouse_filter = 1
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 text = "Merchant pays"
+
+[node name="Filter" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="All" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "All"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Every good the merchants trade."
+
+[node name="Held" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Held"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Goods in your warehouse."
+
+[node name="Raw" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Raw"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "What expeditions bring home."
+
+[node name="Crafted" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Crafted"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Ingots, cloth, potions and other made goods."
+
+[node name="Food" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Food"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+tooltip_text = "Meals a mercenary can carry on an expedition."
 
 [node name="List" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2

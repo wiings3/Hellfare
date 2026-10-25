@@ -19,6 +19,9 @@ extends SceneTree
 ##                  fallen when it's an upgrade
 ##   evening        "everything" for two hours a day; Full Day trips sent out before logging off
 ##   idle           checks in for a minute three times a day; Overnight logging
+##   forager, angler, hunter, farmer
+##                  one of the newer trades only, every site it can reach, merchants only;
+##                  the farmer builds the farm buildings once it can spare three times their cost
 ## Every strategy except minimal expands expedition slots and buys tools when it can afford them.
 ## Hours are hours since the company started (crews keep working while the game is closed).
 ## While the player is away the clock jumps ahead to the next return or check-in.
@@ -27,7 +30,10 @@ const STEP := 10
 const SAMPLE := 900
 const MILESTONES := [1000, 10000, 100000, 1000000, 10000000]
 const CHECKPOINTS := [10, 100, 1000, 3000, 12000]
-const ALL := ["minimal", "logging", "logging_hall", "miner", "everything", "hall_trader", "contracts", "casual", "evening", "idle"]
+const ALL := ["minimal", "logging", "logging_hall", "miner", "everything", "hall_trader", "contracts", "casual", "evening", "idle", "forager", "angler", "hunter", "farmer"]
+## The newer trades' strategies: trade, job name and the shop tool.
+const NEW_TRADES := {"forager": ["foraging", "Forager", "copper_sickle"], "angler": ["fishing", "Angler", "birch_rod"],
+	"hunter": ["hunting", "Hunter", "birch_shortbow"], "farmer": ["farming", "Farmhand", "iron_hoe"]}
 
 var hours: float = 150.0
 var seeds: int = 4
@@ -202,6 +208,8 @@ func _checkpoint(h: int) -> void:
 	}
 
 func _trade() -> String:
+	if NEW_TRADES.has(strategy):
+		return str(NEW_TRADES[strategy][0])
 	match strategy:
 		"contracts", "miner": return "mining"
 	return "logging"
@@ -261,6 +269,7 @@ func _policy() -> void:
 		"minimal": _minimal()
 		"idle": _logging(false)
 		"evening": _logging(true) if _leaving() else _everything()
+		"forager", "angler", "hunter", "farmer": _new_trade()
 	if strategy != "minimal":
 		_expand()
 	_guild_fallback()
@@ -480,6 +489,20 @@ func _work(trade: String, role: String, sites: Array, tools: Array, use_hall: bo
 		_hall_seller(["timber", "herbs", "copper", "iron", "silver", "crystal"])
 	else:
 		_sell_to_merchants()
+
+## One of the newer trades at every site it can reach. The farmer builds farm buildings.
+func _new_trade() -> void:
+	var spec: Array = NEW_TRADES[strategy]
+	var trade: String = str(spec[0])
+	if strategy == "farmer":
+		for id in g.upgrade_shop():
+			if g.gold >= 3 * g.upgrade_gold(id) + 300 and g.build_upgrade(id).begins_with("Built"):
+				rec["gear_spend"] = int(rec["gear_spend"]) + g.upgrade_gold(id)
+	var sites: Array = []
+	for site in TradeSites.for_trade(trade):
+		if g.has_upgrade(str(site.get("needs", ""))):
+			sites.append(str(site["id"]))
+	_work(trade, str(spec[1]), sites, [str(spec[2])], false)
 
 func _running_trade(trade: String) -> int:
 	var n: int = 0

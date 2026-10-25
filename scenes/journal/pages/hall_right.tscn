@@ -34,11 +34,23 @@ theme_type_variation = &"LabelCaption"
 text = "Shift+click to link an item in chat. During a trade, click to put it in."
 autowrap_mode = 3
 
-[node name="Goods" type="GridContainer" parent="Margin/Content"]
+[node name="GoodsScroll" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
+custom_minimum_size = Vector2(0, 64)
+horizontal_scroll_mode = 0
+
+[node name="Goods" type="GridContainer" parent="Margin/Content/GoodsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 columns = 8
 theme_override_constants/h_separation = 3
 theme_override_constants/v_separation = 3
+
+[node name="GoodsEmpty" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "The warehouse is empty. Goods your crews bring home show here."
+autowrap_mode = 3
 
 [node name="GearHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2

@@ -153,6 +153,15 @@ func _verify() -> void:
 	view.game.gold = 900
 	view._hire(str(cutter["id"]))
 	check(TradeSkills.level_of(view.game.merc_by_id(str(cutter["id"])), "logging") >= 1, "new woodcutter has logging skill")
+	# A farm site waits on its building; the planner's button builds it.
+	view.selected_site = "tilled_acres"
+	view._nav_to("site")
+	var farm_fund := view.right_leaf.get_child(0).get_node("Margin/Content/Fund") as Button
+	check(farm_fund.text.begins_with("Build Field Plots") and not farm_fund.disabled, "planner offers to build the field plots")
+	var gold_pre_build: int = view.game.gold
+	farm_fund.pressed.emit()
+	check(view.game.has_upgrade("field_plots") and view.game.gold < gold_pre_build, "field plots built from the planner")
+	view.game.gold = 900
 	view.selected_site = "mossward_copse"
 	view._nav_to("site")
 	view._toggle_crew(true, str(cutter["id"]))
@@ -183,6 +192,10 @@ func _verify() -> void:
 	check(view.game.sell_price("timber") <= before_price, "selling saturates the merchants")
 	view._nav_to("market")
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count() == MoneyMercsState.RESOURCE_ORDER.size(), "market rows")
+	(view.left_leaf.get_child(0).get_node("Margin/Content/Filter/Food") as Button).pressed.emit()
+	var food_rows: int = view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count()
+	check(food_rows > 0 and food_rows < MoneyMercsState.RESOURCE_ORDER.size(), "food filter narrows the market")
+	(view.left_leaf.get_child(0).get_node("Margin/Content/Filter/All") as Button).pressed.emit()
 	view._choose_commodity("iron")
 	check((view.right_leaf.get_child(0).get_node("Margin/Content/Head/Id/Name") as Label).text == "Iron Ore", "trade desk follows selection")
 	# Trade Hall: typed chat, cooldown, links, NPC messages, trades with tax, gear, blocking.
