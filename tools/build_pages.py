@@ -706,14 +706,35 @@ def trade_window():
 
 
 # --- Company chapter: the living map --------------------------------------------------
-def company_tabs():
-    s = Scene("CompanyTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
-    grp = s.sub("tabs", "ButtonGroup", {})
-    s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
-    for name, text in [("MapTab", "Region"), ("StandingTab", "Standing")]:
-        button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
-    s.save(P + "company_tabs.tscn")
+def company_today():
+    """The Company home's right page: crews in the field, then only what needs the player."""
+    s = page("CompanyRight")
+    header(s, C + "/Header", "Today")
+    label(s, C + "/FieldCaption", "In the field", "LabelCaption")
+    s.node(C + "/Expeditions", "VBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/NeedsCaption", "Needs you", "LabelCaption")
+    s.node(C + "/Needs", "VBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, C + "/AllClear", "Nothing needs you. Crews come home on their own, even while the game is closed.", "LabelMuted",
+          {"visible": False, "autowrap_mode": 3})
+    spacer(s, C + "/Spacer")
+    s.node(C + "/Tiles", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, C + "/Tiles/Reputation", "Reputation", "Unknown", extra={"tooltip_text": "Earned by delivering goods. Better applicants join a better-known company."})
+    tile(s, C + "/Tiles/Warehouse", "Warehouse", "Empty", extra={"tooltip_text": "Goods waiting to be sold or crafted. The Exchange sells them."})
+    s.save(P + "company_right.tscn")
 
+
+def need_row():
+    """One thing on the Company page that needs the player, with the button that deals with it."""
+    s = Scene("NeedRow", "PanelContainer", {"theme_type_variation": Raw('&"InsetPanel"')})
+    s.node("Row", "HBoxContainer", {"theme_override_constants/separation": 6})
+    s.node("Row/IconSlot", "PanelContainer", {"custom_minimum_size": (24, 24), "size_flags_vertical": 4, "theme_type_variation": Raw('&"SlotPanel"')})
+    s.node("Row/IconSlot/Icon", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
+    s.node("Row/Info", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": -4})
+    label(s, "Row/Info/Name", "Something", None, {"text_overrun_behavior": 3})
+    label(s, "Row/Info/Details", "Details", "LabelCaption", {"text_overrun_behavior": 3})
+    label(s, "Row/Value", "", "LabelGood", {"visible": False, "size_flags_vertical": 4})
+    button(s, "Row/Action", "Open", "PaperButton", {"size_flags_vertical": 4})
+    s.save(R + "need_row.tscn")
 
 def map_crew():
     s = Scene("MapCrew", "TextureRect", {"offset_right": 9.0, "offset_bottom": 11.0, "mouse_filter": 1,
@@ -754,7 +775,8 @@ def fallen_card():
 def company_map():
     import json
     roads = json.load(open("tools/map_roads.json"))
-    s = page("CompanyMapLeft", top=36)
+    s = page("CompanyMapLeft")
+    header(s, C + "/Header", "Mossward Region")
     M = C + "/Map"
     s.node(M, "Control", {"custom_minimum_size": (257, 280), "size_flags_horizontal": 4, "mouse_filter": 2,
         "script": Res("res://scripts/ui/region_map.gd")})

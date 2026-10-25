@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
-[ext_resource type="Script" path="res://scripts/ui/region_map.gd" id="1_region_map"]
-[ext_resource type="Texture2D" path="res://assets/ui/art/region_map.png" id="2_region_map"]
-[ext_resource type="Texture2D" path="res://assets/ui/art/crew/grave.png" id="3_grave"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/fallen_card.tscn" id="4_fallen_card"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="Script" path="res://scripts/ui/region_map.gd" id="2_region_map"]
+[ext_resource type="Texture2D" path="res://assets/ui/art/region_map.png" id="3_region_map"]
+[ext_resource type="Texture2D" path="res://assets/ui/art/crew/grave.png" id="4_grave"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/fallen_card.tscn" id="5_fallen_card"]
 
 [node name="CompanyMapLeft" type="Control"]
 layout_mode = 3
@@ -19,7 +20,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 36
+theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
@@ -27,19 +28,23 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 6
 
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Mossward Region"
+
 [node name="Map" type="Control" parent="Margin/Content"]
 layout_mode = 2
 custom_minimum_size = Vector2(257, 280)
 size_flags_horizontal = 4
 mouse_filter = 2
-script = ExtResource("1_region_map")
+script = ExtResource("2_region_map")
 
 [node name="Ground" type="TextureRect" parent="Margin/Content/Map"]
 layout_mode = 0
 offset_right = 257.0
 offset_bottom = 280.0
 mouse_filter = 2
-texture = ExtResource("2_region_map")
+texture = ExtResource("3_region_map")
 stretch_mode = 0
 
 [node name="Roads" type="Node2D" parent="Margin/Content/Map"]
@@ -220,7 +225,7 @@ offset_left = 40.0
 offset_top = 203.0
 offset_right = 62.0
 offset_bottom = 215.0
-icon = ExtResource("3_grave")
+icon = ExtResource("4_grave")
 
 [node name="old_oakwood" type="Button" parent="Margin/Content/Map/Fallen"]
 mouse_default_cursor_shape = 2
@@ -231,7 +236,7 @@ offset_left = 30.0
 offset_top = 37.0
 offset_right = 52.0
 offset_bottom = 49.0
-icon = ExtResource("3_grave")
+icon = ExtResource("4_grave")
 
 [node name="harlow" type="Button" parent="Margin/Content/Map/Fallen"]
 mouse_default_cursor_shape = 2
@@ -242,7 +247,7 @@ offset_left = 192.0
 offset_top = 111.0
 offset_right = 214.0
 offset_bottom = 123.0
-icon = ExtResource("3_grave")
+icon = ExtResource("4_grave")
 
 [node name="deepdelve" type="Button" parent="Margin/Content/Map/Fallen"]
 mouse_default_cursor_shape = 2
@@ -253,7 +258,7 @@ offset_left = 172.0
 offset_top = 30.0
 offset_right = 194.0
 offset_bottom = 42.0
-icon = ExtResource("3_grave")
+icon = ExtResource("4_grave")
 
 [node name="Crews" type="Control" parent="Margin/Content/Map"]
 layout_mode = 1
@@ -262,7 +267,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="FallenCard" parent="Margin/Content/Map" instance=ExtResource("4_fallen_card")]
+[node name="FallenCard" parent="Margin/Content/Map" instance=ExtResource("5_fallen_card")]
 layout_mode = 0
 offset_right = 172.0
 offset_bottom = 40.0

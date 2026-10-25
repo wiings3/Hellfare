@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_header"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info"]
-[ext_resource type="Texture2D" path="res://assets/ui/kit/sign_check.png" id="3_seal"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="2_stat_tile"]
 
 [node name="CompanyRight" type="Control"]
 layout_mode = 3
@@ -24,114 +23,56 @@ theme_override_constants/margin_bottom = 12
 
 [node name="Content" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 6
 
-[node name="FieldHeader" parent="Margin/Content" instance=ExtResource("1_header")]
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
-text = "In the Field"
+text = "Today"
+
+[node name="FieldCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "In the field"
 
 [node name="Expeditions" type="VBoxContainer" parent="Margin/Content"]
 layout_mode = 2
-theme_override_constants/separation = 5
+theme_override_constants/separation = 4
 
-[node name="ReportHeader" parent="Margin/Content" instance=ExtResource("1_header")]
-layout_mode = 2
-text = "Latest Report"
-
-[node name="Report" type="PanelContainer" parent="Margin/Content"]
-layout_mode = 2
-
-[node name="Body" type="VBoxContainer" parent="Margin/Content/Report"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="Top" type="HBoxContainer" parent="Margin/Content/Report/Body"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="Seal" type="TextureRect" parent="Margin/Content/Report/Body/Top"]
-custom_minimum_size = Vector2(24, 24)
-layout_mode = 2
-size_flags_vertical = 4
-mouse_filter = 2
-texture = ExtResource("3_seal")
-stretch_mode = 3
-
-[node name="Title" type="VBoxContainer" parent="Margin/Content/Report/Body/Top"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-theme_override_constants/separation = -2
-
-[node name="Place" type="Label" parent="Margin/Content/Report/Body/Top/Title"]
-layout_mode = 2
-theme_type_variation = &"LabelTitle"
-text = "Harlow Mines"
-
-[node name="Outcome" type="Label" parent="Margin/Content/Report/Body/Top/Title"]
-layout_mode = 2
-theme_type_variation = &"LabelAccent"
-text = "Returned safely"
-
-[node name="Net" type="VBoxContainer" parent="Margin/Content/Report/Body/Top"]
-layout_mode = 2
-size_flags_vertical = 4
-tooltip_text = "Coin recovered minus wages and provisions."
-theme_override_constants/separation = -3
-
-[node name="Caption" type="Label" parent="Margin/Content/Report/Body/Top/Net"]
+[node name="NeedsCaption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Profit"
-horizontal_alignment = 2
+text = "Needs you"
 
-[node name="Value" type="Label" parent="Margin/Content/Report/Body/Top/Net"]
-layout_mode = 2
-theme_type_variation = &"LabelBig"
-text = "+0 G"
-horizontal_alignment = 2
-
-[node name="LootCaption" type="Label" parent="Margin/Content/Report/Body"]
-layout_mode = 2
-theme_type_variation = &"LabelCaption"
-text = "Recovered"
-
-[node name="Loot" type="HBoxContainer" parent="Margin/Content/Report/Body"]
+[node name="Needs" type="VBoxContainer" parent="Margin/Content"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="NoLoot" type="Label" parent="Margin/Content/Report/Body"]
+[node name="AllClear" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Nothing recovered."
-
-[node name="Losses" type="Label" parent="Margin/Content/Report/Body"]
-layout_mode = 2
-theme_type_variation = &"LabelAccent"
-text = "Lost: nobody"
+text = "Nothing needs you. Crews come home on their own, even while the game is closed."
+visible = false
 autowrap_mode = 3
-
-[node name="Read" type="Button" parent="Margin/Content/Report/Body"]
-layout_mode = 2
-size_flags_horizontal = 8
-mouse_default_cursor_shape = 2
-theme_type_variation = &"TextButton"
-text = "Read full report  >"
-
-[node name="EmptyReport" parent="Margin/Content" instance=ExtResource("2_info")]
-layout_mode = 2
-text = "No expedition has returned yet. Reports will appear here."
-icon_kind = "home"
 
 [node name="Spacer" type="Control" parent="Margin/Content"]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="GuildWork" type="Button" parent="Margin/Content"]
+[node name="Tiles" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
-size_flags_horizontal = 8
-mouse_default_cursor_shape = 2
-tooltip_text = "Put idle mercenaries to safe paid work with no risk of injury."
-theme_type_variation = &"TextButton"
-text = "Safe guild work  >"
+theme_override_constants/separation = 4
+
+[node name="Reputation" parent="Margin/Content/Tiles" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Reputation"
+value = "Unknown"
+tooltip_text = "Earned by delivering goods. Better applicants join a better-known company."
+
+[node name="Warehouse" parent="Margin/Content/Tiles" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Warehouse"
+value = "Empty"
+tooltip_text = "Goods waiting to be sold or crafted. The Exchange sells them."

@@ -3,10 +3,8 @@ extends "res://scripts/book_shell.gd"
 ## Every page layout is an editor scene under scenes/journal/pages/; this script
 ## only binds live game data, connects buttons and instances repeating rows.
 
-const COMPANY_LEFT := preload("res://scenes/journal/pages/company_left.tscn")
 const COMPANY_RIGHT := preload("res://scenes/journal/pages/company_right.tscn")
 const COMPANY_MAP := preload("res://scenes/journal/pages/company_map.tscn")
-const COMPANY_TABS := preload("res://scenes/journal/pages/company_tabs.tscn")
 const ROW_FALLEN := preload("res://scenes/journal/rows/fallen_row.tscn")
 ## Most items listed on a fallen-gear card.
 const FALLEN_ROWS := 6
@@ -39,8 +37,7 @@ const ROW_SITE := preload("res://scenes/journal/rows/site_card.tscn")
 const ROW_LOCKED := preload("res://scenes/journal/rows/locked_row.tscn")
 const ROW_EXPEDITION := preload("res://scenes/journal/rows/expedition_row.tscn")
 const ROW_EMPTY_EXPEDITION := preload("res://scenes/journal/rows/empty_expedition.tscn")
-## Shelves shown on the company page (two rows of nine).
-const WAREHOUSE_SLOTS := 18
+const ROW_NEED := preload("res://scenes/journal/rows/need_row.tscn")
 const ITEM_SLOT := preload("res://scenes/journal/widgets/item_slot.tscn")
 
 const BUSTS := {
@@ -88,7 +85,6 @@ const ICON_FIELD := preload("res://assets/ui/tab_icons/expeditions.png")
 const ICON_GUILD := preload("res://assets/ui/tab_icons/company.png")
 const PAGE_TITLES := {
 	"hq": "The Company",
-	"standing": "The Company",
 	"harlow": "Harlow Mines",
 	"expeditions": "Expeditions",
 	"site": "Expedition",
@@ -122,6 +118,8 @@ func _refresh() -> void:
 	if page == "harlow":
 		page = "site"
 		selected_site = "harlow"
+	if page == "standing":
+		page = "hq"  # The Standing tab is retired: worth and the warehouse live in the Treasury.
 	if page == "contracts":
 		page = "expeditions"  # Regional contracts are retired; old links open the board.
 		title_label.text = str(PAGE_TITLES["expeditions"])
@@ -129,7 +127,6 @@ func _refresh() -> void:
 		title_label.text = str(TradeSites.by_id(selected_site).get("name", "Expedition"))
 	match page:
 		"hq": _draw_company()
-		"standing": _draw_company()
 		"harlow": _draw_site()  # Old links to the retired Harlow page open its planner.
 		"expeditions": _draw_board()
 		"site": _draw_site()
@@ -225,7 +222,8 @@ func _bind_expedition_row(row: Control, mission: Dictionary) -> void:
 	if mission.has("tactic"):
 		detail += "  ·  " + str(mission["tactic"])
 	(row.get_node("Row/Info/Crew") as Label).text = detail
-	(row.get_node("Row/IconSlot/Icon") as TextureRect).texture = ICON_GUILD if str(mission.get("region", "")) == "guild_work" else ICON_FIELD
+	var trade: String = str(mission.get("trade", "mining" if str(mission.get("region", "")) == "harlow" else ""))
+	(row.get_node("Row/IconSlot/Icon") as TextureRect).texture = ICON_GUILD if str(mission.get("region", "")) == "guild_work" else TRADE_ICONS.get(trade, ICON_FIELD)
 	var bar := row.get_node("Row/Info/Bar") as ProgressBar
 	var time_label := row.get_node("Row/Info/Top/Time") as Label
 	var started: int = int(mission.get("started", _now()))
@@ -241,17 +239,8 @@ func _bind_expedition_row(row: Control, mission: Dictionary) -> void:
 # --- Company overview -------------------------------------------------------
 
 func _draw_company() -> void:
-	var right := _mount_page(COMPANY_RIGHT, right_leaf)
-	_bind_company_right(right)
-	if page == "hq":
-		_draw_region_map()
-	else:
-		_draw_standing()
-	var tabs := _mount_page(COMPANY_TABS, left_leaf)
-	for tab in [["MapTab", "hq"], ["StandingTab", "standing"]]:
-		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
-		btn.set_pressed_no_signal(page == str(tab[1]))
-		btn.pressed.connect(_nav_to.bind(str(tab[1])))
+	_draw_region_map()
+	_bind_today(_mount_page(COMPANY_RIGHT, right_leaf))
 
 ## The living map: crews walk out to the sites, work, and carry their haul home.
 func _draw_region_map() -> void:
@@ -312,7 +301,7 @@ func _draw_region_map() -> void:
 	_bind_fallen(left)
 	var town := left.get_node(sites + "town") as Button
 	town.tooltip_text = "Mossward, home of the company.\n%d resting in town." % game.free_crew()
-	town.pressed.connect(_nav_to.bind("standing"))
+	town.pressed.connect(_turn_to.bind("finance"))
 	var status := left.get_node("Margin/Content/Status") as Label
 	var update := func() -> void:
 		if game.missions.is_empty():
@@ -381,179 +370,119 @@ func _show_fallen(card: Control, site_id: String, badge: Control) -> void:
 		y = maxf(0.0, badge.position.y - card_size.y - 2.0)
 	card.position = Vector2(x, y)
 
-func _draw_standing() -> void:
-	var left := _mount_page(COMPANY_LEFT, left_leaf)
-	var c := "Margin/Content/"
-	# Worth and what it is made of.
-	var coin: int = maxi(0, game.gold)
-	var goods: int = game.goods_value()
-	var gear: int = game.owned_equipment_value()
-	for merc in game.crew:
-		gear += int(merc.get("gear", 0)) * 60
-	(left.get_node(c + "Hero/Worth/WorthValue") as Label).text = _money(game.wealth())
-	var total: float = maxf(1.0, float(coin + goods + gear))
-	var bar := c + "Hero/Worth/BarFrame/Bar/"
-	(left.get_node(bar + "Coin") as Control).size_flags_stretch_ratio = coin / total
-	(left.get_node(bar + "Goods") as Control).size_flags_stretch_ratio = goods / total
-	(left.get_node(bar + "Gear") as Control).size_flags_stretch_ratio = gear / total
-	var legend := c + "Hero/Worth/Legend/"
-	(left.get_node(legend + "CoinKey/CoinValue") as Label).text = "Coin %d" % coin
-	(left.get_node(legend + "GoodsKey/GoodsValue") as Label).text = "Goods %d" % goods
-	(left.get_node(legend + "GearKey/GearValue") as Label).text = "Gear %d" % gear
-	# Stat tiles.
-	var crew_tile := left.get_node(c + "Stats/Crew")
-	crew_tile.value = "%d  (%d free)" % [game.crew.size(), game.free_crew()] if not game.crew.is_empty() else "None"
-	left.get_node(c + "Stats/Reputation").value = _standing_short()
-	var debt := left.get_node(c + "Stats/Debt")
-	debt.value = "None" if game.relief_debt <= 0 else _money(game.relief_debt)
-	debt.tone = "accent" if game.relief_debt > 0 else "normal"
-	var pieces: int = game.equipment_inventory.size()
-	for merc in game.crew:
-		pieces += (merc.get("equipment", {}) as Dictionary).size()
-	left.get_node(c + "Stats/Gear").value = _plural(pieces, "piece")
-	# Warehouse: the goods held, most valuable stack first, over two rows of slots.
-	var grid := left.get_node(c + "Goods") as GridContainer
-	var held: Array = []
-	for key in MoneyMercsState.RESOURCE_ORDER:
-		if int(game.resources.get(str(key), 0)) > 0:
-			held.append(str(key))
-	held.sort_custom(func(a, b): return int(game.resources[a]) * game.sell_price(a) > int(game.resources[b]) * game.sell_price(b))
-	var shown: int = WAREHOUSE_SLOTS - 1 if held.size() > WAREHOUSE_SLOTS else held.size()
-	for i in range(WAREHOUSE_SLOTS):
-		var slot := ITEM_SLOT.instantiate()
-		grid.add_child(slot)
-		if i < shown:
-			var key: String = held[i]
-			var amount: int = int(game.resources[key])
-			slot.name = key
-			slot.icon = _item_icon(key)
-			slot.count = amount
-			slot.tooltip_text = "%s: %d stored\nSells for %d G each" % [_resource_name(key), amount, game.sell_price(key)]
-		elif i == shown and held.size() > shown:
-			slot.name = "More"
-			slot.count = held.size() - shown
-			slot.tooltip_text = "%d more goods in the warehouse. The Exchange lists them all." % (held.size() - shown)
-			slot.gui_input.connect(func(e): if e is InputEventMouseButton and e.pressed: _turn_to("market"))
-		else:
-			slot.dim = true
-			slot.tooltip_text = "Empty shelf"
-	_bind_advice(left)
+## How long a returned crew's report stays on the Company page.
+const REPORT_FRESH := 1800
 
-## Right page: expeditions in the field, then the latest report.
-func _bind_company_right(right: Control) -> void:
+## The Company's right page: crews in the field, then only what needs the player.
+func _bind_today(right: Control) -> void:
 	var c := "Margin/Content/"
 	var list := right.get_node(c + "Expeditions") as VBoxContainer
 	for mission in game.missions:
 		var row := ROW_EXPEDITION.instantiate() as Control
 		list.add_child(row)
 		_bind_expedition_row(row, mission)
-	for i in range(maxi(0, game.expedition_slots - game.missions.size())):
+	var open: int = game.expedition_slots - game.missions.size()
+	if open > 0:
 		var empty := ROW_EMPTY_EXPEDITION.instantiate() as Control
 		list.add_child(empty)
+		(empty.get_node("Row/Text/Title") as Label).text = "%s free" % _plural(open, "slot")
+		(empty.get_node("Row/Text/Hint") as Label).text = "Nobody is out." if game.missions.is_empty() else "Room for another crew."
 		(empty.get_node("Row/Plan") as Button).pressed.connect(_turn_to.bind("expeditions"))
-	_bind_latest_report(right)
-	var guild := right.get_node(c + "GuildWork") as Button
-	guild.visible = game.can_accept_guild_work()
-	guild.pressed.connect(_turn_to.bind("guildwork"))
-
-## The guildmaster's note: one clear next step for the player.
-func _bind_advice(left: Control) -> void:
-	var c := "Margin/Content/"
-	var advice := left.get_node(c + "Advice")
-	var action := left.get_node(c + "AdviceAction") as Button
-	var free: int = game.free_crew()
+	var needs := right.get_node(c + "Needs") as VBoxContainer
+	for need in _needs():
+		var row := ROW_NEED.instantiate() as Control
+		needs.add_child(row)
+		(row.get_node("Row/IconSlot/Icon") as TextureRect).texture = need["icon"]
+		(row.get_node("Row/Info/Name") as Label).text = str(need["title"])
+		(row.get_node("Row/Info/Details") as Label).text = str(need["details"])
+		var value := row.get_node("Row/Value") as Label
+		value.visible = need.has("value")
+		if need.has("value"):
+			value.text = str(need["value"])
+			value.theme_type_variation = &"LabelGood" if not str(need["value"]).begins_with("-") else &"LabelAccent"
+		var action := row.get_node("Row/Action") as Button
+		action.text = str(need["action"])
+		action.pressed.connect(need["call"])
+		if need.has("disabled"):
+			action.disabled = bool(need["disabled"])
+			action.tooltip_text = str(need.get("why", ""))
+	(right.get_node(c + "AllClear") as Control).visible = needs.get_child_count() == 0
+	right.get_node(c + "Tiles/Reputation").value = Mercs.tier_name(game.rep_tier())
+	right.get_node(c + "Tiles/Reputation").tooltip_text = "%s reputation. Better applicants join a better-known company." % _thousands(game.reputation)
 	var stocked: int = 0
 	for key in MoneyMercsState.RESOURCE_ORDER:
 		stocked += int(game.resources.get(str(key), 0))
-	var note: String
-	var kind: String = "alert"
-	var label: String = ""
-	var target: Callable
-	if game.crew.is_empty():
-		note = "The company has no mercenaries. Hire a woodcutter: logging at Mossward Copse is safe work that pays from the first trip."
-		label = "Hire mercenaries"
-		target = _open_recruitment
-		kind = "plus"
-	elif game.missions.size() >= game.expedition_slots:
-		note = "Every crew is in the field. They return on their own, even while the game is closed."
-		kind = "check"
-	elif stocked >= 20:
-		note = "The warehouse holds %d goods. Selling turns them into gold; sell in batches so you don't flood the merchants." % stocked
-		label = "Open the Exchange"
-		target = _turn_to.bind("market")
-		kind = "coin"
-	elif free == 0:
-		note = "Nobody is free for work. Heal the injured or hire another hand in Personnel."
-		label = "Personnel"
-		target = _turn_to.bind("roster")
-	else:
-		note = "A crew is ready. Choose a site on the expedition board and send them out to earn."
-		label = "Plan expedition"
-		target = _turn_to.bind("expeditions")
-		kind = "coin"
-	advice.text = note
-	advice.icon_kind = kind
-	action.visible = not label.is_empty()
-	if action.visible:
-		action.text = label
-		action.pressed.connect(target)
+	var warehouse := right.get_node(c + "Tiles/Warehouse")
+	warehouse.value = "Empty" if stocked == 0 else "%s goods" % _thousands(stocked)
+	warehouse.tooltip_text = "Worth %s to the merchants today." % _money(game.goods_value())
 
-func _bind_latest_report(right: Control) -> void:
-	var c := "Margin/Content/"
-	var empty: bool = game.reports.is_empty()
-	(right.get_node(c + "Report") as Control).visible = not empty
-	(right.get_node(c + "EmptyReport") as Control).visible = empty
-	if empty:
-		return
-	var report: Dictionary = game.reports[0]
-	var body := c + "Report/Body/"
-	var won: bool = bool(report.get("won", false))
-	var casualties: Array = report.get("casualties", [])
-	var injured: Array = report.get("injured", [])
-	(right.get_node(body + "Top/Seal") as TextureRect).texture = SIGN_CHECK if won else SIGN_CROSS
-	(right.get_node(body + "Top/Title/Place") as Label).text = str(report.get("region", "Expedition"))
-	var outcome: String = "Returned safely"
-	if won and not casualties.is_empty():
-		outcome = "Success, with losses"
-	elif not won:
-		outcome = "Partial haul" if bool(report.get("partial", false)) else "Failed"
-	var ago: int = _now() - int(report.get("time", _now()))
-	var when: String = "just now" if ago < 60 else _duration(ago) + " ago"
-	(right.get_node(body + "Top/Title/Outcome") as Label).text = "%s  ·  %s" % [outcome, when]
-	var profit: int = _report_value(report) - int(report.get("cost", 0))
-	var net := right.get_node(body + "Top/Net/Value") as Label
-	net.text = ("+" if profit >= 0 else "") + _money(profit)
-	net.add_theme_color_override("font_color", GOOD if profit >= 0 else OXBLOOD)
-	var loot: Dictionary = report.get("loot", {})
-	var loot_row := right.get_node(body + "Loot") as HBoxContainer
-	for key in loot:
-		var slot := ITEM_SLOT.instantiate()
-		loot_row.add_child(slot)
-		slot.icon = _item_icon(str(key))
-		slot.count = int(loot[key])
-		slot.tooltip_text = "%d %s" % [int(loot[key]), _resource_name(str(key))]
-	var found_gear: Array = report.get("found_gear", [])
-	for key in found_gear:
-		var slot := ITEM_SLOT.instantiate()
-		loot_row.add_child(slot)
-		slot.icon = _gear_icon(str(key))
-		slot.tooltip_text = "Found among the fallen: %s" % str(game.item_definition(str(key)).get("name", key))
-	(right.get_node(body + "Loot") as Control).visible = not loot.is_empty() or not found_gear.is_empty()
-	(right.get_node(body + "NoLoot") as Control).visible = loot.is_empty() and found_gear.is_empty()
-	var losses := right.get_node(body + "Losses") as Label
-	var parts: Array[String] = []
-	if not casualties.is_empty():
-		parts.append("Killed: " + ", ".join(casualties))
-	if not injured.is_empty():
-		parts.append("Injured: " + ", ".join(injured))
-	if parts.is_empty():
-		losses.text = "No casualties."
-		losses.theme_type_variation = &"LabelGood"
-	else:
-		losses.text = "\n".join(parts)
-	(right.get_node(body + "Read") as Button).pressed.connect(func() -> void:
-		selected_report_index = 0
-		_turn_to("ledger"))
+## What needs the player now, most pressing first (at most five).
+func _needs() -> Array:
+	var out: Array = []
+	if game.crew.is_empty():
+		out.append({"icon": ROLE_ICONS["Woodcutter"], "title": "Hire your first mercenary",
+			"details": "A woodcutter at Mossward Copse pays from the first trip", "action": "Recruit", "call": _open_recruitment})
+	# Crews just back.
+	var now: int = _now()
+	for i in range(mini(2, game.reports.size())):
+		var report: Dictionary = game.reports[i]
+		if now - int(report.get("time", 0)) > REPORT_FRESH:
+			break
+		var casualties: Array = report.get("casualties", [])
+		var profit: int = _report_value(report) - int(report.get("cost", 0))
+		var loot: Dictionary = report.get("loot", {})
+		var brought: Array[String] = []
+		for key in loot:
+			brought.append("%d %s" % [int(loot[key]), _resource_name(str(key))])
+		var details: String = ", ".join(brought.slice(0, 2)) if not brought.is_empty() else "Nothing brought home"
+		details += "  ·  " + ("lost " + ", ".join(casualties) if not casualties.is_empty() else "no losses")
+		var index: int = i
+		out.append({"icon": TRADE_ICONS.get(str(TradeSites.by_id(str(report.get("site", ""))).get("trade", report.get("trade", ""))), ICON_FIELD), "title": "Back from %s" % str(report.get("region", "the field")),
+			"details": details, "value": ("+" if profit >= 0 else "") + _money(profit), "action": "Report",
+			"call": func() -> void:
+				selected_report_index = index
+				_turn_to("ledger")})
+	# The hurt.
+	var hurt: Array = []
+	for merc in game.crew:
+		if game.is_available(merc) and int(merc.get("health", 100)) < 60:
+			hurt.append(merc)
+	if hurt.size() == 1:
+		var merc: Dictionary = hurt[0]
+		var cost: int = MoneyMercsState.treat_cost(merc)
+		out.append({"icon": _item_icon("healing_draught"), "title": "%s is hurt" % str(merc["name"]),
+			"details": "%d%% health  ·  rested in %s" % [int(merc.get("health", 100)), _duration(MoneyMercsState.rest_eta(merc))],
+			"action": "Treat %s" % _money(cost), "call": _heal.bind(str(merc["id"])), "disabled": game.gold < cost, "why": "Not enough gold."})
+	elif hurt.size() > 1:
+		out.append({"icon": _item_icon("healing_draught"), "title": "%d mercenaries are hurt" % hurt.size(),
+			"details": "They rest back to health for free, or a healer treats them now", "action": "Roster", "call": _turn_to.bind("roster")})
+	# Gear about to wear out (a quarter left or less).
+	var worn: Array = []
+	for item in game.needs_repair():
+		var most: int = Gear.max_durability(item)
+		if most > 0 and Gear.durability(item) * 4 <= most:
+			worn.append(item)
+	if worn.size() == 1:
+		var item: Dictionary = worn[0]
+		var cost: int = game.repair_gold(game.repair_cost(item))
+		out.append({"icon": _gear_icon(str(item["key"])), "title": "%s is nearly worn out" % str(Catalog.item(str(item["key"])).get("name", "Gear")),
+			"details": "%d / %d  ·  works at half pace once broken" % [Gear.durability(item), Gear.max_durability(item)],
+			"action": "Repair %s" % _money(cost) if cost > 0 else "Repair", "call": func() -> void: _action(game.repair(str(item["uid"]))), "disabled": game.gold < cost, "why": "Not enough gold."})
+	elif worn.size() > 1:
+		out.append({"icon": _gear_icon(str(worn[0]["key"])), "title": "%d pieces of gear nearly worn out" % worn.size(),
+			"details": "Broken gear works at half pace", "action": "Armory", "call": _outfit.bind(selected_merc)})
+	# Idle hands with room to send them.
+	var idle: int = 0
+	for merc in game.crew:
+		if game.is_available(merc) and int(merc.get("health", 100)) >= 25:
+			idle += 1
+	if idle > 0 and game.missions.size() < game.expedition_slots:
+		out.append({"icon": ROLE_ICONS["Guard"], "title": "%s idle" % _plural(idle, "mercenary").replace("mercenarys", "mercenaries"),
+			"details": "Idle hands draw %s a day" % _money(game.idle_upkeep_total()), "action": "Send out", "call": _turn_to.bind("expeditions")})
+	if game.can_accept_guild_work():
+		out.append({"icon": ICON_GUILD, "title": "The guild offers safe work", "details": "Small, risk-free jobs for companies on hard times",
+			"action": "Guild work", "call": _turn_to.bind("guildwork")})
+	return out.slice(0, 5)
 
 # --- Shared chapter helpers ----------------------------------------------------
 
