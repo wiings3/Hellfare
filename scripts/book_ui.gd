@@ -38,12 +38,14 @@ const ROW_EMPTY_EXPEDITION := preload("res://scenes/journal/rows/empty_expeditio
 const ITEM_SLOT := preload("res://scenes/journal/widgets/item_slot.tscn")
 
 const BUSTS := {
+	"Labourer": preload("res://assets/ui/portraits/scout_bust.png"),
 	"Woodcutter": preload("res://assets/ui/portraits/miner_bust.png"),
 	"Miner": preload("res://assets/ui/portraits/miner_bust.png"),
 	"Guard": preload("res://assets/ui/portraits/guard_bust.png"),
 	"Scout": preload("res://assets/ui/portraits/scout_bust.png"),
 }
 const ROLE_ICONS := {
+	"Labourer": preload("res://assets/ui/icons/herbs.png"),
 	"Miner": preload("res://assets/ui/icons/pickaxe.png"),
 	"Guard": preload("res://assets/ui/icons/helmet.png"),
 	"Woodcutter": preload("res://assets/ui/icons/axe.png"),
@@ -357,7 +359,7 @@ func _draw_standing() -> void:
 	# Stat tiles.
 	var crew_tile := left.get_node(c + "Stats/Crew")
 	crew_tile.value = "%d  (%d free)" % [game.crew.size(), game.free_crew()] if not game.crew.is_empty() else "None"
-	left.get_node(c + "Stats/Reputation").value = str(game.reputation)
+	left.get_node(c + "Stats/Reputation").value = _standing_short()
 	var debt := left.get_node(c + "Stats/Debt")
 	debt.value = "None" if game.relief_debt <= 0 else _money(game.relief_debt)
 	debt.tone = "accent" if game.relief_debt > 0 else "normal"
@@ -516,12 +518,6 @@ const CONTRACT_NOTES := {
 	"Guaranteed Wage": "A higher wage, but a smaller share of the haul.",
 	"Profit Share": "A low wage in exchange for a bigger cut of the haul.",
 }
-const ROLE_NOTES := {
-	"Woodcutter": "Woodcutters fell timber at the logging sites. Safe, steady work.",
-	"Miner": "Miners dig copper at Harlow Mines and iron and silver at Deepdelve.",
-	"Guard": "Guards cannot dig, but they protect the crew from the site's threat.",
-	"Scout": "Scouts travel ahead of the company.",
-}
 
 var selected_candidate: String = ""
 
@@ -582,7 +578,7 @@ func _draw_employees() -> void:
 	var payroll: int = 0
 	for merc in game.crew:
 		var id: String = str(merc["id"])
-		var role: String = str(merc.get("role", ""))
+		var role: String = Mercs.role_of(merc)
 		payroll += int(game.terms(merc)["wage"])
 		var status: Array = _merc_status(merc)
 		var health: int = int(merc.get("health", 100))
@@ -597,7 +593,7 @@ func _draw_employees() -> void:
 		var hp := card.get_node("Body/Health") as ProgressBar
 		hp.value = health
 		hp.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
-		card.tooltip_text = "%s  ·  Skill %d  ·  Health %d%%  ·  Gear %d/2" % [role, int(merc.get("skill", 0)), health, _equipped_count(merc)]
+		card.tooltip_text = "%s\nTraits: %s\nHealth %d%%  ·  Gear %d/2" % [Mercs.title(merc), Mercs.trait_names(merc), health, _equipped_count(merc)]
 		card.set_pressed_no_signal(id == selected_merc)
 		card.pressed.connect(_focus_person.bind(id))
 	var empty: bool = game.crew.is_empty()
@@ -615,10 +611,15 @@ func _draw_employees() -> void:
 		(child as CanvasItem).visible = (child.name == "Empty" or child.name == "Header") if none else child.name != "Empty"
 	if none:
 		return
-	var role: String = str(merc.get("role", ""))
+	var role: String = Mercs.role_of(merc)
 	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, role)
 	(right.get_node(c + "Head/Id/Name") as Label).text = str(merc.get("name", ""))
-	(right.get_node(c + "Head/Id/Title") as Label).text = str(merc.get("title", "Contractor"))
+	var origin: String = ""
+	if merc.has("background"):
+		origin = "  ·  formerly a %s" % str(merc["background"]).to_lower()
+	elif merc.has("from"):
+		origin = "  ·  from %s" % str(merc["from"])
+	(right.get_node(c + "Head/Id/Title") as Label).text = Mercs.title(merc) + origin
 	(right.get_node(c + "Head/Id/Status/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
 	(right.get_node(c + "Head/Id/Status/Role") as Label).text = role
 	var status: Array = _merc_status(merc)
@@ -626,11 +627,10 @@ func _draw_employees() -> void:
 	state.text = "·  " + str(status[0])
 	state.theme_type_variation = status[1]
 	var terms: Dictionary = game.terms(merc)
-	right.get_node(c + "Stats/Skill").value = str(int(merc.get("skill", 0)))
-	var main_trade: String = str(TradeSkills.ROLE_TRADE.get(role, "logging"))
+	right.get_node(c + "Stats/Skill").value = _money(Mercs.value(merc))
+	var job: String = Mercs.job(merc)
 	var exp_tile := right.get_node(c + "Stats/Experience")
-	exp_tile.caption = "Main trade"
-	exp_tile.value = "%s %d" % [TradeSkills.NAMES.get(main_trade, main_trade), TradeSkills.level_of(merc, main_trade)]
+	exp_tile.value = "No tool" if job == "" else "%s %d" % [TradeSkills.NAMES.get(job, job), TradeSkills.level_of(merc, job)]
 	right.get_node(c + "Stats/Wage").value = _money(int(terms["wage"]))
 	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(terms["cut"]) * 100.0))
 	var health: int = int(merc.get("health", 100))
@@ -650,6 +650,9 @@ func _draw_employees() -> void:
 		var base := c + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
 		(right.get_node(base + "Level") as Label).text = "%s %d" % [TradeSkills.NAMES[trade], TradeSkills.level_of(merc, trade)]
 		(right.get_node(base + "Bar") as ProgressBar).value = TradeSkills.progress(merc, trade) * 100.0
+	var traits := right.get_node(c + "Traits/List") as Label
+	traits.text = Mercs.trait_names(merc) if not (merc.get("traits", []) as Array).is_empty() else "None"
+	traits.tooltip_text = Mercs.trait_lines(merc)
 	var worn: Dictionary = merc.get("equipment", {})
 	for slot in ["tool", "armor"]:
 		var item: Dictionary = worn.get(slot, {})
@@ -665,22 +668,50 @@ func _draw_employees() -> void:
 	change.disabled = not game.is_available(merc)
 	change.pressed.connect(_terms.bind(selected_merc))
 	(right.get_node(c + "Actions/Armory") as Button).pressed.connect(_outfit.bind(selected_merc))
+	var sell := right.get_node(c + "Actions/Sell") as Button
+	var offer: int = game.contract_offer(merc)
+	var settling: int = game.settling_left(merc)
+	sell.text = ("Confirm  ·  %s" % _money(offer)) if confirm_sell == selected_merc else "Sell contract"
+	sell.disabled = not game.is_available(merc) or settling > 0
+	sell.tooltip_text = "Settling in: can be sold in %s." % _duration(settling) if settling > 0 else \
+		"Another guild buys their contract for %s (half their value), with the gear they wear.\nMercenaries talk: each sale costs a little reputation." % _money(offer)
+	sell.pressed.connect(_sell_contract.bind(selected_merc))
 
 func _choose_candidate(id: String) -> void:
 	selected_candidate = id
 	_refresh()
+
+func _standing_short() -> String:
+	return "%s · %s" % [Mercs.tier_name(game.rep_tier()), _thousands(game.reputation)]
+
+func _thousands(n: int) -> String:
+	var t: String = str(absi(n))
+	var out: String = ""
+	while t.length() > 3:
+		out = "," + t.substr(t.length() - 3) + out
+		t = t.substr(0, t.length() - 3)
+	return ("-" if n < 0 else "") + t + out
+
+func _candidate_line(candidate: Dictionary) -> String:
+	var best: String = Mercs.best_trade(candidate)
+	var parts: Array[String] = ["%s %d" % [TradeSkills.NAMES[best], Mercs.level(candidate, best)]]
+	var traits: String = Mercs.trait_names(candidate)
+	if traits != "":
+		parts.append(traits)
+	if str(candidate.get("kind", "")) == "contract":
+		parts.append("contract")
+	return "  ·  ".join(parts)
 
 func _draw_recruitment() -> void:
 	var left := _mount_page(PERSONNEL_RECRUITS_LEFT, left_leaf)
 	var right := _mount_page(PERSONNEL_RECRUITS_RIGHT, right_leaf)
 	var c := "Margin/Content/"
 	var board: Array[Dictionary] = game.recruitment_board()
-	# Woodcutters first (the starter trade), then miners and guards, cheapest first.
-	var role_order: Array[String] = ["Woodcutter", "Miner", "Guard", "Scout"]
+	# Applicants first, cheapest first; then contracts other guilds are selling.
 	board.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-		var ra: int = role_order.find(str(a["role"]))
-		var rb: int = role_order.find(str(b["role"]))
-		return ra < rb if ra != rb else int(a["hire"]) < int(b["hire"]))
+		var ka: int = 1 if str(a.get("kind", "")) == "contract" else 0
+		var kb: int = 1 if str(b.get("kind", "")) == "contract" else 0
+		return ka < kb if ka != kb else int(a["hire"]) < int(b["hire"]))
 	var chosen: Dictionary = {}
 	for candidate in board:
 		if str(candidate["id"]) == selected_candidate:
@@ -690,16 +721,20 @@ func _draw_recruitment() -> void:
 		selected_candidate = str(chosen["id"])
 	var list := left.get_node(c + "List/Items") as VBoxContainer
 	for candidate in board:
-		var role: String = str(candidate["role"])
+		var role: String = Mercs.role_of(candidate)
 		var fee: int = int(candidate["hire"])
-		var start: Dictionary = TradeSkills.starting_skills(role, int(candidate["skill"]))
-		var main: String = str(TradeSkills.ROLE_TRADE.get(role, "logging"))
+		var contract: bool = str(candidate.get("kind", "")) == "contract"
 		var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(candidate["name"]),
-			"%s  ·  %s %d  ·  Wage %d G" % [role, TradeSkills.NAMES.get(main, main), TradeSkills.level_for_xp(int(start.get(main, 0))), int(candidate["wage"])],
-			"Fee", _money(fee), str(candidate["id"]) == selected_candidate, _choose_candidate.bind(str(candidate["id"])))
+			_candidate_line(candidate), "Price" if contract else "Fee", _money(fee), str(candidate["id"]) == selected_candidate, _choose_candidate.bind(str(candidate["id"])))
+		card.tooltip_text = Mercs.trait_lines(candidate)
 		if game.gold < fee:
 			(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelMuted"
 	(left.get_node(c + "Summary/Count") as Label).text = "%d waiting" % board.size()
+	var tier: int = game.rep_tier()
+	var standing := left.get_node(c + "Standing") as Label
+	var next: int = Mercs.rep_to_next(game.reputation)
+	standing.text = "Reputation %s: %s. Applicants up to level %d.%s" % [_thousands(game.reputation), Mercs.tier_name(tier), int(Mercs.TIERS[tier]["cap"]),
+		("  %s at %s." % [Mercs.tier_name(tier + 1), _thousands(int(Mercs.TIERS[tier + 1]["rep"]))]) if next > 0 else ""]
 	var refresh := left.get_node(c + "Summary/Refresh") as Label
 	var tick := func() -> void:
 		refresh.text = "New applicants in " + _duration(1800 - _now() % 1800)
@@ -712,26 +747,39 @@ func _draw_recruitment() -> void:
 		(child as CanvasItem).visible = (child.name == "Empty" or child.name == "Header") if none else child.name != "Empty"
 	if none:
 		return
-	var role: String = str(chosen["role"])
+	var role: String = Mercs.role_of(chosen)
+	var contract: bool = str(chosen.get("kind", "")) == "contract"
 	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, role)
 	(right.get_node(c + "Head/Id/Name") as Label).text = str(chosen["name"])
-	(right.get_node(c + "Head/Id/Title") as Label).text = str(chosen.get("title", "Contractor"))
+	(right.get_node(c + "Head/Id/Title") as Label).text = ("Contract from %s" % str(chosen.get("from", "a guild"))) if contract else Mercs.title(chosen)
 	(right.get_node(c + "Head/Id/Status/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
-	(right.get_node(c + "Head/Id/Status/Role") as Label).text = role
-	right.get_node(c + "Stats/Skill").value = str(int(chosen["skill"]))
-	right.get_node(c + "Stats/Fee").value = _money(int(chosen["hire"]))
-	right.get_node(c + "Stats/Wage").value = _money(int(chosen["wage"]))
-	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(chosen.get("share", 0.1)) * 100.0))
-	var start_skills: Dictionary = TradeSkills.starting_skills(role, int(chosen["skill"]))
-	var main_trade: String = str(TradeSkills.ROLE_TRADE.get(role, "logging"))
-	right.get_node(c + "RoleNote").text = "%s Starts at %s level %d." % [str(ROLE_NOTES.get(role, "")), TradeSkills.NAMES.get(main_trade, main_trade), TradeSkills.level_for_xp(int(start_skills.get(main_trade, 0)))]
+	var kit: String = str(game.item_definition(str(chosen.get("kit", ""))).get("name", ""))
+	(right.get_node(c + "Head/Id/Status/Role") as Label).text = ("Brings their own %s" % kit) if kit != "" else role
+	right.get_node(c + "Stats/Skill").value = _money(Mercs.value(chosen, false) + int(game.item_definition(str(chosen.get("kit", ""))).get("cost", 0)))
+	var fee_tile := right.get_node(c + "Stats/Fee")
+	fee_tile.caption = "Price + fee" if contract else "Signing fee"
+	fee_tile.value = _money(int(chosen["hire"]))
+	right.get_node(c + "Stats/Wage").value = _money(int(game.terms(chosen)["wage"]))
+	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(game.terms(chosen)["cut"]) * 100.0))
+	for trade in ["logging", "mining", "combat"]:
+		var base := c + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
+		(right.get_node(base + "Level") as Label).text = "%s %d" % [TradeSkills.NAMES[trade], Mercs.level(chosen, trade)]
+		(right.get_node(base + "Bar") as ProgressBar).value = TradeSkills.progress(chosen, trade) * 100.0
+	var note := right.get_node(c + "RoleNote")
+	var lines: Array[String] = []
+	for t in chosen.get("traits", []):
+		var d: Dictionary = Mercs.TRAITS.get(str(t), {})
+		lines.append("%s (%s): %s" % [str(d.get("name", t)), str(d.get("rarity", "")), str(d.get("text", ""))])
+	if contract:
+		lines.append("Includes a 10%% transfer fee. They settle in for 3 days before they can be sold on.")
+	note.text = "\n".join(lines) if not lines.is_empty() else "No traits."
 	var fee: int = int(chosen["hire"])
 	var hire := right.get_node(c + "Hire") as Button
-	hire.text = "Hire %s  ·  %s" % [str(chosen["name"]).get_slice(" ", 0), _money(fee)]
+	hire.text = "%s %s  ·  %s" % ["Buy" if contract else "Hire", str(chosen["name"]).get_slice(" ", 0), _money(fee)]
 	hire.disabled = game.gold < fee
 	hire.pressed.connect(_hire.bind(str(chosen["id"])))
 	var reason := right.get_node(c + "Reason") as Label
-	reason.text = "Not enough gold: the fee is %s." % _money(fee) if game.gold < fee else ""
+	reason.text = "Not enough gold: %s." % _money(fee) if game.gold < fee else ""
 	reason.visible = not reason.text.is_empty()
 
 func _draw_armory_page() -> void:
@@ -744,10 +792,10 @@ func _draw_armory_page() -> void:
 	var picker := left.get_node(c + "Crew/Items") as VBoxContainer
 	for merc in game.crew:
 		var id: String = str(merc["id"])
-		var role: String = str(merc.get("role", ""))
+		var role: String = Mercs.role_of(merc)
 		var away: bool = not game.is_available(merc)
 		var card := _list_card(picker, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(merc["name"]),
-			role + ("  ·  in the field" if away else ""), "Gear", "%d/2" % _equipped_count(merc), id == selected_merc, _choose_worker.bind(id))
+			Mercs.title(merc) + ("  ·  in the field" if away else ""), "Gear", "%d/2" % _equipped_count(merc), id == selected_merc, _choose_worker.bind(id))
 		card.custom_minimum_size.y = 30
 	(left.get_node(c + "Crew") as Control).custom_minimum_size.y = mini(game.crew.size(), 3) * 33
 	var none: bool = owner.is_empty()
@@ -756,7 +804,7 @@ func _draw_armory_page() -> void:
 		(left.get_node(c + path) as Control).visible = not game.crew.is_empty()
 	if not none:
 		var available: bool = game.is_available(owner)
-		(left.get_node(c + "Loadout/Body/Who") as Label).text = "%s  ·  %s" % [str(owner["name"]), str(owner.get("role", ""))]
+		(left.get_node(c + "Loadout/Body/Who") as Label).text = "%s  ·  %s" % [str(owner["name"]), Mercs.title(owner)]
 		var worn: Dictionary = owner.get("equipment", {})
 		for slot in ["tool", "armor"]:
 			var item: Dictionary = worn.get(slot, {})
@@ -786,7 +834,7 @@ func _draw_armory_page() -> void:
 		var equip := card.get_node("Row/Primary") as Button
 		equip.text = "Equip"
 		equip.disabled = not fits
-		equip.tooltip_text = "Equip on %s." % str(owner.get("name", "")) if fits else "Only a free %s can use this." % str(definition.get("role", "mercenary")).to_lower()
+		equip.tooltip_text = "Equip on %s. The tool in their hands sets their job." % str(owner.get("name", "")) if fits else "Choose a mercenary who isn't in the field."
 		equip.pressed.connect(_equip.bind(selected_merc, str(item.get("uid", ""))))
 		var sell := card.get_node("Row/Secondary") as Button
 		sell.visible = true
@@ -816,8 +864,10 @@ func _gear_summary(definition: Dictionary) -> String:
 	for stat in ["logging", "mining", "guard", "protection"]:
 		if int(definition.get(stat, 0)) > 0:
 			bonus.append("+%d %s" % [int(definition[stat]), stat])
-	var who: String = "Anyone" if str(definition.get("role", "")) == "Any" else str(definition.get("role", "")) + "s"
-	return "%s  ·  %s" % [who, ", ".join(bonus)]
+	var job: String = "Armour"
+	if str(definition.get("slot", "")) == "tool":
+		job = "Logging" if int(definition.get("logging", 0)) > 0 else ("Mining" if int(definition.get("mining", 0)) > 0 else "Guarding")
+	return "%s  ·  %s" % [job, ", ".join(bonus)]
 
 # --- Exchange -----------------------------------------------------------------
 
@@ -996,7 +1046,7 @@ func _draw_accounts() -> void:
 	for merc in game.crew:
 		payroll += int(game.terms(merc)["wage"])
 	left.get_node(c + "Costs/Payroll").value = _money(payroll)
-	left.get_node(c + "Costs/Reputation").value = str(game.reputation)
+	left.get_node(c + "Costs/Reputation").value = _standing_short()
 	# Guild relief and debt.
 	var relief := left.get_node(c + "Relief")
 	var relief_button := left.get_node(c + "ReliefButton") as Button
@@ -1096,9 +1146,9 @@ func _draw_guild_jobs() -> void:
 	var list := right.get_node(c + "List/Items") as VBoxContainer
 	var count: int = 0
 	for member in game.available_guild_workers():
-		var role: String = str(member.get("role", ""))
+		var role: String = Mercs.role_of(member)
 		var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(member.get("name", "Contractor")),
-			role, "", "Assign" if can_take else "", false, _guild_work.bind(str(member["id"])))
+			Mercs.title(member), "", "Assign" if can_take else "", false, _guild_work.bind(str(member["id"])))
 		card.toggle_mode = false
 		card.disabled = not can_take
 		(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelAccent"
@@ -1488,7 +1538,7 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 			var merc: Dictionary = game.merc_by_id(ids[i])
 			var level: int = TradeSkills.level_of(merc, trade)
 			best = maxi(best, level)
-			_set_bust(bust, str(merc.get("role", "")))
+			_set_bust(bust, Mercs.role_of(merc))
 			(slot.get_node("Body/Name") as Label).text = str(merc.get("name", "?"))
 			(slot.get_node("Body/Role") as Label).text = "%s %d" % [TradeSkills.NAMES.get(trade, trade), level]
 			if watching:
@@ -1512,7 +1562,7 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 	for merc in game.available_guild_workers():
 		eligible += 1
 		var id: String = str(merc["id"])
-		var role: String = str(merc.get("role", ""))
+		var role: String = Mercs.role_of(merc)
 		var assigned: bool = ids.has(id)
 		var health: int = int(merc.get("health", 100))
 		var card := ROW_ROSTER_CARD.instantiate() as Button
@@ -1521,8 +1571,12 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 		card.button_pressed = assigned
 		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
 		(card.get_node("Body/Info/Name") as Label).text = str(merc.get("name", "?"))
-		var gear: int = int(MercsV05.equipment_stats(merc).get(trade, 0))
-		(card.get_node("Body/Info/Details") as Label).text = "%s  ·  %s %d%s" % [role, TradeSkills.NAMES.get(trade, trade), TradeSkills.level_of(merc, trade), "  ·  tool +%d" % gear if gear > 0 else ""]
+		var job: String = Mercs.job(merc)
+		var gear: int = int(MercsV05.equipment_stats(merc).get(trade, 0)) if job == trade else 0
+		var how: String = ("  ·  tool +%d" % gear if gear > 0 else "") if job == trade else ("  ·  on guard" if job == "combat" else "  ·  ½ pace")
+		(card.get_node("Body/Info/Details") as Label).text = "%s  ·  %s %d%s" % [role, TradeSkills.NAMES.get(trade, trade), TradeSkills.level_of(merc, trade), how]
+		card.tooltip_text = "%s\nTraits: %s\n%s" % [Mercs.title(merc), Mercs.trait_names(merc),
+			"Guards the crew and works at half pace." if job == "combat" else ("Works at half pace without the right tool." if job != trade else "Has the right tool.")]
 		(card.get_node("Body/Health/HealthText") as Label).text = "Health %d%%" % health
 		var hp := card.get_node("Body/Health/HealthBar") as ProgressBar
 		hp.value = health
@@ -1533,7 +1587,7 @@ func _bind_site_plan(right: Control, site: Dictionary) -> void:
 		elif health < 25:
 			tag.text = "Too hurt"
 			card.disabled = true
-			card.tooltip_text = "Resting: fit to work in %s, or treat them in Personnel." % _duration(int(ceil(float(25 - health) * 3600.0 / float(MoneyMercsState.REST_PER_HOUR))))
+			card.tooltip_text = "Resting: fit to work in %s, or treat them in Personnel." % _duration(int(ceil(float(25 - health) * 3600.0 / (float(MoneyMercsState.REST_PER_HOUR) * Mercs.rest_mult(merc)))))
 		elif ids.size() >= 3:
 			tag.text = "Crew full"
 			card.disabled = true

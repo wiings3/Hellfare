@@ -329,29 +329,42 @@ func _expand() -> void:
 func _hire(role: String, max_count: int) -> void:
 	var have: int = 0
 	for merc in g.crew:
-		if str(merc.get("role", "")) == role:
+		if Mercs.role_of(merc) == role:
 			have += 1
 	if have >= max_count:
 		return
+	# The best applicant for the trade the company can comfortably afford (cheapest if none).
 	var best: Dictionary = {}
+	# Skills train quickly and death is permanent, so skilled recruits rarely pay for themselves
+	# (600-hour runs spent ~340k on them for nothing). The bot hires the best it can get for
+	# about what a green hand costs.
+	var budget: int = 150
 	for c in g.recruitment_board():
-		if str(c["role"]) != role:
+		if Mercs.role_of(c) != role:
 			continue
-		if best.is_empty() or int(c["hire"]) < int(best["hire"]):
+		if best.is_empty():
+			best = c
+			continue
+		var fits: bool = int(c["hire"]) <= budget
+		var best_fits: bool = int(best["hire"]) <= budget
+		if fits and (not best_fits or Mercs.best_level(c) > Mercs.best_level(best) or (Mercs.best_level(c) == Mercs.best_level(best) and int(c["hire"]) < int(best["hire"]))):
+			best = c
+		elif not fits and not best_fits and int(c["hire"]) < int(best["hire"]):
 			best = c
 	if best.is_empty():
 		rec["no_recruit"] = int(rec["no_recruit"]) + 1
 		return
 	if g.gold < int(best["hire"]) + 40:
 		return
-	if g.hire(str(best["id"])).ends_with("joined your company."):
+	var said: String = g.hire(str(best["id"]))
+	if said.ends_with("joined your company.") or said.contains("is yours"):
 		rec["hires"] = int(rec["hires"]) + 1
 		rec["hire_spend"] = int(rec["hire_spend"]) + int(best["hire"])
 
 ## Buy and fit the best affordable tool for a role.
 func _outfit(role: String, keys: Array) -> void:
 	for merc in g.crew:
-		if str(merc.get("role", "")) != role or not g.is_available(merc):
+		if Mercs.role_of(merc) != role or not g.is_available(merc):
 			continue
 		var tool: Dictionary = (merc.get("equipment", {}) as Dictionary).get("tool", {})
 		var current: int = keys.find(str(tool.get("key", "")))
@@ -370,7 +383,7 @@ func _outfit(role: String, keys: Array) -> void:
 func _free(role: String) -> Array[String]:
 	var ids: Array[String] = []
 	for merc in g.crew:
-		if str(merc.get("role", "")) == role and g.is_available(merc) and int(merc.get("health", 100)) >= 25:
+		if Mercs.role_of(merc) == role and g.is_available(merc) and int(merc.get("health", 100)) >= 25:
 			ids.append(str(merc["id"]))
 	return ids
 

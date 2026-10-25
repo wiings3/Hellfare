@@ -43,6 +43,14 @@ layout_mode = 2
 theme_type_variation = &"LabelCaption"
 text = "0 waiting"
 
+[node name="Standing" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Reputation: Unknown"
+autowrap_mode = 3
+mouse_filter = 1
+tooltip_text = "Better mercenaries apply to more reputable companies. Reputation comes from the value your crews deliver."
+
 [node name="List" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 80)

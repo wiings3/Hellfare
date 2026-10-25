@@ -22,7 +22,7 @@ func _run() -> void:
 	# A new miner can work it with any orders, Overnight included.
 	var miner: String = ""
 	for c in view.game.recruitment_board():
-		if str(c["role"]) == "Miner":
+		if Mercs.best_trade(c) == "mining":
 			miner = str(c["id"])
 			break
 	view.game.gold = 900

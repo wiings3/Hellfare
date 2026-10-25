@@ -85,8 +85,9 @@ columns = 2
 [node name="Skill" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Skill"
+caption = "Value"
 value = "0"
+tooltip_text = "Rough market value: skills, traits and the tool they bring."
 
 [node name="Fee" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
@@ -109,9 +110,69 @@ size_flags_horizontal = 3
 caption = "Share of haul"
 value = "0"
 
+[node name="Skills" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+mouse_filter = 1
+tooltip_text = "Trade levels. Higher levels haul more and open better sites."
+
+[node name="Logging" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Logging"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Logging 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Logging"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Mining" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Mining"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Mining 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Mining"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
+[node name="Combat" type="VBoxContainer" parent="Margin/Content/Skills"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+mouse_filter = 2
+
+[node name="Level" type="Label" parent="Margin/Content/Skills/Combat"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Combat 1"
+
+[node name="Bar" type="ProgressBar" parent="Margin/Content/Skills/Combat"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+mouse_filter = 2
+theme_type_variation = &"GoldBar"
+show_percentage = false
+
 [node name="RoleNote" parent="Margin/Content" instance=ExtResource("4_info_box")]
 layout_mode = 2
-text = "Role"
+text = "Traits"
 icon_kind = "alert"
 
 [node name="Spacer" type="Control" parent="Margin/Content"]
@@ -135,7 +196,7 @@ autowrap_mode = 3
 [node name="Footer" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "The fallen cannot be rehired."
+text = "Traits are for life. The fallen cannot be rehired."
 horizontal_alignment = 1
 
 [node name="Empty" parent="Margin/Content" instance=ExtResource("4_info_box")]

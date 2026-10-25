@@ -8,7 +8,7 @@ func _initialize() -> void:
 
 func _capture() -> void:
 	MoneyMercsState.persist = false
-	var args := {"out": "/tmp/map", "frames": "1", "step": "4", "page": "hq", "hover": "", "shift": "-0.35", "site": ""}
+	var args := {"out": "/tmp/map", "frames": "1", "step": "4", "page": "hq", "hover": "", "shift": "-0.35", "site": "", "tab": "", "rep": "0"}
 	for a in OS.get_cmdline_user_args():
 		var kv: PackedStringArray = a.split("=", true, 1)
 		if kv.size() == 2:
@@ -21,12 +21,13 @@ func _capture() -> void:
 	var game = ui.game
 	game.reset_company()
 	game.gold = 5000
+	game.reputation = int(args["rep"])
 	game.expedition_slots = 3
 	var cutters: Array[String] = []
 	var miners: Array[String] = []
 	for candidate in game.recruitment_board():
 		var id: String = str(candidate["id"])
-		var role: String = str(candidate.get("role", ""))
+		var role: String = Mercs.role_of(candidate)
 		if (role == "Woodcutter" and cutters.size() < 3) or (role == "Miner" and miners.size() < 3) or role == "Guard":
 			game.hire(id)
 			if game.merc_by_id(id).is_empty():
@@ -52,6 +53,8 @@ func _capture() -> void:
 	ui._nav_to("hq")
 	if str(args["site"]) != "":
 		ui.selected_site = str(args["site"])
+	if str(args["tab"]) != "":
+		ui.roster_tab = str(args["tab"])
 	ui._nav_to(str(args["page"]))
 	if str(args["hover"]) != "":
 		var page: Control = ui.left_leaf.get_child(0)

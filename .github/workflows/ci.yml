@@ -71,3 +71,10 @@ jobs:
           timeout 45s godot --headless --path . --script res://tests/catalog_test.gd 2>&1 | tee /tmp/catalog.log
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/catalog.log; then exit 1; fi
           grep -F 'Catalog passed:' /tmp/catalog.log
+
+      - name: Mercenaries, traits, reputation and contracts
+        run: |
+          set -o pipefail
+          timeout 45s godot --headless --path . --script res://tests/mercs_test.gd 2>&1 | tee /tmp/mercs.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/mercs.log; then exit 1; fi
+          grep -F 'Mercenaries, traits, reputation and contracts passed.' /tmp/mercs.log

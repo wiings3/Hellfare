@@ -145,7 +145,7 @@ func _verify() -> void:
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/board_left.tscn"), "expedition board")
 	var cutter: Dictionary = {}
 	for candidate in view.game.recruitment_board():
-		if str(candidate["role"]) == "Woodcutter":
+		if Mercs.best_trade(candidate) == "logging":
 			cutter = candidate
 			break
 	check(not cutter.is_empty(), "a woodcutter is always on the board")

@@ -141,14 +141,12 @@ func harlow_dispatch(ids: Array[String], approach: String) -> String:
 		var merc := merc_by_id(id)
 		if merc.is_empty() or not is_available(merc) or seen.has(id):
 			return "A selected mercenary is unavailable."
-		if str(merc.get("role")) != "Miner" and str(merc.get("role")) != "Guard":
-			return "Harlow Mines requires miners and guards; guild scouts operate separately."
 		if int(merc.get("health", 100)) < 25:
 			return "%s is too injured for deployment." % str(merc["name"])
 		seen[id] = true
 	var stats: Dictionary = harlow_crew_stats(ids, approach)
 	if int(stats["miners"]) == 0:
-		return "At least one miner is needed to collect ore."
+		return "Someone needs a pickaxe to collect ore."
 	if gold < int(stats["wage"]):
 		return "Insufficient gold for wages and provisions."
 	var available: Dictionary = harlow.get("deposits", {})
@@ -243,7 +241,7 @@ func _harlow_finish_legacy(mission: Dictionary) -> void:
 		gross += int(loot[key]) * price(str(key))
 	var commission := int(ceil(float(gross) * float(mission["share"])))
 	gold += coins - commission
-	reputation += 2 if succeeded else 1
+	_earn_reputation(gross, alive == 0)
 	reports.push_front({
 		"region": "Harlow Mines", "won": succeeded, "loot": loot,
 		"cash": coins, "commission": commission, "cost": int(mission["cost"]),
@@ -307,7 +305,7 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 			if rng.randf() < (0.12 if success else 0.48):
 				worker["health"] = maxi(20, int(worker.get("health", 100)) - rng.randi_range(8, 31))
 				wounded.append(str(worker["name"]))
-			if str(worker.get("role", "")) == "Miner":
+			if Mercs.job(worker) == "mining":
 				living_miners += 1
 				var gear_stats: Dictionary = V05.equipment_stats(worker)
 				effective_capacity += 6 + int(gear_stats["mining"])
@@ -378,7 +376,7 @@ func _harlow_finish_v05(mission: Dictionary) -> void:
 		value += int(loot[ore]) * sell_price(str(ore), int(loot[ore]))
 	gold += coins - commission
 	_apply_relief_payment()
-	reputation += 3 if success else 1
+	_earn_reputation(value, survivors.is_empty())
 	reports.push_front({
 		"region": "Harlow Mines", "won": success, "loot": loot,
 		"cash": coins, "commission": commission, "cost": int(mission["cost"]),
@@ -403,8 +401,22 @@ func _roll_avg(rng: RandomNumberGenerator, span: Array, rolls: int) -> float:
 	return float(total) / float(rolls)
 
 func _tool_bonus(merc: Dictionary, trade: String) -> int:
+	if Mercs.job(merc) != trade:
+		return 0
 	var stats: Dictionary = V05.equipment_stats(merc)
 	return int(stats.get(trade, 0))
+
+## The right tool works at full pace; anything else (a weapon, the wrong tool, bare hands)
+## at half pace. Whoever holds a weapon stands guard.
+func _effort(merc: Dictionary, trade: String) -> float:
+	return 1.0 if Mercs.job(merc) == trade else 0.5
+
+## Rare-find chance for a crew (longer trips find more; a Keen eye finds half again as often).
+func _rare_chance(rare: Dictionary, order: Dictionary, workers: Array) -> float:
+	var chance: float = float(rare["chance"]) * maxf(1.0, float(order.get("duration", 1.0)))
+	if Mercs.crew_has(workers, "keen_eye"):
+		chance *= 1.5
+	return minf(0.9, chance)
 
 func _crew(ids: Array[String]) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
@@ -426,14 +438,15 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 	var wages: int = 0
 	var share: float = 0.0
 	var units: Dictionary = {}
+	var leader: float = 1.1 if Mercs.crew_has(workers, "born_leader") else 1.0
 	for merc in workers:
 		var level: int = TradeSkills.level_of(merc, trade)
 		best_level = maxi(best_level, level)
-		best_combat = maxi(best_combat, TradeSkills.level_of(merc, "combat"))
-		var guard: bool = str(merc.get("role", "")) == "Guard"
+		best_combat = maxi(best_combat, Mercs.guard_level(merc))
+		var guard: bool = Mercs.job(merc) == "combat"
 		if guard:
 			guards += 1
-		var effort: float = 0.5 if guard else 1.0
+		var effort: float = _effort(merc, trade) * Mercs.haul_mult(merc) * leader
 		for good in site.get("yields", {}):
 			units[good] = float(units.get(good, 0.0)) + TradeSites.worker_yield(site["yields"][good], level, float(_tool_bonus(merc, trade)) * float(site.get("tool", 1.0))) * effort * float(order["yield"])
 		for good in site.get("side", {}):
@@ -449,7 +462,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 		value += kept * float(sell_price(str(good), int(round(kept))))
 	var rare: Dictionary = site.get("rare", {})
 	if not rare.is_empty() and not workers.is_empty():
-		value += minf(0.9, float(rare["chance"]) * maxf(1.0, float(order.get("duration", 1.0)))) * float(rare["count"]) * float(sell_price(str(rare["good"])))
+		value += _rare_chance(rare, order, workers) * float(rare["count"]) * float(sell_price(str(rare["good"])))
 	var protect: float = TradeSites.protection(guards, best_combat)
 	var injury: float = minf(TradeSites.MAX_INJURY, float(site.get("injury", 0.0)) * float(order["risk"]) * (1.0 - protect))
 	var death: float = minf(TradeSites.MAX_DEATH, float(site.get("death", 0.0)) * float(order["risk"]) * (1.0 - protect))
@@ -518,14 +531,25 @@ func _site_finish(mission: Dictionary) -> void:
 	var survivors: int = 0
 	events.append("The crew set out for %s with %s orders." % [site_name, str(mission.get("tactic", "Balanced")).to_lower()])
 	var threat: Dictionary = site.get("threat", {})
+	var team: Array = []
+	for merc_id in mission.get("ids", []):
+		if not merc_by_id(str(merc_id)).is_empty():
+			team.append(merc_by_id(str(merc_id)))
+	var leader: float = 1.1 if Mercs.crew_has(team, "born_leader") else 1.0
 	for merc_id in mission.get("ids", []):
 		var id: String = str(merc_id)
 		var worker: Dictionary = merc_by_id(id)
 		if worker.is_empty():
 			continue
-		var guard: bool = str(worker.get("role", "")) == "Guard"
-		var death_chance: float = float(mission.get("death", 0.0)) * (1.1 if guard else 1.0)
-		if rng.randf() < death_chance:
+		var guard: bool = Mercs.job(worker) == "combat"
+		var death_chance: float = float(mission.get("death", 0.0)) * (1.1 if guard else 1.0) * Mercs.death_mult(worker)
+		var dies: bool = rng.randf() < death_chance
+		if dies and Mercs.has_trait(worker, "lucky") and rng.randf() < 1.0 / 3.0:
+			dies = false
+			worker["health"] = 20
+			wounded.append(str(worker["name"]))
+			events.append("%s should have died, and walked away. Lucky." % str(worker["name"]))
+		if dies:
 			casualties.append(str(worker["name"]))
 			dead_ids.append(id)
 			left_behind.append_array(_drop_on_death(str(mission.get("site", "")), worker, int(mission["finish"]), rng))
@@ -543,11 +567,12 @@ func _site_finish(mission: Dictionary) -> void:
 			continue
 		survivors += 1
 		worker["mission_id"] = ""
-		if rng.randf() < float(mission.get("injury", 0.0)):
-			worker["health"] = maxi(20, int(worker.get("health", 100)) - rng.randi_range(8, 25))
+		if rng.randf() < float(mission.get("injury", 0.0)) * Mercs.injury_chance_mult(worker) and not wounded.has(str(worker["name"])):
+			var hurt: int = int(round(float(rng.randi_range(8, 25)) * Mercs.injury_damage_mult(worker)))
+			worker["health"] = maxi(20, int(worker.get("health", 100)) - hurt)
 			wounded.append(str(worker["name"]))
 		var level: int = TradeSkills.level_of(worker, trade)
-		var effort: float = 0.5 if guard else 1.0
+		var effort: float = _effort(worker, trade) * Mercs.haul_mult(worker) * leader
 		var tool: float = float(_tool_bonus(worker, trade)) * float(site.get("tool", 1.0))
 		# Long trips average several rolls, so an eight-hour haul isn't one coin flip.
 		var rolls: int = clampi(int(float(order.get("duration", 1.0))), 1, 12)
@@ -585,7 +610,7 @@ func _site_finish(mission: Dictionary) -> void:
 			kept_by_crew.append("%d %s" % [crew_cut, str(RESOURCE_NAMES.get(good, good))])
 		loot[good] = total - crew_cut
 	var rare: Dictionary = site.get("rare", {})
-	if survivors > 0 and not rare.is_empty() and rng.randf() < minf(0.9, float(rare["chance"]) * maxf(1.0, float(order.get("duration", 1.0)))):
+	if survivors > 0 and not rare.is_empty() and rng.randf() < _rare_chance(rare, order, team):
 		var good: String = str(rare["good"])
 		loot[good] = int(loot.get(good, 0)) + int(rare.get("count", 1))
 		finds.append(str(RESOURCE_NAMES.get(good, good)))
@@ -605,7 +630,7 @@ func _site_finish(mission: Dictionary) -> void:
 	if not kept_by_crew.is_empty():
 		events.append("The crew kept their share: %s." % ", ".join(kept_by_crew))
 	var success: bool = survivors > 0 and casualties.is_empty()
-	reputation += 1 if success else 0
+	_earn_reputation(value, survivors == 0)
 	_apply_relief_payment()
 	reports.push_front({
 		"region": site_name, "site": str(mission.get("site", "")), "trade": trade,

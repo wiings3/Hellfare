@@ -15,6 +15,44 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
 
+## V0.19 – Mercenaries without archetypes
+
+Nobody is hired as a Woodcutter, Miner or Guard any more (`scripts/mercs.gd`, `Mercs`).
+
+- **Gear sets the job.** Anyone can hold any tool. An axe makes a woodcutter and a pickaxe a
+  miner; a weapon stands guard. The right tool works at full pace; anything else at half pace.
+  Recruits bring a basic tool for their best trade.
+- **Skills and traits make the person.** Trade skills grow by working, as before. Every
+  mercenary has one or two traits for life:
+  - common: Frugal, Greedy, Tough, Reckless, Coward;
+  - uncommon: Woodsman, Steady hands, Brawler, Quick healer;
+  - rare: Strong back, Keen eye, Lucky;
+  - legendary: Prodigy, Born leader, Ironhide.
+- **Earned titles:** "Veteran Miner · Mining 31", worked out from the tool in their hands and
+  their skill.
+- **Reputation:** comes from the value crews deliver (5 per 100 G), no longer from trip count,
+  and a crew wiped out costs a little. The tiers are Unknown, Known (500), Respected (5,000),
+  Renowned (25,000) and Legendary (75,000). Simulated full-time play reaches them after about
+  10, 50, 200 and 600 hours.
+- **The recruit board follows reputation.**
+  - Three green applicants (one per trade) are always there and cheap.
+  - Four more can be as skilled as the tier allows: up to level 5 / 10 / 20 / 30 / 40.
+  - Rare and legendary traits appear at the design's odds.
+  - Named mercenaries (Garrick, Oswin, Bram, Serah) turn up once you're reputable enough for
+    them.
+- **The contract market:**
+  - Known companies see contracts other guilds are selling, refreshed every 4 hours. Each is
+    priced above its value plus a 10% transfer fee.
+  - A bought mercenary settles in for 3 days before they can be sold on.
+  - Any mercenary can be sold to another guild for half their shown value, with their gear.
+    Each sale costs 2% of your reputation (at least 5).
+  - Mercenaries won't join a company below their reputation tier.
+- **Older saves:** each mercenary's old role becomes a background line, they keep their skills,
+  and they gain one common or uncommon trait.
+
+`tests/mercs_test.gd` covers the board, jobs, titles, traits, value, reputation, contracts and
+migration.
+
 ## V0.18 – The item catalog
 
 Everything the game will have lives in one data file, `data/catalog.json`, read by

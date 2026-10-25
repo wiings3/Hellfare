@@ -6,7 +6,7 @@ class_name TradeSkills
 const TRADES := ["logging", "mining", "foraging", "combat"]
 const NAMES := {"logging": "Logging", "mining": "Mining", "foraging": "Foraging", "combat": "Combat"}
 const MAX_LEVEL := 50
-## Which trade a hiring role specialises in.
+## Which trade an old hiring role specialised in (only used to migrate older saves).
 const ROLE_TRADE := {"Woodcutter": "logging", "Miner": "mining", "Forager": "foraging", "Guard": "combat", "Scout": "foraging"}
 
 ## Total experience needed to reach a level (level 1 = 0).
@@ -37,7 +37,7 @@ static func progress(merc: Dictionary, trade: String) -> float:
 	var hi: int = xp_for_level(level + 1)
 	return clampf(float(xp - lo) / float(maxi(1, hi - lo)), 0.0, 1.0)
 
-## Starting skills for a new hire: their speciality starts above level 1, scaled by their skill.
+## Skills for an older save's archetype mercenary: their old speciality starts above level 1.
 static func starting_skills(role: String, skill: int) -> Dictionary:
 	var result: Dictionary = {}
 	for trade in TRADES:
@@ -48,11 +48,11 @@ static func starting_skills(role: String, skill: int) -> Dictionary:
 		result[main] = xp_for_level(level)
 	return result
 
-## Add experience; returns the number of levels gained.
+## Add experience (traits such as Woodsman or Prodigy add more); returns levels gained.
 static func grant(merc: Dictionary, trade: String, amount: int) -> int:
 	var skills: Dictionary = merc.get("skills", {})
 	var before: int = level_for_xp(int(skills.get(trade, 0)))
-	skills[trade] = int(skills.get(trade, 0)) + maxi(0, amount)
+	skills[trade] = int(skills.get(trade, 0)) + maxi(0, int(round(float(amount) * Mercs.xp_mult(merc, trade))))
 	merc["skills"] = skills
 	return level_for_xp(int(skills[trade])) - before
 

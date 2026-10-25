@@ -90,16 +90,16 @@ columns = 2
 [node name="Skill" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Skill"
+caption = "Value"
 value = "0"
-tooltip_text = "Raises expedition success. Grows with experience."
+tooltip_text = "Rough market value of their contract: skills, traits and the gear they wear."
 
 [node name="Experience" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Main trade"
+caption = "Job"
 value = "0"
-tooltip_text = "Level in the trade this mercenary was hired for."
+tooltip_text = "The tool in their hands sets the job. Without the right tool they work at half pace."
 
 [node name="Wage" parent="Margin/Content/Stats" instance=ExtResource("2_stat_tile")]
 layout_mode = 2
@@ -205,6 +205,22 @@ mouse_filter = 2
 theme_type_variation = &"GoldBar"
 show_percentage = false
 
+[node name="Traits" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Caption" type="Label" parent="Margin/Content/Traits"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Traits"
+
+[node name="List" type="Label" parent="Margin/Content/Traits"]
+layout_mode = 2
+text = "None"
+size_flags_horizontal = 3
+text_overrun_behavior = 3
+mouse_filter = 1
+
 [node name="GearHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
 text = "Equipment"
@@ -301,6 +317,13 @@ autowrap_mode = 3
 layout_mode = 2
 theme_override_constants/separation = 4
 alignment = 1
+
+[node name="Sell" type="Button" parent="Margin/Content/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Sell contract"
+tooltip_text = "Another guild buys their contract, with the gear they wear."
 
 [node name="Armory" type="Button" parent="Margin/Content/Actions"]
 layout_mode = 2

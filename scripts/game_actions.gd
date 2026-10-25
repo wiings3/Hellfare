@@ -147,9 +147,21 @@ func _set_roster_tab(tab: String) -> void:
 
 func _hire(id: String) -> void:
 	var text: String = game.hire(id)
-	if text.contains("joined"):
+	if text.contains("joined") or text.contains("is yours"):
 		roster_tab = "employed"
+		selected_merc = id
 	_action(text)
+
+## Selling a contract can't be undone: the first press asks, the second sells.
+var confirm_sell: String = ""
+
+func _sell_contract(id: String) -> void:
+	if confirm_sell != id:
+		confirm_sell = id
+		_refresh()
+		return
+	confirm_sell = ""
+	_action(game.sell_contract(id))
 
 func _equipped_count(merc: Dictionary) -> int:
 	var worn: Dictionary = merc.get("equipment", {})

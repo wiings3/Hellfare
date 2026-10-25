@@ -29,26 +29,7 @@ const LAST_NAMES := [
 	"Vale", "Fallow", "Dunn", "Marsh", "Rook"
 ]
 
-static func generate_board(epoch: int) -> Array[Dictionary]:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = int(77933 + epoch * 99437)
-	var board: Array[Dictionary] = []
-	var roles: Array[String] = ["Woodcutter", "Miner", "Guard"]
-	for i in range(7):
-		# One affordable entry-level hire of every role is always available.
-		var role: String = roles[i % 3]
-		var tier: int = 0 if i < 3 else (1 if i < 6 else 2)
-		var skill: int = 10 + tier * 7 + rng.randi_range(0, 5)
-		var hire_price: int = 48 + tier * 92 + rng.randi_range(0, 22) + (10 if role == "Guard" else 0) - (8 if role == "Woodcutter" else 0)
-		var name: String = str(FIRST_NAMES[rng.randi_range(0, FIRST_NAMES.size() - 1)]) + " " + str(LAST_NAMES[rng.randi_range(0, LAST_NAMES.size() - 1)])
-		board.append({
-			"id": "candidate_%d_%d" % [epoch, i], "name": name,
-			"title": "Independent Contractor", "role": role,
-			"skill": skill, "hire": hire_price,
-			"wage": 7 + tier * 6 + rng.randi_range(0, 3),
-			"share": 0.08 + tier * 0.025
-		})
-	return board
+# The recruit board lives in mercs.gd (Mercs.generate_board): applicants depend on reputation.
 
 static func equipment_stats(merc: Dictionary) -> Dictionary:
 	var mining := 0
@@ -81,11 +62,9 @@ static func shop_keys() -> Array:
 static func item_name(item: Dictionary) -> String:
 	return str(ITEMS.get(str(item.get("key", "")), {}).get("name", "Unknown item"))
 
-static func validate_role(key: String, merc: Dictionary) -> bool:
-	if not ITEMS.has(key):
-		return false
-	var role: String = str(ITEMS[key]["role"])
-	return role == "Any" or role == str(merc.get("role", ""))
+## Anyone can hold any tool or weapon: the tool sets the job. Only unknown items are refused.
+static func validate_role(key: String, _merc: Dictionary = {}) -> bool:
+	return ITEMS.has(key)
 
 static func assess_party(mercs: Array[Dictionary], approach: String, danger: int, supplies: int) -> Dictionary:
 	var miners := 0
@@ -100,7 +79,7 @@ static func assess_party(mercs: Array[Dictionary], approach: String, danger: int
 	for merc in mercs:
 		average_skill += int(merc.get("skill", 10)) + int(merc.get("xp", 0)) / 4
 		var stats: Dictionary = equipment_stats(merc)
-		var role: String = str(merc.get("role", ""))
+		var role: String = Mercs.role_of(merc)
 		if role == "Miner":
 			miners += 1
 			capacity += 6 + int(stats["mining"])
@@ -137,8 +116,9 @@ static func assess_party(mercs: Array[Dictionary], approach: String, danger: int
 			personal_risk *= 0.60
 		elif approach == "Deep Push":
 			personal_risk *= 1.35
-		if str(merc.get("role", "")) == "Guard":
+		if Mercs.job(merc) == "combat":
 			personal_risk *= 1.12
+		personal_risk *= Mercs.death_mult(merc)
 		deaths[str(merc["id"])] = clampf(personal_risk, 0.003, 0.45)
 	for merc in mercs:
 		var base_wage: int = int(merc.get("wage", 9))

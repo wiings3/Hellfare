@@ -18,9 +18,10 @@ func _test() -> void:
 	var affordable_miner: bool = false
 	var affordable_guard: bool = false
 	for candidate in g.recruitment_board():
-		if str(candidate["role"]) == "Miner" and int(candidate["hire"]) < 90:
+		# Entry-level applicants for every trade are always there and affordable.
+		if Mercs.best_trade(candidate) == "mining" and int(candidate["hire"]) < 150:
 			affordable_miner = true
-		if str(candidate["role"]) == "Guard" and int(candidate["hire"]) < 90:
+		if Mercs.best_trade(candidate) == "combat" and int(candidate["hire"]) < 150:
 			affordable_guard = true
 	assert(affordable_miner and affordable_guard)
 	g.gold = 1000
@@ -30,13 +31,15 @@ func _test() -> void:
 	assert(g.buy_equipment("leather").contains("Purchased"))
 	assert(g.equipment_inventory.size() == 2)
 	var tool_uid: String = str(g.equipment_inventory[0]["uid"])
+	# Garrick arrived with a basic pickaxe; the better one sends it to the storeroom.
+	assert(Mercs.job(g.merc_by_id("garrick")) == "mining" and Mercs.job(g.merc_by_id("oswin")) == "combat")
 	assert(g.equip_item("garrick", tool_uid).contains("equipped"))
-	assert(g.equipment_inventory.size() == 1)
+	assert(g.equipment_inventory.size() == 2)
 	assert(str(g.merc_by_id("garrick")["equipment"]["tool"]["uid"]) == tool_uid)
 	assert(g.equip_item("oswin", tool_uid).contains("not found"))
 	var armor_uid: String = str(g.equipment_inventory[0]["uid"])
 	assert(g.equip_item("garrick", armor_uid).contains("equipped"))
-	assert(g.owned_equipment_value() == 143)
+	assert(g.owned_equipment_value() == 105 + 38 + 30 + 28)
 	var without: Array[String] = ["garrick"]
 	var with_guard: Array[String] = ["garrick", "oswin"]
 	var solo: Dictionary = g.harlow_crew_stats(without, "Balanced")
@@ -60,8 +63,8 @@ func _test() -> void:
 	assert(not g.retired_ids.is_empty())
 	assert(g._available_candidate("garrick").is_empty())
 	assert(not g.hire("garrick").contains("joined"))
-	assert(g.owned_equipment_value() == 0)
-	assert(g.equipment_inventory.is_empty())
+	assert(g.owned_equipment_value() == 30 + 28)  # Oswin's sword and the spare pickaxe
+	assert(g.equipment_inventory.size() == 1)
 	assert(g.reports[0]["casualties"].size() == 1)
 	assert(g.reports[0]["lost_items"].size() == 2)
 	assert((g.reports[0]["loot"] as Dictionary).is_empty())
@@ -69,7 +72,7 @@ func _test() -> void:
 	# Returning with a partial haul must work, even when the objective fails.
 	var next_miner: String = ""
 	for candidate in g.recruitment_board():
-		if str(candidate["role"]) == "Miner" and g.merc_by_id(str(candidate["id"])).is_empty():
+		if Mercs.best_trade(candidate) == "mining" and str(candidate["id"]) != "garrick" and g.merc_by_id(str(candidate["id"])).is_empty():
 			next_miner = str(candidate["id"])
 			break
 	assert(not next_miner.is_empty())
@@ -93,7 +96,7 @@ func _test() -> void:
 	assert(restored.reports.size() == 2)
 	assert(restored.retired_ids.has("garrick"))
 	# Regression: hundreds of deaths must never empty the recruitment board. Every name a
-	# generated contractor can have is on the memorial, and every role must still be hireable.
+	# generated contractor can have is on the memorial, and every trade must still be hireable.
 	var memorial: Array = restored.harlow.get("fallen", []).duplicate()
 	for first in MercsV05.FIRST_NAMES:
 		for last in MercsV05.LAST_NAMES:
@@ -101,18 +104,19 @@ func _test() -> void:
 	restored.harlow["fallen"] = memorial
 	var roles: Dictionary = {}
 	for candidate in restored.recruitment_board():
-		roles[str(candidate["role"])] = true
-	assert(roles.has("Woodcutter") and roles.has("Miner") and roles.has("Guard"))
+		roles[Mercs.best_trade(candidate)] = true
+	assert(roles.has("logging") and roles.has("mining") and roles.has("combat"))
 	restored.harlow["fallen"] = memorial.slice(0, memorial.size() - MercsV05.FIRST_NAMES.size() * MercsV05.LAST_NAMES.size())
 	assert(restored.next_item_id >= 3)
 	assert(restored.merc_by_id(next_miner).size() > 0)
 	# Companies can sell owned gear without creating duplicates.
 	assert(restored.buy_equipment("rusted_sword").contains("Purchased"))
-	var loose: String = str(restored.equipment_inventory[0]["uid"])
+	var loose: String = str(restored.equipment_inventory.back()["uid"])
 	var before: int = restored.gold
+	var held: int = restored.equipment_inventory.size()
 	assert(restored.sell_equipment(loose).contains("Sold"))
 	assert(restored.gold > before)
-	assert(restored.equipment_inventory.is_empty())
+	assert(restored.equipment_inventory.size() == held - 1)
 	# Guild relief has a debt, not free money.
 	restored.gold = 0
 	restored.relief_debt = 0
@@ -146,7 +150,7 @@ func _test() -> void:
 	restored.gold = 0  # Extreme starting setback with no emergency advance.
 	var replacement_guard: Dictionary = {}
 	for applicant in restored.recruitment_board():
-		if str(applicant["role"]) == "Guard" and (replacement_guard.is_empty() or int(applicant["hire"]) < int(replacement_guard["hire"])):
+		if Mercs.best_trade(applicant) == "combat" and (replacement_guard.is_empty() or int(applicant["hire"]) < int(replacement_guard["hire"])):
 			replacement_guard = applicant
 	assert(not replacement_guard.is_empty())
 	var saved_xp: int = int(restored.merc_by_id("garrick").get("xp", 0))
@@ -212,6 +216,11 @@ func _test() -> void:
 	assert(migrated.gold == 175)
 	assert(migrated.merc_by_id("old").has("equipment"))
 	assert(int(migrated.merc_by_id("old")["gear"]) == 2)
+	# Archetypes are gone: the old role becomes background and each gets one trait.
+	assert(not migrated.merc_by_id("old").has("role"))
+	assert(str(migrated.merc_by_id("old")["background"]) == "Miner")
+	assert((migrated.merc_by_id("old")["traits"] as Array).size() == 1)
+	assert(Mercs.level(migrated.merc_by_id("old"), "mining") > 1)
 	migrated.reset_company()
 	print("V0.5 equipment, permadeath, partial mining, debt, and migration tests passed.")
 	quit(0)

@@ -88,10 +88,10 @@ func share(site: String, now: int) -> Array[Dictionary]:
 
 ## Roll a trip's finds from the share. Found items are claimed at once (the crew has them),
 ## but only become the company's if the finder makes it home.
-func roll_finds(site: String, orders: String, now: int, rng: RandomNumberGenerator) -> Array[Dictionary]:
+func roll_finds(site: String, orders: String, now: int, rng: RandomNumberGenerator, mult: float = 1.0) -> Array[Dictionary]:
 	var found: Array[Dictionary] = []
 	var pool: Array[Dictionary] = share(site, now)
-	var chance: float = float(FIND_CHANCE.get(orders, FIND_CHANCE["Balanced"]))
+	var chance: float = minf(0.95, float(FIND_CHANCE.get(orders, FIND_CHANCE["Balanced"])) * mult)
 	for i in range(MAX_FINDS):
 		if pool.is_empty() or rng.randf() >= chance:
 			break

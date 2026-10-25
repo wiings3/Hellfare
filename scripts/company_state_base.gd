@@ -22,13 +22,12 @@ const RESOURCE_DESC := {
 }
 const BASE_PRICE := {"copper": 20, "iron": 17, "timber": 6, "herbs": 5, "silver": 28, "crystal": 75, "relic": 550, "sovereign": 12500}
 
+## Named mercenaries who turn up on the board once a company is reputable enough for them.
 const RECRUITS := [
-	{"id": "garrick", "name": "Garrick", "role": "Miner", "title": "The Quarry Hand", "skill": 11, "hire": 70, "wage": 9, "share": 0.09},
-	{"id": "mara", "name": "Mara", "role": "Scout", "title": "The Trailwatcher", "skill": 14, "hire": 110, "wage": 13, "share": 0.10},
-	{"id": "oswin", "name": "Oswin", "role": "Guard", "title": "The Oathbreaker", "skill": 17, "hire": 185, "wage": 19, "share": 0.12},
-	{"id": "ilya", "name": "Ilya", "role": "Scout", "title": "The Ashwalker", "skill": 21, "hire": 390, "wage": 30, "share": 0.15},
-	{"id": "bram", "name": "Bram", "role": "Miner", "title": "The Deep Delver", "skill": 25, "hire": 650, "wage": 42, "share": 0.16},
-	{"id": "serah", "name": "Serah", "role": "Guard", "title": "The Iron Vanguard", "skill": 34, "hire": 1350, "wage": 67, "share": 0.18}
+	{"id": "garrick", "name": "Garrick", "focus": "mining", "level": 4, "traits": ["steady_hands"], "hire": 70, "wage": 9, "share": 0.09},
+	{"id": "oswin", "name": "Oswin", "focus": "combat", "level": 5, "traits": ["tough"], "hire": 185, "wage": 12, "share": 0.10},
+	{"id": "bram", "name": "Bram", "focus": "mining", "level": 18, "traits": ["strong_back"], "hire": 1900, "wage": 17, "share": 0.13},
+	{"id": "serah", "name": "Serah", "focus": "combat", "level": 28, "traits": ["brawler", "lucky"], "hire": 4200, "wage": 23, "share": 0.15}
 ]
 const REGIONS := [
 	{"id": "lowlands", "name": "The Mossward Lowlands", "tagline": "Short supply runs through old logging roads.", "focus": "Guard", "threat": 21, "time": 75, "supplies": 12, "rep": 0,
@@ -113,6 +112,7 @@ func load_game() -> void:
 		if not merc.has("equipment"):
 			merc["equipment"] = {"tool": {}, "armor": {}}
 		TradeSkills.ensure(merc)
+		Mercs.migrate(merc)
 	market.load_dict(state.get("market", {}))
 	hall.load_dict(state.get("hall", {}))
 	fallen.load_dict(state.get("fallen", {}))
@@ -147,11 +147,24 @@ func region_by_id(id: String) -> Dictionary:
 			return region
 	return {}
 
+## A named recruit as an applicant (skills, traits and the basic tool for their trade).
 func recruit_by_id(id: String) -> Dictionary:
-	for candidate in RECRUITS:
-		if candidate["id"] == id:
-			return candidate
+	for d in RECRUITS:
+		if d["id"] != id:
+			continue
+		var skills: Dictionary = {}
+		for trade in TradeSkills.TRADES:
+			skills[trade] = TradeSkills.xp_for_level(int(d["level"]) if trade == str(d["focus"]) else 1)
+		var person: Dictionary = {"id": d["id"], "name": d["name"], "skills": skills, "traits": (d["traits"] as Array).duplicate(),
+			"hire": d["hire"], "wage": d["wage"], "share": d["share"], "kit": Mercs.STARTER_TOOL[d["focus"]],
+			"skill": 8 + int(d["level"]), "kind": "recruit"}
+		person["min_tier"] = Mercs.min_tier(person)
+		return person
 	return {}
+
+## The company's reputation tier (see Mercs.TIERS).
+func rep_tier() -> int:
+	return Mercs.tier_for(reputation)
 
 func merc_by_id(id: String) -> Dictionary:
 	for merc in crew:
@@ -162,15 +175,20 @@ func merc_by_id(id: String) -> Dictionary:
 func is_available(merc: Dictionary) -> bool:
 	return str(merc.get("mission_id", "")) == ""
 
+## Who can be signed now: named mercenaries the company is reputable enough for, the
+## half-hourly applicants (better ones at higher reputation) and contracts other guilds sell.
 func recruitment_board() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
-	for candidate in RECRUITS:
-		if str(candidate["role"]) != "Scout" and merc_by_id(str(candidate["id"])).is_empty() and not _is_retired(candidate):
-			result.append(candidate.duplicate(true))
-	var epoch: int = int(GameClock.now() / 1800.0)
-	for candidate in V05.generate_board(epoch):
-		if merc_by_id(str(candidate["id"])).is_empty() and not _is_retired(candidate):
-			result.append(candidate)
+	var tier: int = rep_tier()
+	var now: int = GameClock.now()
+	var people: Array[Dictionary] = []
+	for d in RECRUITS:
+		people.append(recruit_by_id(str(d["id"])))
+	people.append_array(Mercs.generate_board(int(now / 1800.0), tier))
+	people.append_array(Mercs.guild_contracts(int(now / float(Mercs.CONTRACT_EPOCH)), tier))
+	for person in people:
+		if int(person.get("min_tier", 0)) <= tier and merc_by_id(str(person["id"])).is_empty() and not _is_retired(person):
+			result.append(person)
 	return result
 
 func _is_retired(candidate: Dictionary) -> bool:
@@ -199,22 +217,71 @@ func hire(id: String) -> String:
 		return "Recruit not found."
 	if gold < int(candidate["hire"]):
 		return "Not enough gold to hire this mercenary."
+	if int(candidate.get("min_tier", 0)) > rep_tier():
+		return "%s won't join a company of your reputation." % str(candidate["name"])
 	var merc: Dictionary = candidate.duplicate(true)
 	merc["gear"] = 0
 	merc["equipment"] = {"tool": {}, "armor": {}}
+	var kit: String = str(merc.get("kit", ""))
+	if V05.ITEMS.has(kit):
+		merc["equipment"]["tool"] = make_item(kit)
 	merc["health"] = 100
 	merc["xp"] = 0
 	merc["contract"] = "Balanced"
 	merc["mission_id"] = ""
-	merc["skills"] = TradeSkills.starting_skills(str(merc.get("role", "")), int(merc.get("skill", 10)))
-	gold -= int(merc["hire"])
+	merc["hired_at"] = GameClock.now()
+	var bought: bool = str(merc.get("kind", "")) == "contract"
+	if bought:
+		merc["settle_until"] = GameClock.now() + Mercs.SETTLE_SECONDS
+	for key in ["kit", "kind", "price"]:
+		merc.erase(key)
+	gold -= int(candidate["hire"])
 	crew.append(merc)
 	save_game()
+	if bought:
+		return "%s's contract is yours, bought from %s." % [str(merc["name"]), str(merc.get("from", "another guild"))]
 	return "%s has joined your company." % str(merc["name"])
+
+## What an NPC guild pays for a mercenary's contract today: half their shown value.
+func contract_offer(merc: Dictionary) -> int:
+	return int(round(float(Mercs.value(merc)) * Mercs.NPC_BUY))
+
+## Seconds before a transferred mercenary can be sold again (0 when free to sell).
+func settling_left(merc: Dictionary) -> int:
+	return maxi(0, int(merc.get("settle_until", 0)) - GameClock.now())
+
+## Sell a mercenary's contract (with the gear they wear) to another guild. Mercenaries talk:
+## every sale costs a little reputation.
+func sell_contract(id: String) -> String:
+	var merc := merc_by_id(id)
+	if merc.is_empty():
+		return "Mercenary not found."
+	if not is_available(merc):
+		return "%s is in the field." % str(merc["name"])
+	if settling_left(merc) > 0:
+		return "%s is still settling in and can't be sold yet." % str(merc["name"])
+	var offer: int = contract_offer(merc)
+	var loss: int = maxi(Mercs.SALE_REP_MIN, int(float(reputation) * Mercs.SALE_REP_LOSS))
+	reputation = maxi(0, reputation - loss)
+	gold += offer
+	crew.erase(merc)
+	retired_ids.append(id)
+	_apply_relief_payment()
+	save_game()
+	return "Sold %s's contract for %d G. Word gets around: reputation -%d." % [str(merc["name"]), offer, loss]
+
+## Reputation comes from what a company delivers (merchant value of the haul); a crew that
+## never comes back costs a little.
+func _earn_reputation(value: int, wiped_out: bool = false) -> void:
+	reputation += maxi(0, int(round(float(value) * Mercs.REP_PER_GOLD)))
+	if wiped_out:
+		reputation = maxi(0, reputation - maxi(3, int(float(reputation) * 0.01)))
 
 func terms(merc: Dictionary) -> Dictionary:
 	var wage: int = int(merc.get("wage", 10))
-	var cut: float = float(merc.get("share", 0.10))
+	if Mercs.has_trait(merc, "frugal"):
+		wage = maxi(1, int(round(float(wage) * 0.8)))
+	var cut: float = float(merc.get("share", 0.10)) + (0.05 if Mercs.has_trait(merc, "greedy") else 0.0)
 	match str(merc.get("contract", "Balanced")):
 		"Guaranteed Wage":
 			wage = int(ceil(float(wage) * 1.8))
@@ -294,14 +361,14 @@ static func treat_cost(merc: Dictionary) -> int:
 ## Seconds until a resting mercenary is back to full health (0 if healthy).
 static func rest_eta(merc: Dictionary) -> int:
 	var missing: int = 100 - int(merc.get("health", 100))
-	return 0 if missing <= 0 else int(ceil(float(missing) * 3600.0 / float(REST_PER_HOUR)))
+	return 0 if missing <= 0 else int(ceil(float(missing) * 3600.0 / (float(REST_PER_HOUR) * Mercs.rest_mult(merc))))
 
 ## Resting: idle mercenaries heal over time, including while the game is closed.
 func rest(now: int = -1) -> void:
 	if now < 0:
 		now = GameClock.now()
-	var per_point: float = 3600.0 / float(REST_PER_HOUR)
 	for merc in crew:
+		var per_point: float = 3600.0 / (float(REST_PER_HOUR) * Mercs.rest_mult(merc))
 		if not is_available(merc) or int(merc.get("health", 100)) >= 100:
 			merc.erase("rest_t")
 			continue
@@ -355,7 +422,7 @@ func expand_operations() -> String:
 func merc_power(merc: Dictionary, region: Dictionary) -> int:
 	var power: int = int(merc.get("skill", 10)) + int(merc.get("gear", 0)) * 8
 	power += int(merc.get("xp", 0)) / 3
-	if str(merc.get("role", "")) == str(region.get("focus", "")):
+	if Mercs.role_of(merc) == str(region.get("focus", "")):
 		power += 7
 	power = int(round(float(power) * (0.5 + float(merc.get("health", 100)) / 200.0)))
 	return power
@@ -568,7 +635,7 @@ func _finish(mission: Dictionary) -> void:
 		merc["xp"] = int(merc.get("xp", 0)) + (1 if succeeded else 0)
 		if not succeeded:
 			merc["health"] = maxi(20, int(merc.get("health", 100)) - rng.randi_range(12, 32))
-	reputation += 3 if succeeded else 1
+	_earn_reputation(gross_value)
 	var result: Dictionary = {
 		"region": str(region["name"]), "won": succeeded, "loot": loot, "cash": cash_found,
 		"commission": commission, "cost": int(mission["cost"]), "gross": gross_value,
@@ -817,8 +884,6 @@ func equip_item(merc_id: String, uid: String) -> String:
 		return "Equipment not found in the armory."
 	var item: Dictionary = equipment_inventory[index]
 	var key: String = str(item.get("key", ""))
-	if not V05.validate_role(key, merc):
-		return "This item cannot be equipped by that role."
 	var slot: String = str(item_definition(key)["slot"])
 	var worn: Dictionary = merc.get("equipment", {"tool": {}, "armor": {}})
 	var previous: Dictionary = worn.get(slot, {})
@@ -941,7 +1006,11 @@ func _site_finish(_mission: Dictionary) -> void:
 func _roll_fallen(mission: Dictionary, site_id: String) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(mission["seed"]) ^ 0x5f3759
-	var found: Array[Dictionary] = fallen.roll_finds(site_id, str(mission.get("tactic", "Balanced")), int(mission["started"]), rng)
+	var team: Array = []
+	for id in mission.get("ids", []):
+		team.append(merc_by_id(str(id)))
+	var keen: float = 1.5 if Mercs.crew_has(team, "keen_eye") else 1.0
+	var found: Array[Dictionary] = fallen.roll_finds(site_id, str(mission.get("tactic", "Balanced")), int(mission["started"]), rng, keen)
 	if found.is_empty():
 		return
 	var ids: Array = mission.get("ids", [])

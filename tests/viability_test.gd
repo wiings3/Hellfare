@@ -26,9 +26,9 @@ func _initialize() -> void:
 	var cutter: String = ""
 	var miner: String = ""
 	for c in g.recruitment_board():
-		if str(c["role"]) == "Woodcutter" and cutter == "":
+		if Mercs.best_trade(c) == "logging" and cutter == "":
 			cutter = str(c["id"])
-		if str(c["role"]) == "Miner" and miner == "":
+		if Mercs.best_trade(c) == "mining" and miner == "":
 			miner = str(c["id"])
 	g.hire(cutter)
 	var ids: Array[String] = [cutter]
