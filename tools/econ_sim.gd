@@ -346,13 +346,13 @@ func _treat() -> void:
 				g.treat(str(merc["id"]))
 				rec["treat_spend"] = int(rec["treat_spend"]) + cost
 
+## Sign the next expedition charter once it's allowed and affordable with a little to spare.
 func _expand() -> void:
-	if g.expedition_slots >= 3 or strategy == "hall_trader":
+	if g.next_charter() == "" or strategy == "hall_trader":
 		return
-	var cost: int = g.expansion_cost()
-	if g.gold >= cost + 250:
-		g.expand_operations()
-		(rec["slots"] as Array).append({"h": snappedf(_elapsed_h(), 0.01), "slots": g.expedition_slots})
+	if g.charter_block().is_empty() and g.gold >= g.expansion_cost() + 250:
+		if g.expand_operations().contains("signed"):
+			(rec["slots"] as Array).append({"h": snappedf(_elapsed_h(), 0.01), "slots": g.expedition_slots})
 
 func _hire(role: String, max_count: int) -> void:
 	var have: int = 0

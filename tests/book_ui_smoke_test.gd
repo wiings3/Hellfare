@@ -215,6 +215,7 @@ func _verify() -> void:
 	var before_price: int = view.game.sell_price("timber")
 	view.game.trade("timber", false, int(view.game.resources["timber"]))
 	check(view.game.sell_price("timber") <= before_price, "selling saturates the merchants")
+	view.market_filter = "all"
 	view._nav_to("market")
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/List/Items").get_child_count() == MoneyMercsState.RESOURCE_ORDER.size(), "market rows")
 	(view.left_leaf.get_child(0).get_node("Margin/Content/Filter/Food") as Button).pressed.emit()
@@ -439,5 +440,19 @@ func _verify() -> void:
 		push_error("%d BookUI checks failed." % failures)
 		quit(1)
 		return
+	# Expedition charters: signed in order from the Ledger, the third needs Respected reputation.
+	view.game.reset_company()
+	view.game.gold = 20000
+	view._nav_to("finance")
+	var sign := view.left_leaf.get_child(0).get_node("Margin/Content/Slots/Expand") as Button
+	check(not sign.disabled, "first charter can be signed")
+	sign.pressed.emit()
+	check(view.game.expedition_slots == 2 and view.game.upgrades.has("charter_1"), "charter I opens a second slot")
+	check(view.game.charter_block().begins_with("Needs Respected"), "charter II waits on reputation")
+	check((view.left_leaf.get_child(0).get_node("Margin/Content/Slots/Expand") as Button).disabled, "sign button waits too")
+	view.game.reputation = 5000
+	check(view.game.build_upgrade("charter_3").begins_with("Charters are built in order"), "charters go in order")
+	check(view.game.expand_operations().contains("signed") and view.game.expedition_slots == 3, "charter II opens a third slot")
+	view.game.reset_company()
 	print("BookUI page navigation, equipment desk, merchant selection, and page-turn assets passed.")
 	quit(0)

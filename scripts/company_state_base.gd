@@ -237,7 +237,7 @@ func load_game() -> void:
 		return
 	gold = int(state.get("gold", 350))
 	reputation = int(state.get("reputation", 0))
-	expedition_slots = clampi(int(state.get("expedition_slots", 1)), 1, 3)
+	expedition_slots = clampi(int(state.get("expedition_slots", 1)), 1, MAX_SLOTS)
 	next_mission_id = maxi(1, int(state.get("next_mission_id", 1)))
 	var saved_resources: Dictionary = state.get("resources", {})
 	for id in RESOURCE_ORDER:
@@ -599,23 +599,34 @@ func treat(id: String) -> String:
 	save_game()
 	return "%s recovered for %d gold." % [str(merc["name"]), cost]
 
-## Price of the next expedition slot (0 when all three are open).
+## Expedition charters are the only way to field more crews (see data/catalog.json, upgrades):
+## charter_N opens slot N+1, for gold plus materials and, from the third crew, a reputation tier.
+const MAX_SLOTS := 5
+
+## The next charter to build, or "" when every slot is open.
+func next_charter() -> String:
+	return "charter_%d" % expedition_slots if expedition_slots < MAX_SLOTS else ""
+
+## Why the next charter can't be built yet ("" when it can).
+func charter_block() -> String:
+	var id: String = next_charter()
+	if id == "":
+		return "Every expedition slot is open."
+	var c: Dictionary = Catalog.data()["upgrades"][id]
+	if reputation < int(c.get("rep", 0)):
+		return "Needs %s reputation (%s)." % [Mercs.tier_name(Mercs.tier_for(int(c["rep"]))), str(int(c["rep"]))]
+	if gold < upgrade_gold(id):
+		return "Needs %d gold, counting materials bought from the merchants." % upgrade_gold(id)
+	return ""
+
+## Old name for the next charter's price (0 when every slot is open).
 func expansion_cost() -> int:
-	match expedition_slots:
-		1: return 1500
-		2: return 9000
-	return 0
+	return upgrade_gold(next_charter()) if next_charter() != "" else 0
 
 func expand_operations() -> String:
-	if expedition_slots >= 3:
+	if next_charter() == "":
 		return "Maximum expedition capacity reached."
-	var cost: int = expansion_cost()
-	if gold < cost:
-		return "You need %d gold to expand operations." % cost
-	gold -= cost
-	expedition_slots += 1
-	save_game()
-	return "You can now operate %d expeditions at once." % expedition_slots
+	return build_upgrade(next_charter())
 
 func merc_power(merc: Dictionary, region: Dictionary) -> int:
 	var power: int = int(merc.get("skill", 10)) + int(merc.get("gear", 0)) * 8
@@ -1263,9 +1274,10 @@ func upgrade_shop() -> Array:
 			out.append(id)
 	return out
 
-## Gold a building would take: missing materials at merchant prices.
+## Gold a building would take: its own gold price plus missing materials at merchant prices.
 func upgrade_gold(id: String) -> int:
-	return repair_gold(Catalog.data()["upgrades"][id]["cost"])
+	var u: Dictionary = Catalog.data()["upgrades"][id]
+	return int(u.get("gold", 0)) + repair_gold(u["cost"])
 
 ## Build: materials come from the warehouse; anything missing is bought from the merchants.
 func build_upgrade(id: String) -> String:
@@ -1274,13 +1286,19 @@ func build_upgrade(id: String) -> String:
 		return "No such building."
 	if upgrades.has(id):
 		return "Already built."
+	var charter: bool = id.begins_with("charter_")
+	if charter:
+		if id != next_charter():
+			return "Charters are built in order; the next is %s." % str(all.get(next_charter(), {}).get("name", "none"))
+		if reputation < int(all[id].get("rep", 0)):
+			return charter_block()
 	var cost: Dictionary = all[id]["cost"]
 	for part in cost:
 		if int(resources.get(str(part), 0)) < int(cost[part]) and not merchants_sell(str(part)):
 			return "You need %d %s; merchants don't sell it." % [int(cost[part]), str(RESOURCE_NAMES.get(part, part))]
 	var spend: int = upgrade_gold(id)
 	if gold < spend:
-		return "Building needs %d gold for missing materials." % spend
+		return "That needs %d gold, counting materials bought from the merchants." % spend
 	for part in cost:
 		var short: int = int(cost[part]) - int(resources.get(str(part), 0))
 		if short > 0:
@@ -1289,8 +1307,13 @@ func build_upgrade(id: String) -> String:
 		resources[part] = int(resources[part]) - int(cost[part])
 	gold -= spend
 	upgrades.append(id)
+	if charter:
+		expedition_slots += 1
 	save_game()
-	return "Built the %s%s." % [str(all[id]["name"]), (" (%d G of materials bought)" % spend) if spend > 0 else ""]
+	if charter:
+		return "%s signed: %d crews can be in the field at once." % [str(all[id]["name"]), expedition_slots]
+	var bought: int = spend - int(all[id].get("gold", 0))
+	return "Built the %s%s." % [str(all[id]["name"]), (" (%d G of materials bought)" % bought) if bought > 0 else ""]
 
 # --- Repairs --------------------------------------------------------------------------
 

@@ -494,6 +494,11 @@ func _needs() -> Array:
 	if idle > 0 and game.missions.size() < game.expedition_slots:
 		out.append({"icon": ROLE_ICONS["Guard"], "title": "%s idle" % _plural(idle, "mercenary").replace("mercenarys", "mercenaries"),
 			"details": "Idle hands draw %s a day" % _money(game.idle_upkeep_total()), "action": "Send out", "call": _turn_to.bind("expeditions")})
+	var next_charter: String = game.next_charter()
+	if next_charter != "" and game.charter_block().is_empty():
+		var charter: Dictionary = Catalog.data()["upgrades"][next_charter]
+		out.append({"icon": ICON_FIELD, "title": "%s is within reach" % str(charter["name"]), "details": str(charter["effect"]),
+			"action": "Sign  ·  %s" % _money(game.upgrade_gold(next_charter)), "call": func() -> void: _action(game.build_upgrade(next_charter))})
 	if game.can_accept_guild_work():
 		out.append({"icon": ICON_GUILD, "title": "The guild offers safe work", "details": "Small, risk-free jobs for companies on hard times",
 			"action": "Guild work", "call": _turn_to.bind("guildwork")})
@@ -1431,18 +1436,26 @@ func _draw_accounts() -> void:
 	(left.get_node(rows + "Gear/Value") as Label).text = _money(gear)
 	(left.get_node(rows + "Debt/Value") as Label).text = "-" + _money(game.relief_debt) if game.relief_debt > 0 else "None"
 	(left.get_node(rows + "Total/Value") as Label).text = _money(game.wealth())
-	# Expedition capacity.
+	# Expedition capacity: charters open more slots.
 	left.get_node(c + "Slots/Text/Pips").value = game.expedition_slots
-	(left.get_node(c + "Slots/Text/Caption") as Label).text = "Expedition slots  ·  %d of 3" % game.expedition_slots
+	(left.get_node(c + "Slots/Text/Caption") as Label).text = "Expedition slots  ·  %d of %d" % [game.expedition_slots, MoneyMercsState.MAX_SLOTS]
 	var expand := left.get_node(c + "Slots/Expand") as Button
-	if game.expedition_slots >= 3:
-		expand.text = "Fully expanded"
+	var note := left.get_node(c + "SlotsNote") as Label
+	var next: String = game.next_charter()
+	if next == "":
+		expand.text = "All slots open"
 		expand.disabled = true
+		note.text = "Your company holds every expedition charter."
 	else:
-		var cost: int = game.expansion_cost()
-		expand.text = "Expand  ·  %s" % _money(cost)
-		expand.disabled = game.gold < cost
-		expand.pressed.connect(func() -> void: _action(game.expand_operations()))
+		var charter: Dictionary = Catalog.data()["upgrades"][next]
+		var block: String = game.charter_block()
+		expand.text = "Sign  ·  %s" % _money(game.upgrade_gold(next))
+		expand.disabled = not block.is_empty()
+		expand.tooltip_text = "%s: %s.\nCosts %s and %s; materials you lack are bought from the merchants." % [str(charter["name"]), str(charter["effect"]).to_lower(), _money(int(charter.get("gold", 0))), _cost_line(charter["cost"])]
+		expand.pressed.connect(func() -> void: _action(game.build_upgrade(next)))
+		note.text = "Next: %s  ·  %s + %s%s" % [str(charter["name"]), _money(int(charter.get("gold", 0))), _cost_line(charter["cost"]),
+			("  ·  " + block) if game.reputation < int(charter.get("rep", 0)) else ""]
+		note.theme_type_variation = &"LabelAccent" if game.reputation < int(charter.get("rep", 0)) else &"LabelCaption"
 	var payroll: int = 0
 	for merc in game.crew:
 		payroll += int(game.terms(merc)["wage"])

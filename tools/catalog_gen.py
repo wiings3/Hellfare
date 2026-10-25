@@ -371,13 +371,19 @@ INTERMEDIATES = {
 
 # ---------------------------------------------------------------- company upgrades
 UPGRADES = {
-    "charter_1": ("Expedition Charter I", {"timber": 40, "iron": 20}, "+1 expedition slot", []),
-    "charter_2": ("Expedition Charter II", {"oak": 40, "steel_ingot": 10}, "+1 expedition slot", []),
-    "charter_3": ("Expedition Charter III", {"yew": 30, "silversteel_ingot": 8}, "+1 expedition slot", []),
+    "charter_1": ("Expedition Charter I", {"timber": 40, "iron": 20}, "A second crew in the field", []),
+    "charter_2": ("Expedition Charter II", {"oak": 40, "steel_ingot": 10}, "A third crew in the field", []),
+    "charter_3": ("Expedition Charter III", {"oak": 60, "silversteel_ingot": 10}, "A fourth crew in the field", []),
+    "charter_4": ("Expedition Charter IV", {"oak": 80, "silversteel_ingot": 25, "crystal": 10}, "A fifth crew in the field", []),
     "field_plots": ("Field Plots", {"timber": 30, "iron": 6}, "Opens the Tilled Acres (barley, potatoes)", ["tilled_acres"]),
     "apiary": ("Apiary", {"timber": 20, "linen": 4}, "Opens the Beehives (honey)", ["beehives"]),
     "glasshouse_build": ("Glasshouse", {"oak": 30, "crystal": 2, "iron": 8}, "Opens the Glasshouse (emberpepper)", ["glasshouse"]),
 }
+
+# Expedition charters are the only way to field more crews: gold plus materials, and from the
+# third crew on, a reputation tier. charter_N opens slot N+1, in order.
+CHARTERS = {"charter_1": {"gold": 1200, "rep": 0}, "charter_2": {"gold": 8000, "rep": 5000},
+            "charter_3": {"gold": 30000, "rep": 25000}, "charter_4": {"gold": 90000, "rep": 75000}}
 
 CRAFT_MARKUP = 1.4
 BLUEPRINT_PRICE = {1: 40, 2: 150}
@@ -561,7 +567,7 @@ def build():
                      **{k: {"name": s["name"], "hands": 1, "blurb": s["blurb"]} for k, s in SHIELDS.items()}},
         "armour_weights": {k: {"blurb": a["blurb"]} for k, a in ARMOUR_WEIGHTS.items()},
         "buffs": BUFFS,
-        "upgrades": {k: {"name": n, "cost": c, "effect": e, "unlocks": u} for k, (n, c, e, u) in UPGRADES.items()},
+        "upgrades": {k: dict({"name": n, "cost": c, "effect": e, "unlocks": u}, **CHARTERS.get(k, {})) for k, (n, c, e, u) in UPGRADES.items()},
         "rules": {"craft_markup": CRAFT_MARKUP, "affix_scale": {str(k): v for k, v in AFFIX_SCALE.items()},
                   "slot_weight": SLOT_WEIGHT, "two_hand_weight": 6, "dungeon_min_kit": {"1": 8, "2": 24, "3": 36},
                   "wear": {"site_trip": 1, "dungeon_run": 4}, "worn_effect": 0.5},

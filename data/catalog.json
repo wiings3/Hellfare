@@ -6986,8 +6986,10 @@
     "timber": 40,
     "iron": 20
    },
-   "effect": "+1 expedition slot",
-   "unlocks": []
+   "effect": "A second crew in the field",
+   "unlocks": [],
+   "gold": 1200,
+   "rep": 0
   },
   "charter_2": {
    "name": "Expedition Charter II",
@@ -6995,17 +6997,33 @@
     "oak": 40,
     "steel_ingot": 10
    },
-   "effect": "+1 expedition slot",
-   "unlocks": []
+   "effect": "A third crew in the field",
+   "unlocks": [],
+   "gold": 8000,
+   "rep": 5000
   },
   "charter_3": {
    "name": "Expedition Charter III",
    "cost": {
-    "yew": 30,
-    "silversteel_ingot": 8
+    "oak": 60,
+    "silversteel_ingot": 10
    },
-   "effect": "+1 expedition slot",
-   "unlocks": []
+   "effect": "A fourth crew in the field",
+   "unlocks": [],
+   "gold": 30000,
+   "rep": 25000
+  },
+  "charter_4": {
+   "name": "Expedition Charter IV",
+   "cost": {
+    "oak": 80,
+    "silversteel_ingot": 25,
+    "crystal": 10
+   },
+   "effect": "A fifth crew in the field",
+   "unlocks": [],
+   "gold": 90000,
+   "rep": 75000
   },
   "field_plots": {
    "name": "Field Plots",

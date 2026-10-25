@@ -200,16 +200,22 @@ text = "Expedition slots"
 [node name="Pips" parent="Margin/Content/Slots/Text" instance=ExtResource("3_pip_row")]
 layout_mode = 2
 value = 1
-max_value = 3
+max_value = 5
 gold = true
 
 [node name="Expand" type="Button" parent="Margin/Content/Slots"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"PaperButton"
-text = "Expand"
+text = "Sign charter"
 size_flags_vertical = 4
-tooltip_text = "Run more expeditions at the same time."
+tooltip_text = "An expedition charter lets one more crew work at the same time."
+
+[node name="SlotsNote" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
 
 [node name="Costs" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
