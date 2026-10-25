@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://by6klxuxek6c1"]
+[gd_scene load_steps=18 format=3 uid="uid://by6klxuxek6c1"]
 
 [ext_resource type="Texture2D" uid="uid://03hskmpl7e6m" path="res://assets/ui/book/tabs/1.png" id="book"]
 [ext_resource type="Texture2D" uid="uid://t61vjtyty58h" path="res://assets/ui/tab_icons/chronicle.png" id="chronicle"]
@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/pm_window.tscn" id="pmwindow"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/trade_window.tscn" id="tradewindow"]
 [ext_resource type="Texture2D" uid="uid://nrj7sru86b3a" path="res://assets/ui/tab_icons/personnel.png" id="personnel"]
+[ext_resource type="Texture2D" path="res://assets/ui/tab_icons/workshop.png" id="workshop"]
 
 [sub_resource type="AtlasTexture" id="tab_strip"]
 atlas = ExtResource("book")
@@ -216,7 +217,7 @@ offset_top = 146.0
 offset_right = 25.0
 offset_bottom = 170.0
 mouse_filter = 2
-texture = ExtResource("exchange")
+texture = ExtResource("workshop")
 
 [node name="TabIcon4" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
@@ -224,7 +225,7 @@ offset_top = 194.0
 offset_right = 24.0
 offset_bottom = 218.0
 mouse_filter = 2
-texture = ExtResource("finances")
+texture = ExtResource("exchange")
 
 [node name="TabIcon5" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
@@ -248,7 +249,7 @@ layout_mode = 0
 offset_right = 44.0
 offset_bottom = 37.0
 tooltip_text = "Company
-Treasury, crew and recent returns"
+The region map and what needs you today"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -263,7 +264,7 @@ offset_top = 48.0
 offset_right = 44.0
 offset_bottom = 85.0
 tooltip_text = "Expeditions
-Scout Harlow Mines and fund field work"
+Trades, sites and crews"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -277,8 +278,8 @@ layout_mode = 0
 offset_top = 96.0
 offset_right = 44.0
 offset_bottom = 133.0
-tooltip_text = "Personnel
-Hire, equip and manage mercenaries"
+tooltip_text = "Mercenaries
+The roster, their gear, and new recruits"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -292,8 +293,8 @@ layout_mode = 0
 offset_top = 144.0
 offset_right = 44.0
 offset_bottom = 181.0
-tooltip_text = "Exchange
-Buy and sell the company's goods"
+tooltip_text = "Workshop
+Craft, store and buy gear"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -307,8 +308,8 @@ layout_mode = 0
 offset_top = 192.0
 offset_right = 44.0
 offset_bottom = 229.0
-tooltip_text = "Finances
-Accounts, debts and stored goods"
+tooltip_text = "Market
+Merchants and the Trade Hall"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -322,8 +323,8 @@ layout_mode = 0
 offset_top = 240.0
 offset_right = 44.0
 offset_bottom = 277.0
-tooltip_text = "Chronicle
-Expedition reports and casualties"
+tooltip_text = "Ledger
+Accounts, reports and the warehouse"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")

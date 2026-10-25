@@ -7,7 +7,7 @@ extends "res://scripts/game_actions.gd"
 const TAB_SHEETS := "res://assets/ui/book/tabs/"
 const FLIP_FRAMES := "res://assets/ui/book/flip/"
 const FLIP_FRAME_COUNT := 9
-const PHYSICAL_TAB_PAGES := ["hq", "expeditions", "roster", "market", "finance", "ledger"]
+const PHYSICAL_TAB_PAGES := ["hq", "expeditions", "roster", "workshop", "market", "finance"]
 # The tab strip region of a book sheet, repainted above page-turn frames so the
 # chapter tabs never duck behind the turning parchment.
 const TAB_STRIP_REGION := Rect2(84, 276, 44, 286)
@@ -47,6 +47,10 @@ var selected_market_item: String = "copper"
 ## The trade open on the Expeditions index, and the planner's crew filter ("trade", "guards", "all").
 var selected_trade: String = "logging"
 var crew_filter: String = "trade"
+## Mercenaries: the roster filter and the dossier view; the Workshop chapter's tab.
+var roster_filter: String = "all"
+var dossier_view: String = "overview"
+var workshop_tab: String = "craft"
 ## Exchange list filter: "all", "held", "raw", "crafted" or "food".
 var market_filter: String = "all"
 var selected_report_index: int = 0
@@ -125,8 +129,10 @@ func _active_tab_index() -> int:
 	# These secondary pages belong to the Expeditions chapter.
 	if page in ["harlow", "site", "contracts", "guildwork"]:
 		return 1
-	if page == "hall":
-		return 3
+	if page in ["hall", "market"]:
+		return 4
+	if page == "ledger":
+		return 5
 	if page == "standing":
 		return 0
 	return PHYSICAL_TAB_PAGES.find(page)
@@ -155,7 +161,7 @@ func _turn_to(destination: String) -> void:
 	_start_page_flip(direction)
 
 func _tab_index(destination: String) -> int:
-	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "roster", "market", "hall", "finance", "ledger"]
+	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "roster", "workshop", "market", "hall", "finance", "ledger"]
 	return keys.find(destination)
 
 func _start_page_flip(direction: String) -> void:

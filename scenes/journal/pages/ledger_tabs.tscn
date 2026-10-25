@@ -1,0 +1,36 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="ButtonGroup" id="tabs"]
+
+[node name="LedgerTabs" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 34.0
+mouse_filter = 2
+
+[node name="Tabs" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 12.0
+offset_right = 271.0
+offset_bottom = 30.0
+theme_override_constants/separation = 4
+
+[node name="AccountsTab" type="Button" parent="Tabs"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Accounts"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("tabs")
+
+[node name="ReportsTab" type="Button" parent="Tabs"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Reports"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("tabs")

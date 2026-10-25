@@ -25,8 +25,10 @@ const PERSONNEL_EMPLOYEES_LEFT := preload("res://scenes/journal/pages/personnel_
 const PERSONNEL_EMPLOYEES_RIGHT := preload("res://scenes/journal/pages/personnel_employed_right.tscn")
 const PERSONNEL_RECRUITS_LEFT := preload("res://scenes/journal/pages/personnel_recruits_left.tscn")
 const PERSONNEL_RECRUITS_RIGHT := preload("res://scenes/journal/pages/personnel_recruits_right.tscn")
-const PERSONNEL_ARMORY_LEFT := preload("res://scenes/journal/pages/personnel_armory_left.tscn")
-const PERSONNEL_ARMORY_RIGHT := preload("res://scenes/journal/pages/personnel_armory_right.tscn")
+const WORKSHOP_STORE_LEFT := preload("res://scenes/journal/pages/workshop_store_left.tscn")
+const WORKSHOP_STORE_RIGHT := preload("res://scenes/journal/pages/workshop_store_right.tscn")
+const WORKSHOP_TABS := preload("res://scenes/journal/pages/workshop_tabs.tscn")
+const LEDGER_TABS := preload("res://scenes/journal/pages/ledger_tabs.tscn")
 const PERSONNEL_WORKSHOP_LEFT := preload("res://scenes/journal/pages/personnel_workshop_left.tscn")
 const PERSONNEL_WORKSHOP_RIGHT := preload("res://scenes/journal/pages/personnel_workshop_right.tscn")
 const ROW_GEAR_SLOT := preload("res://scenes/journal/rows/gear_slot.tscn")
@@ -88,12 +90,13 @@ const PAGE_TITLES := {
 	"harlow": "Harlow Mines",
 	"expeditions": "Expeditions",
 	"site": "Expedition",
-	"roster": "Personnel",
+	"roster": "Mercenaries",
+	"workshop": "Workshop",
 	"guildwork": "Guild Work",
-	"market": "The Exchange",
+	"market": "The Market",
 	"hall": "The Trade Hall",
-	"finance": "Treasury & Accounts",
-	"ledger": "The Chronicle",
+	"finance": "The Ledger",
+	"ledger": "The Ledger",
 }
 
 ## Callables run once a second to move timers and bars without rebuilding pages.
@@ -131,11 +134,12 @@ func _refresh() -> void:
 		"expeditions": _draw_board()
 		"site": _draw_site()
 		"roster": _draw_people()
+		"workshop": _draw_workshop_chapter()
 		"guildwork": _draw_guild_jobs()
 		"market": _draw_exchange()
 		"hall": _draw_hall()
-		"finance": _draw_accounts()
-		"ledger": _draw_history()
+		"finance": _draw_ledger()
+		"ledger": _draw_ledger()
 		_: _draw_company()
 
 func _update_header() -> void:
@@ -570,18 +574,26 @@ func _set_bust(rect: TextureRect, role: String) -> void:
 func _draw_people() -> void:
 	match roster_tab:
 		"recruits": _draw_recruitment()
-		"armory": _draw_armory_page()
-		"workshop": _draw_workshop()
 		_: _draw_employees()
 	var tabs := _mount_page(PERSONNEL_TABS, left_leaf)
-	for tab in [["EmployeesTab", "employed"], ["RecruitmentTab", "recruits"], ["ArmoryTab", "armory"], ["WorkshopTab", "workshop"]]:
+	for tab in [["EmployeesTab", "employed"], ["RecruitmentTab", "recruits"]]:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
-		btn.set_pressed_no_signal(roster_tab == str(tab[1]) or (str(tab[1]) == "employed" and roster_tab not in ["recruits", "armory", "workshop"]))
+		btn.set_pressed_no_signal(roster_tab == str(tab[1]) or (str(tab[1]) == "employed" and roster_tab != "recruits"))
 		btn.pressed.connect(_set_roster_tab.bind(str(tab[1])))
+	(tabs.get_node("Tabs/EmployeesTab") as Button).text = "Roster  ·  %d" % game.crew.size()
+	(tabs.get_node("Tabs/RecruitmentTab") as Button).text = "Recruit  ·  %d" % game.recruitment_board().size()
 
 func _focus_person(id: String) -> void:
 	selected_merc = id
 	_refresh()
+
+## Does this mercenary pass the roster filter (all, ready, out, hurt)?
+func _roster_shows(merc: Dictionary) -> bool:
+	match roster_filter:
+		"ready": return game.is_available(merc) and int(merc.get("health", 100)) >= 60
+		"out": return not game.is_available(merc)
+		"hurt": return int(merc.get("health", 100)) < 60
+	return true
 
 func _draw_employees() -> void:
 	var left := _mount_page(PERSONNEL_EMPLOYEES_LEFT, left_leaf)
@@ -589,34 +601,44 @@ func _draw_employees() -> void:
 	var c := "Margin/Content/"
 	if (selected_merc.is_empty() or game.merc_by_id(selected_merc).is_empty()) and not game.crew.is_empty():
 		selected_merc = str(game.crew[0]["id"])
-	var grid := left.get_node(c + "List/Items") as GridContainer
+	for pair in [["All", "all"], ["Ready", "ready"], ["Out", "out"], ["Hurt", "hurt"]]:
+		var tab := left.get_node(c + "Filter/" + str(pair[0])) as Button
+		tab.set_pressed_no_signal(roster_filter == str(pair[1]))
+		tab.pressed.connect(func() -> void:
+			roster_filter = str(pair[1])
+			_refresh())
+	var list := left.get_node(c + "List/Items") as VBoxContainer
 	var payroll: int = 0
 	for merc in game.crew:
+		payroll += int(game.terms(merc)["wage"])
+		if not _roster_shows(merc):
+			continue
 		var id: String = str(merc["id"])
 		var role: String = Mercs.role_of(merc)
-		payroll += int(game.terms(merc)["wage"])
-		var status: Array = _merc_status(merc)
 		var health: int = int(merc.get("health", 100))
-		var card := ROW_PORTRAIT_CARD.instantiate() as Button
-		grid.add_child(card)
-		_set_bust(card.get_node("Body/Bust") as TextureRect, role)
-		(card.get_node("Body/Name") as Label).text = str(merc["name"])
-		var role_label := card.get_node("Body/Role") as Label
-		role_label.text = "%s  ·  %s" % [role, str(status[0])]
-		if status[1] != &"LabelGood":
-			role_label.theme_type_variation = status[1]
-		var hp := card.get_node("Body/Health") as ProgressBar
-		hp.value = health
-		hp.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
-		card.tooltip_text = "%s\nTraits: %s\nHealth %d%%  ·  Gear %d/2" % [Mercs.title(merc), Mercs.trait_names(merc), health, _equipped_count(merc)]
-		card.set_pressed_no_signal(id == selected_merc)
-		card.pressed.connect(_focus_person.bind(id))
+		var state: String = "Ready"
+		var tone: StringName = &"LabelGood"
+		if not game.is_available(merc):
+			var back: int = 0
+			for mission in game.missions:
+				if (mission.get("ids", []) as Array).has(id):
+					back = maxi(0, int(mission.get("finish", _now())) - _now())
+			state = "Out  ·  %s" % _duration(back)
+			tone = &"LabelMuted"
+		elif health < 60:
+			state = "Hurt  ·  %d%%" % health
+			tone = &"LabelAccent"
+		var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(merc["name"]), Mercs.title(merc), "", state,
+			id == selected_merc, _focus_person.bind(id))
+		(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = tone
+		card.tooltip_text = "Traits: %s\nHealth %d%%" % [Mercs.trait_names(merc), health]
 	var empty: bool = game.crew.is_empty()
-	(left.get_node(c + "Summary/Count") as Label).text = "%s  ·  %d ready" % ["%d hired" % game.crew.size(), game.free_crew()]
+	(left.get_node(c + "Summary/Count") as Label).text = "%d hired  ·  %d ready" % [game.crew.size(), game.free_crew()]
 	var payroll_label := left.get_node(c + "Summary/Payroll") as Label
 	payroll_label.text = "Payroll %s  ·  idle %s/day" % [_money(payroll), _money(game.idle_upkeep_total())]
 	payroll_label.tooltip_text = "Payroll: what one trip with every mercenary would cost in wages.\nIdle: mercenaries in town still draw half their wage each day."
 	(left.get_node(c + "List") as Control).visible = not empty
+	(left.get_node(c + "Filter") as Control).visible = not empty
 	(left.get_node(c + "Empty") as Control).visible = empty
 	var recruit := left.get_node(c + "Recruit") as Button
 	recruit.visible = empty
@@ -625,7 +647,7 @@ func _draw_employees() -> void:
 	var merc: Dictionary = game.merc_by_id(selected_merc)
 	var none: bool = merc.is_empty()
 	for child in (right.get_node("Margin/Content") as Control).get_children():
-		(child as CanvasItem).visible = (child.name == "Empty" or child.name == "Header") if none else child.name != "Empty"
+		(child as CanvasItem).visible = child.name == "Empty" if none else child.name != "Empty"
 	if none:
 		return
 	var role: String = Mercs.role_of(merc)
@@ -640,24 +662,37 @@ func _draw_employees() -> void:
 	(right.get_node(c + "Head/Id/Status/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
 	(right.get_node(c + "Head/Id/Status/Role") as Label).text = role
 	var status: Array = _merc_status(merc)
-	var state := right.get_node(c + "Head/Id/Status/State") as Label
-	state.text = "·  " + str(status[0])
-	state.theme_type_variation = status[1]
+	var state_label := right.get_node(c + "Head/Id/Status/State") as Label
+	state_label.text = "·  " + str(status[0])
+	state_label.theme_type_variation = status[1]
+	for pair in [["Overview", "overview"], ["Gear", "gear"]]:
+		var tab := right.get_node(c + "View/" + str(pair[0])) as Button
+		tab.set_pressed_no_signal(dossier_view == str(pair[1]))
+		tab.pressed.connect(func() -> void:
+			dossier_view = str(pair[1])
+			_refresh())
+	(right.get_node(c + "Overview") as Control).visible = dossier_view != "gear"
+	(right.get_node(c + "Gear") as Control).visible = dossier_view == "gear"
+	if dossier_view == "gear":
+		_bind_gear_view(right, merc)
+	else:
+		_bind_overview(right, merc)
+
+func _bind_overview(right: Control, merc: Dictionary) -> void:
+	var o := "Margin/Content/Overview/"
 	var terms: Dictionary = game.terms(merc)
-	right.get_node(c + "Stats/Skill").value = _money(Mercs.value(merc))
-	var job: String = Mercs.job(merc)
-	var exp_tile := right.get_node(c + "Stats/Experience")
-	exp_tile.value = "No tool" if job == "" else "%s %d" % [TradeSkills.NAMES.get(job, job), TradeSkills.level_of(merc, job)]
-	var wage_tile := right.get_node(c + "Stats/Wage")
+	right.get_node(o + "Stats/Skill").value = _money(Mercs.value(merc))
+	var wage_tile := right.get_node(o + "Stats/Wage")
 	wage_tile.value = _money(int(terms["wage"]))
 	wage_tile.tooltip_text = "Paid for each trip. In town they draw half of it each day (%s/day)." % _money(int(round(game.idle_upkeep(merc))))
-	right.get_node(c + "Stats/Share").value = "%d%%" % int(round(float(terms["cut"]) * 100.0))
+	right.get_node(o + "Stats/Share").value = "%d%%" % int(round(float(terms["cut"]) * 100.0))
+	right.get_node(o + "Stats/Kit").value = str(Gear.kit_rating(merc))
 	var health: int = int(merc.get("health", 100))
-	var bar := right.get_node(c + "Health/Bar") as ProgressBar
+	var bar := right.get_node(o + "Health/Bar") as ProgressBar
 	bar.value = health
 	bar.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
-	(right.get_node(c + "Health/Value") as Label).text = "%d%%" % health
-	var heal := right.get_node(c + "Health/Heal") as Button
+	(right.get_node(o + "Health/Value") as Label).text = "%d%%" % health
+	var heal := right.get_node(o + "Health/Heal") as Button
 	heal.visible = health < 100
 	if heal.visible:
 		var cost: int = MoneyMercsState.treat_cost(merc)
@@ -666,27 +701,22 @@ func _draw_employees() -> void:
 		heal.tooltip_text = "Resting in town heals %d health an hour for free: back to full in %s.\nTreat now to send them out sooner." % [MoneyMercsState.REST_PER_HOUR, _duration(MoneyMercsState.rest_eta(merc))]
 		heal.pressed.connect(_heal.bind(selected_merc))
 	for trade in SKILL_ORDER:
-		var base := c + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
-		(right.get_node(base + "Level") as Label).text = "%s %d" % [TradeSkills.NAMES[trade], TradeSkills.level_of(merc, trade)]
+		var base := o + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
+		(right.get_node(base + "Top/Level") as Label).text = str(TradeSkills.level_of(merc, trade))
 		(right.get_node(base + "Bar") as ProgressBar).value = TradeSkills.progress(merc, trade) * 100.0
-	var traits := right.get_node(c + "Traits/List") as Label
+		if Mercs.job(merc) == trade:
+			(right.get_node(base + "Top/Name") as Label).theme_type_variation = &"LabelGood"
+	var traits := right.get_node(o + "Traits/List") as Label
 	traits.text = Mercs.trait_names(merc) if not (merc.get("traits", []) as Array).is_empty() else "None"
 	traits.tooltip_text = Mercs.trait_lines(merc)
-	Gear.ensure(merc)
-	var gear_grid := right.get_node(c + "Gear") as GridContainer
-	for slot in Gear.SLOTS:
-		var slot_button := _gear_slot_button(slot, Gear.in_slot(merc, slot), false, _outfit_slot.bind(selected_merc, slot))
-		slot_button.custom_minimum_size = Vector2(24, 26)
-		gear_grid.add_child(slot_button)
-	(right.get_node(c + "GearHead/Kit") as Label).text = "Kit %d  ·  Armour %d" % [Gear.kit_rating(merc), int(Gear.armour(merc))]
 	var contract: String = str(merc.get("contract", "Balanced"))
-	(right.get_node(c + "Contract/Body/Top/Text/Name") as Label).text = contract
-	(right.get_node(c + "Contract/Body/Explain") as Label).text = str(CONTRACT_NOTES.get(contract, ""))
-	var change := right.get_node(c + "Contract/Body/Top/Change") as Button
+	var contract_name := right.get_node(o + "Contract/Text/Name") as Label
+	contract_name.text = contract
+	contract_name.tooltip_text = str(CONTRACT_NOTES.get(contract, ""))
+	var change := right.get_node(o + "Contract/Change") as Button
 	change.disabled = not game.is_available(merc)
 	change.pressed.connect(_terms.bind(selected_merc))
-	(right.get_node(c + "Actions/Armory") as Button).pressed.connect(_outfit.bind(selected_merc))
-	var sell := right.get_node(c + "Actions/Sell") as Button
+	var sell := right.get_node(o + "Contract/Sell") as Button
 	var offer: int = game.contract_offer(merc)
 	var settling: int = game.settling_left(merc)
 	sell.text = ("Confirm  ·  %s" % _money(offer)) if confirm_sell == selected_merc else "Sell contract"
@@ -694,6 +724,101 @@ func _draw_employees() -> void:
 	sell.tooltip_text = "Settling in: can be sold in %s." % _duration(settling) if settling > 0 else \
 		"Another guild buys their contract for %s (half their value), with the gear they wear.\nMercenaries talk: each sale costs a little reputation." % _money(offer)
 	sell.pressed.connect(_sell_contract.bind(selected_merc))
+
+## The Gear view: ten slots, the chosen slot's piece, and what in the storeroom fits it.
+func _bind_gear_view(right: Control, owner: Dictionary) -> void:
+	var g := "Margin/Content/Gear/"
+	Gear.ensure(owner)
+	var available: bool = game.is_available(owner)
+	if not Gear.SLOTS.has(selected_slot):
+		selected_slot = "main_hand"
+	var grid := right.get_node(g + "Slots") as GridContainer
+	for slot in Gear.SLOTS:
+		grid.add_child(_gear_slot_button(slot, Gear.in_slot(owner, slot), slot == selected_slot, _choose_slot.bind(slot)))
+	var picked: Dictionary = Gear.in_slot(owner, selected_slot)
+	var base := g + "Picked/Row/"
+	(right.get_node(base + "Info/Name") as Label).text = "%s: %s" % [Gear.SLOT_NAMES[selected_slot], _equipment_name(picked) if not picked.is_empty() else "empty"]
+	var detail := right.get_node(base + "Info/Detail") as Label
+	if picked.is_empty():
+		detail.text = SLOT_HINTS.get(selected_slot, "")
+	elif Gear.CONSUMABLE_SLOTS.has(selected_slot):
+		detail.text = Gear.summary(str(picked["key"])).get_slice("·", 1).strip_edges()
+	else:
+		var extra: String = Gear.rolls_text(picked)
+		detail.text = ("%d/%d" % [Gear.durability(picked), Gear.max_durability(picked)] if Gear.max_durability(picked) > 0 else "") + ("  ·  " + extra if extra != "" else "")
+	detail.tooltip_text = Gear.describe(picked)
+	detail.mouse_filter = Control.MOUSE_FILTER_PASS
+	var remove := right.get_node(base + "Remove") as Button
+	remove.visible = not picked.is_empty()
+	remove.disabled = not available
+	remove.pressed.connect(_unequip.bind(selected_merc, selected_slot))
+	var repair := right.get_node(base + "Repair") as Button
+	var cost: Dictionary = {} if picked.is_empty() or Gear.CONSUMABLE_SLOTS.has(selected_slot) else game.repair_cost(picked)
+	repair.visible = not cost.is_empty()
+	if repair.visible:
+		var spend: int = game.repair_gold(cost)
+		repair.text = "Repair" + ("  ·  %s" % _money(spend) if spend > 0 else "")
+		repair.disabled = not available or game.gold < spend
+		repair.tooltip_text = "Uses %s. Anything not in the warehouse is bought from the merchants." % _cost_line(cost)
+		repair.pressed.connect(_repair.bind(str(picked["uid"])))
+	var bonus := right.get_node(g + "Foot/Bonus") as Label
+	var job: String = Gear.job(owner)
+	var bits: Array[String] = ["Kit %d" % Gear.kit_rating(owner), "Armour %d" % int(Gear.armour(owner))]
+	if job != "" and job != "combat":
+		bits.append("%s +%d" % [TradeSkills.NAMES[job], int(Gear.tool_power(owner, job))])
+	elif job == "combat":
+		bits.append("Guards +%d" % Gear.weapon_levels(owner))
+	var haul: float = Gear.haul_mult(owner) - 1.0
+	if haul > 0.001:
+		bits.append("Haul +%d%%" % int(round(haul * 100.0)))
+	bonus.text = "  ·  ".join(bits)
+	bonus.tooltip_text = "Armour and dodge lower the chance of injury and death. The tool sets the job; a weapon makes them a guard.\nInjury chance x%.2f, death chance x%.2f compared with no gear." % [Gear.injury_mult(owner), Gear.death_mult(owner)]
+	var damaged: int = 0
+	for item in Gear.worn(owner):
+		if not game.repair_cost(item).is_empty():
+			damaged += 1
+	var all := right.get_node(g + "Foot/RepairAll") as Button
+	all.visible = damaged > 1
+	all.disabled = not available
+	all.pressed.connect(_repair_all.bind(selected_merc))
+	# What in the storeroom fits the chosen slot.
+	var fits := right.get_node(g + "Fits/Items") as VBoxContainer
+	if Gear.CONSUMABLE_SLOTS.has(selected_slot):
+		for key in MoneyMercsState.RESOURCE_ORDER:
+			if not Gear.consumable(str(key)) or Gear.slot_of(str(key)) != selected_slot or int(game.resources.get(key, 0)) <= 0:
+				continue
+			var card := ROW_ITEM_CARD.instantiate()
+			fits.add_child(card)
+			(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _item_icon(str(key))
+			(card.get_node("Row/Info/Name") as Label).text = "%s  ×%d" % [_resource_name(str(key)), int(game.resources[key])]
+			(card.get_node("Row/Info/Details") as Label).text = Gear.summary(str(key))
+			var pack := card.get_node("Row/Primary") as Button
+			pack.text = "Pack"
+			pack.disabled = not available
+			pack.pressed.connect(_supply.bind(selected_merc, str(key)))
+	else:
+		for item in game.equipment_inventory:
+			var key: String = str(item.get("key", ""))
+			var slot_of: String = Gear.slot_of(key)
+			if slot_of != selected_slot:
+				continue
+			var card := ROW_ITEM_CARD.instantiate()
+			fits.add_child(card)
+			(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _gear_icon(key)
+			(card.get_node("Row/Info/Name") as Label).text = Gear.full_name(item)
+			var wear: String = ("  ·  %d/%d" % [Gear.durability(item), Gear.max_durability(item)]) if Gear.max_durability(item) > 0 else ""
+			(card.get_node("Row/Info/Details") as Label).text = Gear.summary(key) + wear
+			card.tooltip_text = Gear.describe(item)
+			var equip := card.get_node("Row/Primary") as Button
+			equip.text = "Equip"
+			equip.disabled = not available
+			equip.tooltip_text = "Equip on %s. The tool in their hands sets their job." % str(owner.get("name", "")) if available else "They're in the field."
+			equip.pressed.connect(_equip.bind(selected_merc, str(item.get("uid", ""))))
+	(right.get_node(g + "Fits") as Control).visible = fits.get_child_count() > 0
+	(right.get_node(g + "FitsEmpty") as Control).visible = fits.get_child_count() == 0
+	(right.get_node(g + "Workshop") as Button).pressed.connect(func() -> void:
+		workshop_tab = "store"
+		_turn_to("workshop"))
 
 func _choose_candidate(id: String) -> void:
 	selected_candidate = id
@@ -800,109 +925,42 @@ func _draw_recruitment() -> void:
 	reason.text = "Not enough gold: %s." % _money(fee) if game.gold < fee else ""
 	reason.visible = not reason.text.is_empty()
 
-func _draw_armory_page() -> void:
-	var left := _mount_page(PERSONNEL_ARMORY_LEFT, left_leaf)
-	var right := _mount_page(PERSONNEL_ARMORY_RIGHT, right_leaf)
+## The Workshop chapter: Craft, or the Storeroom with the Quartermaster.
+func _draw_workshop_chapter() -> void:
+	if workshop_tab == "store":
+		_draw_workshop_store()
+	else:
+		_draw_workshop()
+	var tabs := _mount_page(WORKSHOP_TABS, left_leaf)
+	for tab in [["CraftTab", "craft"], ["StoreTab", "store"]]:
+		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
+		btn.set_pressed_no_signal(workshop_tab == str(tab[1]) or (str(tab[1]) == "craft" and workshop_tab != "store"))
+		btn.pressed.connect(func() -> void:
+			workshop_tab = str(tab[1])
+			_refresh())
+
+func _draw_workshop_store() -> void:
+	var left := _mount_page(WORKSHOP_STORE_LEFT, left_leaf)
+	var right := _mount_page(WORKSHOP_STORE_RIGHT, right_leaf)
 	var c := "Margin/Content/"
-	if (selected_merc.is_empty() or game.merc_by_id(selected_merc).is_empty()) and not game.crew.is_empty():
-		selected_merc = str(game.crew[0]["id"])
-	var owner: Dictionary = game.merc_by_id(selected_merc)
-	var picker := left.get_node(c + "Crew/Items") as VBoxContainer
-	for merc in game.crew:
-		var id: String = str(merc["id"])
-		var role: String = Mercs.role_of(merc)
-		var away: bool = not game.is_available(merc)
-		var card := _list_card(picker, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(merc["name"]),
-			Mercs.title(merc) + ("  ·  in the field" if away else ""), "Kit", str(Gear.kit_rating(merc)), id == selected_merc, _choose_worker.bind(id))
-		card.custom_minimum_size.y = 30
-	(left.get_node(c + "Crew") as Control).custom_minimum_size.y = mini(game.crew.size(), 3) * 33
-	var none: bool = owner.is_empty()
-	(left.get_node(c + "Empty") as Control).visible = game.crew.is_empty()
-	for path in ["Caption", "Crew", "LoadoutHeader", "Loadout", "Tip"]:
-		(left.get_node(c + path) as Control).visible = not game.crew.is_empty()
-	if not none:
-		Gear.ensure(owner)
-		var available: bool = game.is_available(owner)
-		(left.get_node(c + "Loadout/Body/Who") as Label).text = "%s  ·  %s" % [str(owner["name"]), Mercs.title(owner)]
-		var grid := left.get_node(c + "Loadout/Body/Slots") as GridContainer
-		if not Gear.SLOTS.has(selected_slot):
-			selected_slot = "main_hand"
-		for slot in Gear.SLOTS:
-			var item: Dictionary = Gear.in_slot(owner, slot)
-			grid.add_child(_gear_slot_button(slot, item, slot == selected_slot, _choose_slot.bind(slot)))
-		var picked: Dictionary = Gear.in_slot(owner, selected_slot)
-		var base := c + "Loadout/Body/Picked/"
-		(left.get_node(base + "Info/Name") as Label).text = "%s: %s" % [Gear.SLOT_NAMES[selected_slot], _equipment_name(picked) if not picked.is_empty() else "empty"]
-		var detail := left.get_node(base + "Info/Detail") as Label
-		if picked.is_empty():
-			detail.text = SLOT_HINTS.get(selected_slot, "")
-		elif Gear.CONSUMABLE_SLOTS.has(selected_slot):
-			detail.text = Gear.summary(str(picked["key"])).get_slice("·", 1).strip_edges()
-		else:
-			var extra: String = Gear.rolls_text(picked)
-			detail.text = ("%d/%d" % [Gear.durability(picked), Gear.max_durability(picked)] if Gear.max_durability(picked) > 0 else "") + ("  ·  " + extra if extra != "" else "")
-		detail.tooltip_text = Gear.describe(picked)
-		detail.mouse_filter = Control.MOUSE_FILTER_PASS
-		var remove := left.get_node(base + "Remove") as Button
-		remove.visible = not picked.is_empty()
-		remove.disabled = not available
-		remove.pressed.connect(_unequip.bind(selected_merc, selected_slot))
-		var repair := left.get_node(base + "Repair") as Button
-		var cost: Dictionary = {} if picked.is_empty() or Gear.CONSUMABLE_SLOTS.has(selected_slot) else game.repair_cost(picked)
-		repair.visible = not cost.is_empty()
-		if repair.visible:
-			var spend: int = game.repair_gold(cost)
-			repair.text = "Repair" + ("  ·  %s" % _money(spend) if spend > 0 else "")
-			repair.disabled = not available or game.gold < spend
-			repair.tooltip_text = "Uses %s. Anything not in the warehouse is bought from the merchants." % _cost_line(cost)
-			repair.pressed.connect(_repair.bind(str(picked["uid"])))
-		var bonus := left.get_node(c + "Loadout/Body/Foot/Bonus") as Label
-		var job: String = Gear.job(owner)
-		var bits: Array[String] = ["Kit %d" % Gear.kit_rating(owner), "Armour %d" % int(Gear.armour(owner))]
-		if job != "" and job != "combat":
-			bits.append("%s +%d" % [TradeSkills.NAMES[job], int(Gear.tool_power(owner, job))])
-		elif job == "combat":
-			bits.append("Guards +%d" % Gear.weapon_levels(owner))
-		var haul: float = Gear.haul_mult(owner) - 1.0
-		if haul > 0.001:
-			bits.append("Haul +%d%%" % int(round(haul * 100.0)))
-		bonus.text = "  ·  ".join(bits)
-		bonus.tooltip_text = "Armour and dodge lower the chance of injury and death. The tool sets the job; a weapon makes them a guard.\nInjury chance x%.2f, death chance x%.2f compared with no gear." % [Gear.injury_mult(owner), Gear.death_mult(owner)]
-		var damaged: int = 0
-		for item in Gear.worn(owner):
-			if not game.repair_cost(item).is_empty():
-				damaged += 1
-		var all := left.get_node(c + "Loadout/Body/Foot/RepairAll") as Button
-		all.visible = damaged > 1
-		all.disabled = not available
-		all.pressed.connect(_repair_all.bind(selected_merc))
-	# Storeroom: loose gear (equip, repair, sell) and food and potions (pack).
-	var store := right.get_node(c + "Store/Items") as VBoxContainer
-	var stored: int = 0
+	# Storeroom: loose gear (repair, sell) and the food and potions waiting to be packed.
+	var store := left.get_node(c + "Store/Items") as VBoxContainer
 	for item in game.equipment_inventory:
 		var key: String = str(item.get("key", ""))
 		var card := ROW_ITEM_CARD.instantiate()
 		store.add_child(card)
-		stored += 1
 		(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _gear_icon(key)
 		(card.get_node("Row/Info/Name") as Label).text = Gear.full_name(item)
 		var wear: String = ("  ·  %d/%d" % [Gear.durability(item), Gear.max_durability(item)]) if Gear.max_durability(item) > 0 else ""
 		(card.get_node("Row/Info/Details") as Label).text = Gear.summary(key) + wear
 		card.tooltip_text = Gear.describe(item)
-		var fits: bool = not none and game.is_available(owner)
-		var equip := card.get_node("Row/Primary") as Button
-		equip.text = "Equip"
-		equip.disabled = not fits
-		equip.tooltip_text = "Equip on %s. The tool in their hands sets their job." % str(owner.get("name", "")) if fits else "Choose a mercenary who isn't in the field."
-		equip.pressed.connect(_equip.bind(selected_merc, str(item.get("uid", ""))))
-		var sell := card.get_node("Row/Secondary") as Button
-		sell.visible = true
+		var sell := card.get_node("Row/Primary") as Button
 		var value: int = game.resale_value(item)
 		sell.text = "Sell %d" % value
 		sell.tooltip_text = "Sell for %s (65%% of its worth, less if worn)." % _money(value)
 		sell.pressed.connect(_sell_equipment.bind(str(item.get("uid", ""))))
 		var cost: Dictionary = game.repair_cost(item)
-		var fix := card.get_node("Row/Tertiary") as Button
+		var fix := card.get_node("Row/Secondary") as Button
 		fix.visible = not cost.is_empty()
 		if fix.visible:
 			fix.text = "Repair"
@@ -914,18 +972,13 @@ func _draw_armory_page() -> void:
 			continue
 		var card := ROW_ITEM_CARD.instantiate()
 		store.add_child(card)
-		stored += 1
 		(card.get_node("Row/IconSlot/Icon") as TextureRect).texture = _item_icon(str(key))
 		(card.get_node("Row/Info/Name") as Label).text = "%s  ×%d" % [_resource_name(str(key)), int(game.resources[key])]
 		(card.get_node("Row/Info/Details") as Label).text = Gear.summary(str(key))
-		var pack := card.get_node("Row/Primary") as Button
-		pack.text = "Pack"
-		pack.disabled = none or not game.is_available(owner)
-		pack.tooltip_text = "Put one in %s's %s slot." % [str(owner.get("name", "")), Gear.slot_of(str(key))]
-		pack.pressed.connect(_supply.bind(selected_merc, str(key)))
-	(right.get_node(c + "Store") as Control).visible = stored > 0
-	(right.get_node(c + "StoreEmpty") as Control).visible = stored == 0
-	# Quartermaster: the starter gear, ready-made (everything else is crafted in the Workshop).
+		(card.get_node("Row/Primary") as Button).visible = false
+	(left.get_node(c + "Store") as Control).visible = store.get_child_count() > 0
+	(left.get_node(c + "StoreEmpty") as Control).visible = store.get_child_count() == 0
+	# Quartermaster: the starter gear, ready-made (everything else is crafted).
 	var shop := right.get_node(c + "Shop/Items") as VBoxContainer
 	for key in MercsV05.shop_keys():
 		var definition: Dictionary = game.item_definition(str(key))
@@ -1269,6 +1322,18 @@ func _show_link_card(ref: String) -> void:
 	_hall().show_card(ref)
 
 # --- Finances -----------------------------------------------------------------
+
+## The Ledger chapter: Accounts (the treasury) and Reports (the chronicle of expeditions).
+func _draw_ledger() -> void:
+	if page == "finance":
+		_draw_accounts()
+	else:
+		_draw_history()
+	var tabs := _mount_page(LEDGER_TABS, left_leaf)
+	for tab in [["AccountsTab", "finance"], ["ReportsTab", "ledger"]]:
+		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
+		btn.set_pressed_no_signal(page == str(tab[1]))
+		btn.pressed.connect(_nav_to.bind(str(tab[1])))
 
 func _draw_accounts() -> void:
 	var left := _mount_page(FINANCE_LEFT, left_leaf)

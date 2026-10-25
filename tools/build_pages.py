@@ -82,7 +82,7 @@ def personnel_tabs():
     s = Scene("PersonnelTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})
     s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
-    for name, text in [("EmployeesTab", "Roster"), ("RecruitmentTab", "Recruit"), ("ArmoryTab", "Armory"), ("WorkshopTab", "Workshop")]:
+    for name, text in [("EmployeesTab", "Roster"), ("RecruitmentTab", "Recruit")]:
         button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
     s.save(P + "personnel_tabs.tscn")
 
@@ -90,65 +90,86 @@ def personnel_tabs():
 # --- Personnel: roster ----------------------------------------------------------
 def personnel_roster():
     s = page("PersonnelRosterLeft", top=36)
-    header(s, C + "/Header", "Roster")
+    grp = s.sub("filter", "ButtonGroup", {})
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 3})
+    for name, text in [("All", "All"), ("Ready", "Ready"), ("Out", "Out"), ("Hurt", "Hurt")]:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                               "custom_minimum_size": (0, 16)})
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Count", "0 hired", "LabelCaption", {"size_flags_horizontal": 3})
-    label(s, C + "/Summary/Payroll", "Payroll 0 G", "LabelCaption", {"tooltip_text": "What one expedition with every mercenary would cost in wages.", "mouse_filter": 1})
-    s.node(C + "/List", "ScrollContainer", {"custom_minimum_size": (0, 80), "size_flags_vertical": 3, "horizontal_scroll_mode": 0})
-    s.node(C + "/List/Items", "GridContainer", {"size_flags_horizontal": 3, "theme_override_constants/h_separation": 5, "theme_override_constants/v_separation": 5, "columns": 2})
-    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Nobody is on the payroll yet. Recruit a miner to start working Harlow Mines.", "icon_kind": "plus"})
+    label(s, C + "/Summary/Payroll", "Payroll 0 G", "LabelCaption", {"mouse_filter": 1})
+    scroll(s, C + "/List", 80)
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Nobody is on the payroll yet. A woodcutter at Mossward Copse pays from the first trip.", "icon_kind": "plus"})
     button(s, C + "/Recruit", "Recruit mercenaries", None, {"visible": False, "size_flags_horizontal": 4})
     s.save(P + "personnel_employed_left.tscn")
 
     s = page("PersonnelDossierRight")
-    header(s, C + "/Header", "Dossier")
+    grp = s.sub("view", "ButtonGroup", {})
     s.node(C + "/Head", "HBoxContainer", {"theme_override_constants/separation": 8})
     s.node(C + "/Head/Portrait", "PanelContainer", {"custom_minimum_size": (58, 46), "theme_type_variation": Raw('&"SlotPanel"')})
     s.node(C + "/Head/Portrait/Bust", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
     s.node(C + "/Head/Id", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": -2})
     label(s, C + "/Head/Id/Name", "Name", "LabelTitle", {"text_overrun_behavior": 3})
-    label(s, C + "/Head/Id/Title", "Title", "LabelCaption")
+    label(s, C + "/Head/Id/Title", "Title", "LabelCaption", {"text_overrun_behavior": 3})
     s.node(C + "/Head/Id/Status", "HBoxContainer", {"theme_override_constants/separation": 4})
     s.node(C + "/Head/Id/Status/RoleIcon", "TextureRect", {"custom_minimum_size": (16, 16), "mouse_filter": 2, "stretch_mode": 3})
     label(s, C + "/Head/Id/Status/Role", "Miner")
     label(s, C + "/Head/Id/Status/State", "Ready", "LabelGood")
-    s.node(C + "/Stats", "GridContainer", {"theme_override_constants/h_separation": 5, "theme_override_constants/v_separation": 5, "columns": 2})
-    tile(s, C + "/Stats/Skill", "Value", extra={"tooltip_text": "Rough market value of their contract: skills, traits and the gear they wear."})
-    tile(s, C + "/Stats/Experience", "Job", extra={"tooltip_text": "The tool in their hands sets the job. Without the right tool they work at half pace."})
-    tile(s, C + "/Stats/Wage", "Wage", extra={"tooltip_text": "Paid up front for each expedition."})
-    tile(s, C + "/Stats/Share", "Share of haul", extra={"tooltip_text": "Their cut of the coin an expedition brings back."})
-    s.node(C + "/Health", "HBoxContainer", {"theme_override_constants/separation": 6})
-    label(s, C + "/Health/Caption", "Health", "LabelCaption")
-    s.node(C + "/Health/Bar", "ProgressBar", {"custom_minimum_size": (0, 6), "size_flags_horizontal": 3, "size_flags_vertical": 4, "mouse_filter": 2, "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0, "show_percentage": False})
-    label(s, C + "/Health/Value", "100%")
-    button(s, C + "/Health/Heal", "Treat", "PaperButton", {"tooltip_text": "Pay a healer to restore full health."})
-    s.node(C + "/Skills", "GridContainer", {"columns": 4, "theme_override_constants/h_separation": 8, "theme_override_constants/v_separation": 2, "mouse_filter": 1,
+    s.node(C + "/View", "HBoxContainer", {"theme_override_constants/separation": 4})
+    for name, text in [("Overview", "Overview"), ("Gear", "Gear")]:
+        button(s, C + "/View/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                             "custom_minimum_size": (0, 18)})
+    # Overview: what they cost and what they can do.
+    O = C + "/Overview"
+    s.node(O, "VBoxContainer", {"size_flags_vertical": 3, "theme_override_constants/separation": 6})
+    s.node(O + "/Stats", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, O + "/Stats/Skill", "Value", extra={"tooltip_text": "Rough market value of their contract: skills, traits and the gear they wear."})
+    tile(s, O + "/Stats/Wage", "Wage", extra={"tooltip_text": "Paid up front for each expedition."})
+    tile(s, O + "/Stats/Share", "Share", extra={"tooltip_text": "Their cut of the coin an expedition brings back."})
+    tile(s, O + "/Stats/Kit", "Kit", extra={"tooltip_text": "Kit rating: what dungeons look at before letting a mercenary in. Tier × slot weight of everything worn."})
+    s.node(O + "/Health", "HBoxContainer", {"theme_override_constants/separation": 6})
+    label(s, O + "/Health/Caption", "Health", "LabelCaption")
+    s.node(O + "/Health/Bar", "ProgressBar", {"custom_minimum_size": (0, 6), "size_flags_horizontal": 3, "size_flags_vertical": 4, "mouse_filter": 2, "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0, "show_percentage": False})
+    label(s, O + "/Health/Value", "100%")
+    button(s, O + "/Health/Heal", "Treat", "PaperButton", {"tooltip_text": "Pay a healer to restore full health."})
+    label(s, O + "/SkillsCaption", "Skills", "LabelCaption")
+    s.node(O + "/Skills", "GridContainer", {"columns": 2, "theme_override_constants/h_separation": 14, "theme_override_constants/v_separation": 1, "mouse_filter": 1,
         "tooltip_text": "Trade levels rise with experience. Higher levels haul more and unlock better sites."})
     for trade in TRADE_LABELS:
-        base = C + "/Skills/" + trade
-        s.node(base, "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 0, "mouse_filter": 2})
-        label(s, base + "/Level", trade + " 1", "LabelCaption")
+        base = O + "/Skills/" + trade
+        s.node(base, "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -1, "mouse_filter": 2})
+        s.node(base + "/Top", "HBoxContainer", {"mouse_filter": 2})
+        label(s, base + "/Top/Name", trade, None, {"size_flags_horizontal": 3})
+        label(s, base + "/Top/Level", "1")
         s.node(base + "/Bar", "ProgressBar", {"custom_minimum_size": (0, 4), "mouse_filter": 2, "theme_type_variation": Raw('&"GoldBar"'), "show_percentage": False})
-    s.node(C + "/Traits", "HBoxContainer", {"theme_override_constants/separation": 6})
-    label(s, C + "/Traits/Caption", "Traits", "LabelCaption")
-    label(s, C + "/Traits/List", "None", None, {"size_flags_horizontal": 3, "text_overrun_behavior": 3, "mouse_filter": 1})
-    s.node(C + "/GearHead", "HBoxContainer")
-    header(s, C + "/GearHead/Header", "Equipment")
-    label(s, C + "/GearHead/Kit", "Kit 0", "LabelCaption", {"mouse_filter": 1,
-        "tooltip_text": "Kit rating: what dungeons look at before letting a mercenary in. Tier × slot weight of everything worn."})
-    s.node(C + "/Gear", "GridContainer", {"theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3, "columns": 10})
-    spacer(s, C + "/Spacer")
-    s.node(C + "/Contract", "PanelContainer", {"theme_type_variation": Raw('&"InsetPanel"')})
-    s.node(C + "/Contract/Body", "VBoxContainer", {"theme_override_constants/separation": 1})
-    s.node(C + "/Contract/Body/Top", "HBoxContainer")
-    s.node(C + "/Contract/Body/Top/Text", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -3})
-    label(s, C + "/Contract/Body/Top/Text/Caption", "Contract terms", "LabelCaption")
-    label(s, C + "/Contract/Body/Top/Text/Name", "Balanced")
-    button(s, C + "/Contract/Body/Top/Change", "Change terms", "PaperButton", {"size_flags_vertical": 4, "tooltip_text": "Cycle between Balanced, Guaranteed Wage and Profit Share."})
-    label(s, C + "/Contract/Body/Explain", "", "LabelMuted", {"autowrap_mode": 3})
-    s.node(C + "/Actions", "HBoxContainer", {"theme_override_constants/separation": 4, "alignment": 1})
-    button(s, C + "/Actions/Sell", "Sell contract", "PaperButton", {"tooltip_text": "Another guild buys their contract, with the gear they wear."})
-    button(s, C + "/Actions/Armory", "Outfit in Armory  >")
+    s.node(O + "/Traits", "HBoxContainer", {"theme_override_constants/separation": 6})
+    label(s, O + "/Traits/Caption", "Traits", "LabelCaption")
+    label(s, O + "/Traits/List", "None", None, {"size_flags_horizontal": 3, "text_overrun_behavior": 3, "mouse_filter": 1})
+    spacer(s, O + "/Spacer")
+    s.node(O + "/Contract", "HBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(O + "/Contract/Text", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -3})
+    label(s, O + "/Contract/Text/Caption", "Contract", "LabelCaption")
+    label(s, O + "/Contract/Text/Name", "Balanced", None, {"mouse_filter": 1})
+    button(s, O + "/Contract/Change", "Change terms", "PaperButton", {"size_flags_vertical": 4, "tooltip_text": "Cycle between Balanced, Guaranteed Wage and Profit Share."})
+    button(s, O + "/Contract/Sell", "Sell contract", "PaperButton", {"size_flags_vertical": 4, "tooltip_text": "Another guild buys their contract, with the gear they wear."})
+    # Gear: the ten slots, the chosen slot, and what in the storeroom fits it.
+    G = C + "/Gear"
+    s.node(G, "VBoxContainer", {"visible": False, "size_flags_vertical": 3, "theme_override_constants/separation": 5})
+    s.node(G + "/Slots", "GridContainer", {"size_flags_horizontal": 4, "theme_override_constants/h_separation": 6, "theme_override_constants/v_separation": 4, "columns": 5})
+    s.node(G + "/Picked", "PanelContainer", {"theme_type_variation": Raw('&"InsetPanel"')})
+    s.node(G + "/Picked/Row", "HBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(G + "/Picked/Row/Info", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -4})
+    label(s, G + "/Picked/Row/Info/Name", "Main hand: empty", None, {"text_overrun_behavior": 3})
+    label(s, G + "/Picked/Row/Info/Detail", "", "LabelCaption", {"text_overrun_behavior": 3})
+    button(s, G + "/Picked/Row/Repair", "Repair", "PaperButton", {"size_flags_vertical": 4})
+    button(s, G + "/Picked/Row/Remove", "Unequip", "PaperButton", {"size_flags_vertical": 4})
+    s.node(G + "/Foot", "HBoxContainer", {"theme_override_constants/separation": 4})
+    label(s, G + "/Foot/Bonus", "", "LabelCaption", {"size_flags_horizontal": 3, "autowrap_mode": 3, "mouse_filter": 1})
+    button(s, G + "/Foot/RepairAll", "Repair all", "PaperButton", {"size_flags_vertical": 4})
+    label(s, G + "/FitsCaption", "Fits this slot", "LabelCaption")
+    scroll(s, G + "/Fits", 60)
+    label(s, G + "/FitsEmpty", "Nothing in the storeroom fits this slot.", "LabelMuted", {"autowrap_mode": 3})
+    button(s, G + "/Workshop", "Buy or craft more in the Workshop  >", "TextButton", {"size_flags_horizontal": 8})
     s.inst(C + "/Empty", INFO, {"visible": False, "text": "Select a mercenary to read their dossier.", "icon_kind": "home"})
     s.save(P + "personnel_employed_right.tscn")
 
@@ -198,39 +219,33 @@ def personnel_recruit():
     s.save(P + "personnel_recruits_right.tscn")
 
 
-# --- Personnel: armory ------------------------------------------------------------
-def personnel_armory():
-    s = page("PersonnelArmoryLeft", top=36)
-    header(s, C + "/Header", "Outfitting")
-    label(s, C + "/Caption", "Choose who to equip", "LabelCaption")
-    scroll(s, C + "/Crew", 33, expand=False)
-    header(s, C + "/LoadoutHeader", "Loadout")
-    s.node(C + "/Loadout", "PanelContainer")
-    s.node(C + "/Loadout/Body", "VBoxContainer", {"theme_override_constants/separation": 4})
-    label(s, C + "/Loadout/Body/Who", "Nobody selected", "LabelTitle", {"text_overrun_behavior": 3})
-    s.node(C + "/Loadout/Body/Slots", "GridContainer", {"theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3, "columns": 5})
-    s.node(C + "/Loadout/Body/Picked", "HBoxContainer", {"theme_override_constants/separation": 4})
-    s.node(C + "/Loadout/Body/Picked/Info", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -4})
-    label(s, C + "/Loadout/Body/Picked/Info/Name", "Main hand: empty", None, {"text_overrun_behavior": 3})
-    label(s, C + "/Loadout/Body/Picked/Info/Detail", "", "LabelCaption", {"text_overrun_behavior": 3})
-    button(s, C + "/Loadout/Body/Picked/Repair", "Repair", "PaperButton", {"size_flags_vertical": 4})
-    button(s, C + "/Loadout/Body/Picked/Remove", "Unequip", "PaperButton", {"size_flags_vertical": 4})
-    s.node(C + "/Loadout/Body/Foot", "HBoxContainer", {"theme_override_constants/separation": 4})
-    label(s, C + "/Loadout/Body/Foot/Bonus", "", "LabelCaption", {"size_flags_horizontal": 3, "autowrap_mode": 3, "mouse_filter": 1})
-    button(s, C + "/Loadout/Body/Foot/RepairAll", "Repair all", "PaperButton", {"size_flags_vertical": 4})
-    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Hire a mercenary before buying equipment for them.", "icon_kind": "plus"})
-    spacer(s, C + "/Spacer")
+# --- Workshop: storeroom and quartermaster ------------------------------------------
+def workshop_store():
+    s = page("WorkshopStoreLeft", top=36)
+    header(s, C + "/Header", "Storeroom")
+    label(s, C + "/Caption", "Gear nobody is wearing, and food and potions. Equip them from a mercenary's Gear page.", "LabelCaption", {"autowrap_mode": 3})
+    scroll(s, C + "/Store", 80)
+    s.inst(C + "/StoreEmpty", INFO, {"visible": False, "text": "Nothing in storage. Buy starter gear from the Quartermaster, or craft better.", "icon_kind": "home"})
     s.inst(C + "/Tip", INFO, {"text": "Gear wears with every trip and works at half effect once worn out. If its wearer dies, it's lost with them.", "icon_kind": "alert"})
-    s.save(P + "personnel_armory_left.tscn")
+    s.save(P + "workshop_store_left.tscn")
 
-    s = page("PersonnelArmoryRight")
-    header(s, C + "/StoreHeader", "Storeroom")
-    label(s, C + "/StoreCaption", "Gear not being worn, and food and potions to pack", "LabelCaption")
-    scroll(s, C + "/Store", 96, expand=False)
-    label(s, C + "/StoreEmpty", "Nothing in storage.", "LabelMuted")
+    s = page("WorkshopStoreRight")
     header(s, C + "/ShopHeader", "Quartermaster")
+    label(s, C + "/ShopCaption", "Starter gear, ready-made. Everything better is crafted.", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Shop", 80)
-    s.save(P + "personnel_armory_right.tscn")
+    s.save(P + "workshop_store_right.tscn")
+
+
+def chapter_tabs():
+    """Tab strips over the left page of the Workshop and Ledger chapters."""
+    for scene, names in [("WorkshopTabs", [("CraftTab", "Craft"), ("StoreTab", "Storeroom")]),
+                         ("LedgerTabs", [("AccountsTab", "Accounts"), ("ReportsTab", "Reports")])]:
+        s = Scene(scene, "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
+        grp = s.sub("tabs", "ButtonGroup", {})
+        s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
+        for name, text in names:
+            button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
+        s.save(P + scene.lower().replace("tabs", "_tabs") + ".tscn")
 
 
 # --- Personnel: workshop ----------------------------------------------------------
@@ -319,7 +334,7 @@ def exchange():
 
 # --- Finances ------------------------------------------------------------------
 def finances():
-    s = page("FinanceLeft")
+    s = page("FinanceLeft", top=36)
     header(s, C + "/Header", "Treasury")
     s.node(C + "/Hero", "HBoxContainer", {"theme_override_constants/separation": 8})
     s.node(C + "/Hero/Slot", "PanelContainer", {"custom_minimum_size": (44, 44), "theme_type_variation": Raw('&"SlotPanel"')})
@@ -375,7 +390,7 @@ def finances():
 
 # --- Chronicle -------------------------------------------------------------------
 def chronicle():
-    s = page("ChronicleLeft")
+    s = page("ChronicleLeft", top=36)
     header(s, C + "/Header", "Reports")
     label(s, C + "/Summary", "", "LabelCaption")
     scroll(s, C + "/List", 80)
@@ -832,7 +847,8 @@ if __name__ == "__main__":
     personnel_tabs()
     personnel_roster()
     personnel_recruit()
-    personnel_armory()
+    workshop_store()
+    chapter_tabs()
     personnel_workshop()
     gear_slot()
     material_row()

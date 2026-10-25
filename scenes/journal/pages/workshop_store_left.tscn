@@ -1,8 +1,9 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
 
-[node name="PersonnelArmoryRight" type="Control"]
+[node name="WorkshopStoreLeft" type="Control"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 285.0
@@ -16,7 +17,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 14
 theme_override_constants/margin_bottom = 12
 
@@ -24,41 +25,34 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="StoreHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
 text = "Storeroom"
 
-[node name="StoreCaption" type="Label" parent="Margin/Content"]
+[node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Gear not being worn, and food and potions to pack"
+text = "Gear nobody is wearing, and food and potions. Equip them from a mercenary's Gear page."
+autowrap_mode = 3
 
 [node name="Store" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 96)
+custom_minimum_size = Vector2(0, 80)
 horizontal_scroll_mode = 0
+size_flags_vertical = 3
 
 [node name="Items" type="VBoxContainer" parent="Margin/Content/Store"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 3
 
-[node name="StoreEmpty" type="Label" parent="Margin/Content"]
+[node name="StoreEmpty" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
-theme_type_variation = &"LabelMuted"
-text = "Nothing in storage."
+visible = false
+text = "Nothing in storage. Buy starter gear from the Quartermaster, or craft better."
+icon_kind = "home"
 
-[node name="ShopHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+[node name="Tip" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
-text = "Quartermaster"
-
-[node name="Shop" type="ScrollContainer" parent="Margin/Content"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 80)
-horizontal_scroll_mode = 0
-size_flags_vertical = 3
-
-[node name="Items" type="VBoxContainer" parent="Margin/Content/Shop"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 3
+text = "Gear wears with every trip and works at half effect once worn out. If its wearer dies, it's lost with them."
+icon_kind = "alert"

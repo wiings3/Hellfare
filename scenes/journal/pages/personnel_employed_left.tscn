@@ -1,7 +1,8 @@
 [gd_scene load_steps=3 format=3]
 
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
-[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="1_info_box"]
+
+[sub_resource type="ButtonGroup" id="filter"]
 
 [node name="PersonnelRosterLeft" type="Control"]
 layout_mode = 3
@@ -25,9 +26,49 @@ theme_override_constants/margin_bottom = 12
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+[node name="Filter" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
-text = "Roster"
+theme_override_constants/separation = 3
+
+[node name="All" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "All"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+
+[node name="Ready" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Ready"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+
+[node name="Out" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Out"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
+
+[node name="Hurt" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Hurt"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 16)
 
 [node name="Summary" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
@@ -42,26 +83,23 @@ size_flags_horizontal = 3
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
 text = "Payroll 0 G"
-tooltip_text = "What one expedition with every mercenary would cost in wages."
 mouse_filter = 1
 
 [node name="List" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 80)
-size_flags_vertical = 3
 horizontal_scroll_mode = 0
+size_flags_vertical = 3
 
-[node name="Items" type="GridContainer" parent="Margin/Content/List"]
+[node name="Items" type="VBoxContainer" parent="Margin/Content/List"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/h_separation = 5
-theme_override_constants/v_separation = 5
-columns = 2
+theme_override_constants/separation = 3
 
-[node name="Empty" parent="Margin/Content" instance=ExtResource("2_info_box")]
+[node name="Empty" parent="Margin/Content" instance=ExtResource("1_info_box")]
 layout_mode = 2
 visible = false
-text = "Nobody is on the payroll yet. Recruit a miner to start working Harlow Mines."
+text = "Nobody is on the payroll yet. A woodcutter at Mossward Copse pays from the first trip."
 icon_kind = "plus"
 
 [node name="Recruit" type="Button" parent="Margin/Content"]

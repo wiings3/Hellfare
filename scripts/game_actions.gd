@@ -142,7 +142,16 @@ func _guild_work(worker_id: String) -> void:
 	_action(game.start_guild_work(worker_id))
 
 func _set_roster_tab(tab: String) -> void:
-	roster_tab = tab
+	# The Armory and Workshop tabs moved: the Armory is a mercenary's Gear page, the Workshop its own chapter.
+	if tab == "armory":
+		roster_tab = "employed"
+		set("dossier_view", "gear")
+	elif tab == "workshop":
+		set("workshop_tab", "craft")
+		_nav_to("workshop")
+		return
+	else:
+		roster_tab = tab
 	_refresh()
 
 func _hire(id: String) -> void:
@@ -171,9 +180,11 @@ func _equipment_name(item: Dictionary) -> String:
 		return "Empty"
 	return Gear.full_name(item)
 
+## Open a mercenary's Gear page (the old Armory).
 func _outfit(id: String) -> void:
 	selected_merc = id
-	roster_tab = "armory"
+	roster_tab = "employed"
+	set("dossier_view", "gear")
 	page = "roster"
 	_refresh()
 

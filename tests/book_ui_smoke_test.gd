@@ -97,13 +97,14 @@ func _verify() -> void:
 	view._restore_tab_art()
 	check(view.book_art.texture.resource_path.ends_with("/2.png"), "restored sheet")
 	(view.tab_host.get_node("ChapterTab2") as Button).pressed.emit()
-	check(view.page == "roster", "personnel tab navigates")
-	check(view.book_art.texture.resource_path.ends_with("/4.png"), "personnel tab art")
+	check(view.page == "roster", "mercenaries tab navigates")
+	check(view.book_art.texture.resource_path.ends_with("/4.png"), "mercenaries tab art")
 	# Every chapter mounts its scenes.
 	var scene_by_chapter := {
 		"expeditions": ["board_left", "board_right"],
 		"site": ["site_left", "site_right"],
 		"roster": ["personnel_employed_left", "personnel_employed_right"],
+		"workshop": ["personnel_workshop_left", "personnel_workshop_right"],
 		"market": ["exchange_left", "exchange_right"],
 		"finance": ["finance_left", "finance_right"],
 		"ledger": ["chronicle_left", "chronicle_right"],
@@ -124,12 +125,30 @@ func _verify() -> void:
 	view._hire("oswin")
 	check(view.game.crew.size() == 2, "hired two")
 	view._outfit("garrick")
-	check(view.roster_tab == "armory", "armory tab")
-	check(view.right_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == MercsV05.shop_keys().size(), "armory catalog")
+	check(view.page == "roster" and view.dossier_view == "gear", "outfitting opens the Gear page")
+	check((view.right_leaf.get_child(0).get_node("Margin/Content/Gear") as Control).visible, "gear view shown")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Gear/Slots").get_child_count() == Gear.SLOTS.size(), "a button per gear slot")
+	view.workshop_tab = "store"
+	view._nav_to("workshop")
+	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/workshop_store_left.tscn"), "storeroom page")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == MercsV05.shop_keys().size(), "quartermaster catalog")
+	check(view._active_tab_index() == 3, "workshop bookmark")
+	view._buy_equipment("hand_axe")
 	view._nav_to("roster")
 	view._set_roster_tab("employed")
-	var roster_grid: GridContainer = view.left_leaf.get_child(0).get_node("Margin/Content/List/Items")
-	check(roster_grid.get_child_count() == view.game.crew.size(), "portrait card per mercenary")
+	view._focus_person("oswin")
+	view.dossier_view = "gear"
+	view.selected_slot = "main_hand"
+	view._refresh()
+	var fits: VBoxContainer = view.right_leaf.get_child(0).get_node("Margin/Content/Gear/Fits/Items")
+	check(fits.get_child_count() >= 1, "the storeroom axe fits the main hand")
+	(fits.get_child(fits.get_child_count() - 1).get_node("Row/Primary") as Button).pressed.emit()
+	check(str(Gear.in_slot(view.game.merc_by_id("oswin"), "main_hand").get("key", "")) == "hand_axe", "equipped from the Gear page")
+	view.dossier_view = "overview"
+	view._refresh()
+	var roster_list: VBoxContainer = view.left_leaf.get_child(0).get_node("Margin/Content/List/Items")
+	check(roster_list.get_child_count() == view.game.crew.size(), "a roster row per mercenary")
+	view._focus_person("garrick")
 	check((view.right_leaf.get_child(0).get_node("Margin/Content/Head/Id/Name") as Label).text == str(view.game.crew[0]["name"]), "dossier shows selection")
 	view._nav_to("finance")
 	check((view.left_leaf.get_child(0).get_node("Margin/Content/Ledger/Rows/Total/Value") as Label).text == view._money(view.game.wealth()), "finance worth matches")
@@ -205,7 +224,7 @@ func _verify() -> void:
 	hall.rng.seed = 4242
 	view._nav_to("hall")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/hall_left.tscn"), "trade hall page")
-	check(view._active_tab_index() == 3, "trade hall sits under the Exchange tab")
+	check(view._active_tab_index() == 4, "trade hall sits under the Market tab")
 	var t0: int = int(Time.get_unix_time_from_system())
 	view.game.hall_tick(t0)
 	check(not hall.feed.is_empty(), "NPC traders post in the chat")
@@ -391,8 +410,8 @@ func _verify() -> void:
 	# The Workshop: buy a blueprint, gather materials, craft, and find it in the storeroom.
 	view.game.reset_company()
 	view.game.gold = 1000
-	view._nav_to("roster")
-	view._set_roster_tab("workshop")
+	view.workshop_tab = "craft"
+	view._nav_to("workshop")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/personnel_workshop_left.tscn"), "workshop page")
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/Shop/Items").get_child_count() == view.game.blueprint_shop().size(), "blueprint shelf")
 	view._buy_blueprint("iron_war_axe")
@@ -405,8 +424,9 @@ func _verify() -> void:
 	check(not craft_button.disabled, "craft button ready")
 	craft_button.pressed.emit()
 	check(view.game.equipment_inventory.size() == 1 and str(view.game.equipment_inventory[0]["key"]) == "iron_war_axe", "crafted into the storeroom")
-	view._set_roster_tab("armory")
-	check(view.right_leaf.get_child(0).get_node("Margin/Content/Store/Items").get_child_count() == 1, "storeroom shows the crafted axe")
+	view.workshop_tab = "store"
+	view._refresh()
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Store/Items").get_child_count() == 1, "storeroom shows the crafted axe")
 	view.game.reset_company()
 	if failures > 0:
 		push_error("%d BookUI checks failed." % failures)
