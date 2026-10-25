@@ -248,7 +248,7 @@ const SITES := [
 		"id": "glasshouse", "name": "Glasshouse", "trade": "farming", "tier": 3, "level": 18,
 		"tagline": "A warm glasshouse for emberpeppers, which grow nowhere else. Needs building first.",
 		"duration": 900, "supplies": 40,
-		"yields": {"emberpepper": [3, 5]},
+		"yields": {"emberpepper": [3, 4]},
 		"needs": "glasshouse_build",
 		"threat": {"name": "Scalding steam", "danger": 0, "note": "Mind the stove"},
 		"injury": 0.03, "death": 0.0, "xp": 80, "tool": 0.5,

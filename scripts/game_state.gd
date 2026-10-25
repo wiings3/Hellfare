@@ -424,6 +424,11 @@ func _effort(merc: Dictionary, trade: String) -> float:
 		return 1.0 if Gear.hunts(merc) else 0.5
 	return 1.0 if Mercs.job(merc) == trade else 0.5
 
+## Whoever holds a weapon stands guard, except a hunter on a hunt: their bow is their tool,
+## so they work the hunt and don't also shield the crew.
+func _stands_guard(merc: Dictionary, trade: String) -> bool:
+	return Mercs.job(merc) == "combat" and not (trade == "hunting" and Gear.hunts(merc))
+
 ## Bone meal spread on the fields: +15% on a farming trip (one is used per trip).
 const BONE_MEAL_BONUS := 1.15
 
@@ -482,7 +487,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 		var level: int = TradeSkills.level_of(merc, trade)
 		best_level = maxi(best_level, level)
 		best_combat = maxi(best_combat, Mercs.guard_level(merc))
-		var guard: bool = Mercs.job(merc) == "combat"
+		var guard: bool = _stands_guard(merc, trade)
 		if guard:
 			guards += 1
 		var buffs: Dictionary = _trip_buffs(merc)
@@ -606,7 +611,7 @@ func _site_finish(mission: Dictionary) -> void:
 		var worker: Dictionary = merc_by_id(id)
 		if worker.is_empty():
 			continue
-		var guard: bool = Mercs.job(worker) == "combat"
+		var guard: bool = _stands_guard(worker, trade)
 		var buffs: Dictionary = (mission.get("buffs", {}) as Dictionary).get(id, {})
 		var death_chance: float = float(mission.get("death", 0.0)) * (1.1 if guard else 1.0) * Mercs.death_mult(worker) * Gear.death_mult(worker)
 		var dies: bool = rng.randf() < death_chance
