@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://8rfyf6u2gmn0"]
 
-[ext_resource type="Script" path="res://scripts/book_ui.gd" id="1_main"]
-[ext_resource type="PackedScene" path="res://scenes/journal/journal_shell.tscn" id="2_journal"]
+[ext_resource type="Script" uid="uid://dc0goncmiqpdq" path="res://scripts/book_ui.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://by6klxuxek6c1" path="res://scenes/journal/journal_shell.tscn" id="2_journal"]
 
 [node name="MoneyMercs" type="Control"]
 layout_mode = 3
@@ -13,3 +13,4 @@ grow_vertical = 2
 script = ExtResource("1_main")
 
 [node name="GuildmastersLogbook" parent="." instance=ExtResource("2_journal")]
+layout_mode = 0
