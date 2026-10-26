@@ -8,7 +8,8 @@ static var fullscreen: bool = false
 static var vsync: bool = true
 static var book_animations: bool = true
 ## Sound: volume per group, 0 to 1 (the groups are the buses in default_bus_layout.tres).
-const VOLUME_DEFAULTS := {"Alerts": 0.8, "Interface": 0.6, "Ambience": 0.35, "Music": 0.4}
+## The slider is perceptual: the level heard follows its square, so the quiet end has room to tune.
+const VOLUME_DEFAULTS := {"Alerts": 0.9, "Interface": 0.75, "Ambience": 0.6, "Music": 0.45}
 static var volumes: Dictionary = VOLUME_DEFAULTS.duplicate()
 ## Keep playing alerts while the game window is in the background (everything else goes quiet).
 static var alerts_away: bool = true
@@ -64,4 +65,4 @@ static func apply_volumes() -> void:
 			continue
 		var v: float = float(volumes[group])
 		AudioServer.set_bus_mute(bus, v <= 0.001)
-		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(v, 0.001)))
+		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(v * v, 0.000001)))

@@ -66,8 +66,10 @@ need them. Sound follows the art's rule: the guild hall is warm and close, hell 
   down, the crew turning back, gear and blueprints found.
 - **Ambience:** the hall's hearth always, the Maw rumbling under it (louder while a crew is in a
   crypt), and drips and wind on a crypt run's page.
-- **Settings → Sound:** a volume per group (Alerts, Interface, Ambience, Music) and whether alerts
-  keep playing while the game is in the background (everything else goes quiet).
+- **Settings → Sound:** a slider per group (Alerts, Interface, Ambience, Music), 1% steps (drag, or
+  click and use the arrow keys), on a perceptual curve so the quiet end has room; and whether alerts
+  keep playing while the game is in the background (everything else goes quiet). Music sits 9 dB
+  under the sound effects and starts at 45%.
 
 How it works: everything plays a sound by name through `Sound.play("crew_back")`; the autoload
 `scripts/sfx.gd` looks the name up in `assets/audio/sounds.json` (files, group, volume, pitch

@@ -410,7 +410,7 @@ def compose(add):
         t = play_line(sc, phrase, second, beat, 0.30, 0.15)
         play_line(sc, [(m - 9 if m else None, b) for m, b in phrase], second, beat, 0.18, -0.25)
         second = t
-    add("mus_hall", "music", [sc.finish(2.8, 0.32)], pitch=0.0, source="Synthesised (strings and drone)")
+    add("mus_hall", "music", [sc.finish(2.8, 0.32)], db=-9, pitch=0.0, source="Synthesised (strings and drone)")
 
     # While a crew is below: a drone and a hummed choir, heard through the floor.
     sc = Score(118)
@@ -424,7 +424,7 @@ def compose(add):
         at = 6 + k * 10 + rng.uniform(-1.5, 1.5)
         sc.place(frame_drum(0.6), at, 0.35)
         sc.place(frame_drum(0.45), at + 0.42, 0.3)
-    add("mus_descent", "music", [sc.finish(3.2, 0.4, 1800, lp=1300, fade_out=8.0)], pitch=0.0,
+    add("mus_descent", "music", [sc.finish(3.2, 0.4, 1800, lp=1300, fade_out=8.0)], db=-9, pitch=0.0,
         source="Synthesised (choir, drone, drum)")
 
     # Entering a crypt: a frame drum, a low choir, and the theme's first bar, rising.
@@ -438,7 +438,7 @@ def compose(add):
         for j, m in enumerate(chord):
             sc.place(hum(midi(m), 13), 4 + i * 14, 0.15, (j - 1) * 0.4)
     play_line(sc, THEME[0][:4], 30, 1.2, 0.26, 0.2, transpose=-12)
-    add("mus_crypt", "music", [sc.finish(2.2, 0.3, 2400, fade_out=5.0)], pitch=0.0,
+    add("mus_crypt", "music", [sc.finish(2.2, 0.3, 2400, fade_out=5.0)], db=-9, pitch=0.0,
         source="Synthesised (drum, choir, strings)")
 
     # Title and pause: the theme, a little brighter (D major) and a little higher.
@@ -449,7 +449,7 @@ def compose(add):
     for phrase in THEME[:3]:
         t = play_line(sc, phrase, t, 1.05, 0.3, 0.05, transpose=0, major=True)
     play_line(sc, [(62, 2), (64, 1), (66, 1), (62, 8)], t, 1.05, 0.28, 0.05)
-    add("mus_title", "music", [sc.finish(2.6, 0.3, 3000, fade_out=6.0)], pitch=0.0,
+    add("mus_title", "music", [sc.finish(2.6, 0.3, 3000, fade_out=6.0)], db=-9, pitch=0.0,
         source="Synthesised (strings and drone)")
 
 

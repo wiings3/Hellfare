@@ -43,8 +43,6 @@ var _hidden: Dictionary = {}
 @onready var sound_back: Button = $Cover/Plate/Margin/Content/Sound/Back
 @onready var away_toggle: Button = $Cover/Plate/Margin/Content/Sound/Away/Toggle
 
-## Volume steps for the - / + buttons.
-const VOLUME_STEP := 0.1
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -64,8 +62,9 @@ func _ready() -> void:
 	away_toggle.toggled.connect(_set_alerts_away)
 	for group in GameSettings.VOLUME_DEFAULTS:
 		var row := sound_view.get_node(str(group))
-		(row.get_node("Down") as Button).pressed.connect(_step_volume.bind(str(group), -VOLUME_STEP))
-		(row.get_node("Up") as Button).pressed.connect(_step_volume.bind(str(group), VOLUME_STEP))
+		var slider := row.get_node("Slider") as HSlider
+		slider.value_changed.connect(_slide_volume.bind(str(group)))
+		slider.drag_ended.connect(func(_changed: bool) -> void: _volume_set(str(group)))
 
 func is_open() -> bool:
 	return state != State.CLOSED
@@ -195,18 +194,26 @@ func _sync_sound() -> void:
 		var row := sound_view.get_node(str(group))
 		var v: float = float(GameSettings.volumes[group])
 		(row.get_node("Value") as Label).text = "Off" if v <= 0.001 else "%d%%" % int(round(v * 100.0))
-		(row.get_node("Down") as Button).disabled = v <= 0.001
-		(row.get_node("Up") as Button).disabled = v >= 0.999
+		(row.get_node("Slider") as HSlider).set_value_no_signal(round(v * 100.0))
 	away_toggle.set_pressed_no_signal(GameSettings.alerts_away)
 	away_toggle.text = "On" if GameSettings.alerts_away else "Off"
 
-func _step_volume(group: String, step: float) -> void:
-	GameSettings.volumes[group] = clampf(snappedf(float(GameSettings.volumes[group]) + step, 0.1), 0.0, 1.0)
-	GameSettings.save_settings()
+## A slider moved: the new level is heard at once (music and ambience keep playing under it).
+func _slide_volume(value: float, group: String) -> void:
+	GameSettings.volumes[group] = clampf(value / 100.0, 0.0, 1.0)
 	Sound.refresh()
-	_sync_sound()
-	if group != "Ambience" and group != "Music":
-		Sound.play("coin_spend" if group == "Interface" else "crew_back")
+	(sound_view.get_node(group + "/Value") as Label).text = "Off" if value < 0.5 else "%d%%" % int(round(value))
+	if not (sound_view.get_node(group + "/Slider") as HSlider).has_focus() or Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		return
+	_volume_set(group)  # a key press: no drag to end, so settle now
+
+## The level is settled: save it and play a sample of the group.
+func _volume_set(group: String) -> void:
+	GameSettings.save_settings()
+	if group == "Interface":
+		Sound.play("coin_spend")
+	elif group == "Alerts":
+		Sound.play("crew_waiting")
 
 func _set_alerts_away(on: bool) -> void:
 	GameSettings.alerts_away = on

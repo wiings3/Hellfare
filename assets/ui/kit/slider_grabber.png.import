@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://deoc5m2brkk6g"
-path="res://.godot/imported/step_plus.png-4e83037dbd7e764a73749e216f28899e.ctex"
+uid="uid://bt3elnfm7usej"
+path="res://.godot/imported/slider_grabber.png-ba8dbbd797262405fc87d5a3a4b8d618.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/kit/step_plus.png"
-dest_files=["res://.godot/imported/step_plus.png-4e83037dbd7e764a73749e216f28899e.ctex"]
+source_file="res://assets/ui/kit/slider_grabber.png"
+dest_files=["res://.godot/imported/slider_grabber.png-ba8dbbd797262405fc87d5a3a4b8d618.ctex"]
 
 [params]
 

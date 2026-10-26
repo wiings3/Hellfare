@@ -355,7 +355,7 @@
   "files": [
    "res://assets/audio/music/mus_hall_1.ogg"
   ],
-  "db": 0.0,
+  "db": -9,
   "pitch": 0.0,
   "loop": false
  },
@@ -364,7 +364,7 @@
   "files": [
    "res://assets/audio/music/mus_descent_1.ogg"
   ],
-  "db": 0.0,
+  "db": -9,
   "pitch": 0.0,
   "loop": false
  },
@@ -373,7 +373,7 @@
   "files": [
    "res://assets/audio/music/mus_crypt_1.ogg"
   ],
-  "db": 0.0,
+  "db": -9,
   "pitch": 0.0,
   "loop": false
  },
@@ -382,7 +382,7 @@
   "files": [
    "res://assets/audio/music/mus_title_1.ogg"
   ],
-  "db": 0.0,
+  "db": -9,
   "pitch": 0.0,
   "loop": false
  }
