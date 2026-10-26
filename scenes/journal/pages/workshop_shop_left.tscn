@@ -31,7 +31,7 @@ text = "Ready-made Gear"
 [node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "The quartermaster's starter gear. It goes to the storeroom."
+text = "The quartermaster's starter gear. It goes to the Warehouse."
 autowrap_mode = 3
 
 [node name="Gear" type="ScrollContainer" parent="Margin/Content"]

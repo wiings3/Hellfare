@@ -59,6 +59,10 @@ var recruit_filter: String = "all"
 var dossier_view: String = "overview"
 var workshop_tab: String = "craft"
 var craft_filter: String = "all"
+## The Workshop's Warehouse: its search text, filter, and the chosen thing ("res:<good>" or "gear:<uid>").
+var store_find: String = ""
+var store_filter: String = "all"
+var store_pick: String = ""
 ## The Workshop narrowed from the item lookup card: "uses:<good>" (recipes that use it) or
 ## "item:<key>" (that one blueprint). Empty shows everything.
 var workshop_focus: String = ""
@@ -157,7 +161,7 @@ func _active_tab_index() -> int:
 		return 1
 	if page in ["hall", "market", "auction"]:
 		return 4
-	if page in ["ledger", "warehouse"]:
+	if page == "ledger":
 		return 5
 	if page == "standing":
 		return 0

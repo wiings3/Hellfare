@@ -30,8 +30,6 @@ const WORKSHOP_STORE_RIGHT := preload("res://scenes/journal/pages/workshop_store
 const WORKSHOP_SHOP_LEFT := preload("res://scenes/journal/pages/workshop_shop_left.tscn")
 const WORKSHOP_SHOP_RIGHT := preload("res://scenes/journal/pages/workshop_shop_right.tscn")
 const WORKSHOP_TABS := preload("res://scenes/journal/pages/workshop_tabs.tscn")
-const WAREHOUSE_LEFT := preload("res://scenes/journal/pages/warehouse_left.tscn")
-const WAREHOUSE_RIGHT := preload("res://scenes/journal/pages/warehouse_right.tscn")
 const LEDGER_TABS := preload("res://scenes/journal/pages/ledger_tabs.tscn")
 const PERSONNEL_WORKSHOP_LEFT := preload("res://scenes/journal/pages/personnel_workshop_left.tscn")
 const PERSONNEL_WORKSHOP_RIGHT := preload("res://scenes/journal/pages/personnel_workshop_right.tscn")
@@ -105,7 +103,6 @@ const PAGE_TITLES := {
 	"auction": "The Auction House",
 	"finance": "The Ledger",
 	"ledger": "The Ledger",
-	"warehouse": "The Ledger",
 }
 
 ## Callables run once a second to move timers and bars without rebuilding pages.
@@ -132,6 +129,9 @@ func _refresh() -> void:
 	if page == "harlow":
 		page = "site"
 		selected_site = "harlow"
+	if page == "warehouse":
+		page = "workshop"
+		workshop_tab = "store"
 	if page == "standing":
 		page = "hq"  # The Standing tab is retired: worth and the warehouse live in the Treasury.
 	if page == "contracts":
@@ -157,7 +157,6 @@ func _refresh() -> void:
 		"hall": _draw_hall()
 		"finance": _draw_ledger()
 		"ledger": _draw_ledger()
-		"warehouse": _draw_ledger()
 		_: _draw_company()
 
 ## Gold at the last header update: a change right after a click jingles.
@@ -578,6 +577,7 @@ func _needs() -> Array:
 # --- Shared chapter helpers ----------------------------------------------------
 
 const ROW_LIST_CARD := preload("res://scenes/journal/rows/list_card.tscn")
+const ROW_LIST_CAPTION := preload("res://scenes/journal/rows/list_caption.tscn")
 const ROW_ITEM_CARD := preload("res://scenes/journal/rows/item_card.tscn")
 const ROW_PORTRAIT_CARD := preload("res://scenes/journal/rows/portrait_card.tscn")
 const SEAL_OK := preload("res://assets/ui/kit/seal_ok.png")
@@ -1207,7 +1207,7 @@ func _draw_recruitment() -> void:
 	reason.text = "Not enough gold: %s." % _money(fee) if game.gold < fee else ""
 	reason.visible = not reason.text.is_empty()
 
-## The Workshop chapter: Craft (what can I make?), Shop (what can I buy?), Storeroom (what do I have?).
+## The Workshop chapter: Craft (what can I make?), Shop (what can I buy?), Warehouse (what do I have?).
 func _draw_workshop_chapter() -> void:
 	match workshop_tab:
 		"shop": _draw_workshop_shop()
@@ -1218,8 +1218,7 @@ func _draw_workshop_chapter() -> void:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
 		btn.set_pressed_no_signal(workshop_tab == str(tab[1]) or (str(tab[1]) == "craft" and not workshop_tab in ["shop", "store"]))
 		btn.pressed.connect(_set_workshop_tab.bind(str(tab[1])))
-	var spare: int = game.equipment_inventory.size()
-	(tabs.get_node("Tabs/StoreTab") as Button).text = "Storeroom  ·  %d" % spare if spare > 0 else "Storeroom"
+	(tabs.get_node("Tabs/StoreTab") as Button).tooltip_text = "Everything the guild owns: goods, gear (spare and worn), food and potions."
 
 func _set_workshop_tab(tab: String) -> void:
 	workshop_tab = tab
@@ -1312,7 +1311,7 @@ func _draw_workshop_shop() -> void:
 		var card := _item_row(gear, _gear_icon(str(key)), str(definition["name"]), Gear.summary(str(key)), str(key))
 		var cost: int = int(definition["cost"])
 		_row_button(card, "Primary", "Buy  ·  %s" % _money(cost), _buy_equipment.bind(str(key)), game.gold < cost,
-			"A common one for the storeroom. Crafted pieces can roll better.")
+			"A common one for the Warehouse. Crafted pieces can roll better.")
 	for name in ["All", "Tools", "Weapons", "Armour", "Supplies", "Materials"]:
 		var tab := right.get_node(c + "Filter/" + name) as Button
 		tab.set_pressed_no_signal(craft_filter == name.to_lower())
@@ -1338,33 +1337,238 @@ func _draw_workshop_shop() -> void:
 		empty_note.text = "No blueprints of this kind for sale. Try All."
 	(right.get_node(c + "Blueprints") as Control).visible = prints.get_child_count() > 0
 
+# --- Workshop: the Warehouse (everything the guild owns) -------------------------------------
+
+## One thing the guild owns: a good (all of it) or one piece of gear, with what the list and the
+## details page need. kind: "good", "supply", "spare" or "worn".
+func _store_entries() -> Array:
+	var out: Array = []
+	for key in MoneyMercsState.RESOURCE_ORDER:
+		var n: int = int(game.resources.get(str(key), 0))
+		if n <= 0:
+			continue
+		var supply: bool = Gear.consumable(str(key))
+		out.append({"pick": "res:" + str(key), "key": str(key), "kind": "supply" if supply else "good", "count": n,
+			"name": _resource_name(str(key)), "worth": n * game.sell_price(str(key)),
+			"group": "supplies" if supply else "materials"})
+	for item in game.equipment_inventory:
+		var k: String = str(item.get("key", ""))
+		out.append({"pick": "gear:" + str(item.get("uid", "")), "key": k, "kind": "spare", "count": 1, "item": item,
+			"name": Gear.full_name(item), "worth": game.resale_value(item), "group": _craft_group(k)})
+	for merc in game.crew:
+		for item in Gear.worn(merc):
+			var k: String = str(item.get("key", ""))
+			out.append({"pick": "gear:" + str(item.get("uid", "")), "key": k, "kind": "worn", "count": 1, "item": item, "merc": merc,
+				"name": Gear.full_name(item), "worth": game.resale_value(item), "group": _craft_group(k)})
+	return out
+
+const STORE_GROUPS := [["materials", "Materials"], ["weapons", "Weapons"], ["armour", "Armour, shields and trinkets"],
+	["tools", "Tools"], ["supplies", "Food and potions"]]
+
 func _draw_workshop_store() -> void:
 	var left := _mount_page(WORKSHOP_STORE_LEFT, left_leaf)
 	var right := _mount_page(WORKSHOP_STORE_RIGHT, right_leaf)
 	var c := "Margin/Content/"
-	# Spare gear: repair or sell. Equipping happens on a mercenary's Gear page.
-	var store := left.get_node(c + "Store/Items") as VBoxContainer
-	for item in game.equipment_inventory:
-		var key: String = str(item.get("key", ""))
-		var wear: String = ("  ·  %d/%d" % [Gear.durability(item), Gear.max_durability(item)]) if Gear.max_durability(item) > 0 else ""
-		var card := _item_row(store, _gear_icon(key), Gear.full_name(item), Gear.summary(key) + wear, key)
-		card.tooltip_text = Gear.describe(item)
-		var value: int = game.resale_value(item)
-		_row_button(card, "Primary", "Sell  ·  %s" % _money(value), _sell_equipment.bind(str(item.get("uid", ""))), false,
-			"Sell for %s (65%% of its worth, less if worn)." % _money(value))
-		var cost: Dictionary = game.repair_cost(item)
-		if not cost.is_empty():
-			_row_button(card, "Secondary", "Repair", _repair.bind(str(item.get("uid", ""))), game.gold < game.repair_gold(cost), "Uses %s." % _cost_line(cost))
-	(left.get_node(c + "Store") as Control).visible = store.get_child_count() > 0
-	(left.get_node(c + "StoreEmpty") as Control).visible = store.get_child_count() == 0
-	# Food and potions.
-	var supplies := right.get_node(c + "Supplies/Items") as VBoxContainer
-	for key in MoneyMercsState.RESOURCE_ORDER:
-		if not Gear.consumable(str(key)) or int(game.resources.get(key, 0)) <= 0:
+	var find := left.get_node(c + "Find") as LineEdit
+	find.text = store_find
+	find.text_changed.connect(func(t: String) -> void:
+		store_find = t
+		_fill_store_list(left, right))
+	for name in ["All", "Materials", "Weapons", "Armour", "Tools", "Supplies"]:
+		var tab := left.get_node(c + "Filter/" + name) as Button
+		tab.set_pressed_no_signal(store_filter == name.to_lower())
+		tab.pressed.connect(func() -> void:
+			store_filter = name.to_lower()
+			_fill_store_list(left, right))
+	_fill_store_list(left, right)
+
+## The list on the left, filtered and grouped, then the chosen thing on the right.
+func _fill_store_list(left: Control, right: Control) -> void:
+	var c := "Margin/Content/"
+	var list := left.get_node(c + "List/Items") as VBoxContainer
+	for child in list.get_children():
+		list.remove_child(child)
+		child.queue_free()
+	var all: Array = _store_entries()
+	var needle: String = store_find.strip_edges().to_lower()
+	var shown: Array = all.filter(func(e: Dictionary) -> bool:
+		return (store_filter == "all" or str(e["group"]) == store_filter) and (needle == "" or str(e["name"]).to_lower().contains(needle)))
+	# The summary counts everything, whatever the filter shows.
+	var goods: int = 0
+	var spare: int = 0
+	var worn: int = 0
+	var worth: int = 0
+	for e in all:
+		worth += int(e["worth"])
+		match str(e["kind"]):
+			"good", "supply": goods += int(e["count"])
+			"spare": spare += 1
+			"worn": worn += 1
+	(left.get_node(c + "Summary") as Label).text = "%s  ·  %d spare  ·  %d worn  ·  worth %s" % [_plural(goods, "good"), spare, worn, _money(worth)] if not all.is_empty() else ""
+	if store_pick == "" or not shown.any(func(e: Dictionary) -> bool: return str(e["pick"]) == store_pick):
+		store_pick = str(shown[0]["pick"]) if not shown.is_empty() else ""
+	for group in STORE_GROUPS:
+		var rows: Array = shown.filter(func(e: Dictionary) -> bool: return str(e["group"]) == str(group[0]))
+		if rows.is_empty():
 			continue
-		_item_row(supplies, _item_icon(str(key)), "%s  ×%d" % [_resource_name(str(key)), int(game.resources[key])], Gear.summary(str(key)), str(key))
-	(right.get_node(c + "Supplies") as Control).visible = supplies.get_child_count() > 0
-	(right.get_node(c + "SuppliesEmpty") as Control).visible = supplies.get_child_count() == 0
+		rows.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			if str(a["kind"]) != str(b["kind"]):
+				return str(a["kind"]) < str(b["kind"])  # goods, spare, supply, worn
+			return int(a["worth"]) > int(b["worth"]))
+		var cap := ROW_LIST_CAPTION.instantiate()
+		list.add_child(cap)
+		(cap.get_node("Text") as Label).text = str(group[1])
+		(cap.get_node("Count") as Label).text = "·  %d" % rows.size()
+		for e in rows:
+			var gear: bool = e.has("item")
+			var icon: Texture2D = _gear_icon(str(e["key"])) if gear else _item_icon(str(e["key"]))
+			var title: String = str(e["name"]) if gear else "%s  ×%d" % [str(e["name"]), int(e["count"])]
+			var card := _list_card(list, icon, title, _store_detail_line(e), "", _money(int(e["worth"])),
+				str(e["pick"]) == store_pick, _pick_store.bind(str(e["pick"]), left, right))
+			card.tooltip_text = Gear.describe(e["item"]) if gear else str(MoneyMercsState.RESOURCE_DESC.get(str(e["key"]), ""))
+	(left.get_node(c + "List") as Control).visible = list.get_child_count() > 0
+	var empty := left.get_node(c + "Empty")
+	empty.visible = list.get_child_count() == 0
+	if not all.is_empty():
+		empty.text = "Nothing matches \"%s\". Try another name, or All." % store_find if needle != "" else "Nothing of this kind. Try All."
+	_draw_store_details(right, shown.filter(func(e: Dictionary) -> bool: return str(e["pick"]) == store_pick))
+
+func _store_detail_line(e: Dictionary) -> String:
+	match str(e["kind"]):
+		"worn":
+			var item: Dictionary = e["item"]
+			var wear: String = "  ·  %d/%d" % [Gear.durability(item), Gear.max_durability(item)] if Gear.max_durability(item) > 0 else ""
+			return "Worn by %s%s" % [str(e["merc"].get("name", "someone")), wear]
+		"spare":
+			var item: Dictionary = e["item"]
+			var wear: String = "  ·  %d/%d" % [Gear.durability(item), Gear.max_durability(item)] if Gear.max_durability(item) > 0 else ""
+			return "Spare%s" % wear
+		"supply":
+			return Gear.summary(str(e["key"]))
+	return "%s each" % _money(game.sell_price(str(e["key"])))
+
+func _pick_store(pick: String, left: Control, right: Control) -> void:
+	store_pick = pick
+	_fill_store_list(left, right)
+
+## The right page: what the chosen thing is, how much of it, and what you can do with it.
+func _draw_store_details(right: Control, chosen: Array) -> void:
+	var c := "Margin/Content/"
+	var parts := ["Head", "Stats", "Desc", "Where", "Actions", "Reason"]
+	for part in parts:
+		(right.get_node(c + part) as Control).visible = not chosen.is_empty()
+	(right.get_node(c + "Empty") as Control).visible = chosen.is_empty()
+	if chosen.is_empty():
+		return
+	var e: Dictionary = chosen[0]
+	var key: String = str(e["key"])
+	var gear: bool = e.has("item")
+	var item: Dictionary = e.get("item", {})
+	right.get_node(c + "Head/Slot").icon = _gear_icon(key) if gear else _item_icon(key)
+	_lookup_on(right.get_node(c + "Head/Slot") as Control, key)
+	(right.get_node(c + "Head/Id/Name") as Label).text = str(e["name"])
+	var kind_names := {"good": "Goods", "supply": "Food and potions", "spare": "Spare gear", "worn": "Worn by " + str(e.get("merc", {}).get("name", ""))}
+	var tier: int = int(Catalog.item(key).get("tier", Catalog.material(key).get("tier", 1)))
+	(right.get_node(c + "Head/Id/Kind") as Label).text = "%s  ·  tier %d" % [str(kind_names[str(e["kind"])]), tier]
+	right.get_node(c + "Stats/Held").value = str(int(e["count"]))
+	var worth_tile := right.get_node(c + "Stats/Worth")
+	worth_tile.value = _money(int(e["worth"]))
+	worth_tile.caption = "Sells for" if gear else "Worth today"
+	var third := right.get_node(c + "Stats/Third")
+	if gear and Gear.max_durability(item) > 0:
+		third.caption = "Condition"
+		third.value = "%d/%d" % [Gear.durability(item), Gear.max_durability(item)]
+	else:
+		var uses: int = 0
+		for k in Catalog.items():
+			var recipe: Variant = Catalog.item(str(k)).get("recipe", {})
+			if recipe is Dictionary and (recipe as Dictionary).has(key):
+				uses += 1
+		third.caption = "Used in"
+		third.value = _plural(uses, "recipe")
+	var described: String = Gear.describe(item) if gear else ""
+	if described.begins_with(str(e["name"]) + "\n"):
+		described = described.substr(str(e["name"]).length() + 1)  # the name is already the title
+	(right.get_node(c + "Desc") as Label).text = described if gear else ("%s\n%s" % [Gear.summary(key), str(MoneyMercsState.RESOURCE_DESC.get(key, ""))] if str(e["kind"]) == "supply" else str(MoneyMercsState.RESOURCE_DESC.get(key, "")))
+	(right.get_node(c + "Where") as Label).text = _store_where(e)
+	# Up to three things to do with it.
+	var actions: Array = []
+	var uid: String = str(item.get("uid", ""))
+	match str(e["kind"]):
+		"good":
+			actions.append(["Sell in the Market  >", func() -> void: _open_market(key), false, ""])
+			actions.append(["List on the Auction House  >", _store_to_auction.bind(key), false, ""])
+			actions.append(["Recipes that use it  >", _store_recipes.bind(key), str(third.value).begins_with("0 "), "No recipe uses it."])
+		"supply":
+			actions.append(["Pack it for a trip  >", _store_pack.bind(Gear.slot_of(key)), game.crew.is_empty(), "Hire someone first."])
+			actions.append(["Sell in the Market  >", func() -> void: _open_market(key), false, ""])
+		"spare":
+			actions.append(["Equip on a Hellfarer  >", _store_pack.bind(Gear.slot_of(key)), game.crew.is_empty(), "Hire someone first."])
+			actions.append(["Sell  ·  %s" % _money(int(e["worth"])), _sell_equipment.bind(uid), false, "Sell to the quartermaster for 65% of its worth, less if worn."])
+			actions.append(["List on the Auction House  >", _store_to_auction.bind("uid:" + uid), false, ""])
+		"worn":
+			var merc: Dictionary = e["merc"]
+			actions.append(["Open %s's gear  >" % str(merc.get("name", "")).get_slice(" ", 0), _outfit_slot.bind(str(merc["id"]), Gear.slot_of(key)), false, ""])
+	if gear and not game.repair_cost(item).is_empty():
+		var cost: Dictionary = game.repair_cost(item)
+		var gold: int = game.repair_gold(cost)
+		actions.append(["Repair%s" % ("  ·  %s" % _money(gold) if gold > 0 else ""), _repair.bind(uid), game.gold < gold, "Uses %s." % _cost_line(cost)])
+	var buttons: Array = ["Primary", "Secondary", "Tertiary"]
+	for i in range(buttons.size()):
+		var b := right.get_node(c + "Actions/" + str(buttons[i])) as Button
+		b.visible = i < actions.size()
+		if i < actions.size():
+			var a: Array = actions[i]
+			b.text = str(a[0])
+			b.disabled = bool(a[2])
+			b.tooltip_text = str(a[3]) if bool(a[2]) or str(a[3]) != "" else ""
+			b.pressed.connect(a[1])
+	(right.get_node(c + "Reason") as Label).text = ""
+
+## Where it is or where it comes from, in one line.
+func _store_where(e: Dictionary) -> String:
+	var key: String = str(e["key"])
+	match str(e["kind"]):
+		"worn":
+			return "%s wears it in the %s slot. Gear wears with every trip and is lost if its wearer dies." % [str(e["merc"].get("name", "")), str(Gear.SLOT_NAMES.get(Gear.slot_of(key), "")).to_lower()]
+		"spare":
+			return "Nobody is wearing it. Equip it from a Hellfarer's Gear page."
+		"supply":
+			return "Pack it into a Hellfarer's food or potion slot; it's used on their next trip."
+	var from: Array[String] = []
+	for src in Catalog.material(key).get("sources", []):
+		var name: String = str(Catalog.sources().get(str(src), {}).get("name", ""))
+		if name != "" and not from.has(name):
+			from.append(name)
+	if from.is_empty():
+		return "Made in the Workshop." if Catalog.item(key).get("recipe") is Dictionary else ""
+	return "Comes from %s." % ", ".join(from.slice(0, 4))
+
+func _store_to_auction(pick: String) -> void:
+	auction_tab = "sell"
+	ah_sell_filter = "all"
+	ah_sell_item = pick
+	_turn_to("auction")
+
+func _store_recipes(key: String) -> void:
+	workshop_tab = "craft"
+	workshop_focus = "uses:" + key
+	_refresh()
+
+## Open a Hellfarer's Gear page on a slot: the one chosen in Mercenaries, else the first free one.
+func _store_pack(slot: String) -> void:
+	var id: String = selected_merc
+	if game.merc_by_id(id).is_empty() or not game.is_available(game.merc_by_id(id)):
+		id = ""
+		for merc in game.crew:
+			if game.is_available(merc):
+				id = str(merc["id"])
+				break
+		if id == "" and not game.crew.is_empty():
+			id = str(game.crew[0]["id"])
+	if id == "":
+		return
+	_outfit_slot(id, slot)
 
 const SLOT_HINTS := {
 	"main_hand": "A tool sets the job; a weapon makes a guard.", "off_hand": "A shield, or a lantern for rare finds.",
@@ -1721,10 +1925,9 @@ func _show_link_card(ref: String) -> void:
 func _draw_ledger() -> void:
 	match page:
 		"finance": _draw_accounts()
-		"warehouse": _draw_warehouse()
 		_: _draw_history()
 	var tabs := _mount_page(LEDGER_TABS, left_leaf)
-	for tab in [["AccountsTab", "finance"], ["ReportsTab", "ledger"], ["WarehouseTab", "warehouse"]]:
+	for tab in [["AccountsTab", "finance"], ["ReportsTab", "ledger"]]:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
 		btn.set_pressed_no_signal(page == str(tab[1]))
 		btn.pressed.connect(_nav_to.bind(str(tab[1])))
@@ -1840,43 +2043,6 @@ func _draw_accounts() -> void:
 		(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelGood" if net >= 0 else &"LabelAccent"
 	(right.get_node(c + "Trades") as Control).visible = not order.is_empty()
 	(right.get_node(c + "TradesEmpty") as Control).visible = order.is_empty()
-
-## The Ledger's Warehouse tab: every good held and its worth; a click opens it in the Market.
-func _draw_warehouse() -> void:
-	var left := _mount_page(WAREHOUSE_LEFT, left_leaf)
-	var right := _mount_page(WAREHOUSE_RIGHT, right_leaf)
-	var c := "Margin/Content/"
-	var list := left.get_node(c + "List/Items") as VBoxContainer
-	var kinds: Dictionary = {"raw": 0, "crafted": 0, "food": 0}
-	var held: Array = []
-	for id in MoneyMercsState.RESOURCE_ORDER:
-		if int(game.resources.get(str(id), 0)) > 0:
-			held.append(str(id))
-	held.sort_custom(func(a, b): return int(game.resources[a]) * game.sell_price(a) > int(game.resources[b]) * game.sell_price(b))
-	for key in held:
-		var quantity: int = int(game.resources[key])
-		var worth: int = quantity * game.sell_price(key)
-		var kind: String = str(MoneyMercsState.RESOURCE_KIND.get(key, "raw"))
-		kinds[kind] = int(kinds.get(kind, 0)) + worth
-		var row := ROW_MARKET.instantiate() as Button
-		list.add_child(row)
-		row.toggle_mode = false
-		(row.get_node("Body/Icon") as TextureRect).texture = _item_icon(key)
-		(row.get_node("Body/Name") as Label).text = _resource_name(key)
-		(row.get_node("Body/Held") as Label).text = str(quantity)
-		(row.get_node("Body/Price/Pays") as Label).text = _money(worth)
-		row.tooltip_text = "%s\n%s each today. Click for details and to trade it." % [str(MoneyMercsState.RESOURCE_DESC.get(key, "")), _money(game.sell_price(key))]
-		row.pressed.connect(_open_lookup.bind(key))
-	(left.get_node(c + "List") as Control).visible = not held.is_empty()
-	(left.get_node(c + "Empty") as Control).visible = held.is_empty()
-	right.get_node(c + "Total").value = _money(game.goods_value())
-	right.get_node(c + "Kinds/Raw").value = _money(int(kinds["raw"]))
-	right.get_node(c + "Kinds/Crafted").value = _money(int(kinds["crafted"]))
-	right.get_node(c + "Kinds/Food").value = _money(int(kinds["food"]))
-	var market := right.get_node(c + "Market") as Button
-	market.pressed.connect(func() -> void:
-		market_filter = "held"
-		_turn_to("market"))
 
 func _open_market(key: String) -> void:
 	selected_market_item = key
@@ -3358,8 +3524,8 @@ func _draw_ah_yours() -> void:
 			"order_ended":
 				title = "Order for %s ended" % name
 				value = "+" + _money(int(e["gold"]))
-		var where: String = {"sold": str(e["who"]), "bought": "%s  ·  %s" % [str(e["who"]), "in the storeroom" if ref.begins_with("gear:") else "in the warehouse"],
-			"expired": "Back in the %s" % ("storeroom" if ref.begins_with("gear:") else "warehouse"), "order_ended": "Unspent gold returned"}.get(str(e["kind"]), "")
+		var where: String = {"sold": str(e["who"]), "bought": "%s  ·  %s" % [str(e["who"]), "in the Warehouse"],
+			"expired": "Back in the Warehouse", "order_ended": "Unspent gold returned"}.get(str(e["kind"]), "")
 		var card := _list_card(log_list, _ah_icon(ref), title, "%s  ·  %s" % [where, _ago(int(e["t"]))], "", value, false, func() -> void: pass)
 		card.toggle_mode = false
 		card.mouse_default_cursor_shape = Control.CURSOR_ARROW

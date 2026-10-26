@@ -1029,7 +1029,7 @@ func trade_complete(now: int = -1) -> String:
 	for uid in s.mine_gear:
 		if not keys.has(uid):
 			s.changed()
-			return "That gear is no longer in the storeroom."
+			return "That gear is no longer in the Warehouse."
 	if gold < s.mine_gold:
 		s.changed()
 		return "You don't have %d gold." % s.mine_gold

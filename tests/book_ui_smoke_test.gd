@@ -108,7 +108,7 @@ func _verify() -> void:
 		"market": ["exchange_left", "exchange_right"],
 		"finance": ["finance_left", "finance_right"],
 		"ledger": ["chronicle_left", "chronicle_right"],
-		"warehouse": ["warehouse_left", "warehouse_right"],
+		"warehouse": ["workshop_store_left", "workshop_store_right"],
 		"guildwork": ["guildwork_left", "guildwork_right"]
 	}
 	for chapter in scene_by_chapter:
@@ -118,6 +118,7 @@ func _verify() -> void:
 		check(view.right_leaf.get_child(0).scene_file_path.ends_with("/pages/" + str(paths[1]) + ".tscn"), chapter + " right")
 		check(view.book_art.texture.resource_path.ends_with("/" + str(view._active_tab_index() + 2) + ".png"), chapter + " tab art")
 		check(not view.title_label.text.is_empty(), chapter + " title")
+	view.workshop_tab = "craft"
 	# Personnel and armory flows.
 	view._nav_to("roster")
 	view._set_roster_tab("recruits")
@@ -479,10 +480,46 @@ func _verify() -> void:
 	var craft_button: Button = view.right_leaf.get_child(0).get_node("Margin/Content/Craft")
 	check(not craft_button.disabled, "craft button ready")
 	craft_button.pressed.emit()
-	check(view.game.equipment_inventory.size() == 1 and str(view.game.equipment_inventory[0]["key"]) == "iron_war_axe", "crafted into the storeroom")
-	view.workshop_tab = "store"
+	check(view.game.equipment_inventory.size() == 1 and str(view.game.equipment_inventory[0]["key"]) == "iron_war_axe", "crafted into the Warehouse")
+	# The Warehouse (Workshop): everything owned, searchable, with details and actions.
+	view._turn_to("warehouse")
+	await create_timer(0.3).timeout
+	check(view.page == "workshop" and view.workshop_tab == "store", "the old warehouse link opens the Workshop's Warehouse")
+	check(view.book_art.texture.resource_path.ends_with("/%d.png" % (view.PHYSICAL_TAB_PAGES.find("workshop") + 2)), "the Workshop bookmark is open")
+	view.game.resources["timber"] = 42
+	view.store_find = ""
+	view.store_filter = "all"
 	view._refresh()
-	check(view.left_leaf.get_child(0).get_node("Margin/Content/Store/Items").get_child_count() == 1, "storeroom shows the crafted axe")
+	var wl: Control = view.left_leaf.get_child(0)
+	var wr: Control = view.right_leaf.get_child(0)
+	var names: Array[String] = []
+	for row in wl.get_node("Margin/Content/List/Items").get_children():
+		if row.has_node("Body/Info/Name"):
+			names.append((row.get_node("Body/Info/Name") as Label).text)
+	check(names.any(func(n): return n.contains("War Axe")), "the Warehouse lists the crafted axe (%s)" % str(names))
+	check(names.has("Ashwood  ×42"), "the Warehouse lists goods with their count")
+	check(view.game.crew.is_empty() or names.size() > 2, "worn gear is listed too")
+	check((wl.get_node("Margin/Content/Summary") as Label).text.contains("42 goods") or (wl.get_node("Margin/Content/Summary") as Label).text.contains("goods"), "a summary of everything")
+	var find: LineEdit = wl.get_node("Margin/Content/Find")
+	find.text = "ashw"
+	find.text_changed.emit("ashw")
+	var after: Array[String] = []
+	for row in wl.get_node("Margin/Content/List/Items").get_children():
+		if row.has_node("Body/Info/Name"):
+			after.append((row.get_node("Body/Info/Name") as Label).text)
+	check(after == ["Ashwood  ×42"], "search narrows the list (%s)" % str(after))
+	check((wr.get_node("Margin/Content/Head/Id/Name") as Label).text == "Ashwood", "the found good is chosen on the right")
+	check((wr.get_node("Margin/Content/Actions/Primary") as Button).text.begins_with("Sell in the Market"), "goods can be sold from here")
+	check((wr.get_node("Margin/Content/Where") as Label).text.contains("Cinderwood"), "it says where the good comes from")
+	find.text_changed.emit("no such thing")
+	check((wl.get_node("Margin/Content/Empty") as Control).visible and (wr.get_node("Margin/Content/Empty") as Control).visible, "nothing found is said plainly")
+	view.store_find = ""
+	view.store_filter = "weapons"
+	view._refresh()
+	wr = view.right_leaf.get_child(0)
+	check((wr.get_node("Margin/Content/Head/Id/Name") as Label).text.contains("War Axe"), "the Arms filter picks the axe")
+	check((wr.get_node("Margin/Content/Actions/Secondary") as Button).text.begins_with("Sell"), "spare gear can be sold from here")
+	view.store_filter = "all"
 	view.game.reset_company()
 	if failures > 0:
 		push_error("%d BookUI checks failed." % failures)

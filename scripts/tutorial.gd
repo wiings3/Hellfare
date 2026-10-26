@@ -19,7 +19,7 @@ const STEPS := [
 	 "text": "A trip to Cinderwood takes five minutes, and crews keep working while the game is closed. Watch them on the Guild page; a bell rings when they're back.",
 	 "point": "hq"},
 	{"id": "sell", "title": "Sell the haul",
-	 "text": "The ashwood they brought up is in your warehouse. Open Market and sell some to the merchants, or keep it to craft with later.",
+	 "text": "The ashwood they brought up is in the Warehouse (Workshop, third tab), with everything else the guild owns. Open Market and sell some to the merchants, or keep it to craft with later.",
 	 "button": "Keep it for now", "point": "market"},
 	{"id": "next", "title": "Your guild is running",
 	 "text": "From here: hire more hands, gear them up in the Workshop, and sign a Warden's charter in the Ledger for a second crew. When your fighters reach gear score 8, try the Fallen Keep. Esc opens Settings.",

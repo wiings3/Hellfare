@@ -1,6 +1,6 @@
 # Hellfare
 
-**Version 0.30 — First-launch tutorial**
+**Version 0.31 — The Warehouse**
 
 A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
 Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
@@ -16,6 +16,22 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.31 – The Warehouse
+
+Everything the guild owns is in one place: **Workshop → Warehouse** (the Workshop's third tab).
+It replaces the Ledger's Warehouse tab and the Workshop's Storeroom.
+
+- **One list** of goods and materials, spare weapons, armour and tools, gear your Hellfarers are
+  wearing (marked with who), and food and potions, under headings, most valuable first. Each row
+  shows how many, condition, and what it's worth.
+- **Find** box (type part of a name) and filters: All, Goods, Arms, Armour, Tools, Food. A summary
+  line counts everything: goods, spare and worn pieces, and total worth.
+- **Details** on the right for whatever is chosen: how many, worth today, condition or how many
+  recipes use it, its stats or description, where it comes from (or who wears it), and what you can
+  do: sell in the Market, list on the Auction House, find recipes that use it, equip on a Hellfarer
+  or pack food for a trip, sell or repair gear, open a wearer's Gear page.
+- Every old way in (the Guild page's Warehouse tile, the town on the map) opens it.
 
 ## V0.30 – First-launch tutorial
 

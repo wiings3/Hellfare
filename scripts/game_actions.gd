@@ -70,6 +70,9 @@ func _clear(node: Node) -> void:
 		child.queue_free()
 
 func _nav_to(destination: String) -> void:
+	if destination == "warehouse":  # The Warehouse lives in the Workshop now.
+		set("workshop_tab", "store")
+		destination = "workshop"
 	page = destination
 	_refresh()
 

@@ -698,7 +698,7 @@ func show_card(ref: String) -> void:
 			if str(owned_item.get("key", "")) == key:
 				owned += 1
 		(card.get_node(r + "Owned") as Label).text = str(owned)
-		(card.get_node(r + "OwnedCaption") as Label).text = "In your storeroom"
+		(card.get_node(r + "OwnedCaption") as Label).text = "In your Warehouse"
 	else:
 		if not MoneyMercsState.BASE_PRICE.has(key):
 			return

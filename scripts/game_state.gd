@@ -1417,7 +1417,7 @@ func ah_post(ref: String, qty: int, price: int, duration: String, uid: String = 
 				item = i
 				break
 		if item.is_empty():
-			return "That piece isn't in the storeroom."
+			return "That piece isn't in the Warehouse."
 	elif int(resources.get(ref, 0)) < qty:
 		return "You only hold %d." % int(resources.get(ref, 0))
 	var fee: int = maxi(1, int(round(float(qty * price) * AuctionHouse.LISTING_FEE)))

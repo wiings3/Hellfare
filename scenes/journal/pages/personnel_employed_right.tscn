@@ -509,7 +509,7 @@ theme_override_constants/separation = 3
 [node name="FitsEmpty" type="Label" parent="Margin/Content/Gear"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Nothing in the storeroom fits this slot."
+text = "Nothing in the Warehouse fits this slot."
 autowrap_mode = 3
 
 [node name="Workshop" type="Button" parent="Margin/Content/Gear"]
