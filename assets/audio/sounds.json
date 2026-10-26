@@ -351,5 +351,41 @@
   "db": 0.0,
   "pitch": 0.0,
   "loop": true
+ },
+ "mus_hall": {
+  "group": "music",
+  "files": [
+   "res://assets/audio/music/mus_hall_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.0,
+  "loop": false
+ },
+ "mus_descent": {
+  "group": "music",
+  "files": [
+   "res://assets/audio/music/mus_descent_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.0,
+  "loop": false
+ },
+ "mus_crypt": {
+  "group": "music",
+  "files": [
+   "res://assets/audio/music/mus_crypt_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.0,
+  "loop": false
+ },
+ "mus_title": {
+  "group": "music",
+  "files": [
+   "res://assets/audio/music/mus_title_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.0,
+  "loop": false
  }
 }

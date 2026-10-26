@@ -41,3 +41,7 @@ Recordings from Kenney's **RPG Audio** and **Interface Sounds** packs (CC0, http
 | `amb_hall` | ambience | Synthesised hearth and room, Kenney RPG Audio (creak1-3) |
 | `amb_maw` | ambience | Synthesised rumble |
 | `amb_below` | ambience | Synthesised wind and drips |
+| `mus_hall` | music | Synthesised (strings and drone) |
+| `mus_descent` | music | Synthesised (choir, drone, drum) |
+| `mus_crypt` | music | Synthesised (drum, choir, strings) |
+| `mus_title` | music | Synthesised (strings and drone) |

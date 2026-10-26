@@ -31,6 +31,22 @@ var _last_press_ms: int = -100000
 ## but never started, so nothing is left mid-playback when they quit.
 var silent: bool = false
 
+# --- Music: a piece now and then, never wallpaper -----------------------------------------
+## Seconds before the first piece, and the silence between pieces.
+const MUSIC_FIRST := [60.0, 120.0]
+const MUSIC_GAP := [300.0, 900.0]
+## Music drops this much under an alert, for ALERT_DUCK seconds.
+const DUCK_DB := -9.0
+const ALERT_DUCK := 2.5
+## What plays when the next piece is due: "hall", or "descent" while a crew is below.
+var music_mood: String = "hall"
+## The piece playing now ("" for silence), and when the next one may start (msec).
+var music_now: String = ""
+var _music_next_ms: int = 0
+var _music_until_ms: int = 0
+var _music: AudioStreamPlayer
+var _music_tween: Tween
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	silent = DisplayServer.get_name() == "headless"
@@ -47,8 +63,63 @@ func _ready() -> void:
 			list.append(p)
 		_voices[group] = list
 		_next_voice[group] = 0
+	_music = AudioStreamPlayer.new()
+	_music.bus = "Music"
+	add_child(_music)
+	_music.finished.connect(_music_ended)
+	_music_next_ms = Time.get_ticks_msec() + int(randf_range(MUSIC_FIRST[0], MUSIC_FIRST[1]) * 1000.0)
 	refresh()
 	get_tree().node_added.connect(_on_node_added)
+
+func _process(_delta: float) -> void:
+	var now: int = Time.get_ticks_msec()
+	if music_now != "" and silent and now >= _music_until_ms:
+		_music_ended()
+	if music_now == "" and now >= _music_next_ms:
+		music_cue("mus_descent" if music_mood == "descent" else "mus_hall")
+
+## Start a piece now, unless one is already playing. Returns whether it started.
+func music_cue(piece: String, force: bool = false) -> bool:
+	var s: Dictionary = sounds.get(piece, {})
+	if s.is_empty() or (music_now != "" and not force):
+		return false
+	var stream: AudioStream = _stream(str(s["files"][0]))
+	if stream == null:
+		return false
+	music_now = piece
+	_music_until_ms = Time.get_ticks_msec() + int(stream.get_length() * 1000.0)
+	_music.stream = stream
+	_music.volume_db = float(s.get("db", 0.0))
+	if not silent:
+		_music.play()
+	played.append(piece)
+	return true
+
+## Fade out `piece` if it is the one playing ("" = whatever is playing).
+func music_end(piece: String = "") -> void:
+	if music_now == "" or (piece != "" and piece != music_now):
+		return
+	if _music_tween:
+		_music_tween.kill()
+	_music_tween = create_tween()
+	_music_tween.tween_property(_music, "volume_db", -60.0, FADE)
+	_music_tween.tween_callback(_music.stop)
+	_music_ended()
+
+func _music_ended() -> void:
+	music_now = ""
+	_music_next_ms = Time.get_ticks_msec() + int(randf_range(MUSIC_GAP[0], MUSIC_GAP[1]) * 1000.0)
+
+func _duck_music() -> void:
+	if music_now == "" or silent:
+		return
+	if _music_tween:
+		_music_tween.kill()
+	var base: float = float(sounds[music_now].get("db", 0.0))
+	_music_tween = create_tween()
+	_music_tween.tween_property(_music, "volume_db", base + DUCK_DB, 0.15)
+	_music_tween.tween_interval(ALERT_DUCK)
+	_music_tween.tween_property(_music, "volume_db", base, 1.0)
 
 ## Re-apply the volumes from GameSettings (and the background rule).
 func refresh() -> void:
@@ -74,6 +145,8 @@ func stop_all() -> void:
 			(p as AudioStreamPlayer).stop()
 	for sound in _loops:
 		(_loops[sound] as AudioStreamPlayer).stop()
+	if _music:
+		_music.stop()
 
 ## Let go of the loaded sounds when the game closes.
 func _exit_tree() -> void:
@@ -84,6 +157,9 @@ func _exit_tree() -> void:
 	for sound in _loops:
 		(_loops[sound] as AudioStreamPlayer).stop()
 		(_loops[sound] as AudioStreamPlayer).stream = null
+	if _music:
+		_music.stop()
+		_music.stream = null
 	_streams.clear()
 
 func has(sound: String) -> bool:
@@ -101,6 +177,7 @@ func play(sound: String, volume_db: float = 0.0) -> void:
 	var group: String = _group(s)
 	if group == "Alerts":
 		_last_alert_ms = now
+		_duck_music()
 	var files: Array = s.get("files", [])
 	if files.is_empty():
 		return

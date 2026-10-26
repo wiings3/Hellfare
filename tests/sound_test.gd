@@ -73,6 +73,21 @@ func _run() -> void:
 	check(bool((loops["amb_hall"] as AudioStreamPlayer).stream.get("loop")), "ambience loops loop")
 	sfx.ambience({"amb_hall": 1.0})
 	check(is_equal_approx(float(sfx.get("_loop_level")["amb_maw"]), 0.0), "a loop not named fades out")
+	# Music: a piece now and then, cues, and a fade out.
+	for piece in ["mus_hall", "mus_descent", "mus_crypt", "mus_title"]:
+		check(sfx.has(piece), "music %s is in the table" % piece)
+	check(sfx.music_now == "", "no music at the start")
+	check(sfx.music_cue("mus_crypt"), "a cue starts a piece")
+	check(not sfx.music_cue("mus_title"), "a cue waits while another piece plays")
+	sfx.music_end("mus_hall")
+	check(sfx.music_now == "mus_crypt", "ending another piece leaves this one")
+	sfx.music_end("mus_crypt")
+	check(sfx.music_now == "", "a piece fades out on request")
+	check(int(sfx.get("_music_next_ms")) - Time.get_ticks_msec() >= int(sfx.MUSIC_GAP[0] * 1000.0) - 50, "silence follows a piece")
+	sfx.set("_music_next_ms", 0)
+	sfx.music_mood = "descent"
+	await create_timer(0.1).timeout
+	check(sfx.music_now == "mus_descent", "the due piece follows the mood (%s)" % sfx.music_now)
 	if failures > 0:
 		push_error("%d sound checks failed." % failures)
 		quit(1)

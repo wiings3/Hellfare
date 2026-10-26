@@ -89,6 +89,7 @@ func open() -> void:
 		return
 	state = State.MOVING
 	get_tree().paused = true
+	Sound.music_cue("mus_title")
 	_show_settings(false)
 	_sync_toggles()
 	cover.position = cover_home
@@ -121,6 +122,7 @@ func resume() -> void:
 	if state != State.OPEN:
 		return
 	state = State.MOVING
+	Sound.music_end("mus_title")
 	if GameSettings.book_animations:
 		var fade := create_tween()
 		fade.tween_property(plate, "modulate:a", 0.0, FADE_TIME)

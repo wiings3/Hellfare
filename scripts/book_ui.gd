@@ -224,6 +224,7 @@ func _set_ambience() -> void:
 	if on_run:
 		levels["amb_below"] = 1.0
 	Sound.ambience(levels)
+	Sound.music_mood("descent" if below else "hall")
 
 func _resource_name(key: String) -> String:
 	return str(MoneyMercsState.RESOURCE_NAMES.get(key, key.capitalize()))
@@ -2707,6 +2708,7 @@ func _enter_dungeon() -> void:
 	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk)
 	if result.begins_with("The crew went"):
 		Sound.play("send_down")
+		Sound.music_cue("mus_crypt")
 	if result.begins_with("The crew went"):
 		selected_crew.clear()
 		harlow_view.selected.clear()

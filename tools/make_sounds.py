@@ -163,7 +163,7 @@ def build(rpg, ui):
     S = {}   # name -> (group, [signals], volume dB, pitch spread, loop, source note)
 
     def add(name, group, takes, db=0.0, pitch=0.05, loop=False, source="", peak=-6.0):
-        S[name] = dict(group=group, takes=[fade(t) if not loop else t for t in takes], db=db, pitch=pitch, loop=loop,
+        S[name] = dict(group=group, takes=[fade(t) if not loop and not isinstance(t, tuple) else t for t in takes], db=db, pitch=pitch, loop=loop,
                        source=source, peak=peak)
 
     # ---- alerts
@@ -267,7 +267,177 @@ def build(rpg, ui):
     drips = reverb(drips, 2.4, 0.6, 2500)[: len(wind)]
     add("amb_below", "ambience", [(loopable(wind + drips), loopable(np.roll(wind, 30000) + np.roll(drips, 7000)))],
         loop=True, pitch=0.0, source="Synthesised wind and drips")
+    compose(add)
     return S
+
+
+# --- music (synthesised: a bowed string, a hummed choir, drones and a frame drum) ----------------
+def midi(m):
+    return 440.0 * 2 ** ((m - 69) / 12)
+
+
+def smooth_env(n, attack, release):
+    env = np.ones(n)
+    a, r = min(n // 2, int(attack * SR)), min(n // 2, int(release * SR))
+    if a:
+        env[:a] = 0.5 - 0.5 * np.cos(np.linspace(0, np.pi, a))
+    if r:
+        env[-r:] *= 0.5 + 0.5 * np.cos(np.linspace(0, np.pi, r))
+    return env
+
+
+def bowed(freq, dur, attack=0.25, release=0.5):
+    """A cello-like bowed note: a saw-ish tone with slow vibrato, bow noise and a wooden body."""
+    n = int((dur + release) * SR)
+    t = np.arange(n) / SR
+    vib = 1 + 0.0045 * np.sin(2 * np.pi * 5.1 * t) * np.clip(t / 0.7, 0, 1)
+    phase = 2 * np.pi * freq * np.cumsum(vib) / SR
+    x = np.zeros(n)
+    for k in range(1, 15):
+        if freq * k > 9000:
+            break
+        x += np.sin(k * phase) / k * (1.0 if k % 2 else 0.7)
+    x += highpass(rng.standard_normal(n), 3000) * 0.015
+    x = lowpass(x, 2400) + 0.35 * bandpass(x, 220, 480)
+    swell = 1 + 0.15 * np.sin(np.pi * np.clip(t / max(dur, 0.1), 0, 1))
+    return x * smooth_env(n, attack, release) * swell
+
+
+def hum(freq, dur, attack=1.2, release=1.6):
+    """A low hummed choir: three detuned voices through 'mm / oo' formants."""
+    n = int((dur + release) * SR)
+    t = np.arange(n) / SR
+    x = np.zeros(n)
+    for cents in (-6, 0, 7):
+        f = freq * 2 ** (cents / 1200)
+        ph = 2 * np.pi * f * t + rng.uniform(0, 6.28)
+        for k in range(1, 11):
+            x += np.sin(k * ph) / k
+    x = bandpass(x, 240, 480) + 0.45 * bandpass(x, 700, 1050) + 0.2 * lowpass(x, 240)
+    return x * smooth_env(n, attack, release)
+
+
+def drone(freq, dur):
+    n = int(dur * SR)
+    t = np.arange(n) / SR
+    x = np.sin(2 * np.pi * freq * t) + 0.35 * np.sin(4 * np.pi * freq * t) + 0.15 * np.sin(6 * np.pi * freq * t)
+    return x * (1 + 0.1 * np.sin(2 * np.pi * 0.11 * t)) * smooth_env(n, 4.0, 5.0)
+
+
+def frame_drum(strength=1.0):
+    n = int(0.9 * SR)
+    t = np.arange(n) / SR
+    f = 58 + 60 * np.exp(-t * 18)
+    body = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t * 5)
+    slap = lowpass(rng.standard_normal(n), 1400) * np.exp(-t * 45) * 0.5
+    return (body + slap) * strength
+
+
+class Score:
+    """A stereo mix: place(sound, at seconds, gain, pan -1..1)."""
+
+    def __init__(self, seconds):
+        self.l = np.zeros(int(seconds * SR))
+        self.r = np.zeros(int(seconds * SR))
+
+    def place(self, x, at, gain=1.0, pan=0.0):
+        i = int(at * SR)
+        if i >= len(self.l):
+            return
+        x = x[: len(self.l) - i] * gain
+        self.l[i: i + len(x)] += x * np.sqrt((1 - pan) / 2)
+        self.r[i: i + len(x)] += x * np.sqrt((1 + pan) / 2)
+
+    def finish(self, room=2.6, wet=0.3, dark=2600, lp=None, fade_out=6.0):
+        out = []
+        for ch in (self.l, self.r):
+            y = reverb(ch, room, wet, dark)[: len(ch)]
+            if lp:
+                y = lowpass(y, lp)
+            out.append(y * smooth_env(len(y), 1.5, fade_out))
+        return tuple(out)
+
+
+D_MINOR_TO_MAJOR = {5: 6, 0: 1, 10: 11}   # F -> F#, C -> C#, Bb -> B
+
+
+def play_line(score, notes, start, beat, gain, pan=0.0, transpose=0, major=False):
+    """notes: [(midi or None for a rest, beats)]. Returns the time after the last note."""
+    t = start
+    for m, beats in notes:
+        if m is not None:
+            m = m + transpose
+            if major and m % 12 in D_MINOR_TO_MAJOR:
+                m += D_MINOR_TO_MAJOR[m % 12] - m % 12
+            score.place(bowed(midi(m), beats * beat * 0.95), t, gain * (0.9 + 0.2 * rng.random()), pan)
+        t += beats * beat
+    return t
+
+
+# The guild's theme, in D minor (midi notes, beats).
+THEME = [
+    [(57, 2), (62, 1), (60, 1), (58, 2), (57, 2), (None, 2)],
+    [(53, 1), (55, 1), (57, 2), (58, 1), (57, 1), (55, 2), (53, 2), (None, 2)],
+    [(62, 2), (64, 1), (65, 1), (64, 2), (62, 2), (60, 1), (58, 1), (57, 4), (None, 3)],
+    [(57, 1), (58, 1), (57, 1), (55, 1), (53, 2), (52, 2), (50, 6), (None, 4)],
+]
+
+
+def compose(add):
+    beat = 1.0
+    # By the fire: the theme on one string, then again with a second voice a sixth below.
+    sc = Score(122)
+    sc.place(drone(midi(38), 120), 0, 0.10, -0.2)
+    sc.place(drone(midi(45), 120), 0, 0.06, 0.2)
+    t = 2.0
+    for phrase in THEME:
+        t = play_line(sc, phrase, t, beat, 0.32, 0.1)
+    second = t
+    for phrase in THEME:
+        t = play_line(sc, phrase, second, beat, 0.30, 0.15)
+        play_line(sc, [(m - 9 if m else None, b) for m, b in phrase], second, beat, 0.18, -0.25)
+        second = t
+    add("mus_hall", "music", [sc.finish(2.8, 0.32)], pitch=0.0, source="Synthesised (strings and drone)")
+
+    # While a crew is below: a drone and a hummed choir, heard through the floor.
+    sc = Score(118)
+    sc.place(drone(midi(26), 118), 0, 0.22)
+    sc.place(drone(midi(33), 118), 0, 0.10)
+    chords = [(50, 53, 57), (46, 50, 53), (43, 46, 50), (45, 49, 52), (50, 53, 57), (46, 50, 55), (45, 49, 52), (50, 53, 57)]
+    for i, chord in enumerate(chords):
+        for j, m in enumerate(chord):
+            sc.place(hum(midi(m), 12.5), 3 + i * 13.5, 0.16, (j - 1) * 0.5)
+    for k in range(11):  # a slow heartbeat, now and then
+        at = 6 + k * 10 + rng.uniform(-1.5, 1.5)
+        sc.place(frame_drum(0.6), at, 0.35)
+        sc.place(frame_drum(0.45), at + 0.42, 0.3)
+    add("mus_descent", "music", [sc.finish(3.2, 0.4, 1800, lp=1300, fade_out=8.0)], pitch=0.0,
+        source="Synthesised (choir, drone, drum)")
+
+    # Entering a crypt: a frame drum, a low choir, and the theme's first bar, rising.
+    sc = Score(62)
+    sc.place(drone(midi(38), 62), 0, 0.14)
+    pattern = [0, 3, 3.5, 6]
+    for bar in range(9):
+        for b in pattern:
+            sc.place(frame_drum(1.0 if b == 0 else 0.7), 2 + bar * 6.4 + b * 0.8, 0.5, rng.uniform(-0.2, 0.2))
+    for i, chord in enumerate([(38, 45, 50), (43, 46, 50), (45, 49, 52), (38, 45, 50)]):
+        for j, m in enumerate(chord):
+            sc.place(hum(midi(m), 13), 4 + i * 14, 0.15, (j - 1) * 0.4)
+    play_line(sc, THEME[0][:4], 30, 1.2, 0.26, 0.2, transpose=-12)
+    add("mus_crypt", "music", [sc.finish(2.2, 0.3, 2400, fade_out=5.0)], pitch=0.0,
+        source="Synthesised (drum, choir, strings)")
+
+    # Title and pause: the theme, a little brighter (D major) and a little higher.
+    sc = Score(70)
+    sc.place(drone(midi(50), 70), 0, 0.07)
+    sc.place(drone(midi(57), 70), 0, 0.05)
+    t = 1.5
+    for phrase in THEME[:3]:
+        t = play_line(sc, phrase, t, 1.05, 0.3, 0.05, transpose=0, major=True)
+    play_line(sc, [(62, 2), (64, 1), (66, 1), (62, 8)], t, 1.05, 0.28, 0.05)
+    add("mus_title", "music", [sc.finish(2.6, 0.3, 3000, fade_out=6.0)], pitch=0.0,
+        source="Synthesised (strings and drone)")
 
 
 def main():

@@ -19,7 +19,7 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 
 ## V0.29 – Sound
 
-The game has sound: 37 sounds (57 files) from the Hellfare sound list, wired to the moments that
+The game has sound: 41 sounds (61 files) from the Hellfare sound list, wired to the moments that
 need them. Sound follows the art's rule: the guild hall is warm and close, hell is far away.
 
 - **Alerts** for what needs you: a crypt event opening (and a clock ticking its last 5 seconds),
@@ -40,8 +40,14 @@ How it works: everything plays a sound by name through `Sound.play("crew_back")`
 spread). `tools/make_sounds.py` builds every file: Kenney's CC0 RPG Audio and Interface Sounds
 recordings, trimmed, levelled and layered, plus synthesised bells, the Maw, wind and the hearth.
 Sources are listed in `assets/audio/CREDITS.md`. Headless runs (tests, CI) record sounds without
-playing them. Still missing: music, the Tavern crowd loop, and three small extras (map hover,
-message, hint).
+playing them.
+
+**Music** (synthesised placeholders, in the same script): four short pieces on a bowed string,
+a hummed choir, drones and a frame drum. One plays now and then (first after 1 to 2 minutes, then
+5 to 15 minutes of silence between): the guild's theme by the fire, or a choir heard through the
+floor while a crew is below. A crypt piece plays when a crew enters a crypt, and a brighter theme on
+the pause menu. Music dips under alerts. Still missing: the Tavern crowd loop, and three small
+extras (map hover, message, hint).
 
 ## V0.28 – Fewer, bigger crypt choices
 

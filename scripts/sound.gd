@@ -23,6 +23,22 @@ static func stop_all() -> void:
 	if s != null:
 		s.stop_all()
 
+## "hall", or "descent" while a crew is below: what the next piece of music will be.
+static func music_mood(mood: String) -> void:
+	var s := _sfx()
+	if s != null:
+		s.music_mood = mood
+
+static func music_cue(piece: String, force: bool = false) -> void:
+	var s := _sfx()
+	if s != null:
+		s.music_cue(piece, force)
+
+static func music_end(piece: String = "") -> void:
+	var s := _sfx()
+	if s != null:
+		s.music_end(piece)
+
 static func refresh() -> void:
 	var s := _sfx()
 	if s != null:
