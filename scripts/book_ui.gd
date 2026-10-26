@@ -556,7 +556,8 @@ const KIND_ICONS := {
 	"buckler": "item_shield", "kite_shield": "item_shield", "tower_shield": "item_shield", "lantern": "item_lantern",
 	"trinket": "item_ring", "pack": "item_pack", "felling_axe_kind": "axe_felling", "pickaxe": "pickaxe",
 	"sickle": "item_sickle", "fishing_rod": "item_rod", "hoe": "item_hoe", "food": "item_bowl", "potion": "healing_draught",
-	"head": "helmet", "hands": "gloves", "feet": "boots", "light/body": "armor_leather", "medium/body": "armor_iron", "heavy/body": "armor_iron",
+	"head": "helmet", "hands": "gloves", "feet": "boots",
+	"light/head": "cap_leather", "light/hands": "gloves_leather", "light/feet": "boots_leather", "light/body": "armor_leather", "medium/body": "armor_iron", "heavy/body": "armor_iron",
 }
 const CONTRACT_NOTES := {
 	"Balanced": "A standard wage and a modest share of each haul.",

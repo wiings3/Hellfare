@@ -21,6 +21,9 @@ func _initialize() -> void:
 		check(int(Catalog.item(key)["tier"]) <= 2, "quartermaster blueprint is tier 1-2: " + str(key))
 	check(not g.blueprint_shop().has("silversteel_pick"), "tier-3 blueprints aren't sold")
 	check(g.knows("steel_ingot") and not g.knows("iron_war_axe"), "ingots known, gear needs a blueprint")
+	for key in ["leather", "leather_cap", "leather_gloves", "leather_boots"]:
+		check(g.knows(key), "a new company can craft %s" % key)
+		check(not g.blueprint_shop().has(key), "%s isn't sold as a blueprint" % key)
 	check(g.craft("iron_war_axe").contains("blueprint"), "can't craft without the blueprint")
 	var gold0: int = g.gold
 	check(g.buy_blueprint("iron_war_axe").begins_with("Bought"), "buy a blueprint")

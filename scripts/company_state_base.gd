@@ -1183,13 +1183,13 @@ func unequip_item(merc_id: String, slot: String) -> String:
 
 # --- Crafting -------------------------------------------------------------------------
 
-## Can the company make this? Intermediates are known to everyone; everything else needs
-## its blueprint.
+## Can the company make this? Intermediates and the starter set (the leather armour) are
+## known to everyone; everything else needs its blueprint.
 func knows(key: String) -> bool:
 	var d: Dictionary = Catalog.item(key)
 	if d.is_empty() or d.get("recipe") == null:
 		return false
-	return (d.get("blueprint", []) as Array).has("crafting") or blueprints.has(key)
+	return (d.get("blueprint", []) as Array).has("crafting") or (d.get("blueprint", []) as Array).has("starter") or blueprints.has(key)
 
 ## True if everything the recipe needs can be had today: warehouse goods, or things
 ## craftable from them (some recipes wait on expeditions that aren't open yet).

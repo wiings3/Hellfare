@@ -253,6 +253,13 @@
    "trade": "",
    "tier": 0,
    "status": "planned"
+  },
+  "starter": {
+   "name": "Known from the start",
+   "kind": "starter",
+   "trade": "",
+   "tier": 0,
+   "status": "live"
   }
  },
  "materials": {
@@ -1380,12 +1387,11 @@
     "linen": 1
    },
    "blueprint": [
-    "quartermaster"
+    "starter"
    ],
    "found_only": false,
    "weight": "light",
-   "value": 32,
-   "blueprint_price": 40
+   "value": 32
   },
   "leather": {
    "name": "Leather Armor",
@@ -1412,13 +1418,12 @@
     "linen": 1
    },
    "blueprint": [
-    "quartermaster"
+    "starter"
    ],
    "found_only": false,
    "weight": "light",
    "value": 38,
-   "legacy_slot": "armor",
-   "blueprint_price": 40
+   "legacy_slot": "armor"
   },
   "leather_gloves": {
    "name": "Leather Gloves",
@@ -1445,12 +1450,11 @@
     "linen": 1
    },
    "blueprint": [
-    "quartermaster"
+    "starter"
    ],
    "found_only": false,
    "weight": "light",
-   "value": 32,
-   "blueprint_price": 40
+   "value": 32
   },
   "leather_boots": {
    "name": "Leather Boots",
@@ -1477,12 +1481,11 @@
     "linen": 1
    },
    "blueprint": [
-    "quartermaster"
+    "starter"
    ],
    "found_only": false,
    "weight": "light",
-   "value": 32,
-   "blueprint_price": 40
+   "value": 32
   },
   "ringmail_coif": {
    "name": "Ringmail Coif",

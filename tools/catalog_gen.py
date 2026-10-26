@@ -31,6 +31,9 @@ LEVEL = {1: 0, 2: 8, 3: 18, 4: 30, 5: 45}
 
 # ---------------------------------------------------------------- expeditions and other sources
 # id: (name, kind, trade, tier, status, extra)
+## Blueprints every company knows from the start.
+STARTER_BLUEPRINTS = ["leather", "leather_cap", "leather_gloves", "leather_boots"]
+
 SOURCES = {
     # Logging
     "mossward_copse": ("Mossward Copse", "site", "logging", 1, "live", {}),
@@ -72,6 +75,7 @@ SOURCES = {
     "quartermaster": ("Quartermaster", "shop", "", 0, "live", {}),
     "fallen": ("Gear of the fallen", "found", "", 0, "live", {}),
     "crafting": ("Known to everyone", "craft", "", 0, "planned", {}),
+    "starter": ("Known from the start", "starter", "", 0, "live", {}),
 }
 
 # ---------------------------------------------------------------- materials
@@ -550,6 +554,11 @@ def build():
         if lslot:
             item["legacy_slot"] = lslot
         items[k] = item
+
+    # Every company can make the leather set from day one: no blueprint to buy.
+    for k in STARTER_BLUEPRINTS:
+        items[k]["blueprint"] = ["starter"]
+        items[k].pop("blueprint_price", None)
 
     sources = {}
     for k, (n, kind, trade, t, status, extra) in SOURCES.items():

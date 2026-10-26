@@ -358,11 +358,19 @@ ICONS = {
 }
 
 # Recolours of existing icons: (source, target, {old rgb: new rgb})
+## Steel greys (helmet, gloves, boots) to the tans of armor_leather.png.
+LEATHER = {(47, 61, 69): (112, 66, 32), (88, 109, 120): (168, 106, 50), (107, 131, 144): (219, 152, 74),
+           (171, 195, 206): (237, 208, 152), (228, 238, 243): (250, 234, 200)}
+
 RECOLOR = {
     "oak": ("timber", {}),
     "steel_ingot": ("iron", {(93, 107, 136): (110, 120, 140), (137, 150, 182): (170, 180, 196), (187, 208, 225): (230, 236, 244)}),
     "silversteel_ingot": ("iron", {(93, 107, 136): (90, 120, 150), (137, 150, 182): (140, 190, 220), (187, 208, 225): (210, 240, 250)}),
     "amber": ("crystal", None),
+    # Light armour pieces in the leather body's tan, so a light set reads as one set.
+    "cap_leather": ("helmet", "LEATHER"),
+    "gloves_leather": ("gloves", "LEATHER"),
+    "boots_leather": ("boots", "LEATHER"),
     "garnet": ("crystal", None),
 }
 
@@ -420,6 +428,8 @@ if __name__ == "__main__":
         elif name == "garnet":
             im = tint(src, None, (90, 10, 24), (240, 110, 120))
         else:
+            if mapping == "LEATHER":
+                mapping = LEATHER
             im = Image.open(OUT + src + ".png").convert("RGBA")
             for y in range(16):
                 for x in range(16):
