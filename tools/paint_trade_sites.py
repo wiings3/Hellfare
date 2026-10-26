@@ -477,6 +477,34 @@ def glasshouse():
     ground(d); return img
 
 
+# --- Dungeons ------------------------------------------------------------------------
+
+def calder_keep():
+    img, d = base(); rnd = random.Random(51)
+    hills(d, rnd, 72, 6, FAINT)
+    # The ruined keep: a broken curtain wall, a tall tower with a collapsed top, a dark gate.
+    d.rectangle([60, 56, 190, GROUND], fill=SOFT)
+    for x in range(60, 190, 12):
+        if rnd.random() < 0.75:
+            d.rectangle([x, 50, x + 7, 56], fill=SOFT)
+    d.polygon([(150, 56), (162, 40), (175, 52), (190, 46), (190, 56)], fill=FAINT)
+    d.rectangle([92, 18, 128, GROUND], fill=INK)
+    d.polygon([(92, 18), (98, 10), (106, 16), (114, 6), (122, 14), (128, 12), (128, 18)], fill=INK)
+    for y in (30, 52):
+        d.rectangle([106, y, 112, y + 8], fill=GOLD)
+    d.pieslice([98, 76, 122, 100], 180, 360, fill=(20, 12, 10, 255))
+    d.rectangle([98, 88, 122, GROUND], fill=(20, 12, 10, 255))
+    for x, y in [(70, 70), (170, 64), (140, 80)]:
+        d.line([(x, y), (x + 6, y + 10)], fill=INK)
+    for x in (40, 214):
+        dead_tree(d, x, GROUND, 40)
+    for x, y in [(30, GROUND), (196, GROUND), (226, GROUND)]:
+        rock(d, x, y, 9, 7)
+    ground(d); return img
+
+
+DUNGEONS = {"dungeon_calder_keep": calder_keep}
+
 SITES = {
     "mossward_meadows": mossward_meadows, "fenmire": fenmire, "sunreach": sunreach, "frostvale": frostvale,
     "millbrook_pond": millbrook_pond, "silverrun": silverrun, "glasswater": glasswater,
@@ -489,6 +517,8 @@ if __name__ == "__main__":
     import sys
     for key, fn in SITES.items():
         fn().save("assets/ui/art/site_%s.png" % key)
+    for name, fn in DUNGEONS.items():
+        fn().save("assets/ui/art/%s.png" % name)
     if len(sys.argv) > 1:
         sheet = Image.new("RGBA", (3 * 256, ((len(SITES) + 2) // 3) * 136), (232, 220, 196, 255))
         for i, key in enumerate(SITES):
