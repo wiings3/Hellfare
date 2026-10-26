@@ -29,9 +29,11 @@ mouse_filter = 2
 theme_type_variation = &"SlotPanel"
 
 [node name="Icon" type="TextureRect" parent="Body/IconSlot"]
+custom_minimum_size = Vector2(16, 16)
 layout_mode = 2
 mouse_filter = 2
-stretch_mode = 3
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Info" type="VBoxContainer" parent="Body"]
 layout_mode = 2

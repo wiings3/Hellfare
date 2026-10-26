@@ -88,8 +88,9 @@ const SITE_RIGHT := preload("res://scenes/journal/pages/site_right.tscn")
 const SIGN_PLUS := preload("res://assets/ui/kit/sign_plus.png")
 const SIGN_CHECK := preload("res://assets/ui/kit/sign_check.png")
 const SIGN_CROSS := preload("res://assets/ui/kit/sign_cross.png")
-const ICON_FIELD := preload("res://assets/ui/tab_icons/expeditions.png")
-const ICON_GUILD := preload("res://assets/ui/tab_icons/company.png")
+## Row icons are 16 px like the item icons (the 24 px bookmark icons would stretch a row).
+const ICON_FIELD := preload("res://assets/ui/icons/map_small.png")
+const ICON_GUILD := preload("res://assets/ui/icons/guild_small.png")
 const PAGE_TITLES := {
 	"hq": "The Guild",
 	"harlow": "The Gatepit",
