@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+
+[sub_resource type="ButtonGroup" id="side"]
 
 [node name="HallLeft" type="Control"]
 layout_mode = 3
@@ -43,6 +45,62 @@ theme_type_variation = &"LabelCaption"
 text = "Trade tax 3%"
 tooltip_text = "A 3% tax comes off gold you receive in a trade."
 mouse_filter = 1
+
+[node name="Filter" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="All" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "All"
+toggle_mode = true
+button_group = SubResource("side")
+custom_minimum_size = Vector2(30, 18)
+tooltip_text = "Show buying and selling."
+
+[node name="Selling" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "WTS"
+toggle_mode = true
+button_group = SubResource("side")
+custom_minimum_size = Vector2(30, 18)
+tooltip_text = "Show only people selling."
+
+[node name="Buying" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "WTB"
+toggle_mode = true
+button_group = SubResource("side")
+custom_minimum_size = Vector2(30, 18)
+tooltip_text = "Show only people buying."
+
+[node name="Find" type="LineEdit" parent="Margin/Content/Filter"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)
+size_flags_horizontal = 3
+placeholder_text = "Filter by item..."
+clear_button_enabled = true
+context_menu_enabled = false
+max_length = 40
+tooltip_text = "Type an item's name and pick it to see only messages about it. Add several to see any of them."
+
+[node name="Suggest" type="HFlowContainer" parent="Margin/Content"]
+layout_mode = 2
+visible = false
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 2
+
+[node name="Chips" type="HFlowContainer" parent="Margin/Content"]
+layout_mode = 2
+visible = false
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 2
 
 [node name="Chat" type="PanelContainer" parent="Margin/Content"]
 layout_mode = 2

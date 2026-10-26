@@ -816,6 +816,15 @@ def trade_hall():
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Online", "14 traders online", "LabelCaption", {"size_flags_horizontal": 3})
     label(s, C + "/Summary/Fees", "Trade tax 3%", "LabelCaption", {"tooltip_text": "A 3% tax comes off gold you receive in a trade.", "mouse_filter": 1})
+    side = s.sub("side", "ButtonGroup", {})
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 3})
+    for name, text, tip in [("All", "All", "Show buying and selling."), ("Selling", "WTS", "Show only people selling."), ("Buying", "WTB", "Show only people buying.")]:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"toggle_mode": True, "button_group": side, "custom_minimum_size": (30, 18), "tooltip_text": tip})
+    s.node(C + "/Filter/Find", "LineEdit", {"custom_minimum_size": (0, 18), "size_flags_horizontal": 3, "placeholder_text": "Filter by item...",
+        "clear_button_enabled": True, "context_menu_enabled": False, "max_length": 40,
+        "tooltip_text": "Type an item's name and pick it to see only messages about it. Add several to see any of them."})
+    s.node(C + "/Suggest", "HFlowContainer", {"visible": False, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 2})
+    s.node(C + "/Chips", "HFlowContainer", {"visible": False, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 2})
     s.node(C + "/Chat", "PanelContainer", {"size_flags_vertical": 3, "theme_type_variation": Raw('&"InsetPanel"')})
     s.node(C + "/Chat/Scroll", "ScrollContainer", {"custom_minimum_size": (0, 60), "horizontal_scroll_mode": 0})
     s.node(C + "/Chat/Scroll/Lines", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 2})

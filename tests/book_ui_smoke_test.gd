@@ -252,6 +252,30 @@ func _verify() -> void:
 	hv.link_target = "chat"
 	hv.link_item("timber")
 	check(hv.composer.text.find("[Birch Timber]") >= 0 and hv.composer_links.size() == 1, "shift+click links an item into the message")
+	# The chat filter: only timber posts, then only people buying it.
+	hall._post({"t": t0, "from": "Wren", "kind": "hawker", "side": "wts", "good": "timber", "qty": 20, "price": 6})
+	hall._post({"t": t0, "from": "Dunny", "kind": "bargain", "side": "wts", "good": "iron", "qty": 10, "price": 9})
+	hall._post({"t": t0, "from": "Hesk", "kind": "quartermaster", "side": "wtb", "good": "timber", "qty": 30, "price": 5})
+	hv.add_chat_filter("timber")
+	var chat_lines: VBoxContainer = view.left_leaf.get_child(0).get_node("Margin/Content/Chat/Scroll/Lines")
+	var shown_text: String = ""
+	for line in chat_lines.get_children():
+		shown_text += (line as RichTextLabel).text if line is RichTextLabel else ""
+	check(shown_text.contains("Wren") and shown_text.contains("Hesk") and not shown_text.contains("Dunny"), "filtering by timber shows only timber posts")
+	hv.chat_side = "wtb"
+	hv._redraw_feed()
+	shown_text = ""
+	for line in chat_lines.get_children():
+		shown_text += (line as RichTextLabel).text if line is RichTextLabel else ""
+	check(shown_text.contains("Hesk") and not shown_text.contains("Wren"), "WTB shows only buyers")
+	var filter_box := view.left_leaf.get_child(0).get_node("Margin/Content/Filter/Find") as LineEdit
+	filter_box.text_changed.emit("iron ore")
+	check((view.left_leaf.get_child(0).get_node("Margin/Content/Suggest") as Control).visible, "typing suggests items to filter by")
+	hv.chat_refs.clear()
+	hv.chat_side = "all"
+	hv.chat_typed = ""
+	hv._redraw_feed()
+	check(chat_lines.get_child_count() >= 3, "clearing the filter shows everything again")
 	# Anything can be linked from the find box, owned or not (for WTB posts).
 	check(hv.search_refs("steel sword").has("gear:steel_sword"), "find box finds gear you don't own")
 	check(hv.search_refs("spider").has("spider_silk"), "find box finds goods you don't hold")

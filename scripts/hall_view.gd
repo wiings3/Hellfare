@@ -44,6 +44,13 @@ var _trade_seen: String = ""
 var _wired: bool = false
 ## What's typed in the "link anything" box, kept across page redraws.
 var find_text: String = ""
+## The chat filter: items to show (refs; empty shows everything), which side ("all", "wts",
+## "wtb") and what's typed in its box. Kept across page redraws.
+var chat_refs: Array = []
+var chat_side: String = "all"
+var chat_typed: String = ""
+var _chat_lines: VBoxContainer
+var _chat_scroll: ScrollContainer
 
 func _init(owner: Control) -> void:
 	ui = owner
@@ -142,10 +149,10 @@ func draw() -> void:
 	# The chat so far, then new lines as they arrive.
 	var scroll := left.get_node(c + "Chat/Scroll") as ScrollContainer
 	var lines := left.get_node(c + "Chat/Scroll/Lines") as VBoxContainer
-	shown_id = 0
-	for m in _game().hall.feed:
-		_add_feed_line(lines, m)
-	_scroll_to_end(scroll)
+	_chat_lines = lines
+	_chat_scroll = scroll
+	_wire_chat_filter(left)
+	_redraw_feed()
 	var follow := func() -> void:
 		var added: bool = false
 		for m in _game().hall.feed:
@@ -336,9 +343,137 @@ func _slot(grid: Control, icon: Texture2D, count: String, ref: String, uid: Stri
 
 func _add_feed_line(lines: VBoxContainer, m: Dictionary) -> void:
 	shown_id = maxi(shown_id, int(m["id"]))
-	if _game().hall.is_blocked(str(m["from"])):
+	if _game().hall.is_blocked(str(m["from"])) or not passes_filter(m):
 		return
+	_remove_no_match(lines)
 	_add_line(lines, _feed_bbcode(m))
+
+## Does a chat message pass the filter? A post matches on its good, your own lines on what
+## they link; buying or selling comes from the post, or from what your line says.
+func passes_filter(m: Dictionary) -> bool:
+	var side: String = str(m.get("side", ""))
+	if chat_refs.is_empty() and chat_side == "all":
+		return true
+	if side == "system":
+		return false
+	var refs: Array = []
+	if str(m.get("good", "")) != "":
+		refs.append(str(m["good"]))
+	for l in m.get("links", []):
+		refs.append(str(l.get("ref", "")))
+	if not chat_refs.is_empty() and not refs.any(func(r): return chat_refs.has(r)):
+		return false
+	if chat_side != "all":
+		var says: String = side
+		if side == "say":
+			var intent: String = ChatParse.intent(str(m.get("text", "")))
+			says = "wts" if intent == "sell" else ("wtb" if intent == "buy" else "")
+		if says != chat_side:
+			return false
+	return true
+
+func _redraw_feed() -> void:
+	if _chat_lines == null or not is_instance_valid(_chat_lines):
+		return
+	for child in _chat_lines.get_children():
+		_chat_lines.remove_child(child)
+		child.queue_free()
+	shown_id = 0
+	for m in _game().hall.feed:
+		_add_feed_line(_chat_lines, m)
+	if _chat_lines.get_child_count() == 0 and (not chat_refs.is_empty() or chat_side != "all"):
+		var note := Label.new()
+		note.name = "NoMatch"
+		note.text = "Nothing in the chat matches the filter yet. New messages that do will show here."
+		note.theme_type_variation = &"LabelMuted"
+		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		note.custom_minimum_size = Vector2(200, 0)
+		_chat_lines.add_child(note)
+	_scroll_to_end(_chat_scroll)
+
+func _remove_no_match(lines: VBoxContainer) -> void:
+	var note := lines.get_node_or_null("NoMatch")
+	if note != null:
+		lines.remove_child(note)
+		note.queue_free()
+
+## The filter bar: All / WTS / WTB, a box to find items, suggestions to pick and the chosen
+## items as chips (click one to drop it).
+func _wire_chat_filter(left: Control) -> void:
+	var c := "Margin/Content/"
+	for pair in [["All", "all"], ["Selling", "wts"], ["Buying", "wtb"]]:
+		var b := left.get_node(c + "Filter/" + str(pair[0])) as Button
+		b.set_pressed_no_signal(chat_side == str(pair[1]))
+		b.pressed.connect(func() -> void:
+			chat_side = str(pair[1])
+			_redraw_feed())
+	var box := left.get_node(c + "Filter/Find") as LineEdit
+	box.text = chat_typed
+	box.text_changed.connect(func(t: String) -> void:
+		chat_typed = t
+		_fill_filter(left))
+	box.text_submitted.connect(func(_t: String) -> void:
+		var refs: Array = search_refs(chat_typed, 1)
+		if not refs.is_empty():
+			add_chat_filter(str(refs[0]))
+			_fill_filter(left)
+			(left.get_node(c + "Filter/Find") as LineEdit).text = "")
+	box.gui_input.connect(_escape_releases.bind(box))
+	_fill_filter(left)
+
+func add_chat_filter(ref: String) -> void:
+	if not chat_refs.has(ref):
+		chat_refs.append(ref)
+	chat_typed = ""
+	_redraw_feed()
+
+func remove_chat_filter(ref: String) -> void:
+	chat_refs.erase(ref)
+	_redraw_feed()
+
+func _fill_filter(left: Control) -> void:
+	var c := "Margin/Content/"
+	var suggest := left.get_node(c + "Suggest") as HFlowContainer
+	var chips := left.get_node(c + "Chips") as HFlowContainer
+	for box in [suggest, chips]:
+		for child in box.get_children():
+			box.remove_child(child)
+			child.queue_free()
+	for ref in search_refs(chat_typed, 6):
+		if chat_refs.has(ref):
+			continue
+		var b := Button.new()
+		b.text = "+ " + _game().item_ref_name(str(ref))
+		b.theme_type_variation = &"TextButton"
+		b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		b.tooltip_text = "Show messages about %s." % _game().item_ref_name(str(ref))
+		b.pressed.connect(func() -> void:
+			add_chat_filter(str(ref))
+			(left.get_node(c + "Filter/Find") as LineEdit).text = ""
+			_fill_filter(left))
+		suggest.add_child(b)
+	suggest.visible = suggest.get_child_count() > 0
+	for ref in chat_refs:
+		var chip := Button.new()
+		chip.text = _game().item_ref_name(str(ref)) + "  ×"
+		chip.theme_type_variation = &"PaperButton"
+		chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		chip.tooltip_text = "Stop filtering by %s." % _game().item_ref_name(str(ref))
+		chip.pressed.connect(func() -> void:
+			remove_chat_filter(str(ref))
+			_fill_filter(left))
+		chips.add_child(chip)
+	if not chat_refs.is_empty():
+		var clear := Button.new()
+		clear.text = "Clear"
+		clear.theme_type_variation = &"TextButton"
+		clear.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		clear.pressed.connect(func() -> void:
+			chat_refs.clear()
+			_redraw_feed()
+			_fill_filter(left))
+		chips.add_child(clear)
+	chips.visible = not chat_refs.is_empty()
 
 func _add_line(lines: Container, bbcode: String) -> void:
 	var line := ROW_CHAT_LINE.instantiate() as RichTextLabel
