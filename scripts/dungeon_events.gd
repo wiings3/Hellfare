@@ -47,8 +47,8 @@ const EVENTS := [
 			"honest": [{"w": 3, "ally": true, "text": "He's grateful. He'll fight beside you on this floor."}, {"w": 1, "coin": [20, 40], "text": "He presses a purse into {who}'s hand before he limps for the exit."}],
 			"bait": [{"w": 2, "hurt_all": [6, 14], "text": "His friends come out of the dark. The crew fights them off, bruised."}, {"w": 1, "lose": 0.2, "text": "While you bind his leg, his friends lift part of the haul."}]}},
 		{"label": "Take his sword", "tag": "bold", "out": {
-			"honest": [{"w": 2, "gear": 2, "text": "He's too weak to stop you. {who} takes the sword."}, {"w": 1, "hurt": [10, 22], "gear": 2, "text": "He fights for it. {who} gets cut, but the sword is yours."}],
-			"bait": [{"w": 2, "hurt": [18, 30], "text": "It was bait. {who} is cut before the crew drives them off."}, {"w": 1, "gear": 2, "hurt": [12, 20], "text": "His friends come at you; you take the sword anyway."}]}},
+			"honest": [{"w": 2, "gear": 1, "text": "He's too weak to stop you. {who} takes the sword."}, {"w": 1, "hurt": [10, 22], "gear": 1, "text": "He fights for it. {who} gets cut, but the sword is yours."}],
+			"bait": [{"w": 2, "hurt": [18, 30], "text": "It was bait. {who} is cut before the crew drives them off."}, {"w": 1, "gear": 1, "hurt": [12, 20], "text": "His friends come at you; you take the sword anyway."}]}},
 		{"label": "Walk on", "tag": "", "out": {"any": [{"w": 1, "text": "You leave him be."}]}}],
 	 "best": {"honest": 0, "bait": 2}},
 	{"id": "side_passage", "phase": "floor", "text": "A side passage, and a draught of fresh air from it.",
@@ -175,7 +175,7 @@ const EVENTS := [
 	 "states": {"sound": 5, "rotten": 5},
 	 "choices": [
 		{"label": "Take the best of it", "tag": "bold", "out": {
-			"sound": [{"w": 1, "gear": 2, "text": "One blade is still sound. {who} takes it."}],
+			"sound": [{"w": 1, "gear": 1, "text": "One blade is still sound. {who} takes it."}],
 			"rotten": [{"w": 1, "hurt": [6, 14], "text": "The rack collapses on {who}."}]}},
 		{"label": "Sharpen your own blades on it", "tag": "safe", "out": {"any": [{"w": 1, "buff": {"damage": 10}, "text": "A whetstone on the rack. Edges are keener for the next fight."}]}}]},
 	# --- The walk out ----------------------------------------------------------------------
