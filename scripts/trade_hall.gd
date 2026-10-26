@@ -415,9 +415,11 @@ func _deal_from_context(trader: String, text: String, links: Array, now: int) ->
 		h.reservation = value * rng.randf_range(1.0, 1.1)
 		_limit_to_demand(h, now)
 		return h
-	if SELLER_KINDS.has(kind) and not ref.begins_with("gear:"):
-		var ask: int = maxi(1, int(round(value * rng.randf_range(1.0, 1.12))))
-		return _new_deal(trader, ref, true, maxi(1, wanted if wanted > 0 else 20), ask, now)
+	if SELLER_KINDS.has(kind):
+		# Gear is sold one piece at a time, at a little more of a markup than goods.
+		var gear: bool = ref.begins_with("gear:")
+		var ask: int = maxi(1, int(round(value * rng.randf_range(1.05, 1.2) if gear else value * rng.randf_range(1.0, 1.12))))
+		return _new_deal(trader, ref, true, 1 if gear else maxi(1, wanted if wanted > 0 else 20), ask, now)
 	return null
 
 func kind_of_post(post: Dictionary) -> String:
