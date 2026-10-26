@@ -38,6 +38,13 @@ var _hidden: Dictionary = {}
 @onready var fullscreen_toggle: Button = $Cover/Plate/Margin/Content/Settings/Fullscreen/Toggle
 @onready var vsync_toggle: Button = $Cover/Plate/Margin/Content/Settings/VSync/Toggle
 @onready var animation_toggle: Button = $Cover/Plate/Margin/Content/Settings/Animations/Toggle
+@onready var sound_button: Button = $Cover/Plate/Margin/Content/Settings/SoundButton
+@onready var sound_view: Control = $Cover/Plate/Margin/Content/Sound
+@onready var sound_back: Button = $Cover/Plate/Margin/Content/Sound/Back
+@onready var away_toggle: Button = $Cover/Plate/Margin/Content/Sound/Away/Toggle
+
+## Volume steps for the - / + buttons.
+const VOLUME_STEP := 0.1
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -52,6 +59,13 @@ func _ready() -> void:
 	fullscreen_toggle.toggled.connect(_set_fullscreen)
 	vsync_toggle.toggled.connect(_set_vsync)
 	animation_toggle.toggled.connect(_set_animations)
+	sound_button.pressed.connect(_show_sound.bind(true))
+	sound_back.pressed.connect(_show_sound.bind(false))
+	away_toggle.toggled.connect(_set_alerts_away)
+	for group in GameSettings.VOLUME_DEFAULTS:
+		var row := sound_view.get_node(str(group))
+		(row.get_node("Down") as Button).pressed.connect(_step_volume.bind(str(group), -VOLUME_STEP))
+		(row.get_node("Up") as Button).pressed.connect(_step_volume.bind(str(group), VOLUME_STEP))
 
 func is_open() -> bool:
 	return state != State.CLOSED
@@ -63,7 +77,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if state == State.CLOSED:
 		open()
 	elif state == State.OPEN:
-		if settings_view.visible:
+		if sound_view.visible:
+			_show_sound(false)
+		elif settings_view.visible:
 			_show_settings(false)
 		else:
 			resume()
@@ -125,6 +141,7 @@ func resume() -> void:
 func _show_settings(on: bool) -> void:
 	main_view.visible = not on
 	settings_view.visible = on
+	sound_view.visible = false
 	subtitle.set("text", "Settings" if on else "Paused")
 	hint.text = "Esc to go back" if on else "Esc to resume"
 
@@ -162,3 +179,35 @@ func _set_book_visible(on: bool) -> void:
 		else:
 			_hidden[path] = node.visible
 			node.visible = false
+
+## The Sound page of Settings: a volume per group and the background rule.
+func _show_sound(on: bool) -> void:
+	sound_view.visible = on
+	settings_view.visible = not on
+	subtitle.set("text", "Sound" if on else "Settings")
+	_sync_sound()
+	(sound_back if on else sound_button).grab_focus()
+
+func _sync_sound() -> void:
+	for group in GameSettings.VOLUME_DEFAULTS:
+		var row := sound_view.get_node(str(group))
+		var v: float = float(GameSettings.volumes[group])
+		(row.get_node("Value") as Label).text = "Off" if v <= 0.001 else "%d%%" % int(round(v * 100.0))
+		(row.get_node("Down") as Button).disabled = v <= 0.001
+		(row.get_node("Up") as Button).disabled = v >= 0.999
+	away_toggle.set_pressed_no_signal(GameSettings.alerts_away)
+	away_toggle.text = "On" if GameSettings.alerts_away else "Off"
+
+func _step_volume(group: String, step: float) -> void:
+	GameSettings.volumes[group] = clampf(snappedf(float(GameSettings.volumes[group]) + step, 0.1), 0.0, 1.0)
+	GameSettings.save_settings()
+	Sound.refresh()
+	_sync_sound()
+	if group != "Ambience" and group != "Music":
+		Sound.play("coin_spend" if group == "Interface" else "crew_back")
+
+func _set_alerts_away(on: bool) -> void:
+	GameSettings.alerts_away = on
+	GameSettings.save_settings()
+	Sound.refresh()
+	_sync_sound()

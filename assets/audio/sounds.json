@@ -1,0 +1,355 @@
+{
+ "event_open": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/event_open_1.ogg",
+   "res://assets/audio/alerts/event_open_2.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "event_tick": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/event_tick_1.ogg"
+  ],
+  "db": -10,
+  "pitch": 0.0,
+  "loop": false
+ },
+ "crew_waiting": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/crew_waiting_1.ogg",
+   "res://assets/audio/alerts/crew_waiting_2.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "crew_back": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/crew_back_1.ogg",
+   "res://assets/audio/alerts/crew_back_2.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "death": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/death_1.ogg"
+  ],
+  "db": -2,
+  "pitch": 0.0,
+  "loop": false
+ },
+ "crew_wiped": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/crew_wiped_1.ogg"
+  ],
+  "db": -1,
+  "pitch": 0.0,
+  "loop": false
+ },
+ "sale": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/sale_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "trade_request": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/trade_request_1.ogg"
+  ],
+  "db": -4,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "level_up": {
+  "group": "alerts",
+  "files": [
+   "res://assets/audio/alerts/level_up_1.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "page_turn": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/page_turn_1.ogg",
+   "res://assets/audio/interface/page_turn_2.ogg",
+   "res://assets/audio/interface/page_turn_3.ogg"
+  ],
+  "db": -4,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "click": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/click_1.ogg",
+   "res://assets/audio/interface/click_2.ogg",
+   "res://assets/audio/interface/click_3.ogg"
+  ],
+  "db": -10,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "toggle": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/toggle_1.ogg",
+   "res://assets/audio/interface/toggle_2.ogg",
+   "res://assets/audio/interface/toggle_3.ogg"
+  ],
+  "db": -10,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "denied": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/denied_1.ogg",
+   "res://assets/audio/interface/denied_2.ogg"
+  ],
+  "db": -8,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "coin_spend": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/coin_spend_1.ogg",
+   "res://assets/audio/interface/coin_spend_2.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "coin_earn": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/coin_earn_1.ogg"
+  ],
+  "db": -5,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "coin_big": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/coin_big_1.ogg"
+  ],
+  "db": -3,
+  "pitch": 0.02,
+  "loop": false
+ },
+ "send_down": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/send_down_1.ogg"
+  ],
+  "db": -3,
+  "pitch": 0.03,
+  "loop": false
+ },
+ "hire": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/hire_1.ogg",
+   "res://assets/audio/interface/hire_2.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "sign_charter": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/sign_charter_1.ogg"
+  ],
+  "db": -4,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "equip": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/equip_1.ogg",
+   "res://assets/audio/interface/equip_2.ogg",
+   "res://assets/audio/interface/equip_3.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "craft": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/craft_1.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "cook": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/cook_1.ogg"
+  ],
+  "db": -8,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "repair": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/repair_1.ogg",
+   "res://assets/audio/interface/repair_2.ogg"
+  ],
+  "db": -8,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "list_item": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/list_item_1.ogg",
+   "res://assets/audio/interface/list_item_2.ogg"
+  ],
+  "db": -9,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "chat_post": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/chat_post_1.ogg"
+  ],
+  "db": -10,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "choice_safe": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/choice_safe_1.ogg",
+   "res://assets/audio/interface/choice_safe_2.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "choice_bold": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/choice_bold_1.ogg",
+   "res://assets/audio/interface/choice_bold_2.ogg",
+   "res://assets/audio/interface/choice_bold_3.ogg"
+  ],
+  "db": -5,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "outcome_good": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/outcome_good_1.ogg"
+  ],
+  "db": -4,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "outcome_bad": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/outcome_bad_1.ogg"
+  ],
+  "db": -3,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "floor_cleared": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/floor_cleared_1.ogg"
+  ],
+  "db": -5,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "boss_down": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/boss_down_1.ogg"
+  ],
+  "db": -3,
+  "pitch": 0.0,
+  "loop": false
+ },
+ "retreat": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/retreat_1.ogg"
+  ],
+  "db": -5,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "find_gear": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/find_gear_1.ogg",
+   "res://assets/audio/interface/find_gear_2.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "blueprint": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/blueprint_1.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "amb_hall": {
+  "group": "ambience",
+  "files": [
+   "res://assets/audio/ambience/amb_hall_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.0,
+  "loop": true
+ },
+ "amb_maw": {
+  "group": "ambience",
+  "files": [
+   "res://assets/audio/ambience/amb_maw_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.0,
+  "loop": true
+ },
+ "amb_below": {
+  "group": "ambience",
+  "files": [
+   "res://assets/audio/ambience/amb_below_1.ogg"
+  ],
+  "db": 0.0,
+  "pitch": 0.0,
+  "loop": true
+ }
+}

@@ -1,6 +1,6 @@
 # Hellfare
 
-**Version 0.28 — Fewer, bigger crypt choices**
+**Version 0.29 — Sound**
 
 A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
 Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
@@ -16,6 +16,32 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.29 – Sound
+
+The game has sound: 37 sounds (57 files) from the Hellfare sound list, wired to the moments that
+need them. Sound follows the art's rule: the guild hall is warm and close, hell is far away.
+
+- **Alerts** for what needs you: a crypt event opening (and a clock ticking its last 5 seconds),
+  a crew waiting for orders, a crew back up, a death, a lost crew, an Auction House sale, a
+  trade request in the Tavern, a level-up.
+- **Interface:** page turns, every button (toggles click differently, disabled buttons thud),
+  coins when gold moves after a click, hiring, sending a crew down, signing a charter, equipping,
+  crafting, cooking, repairing, listing on the Auction House, posting in the Tavern.
+- **Crypt runs:** a safe or bold choice, whether it went well or badly, a floor cleared, the boss
+  down, the crew turning back, gear and blueprints found.
+- **Ambience:** the hall's hearth always, the Maw rumbling under it (louder while a crew is in a
+  crypt), and drips and wind on a crypt run's page.
+- **Settings → Sound:** a volume per group (Alerts, Interface, Ambience, Music) and whether alerts
+  keep playing while the game is in the background (everything else goes quiet).
+
+How it works: everything plays a sound by name through `Sound.play("crew_back")`; the autoload
+`scripts/sfx.gd` looks the name up in `assets/audio/sounds.json` (files, group, volume, pitch
+spread). `tools/make_sounds.py` builds every file: Kenney's CC0 RPG Audio and Interface Sounds
+recordings, trimmed, levelled and layered, plus synthesised bells, the Maw, wind and the hearth.
+Sources are listed in `assets/audio/CREDITS.md`. Headless runs (tests, CI) record sounds without
+playing them. Still missing: music, the Tavern crowd loop, and three small extras (map hover,
+message, hint).
 
 ## V0.28 – Fewer, bigger crypt choices
 

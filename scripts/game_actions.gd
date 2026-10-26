@@ -46,6 +46,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	GameSettings.load_settings()
 	GameSettings.apply()
+	Sound.refresh()
 	game = MoneyMercsState.new()
 	game.harlow_sync()
 	var returned: int = game.complete_due()
@@ -154,12 +155,66 @@ func _set_roster_tab(tab: String) -> void:
 		roster_tab = tab
 	_refresh()
 
+## Floors fought so far across the crypt runs under way (a new one means a fight just ended).
+func _floors_logged() -> int:
+	var n: int = 0
+	for m in game.missions:
+		n += (m.get("log", []) as Array).size()
+	return n
+
+## One alert for crews coming back: the worst news wins (a lost crew, a death, a haul).
+func _play_return_alert(returned: int) -> void:
+	var wiped: bool = false
+	var died: bool = false
+	var boss: bool = false
+	for i in range(mini(returned, game.reports.size())):
+		var r: Dictionary = game.reports[i]
+		wiped = wiped or str(r.get("outcome", "")) == "wiped"
+		died = died or not (r.get("casualties", []) as Array).is_empty()
+		boss = boss or str(r.get("outcome", "")) == "cleared"
+	if wiped:
+		Sound.play("crew_wiped")
+	elif died:
+		Sound.play("death")
+	else:
+		Sound.play("crew_back")
+		if boss:
+			Sound.play("boss_down")
+	# Smaller news from the same reports, a moment later.
+	var extra: String = ""
+	for i in range(mini(returned, game.reports.size())):
+		var r: Dictionary = game.reports[i]
+		for e in r.get("events", []):
+			if str(e).contains(" reached "):
+				extra = "level_up"
+		for f in r.get("found_items", []):
+			if str(f).begins_with("Blueprint") and extra == "":
+				extra = "blueprint"
+		if not (r.get("found_gear", []) as Array).is_empty() and extra == "":
+			extra = "find_gear"
+	if extra != "":
+		get_tree().create_timer(1.2).timeout.connect(func() -> void: Sound.play(extra))
+
 func _hire(id: String) -> void:
 	var text: String = game.hire(id)
 	if text.contains("joined") or text.contains("is yours"):
 		roster_tab = "employed"
 		selected_merc = id
+		Sound.play("hire")
 	_action(text)
+
+## A fingerprint of what the player owns, to tell whether an action did anything.
+func _state_mark() -> int:
+	return hash(var_to_str([game.gold, game.resources, game.crew, game.missions.size(), game.equipment_inventory,
+		game.blueprints, game.upgrades]))
+
+## Run an action and play `sound` if it changed anything.
+func _act(call: Callable, sound: String) -> void:
+	var before: int = _state_mark()
+	var result: String = str(call.call())
+	if _state_mark() != before:
+		Sound.play(sound)
+	_action(result)
 
 ## Selling a contract can't be undone: the first press asks, the second sells.
 var confirm_sell: String = ""
@@ -200,32 +255,35 @@ func _buy_equipment(key: String) -> void:
 	_action(game.buy_equipment(key))
 
 func _equip(id: String, uid: String) -> void:
-	_action(game.equip_item(id, uid))
+	_act(func() -> String: return game.equip_item(id, uid), "equip")
 
 func _sell_equipment(uid: String) -> void:
 	_action(game.sell_equipment(uid))
 
 func _repair(uid: String) -> void:
-	_action(game.repair(uid))
+	_act(func() -> String: return game.repair(uid), "repair")
 
 func _repair_all(id: String) -> void:
 	var said: Array[String] = []
 	for item in Gear.worn(game.merc_by_id(id)):
 		if not game.repair_cost(item).is_empty():
 			said.append(game.repair(str(item["uid"])))
+	if not said.is_empty():
+		Sound.play("repair")
 	_action("\n".join(said) if not said.is_empty() else "Nothing needs repairs.")
 
 func _supply(id: String, key: String) -> void:
-	_action(game.equip_supply(id, key))
+	_act(func() -> String: return game.equip_supply(id, key), "equip")
 
 func _craft(key: String) -> void:
-	_action(game.craft(key))
+	var kind: String = str(Catalog.item(key).get("category", ""))
+	_act(func() -> String: return game.craft(key), "cook" if kind in ["food", "potion"] else "craft")
 
 func _buy_blueprint(key: String) -> void:
 	_action(game.buy_blueprint(key))
 
 func _unequip(id: String, slot: String) -> void:
-	_action(game.unequip_item(id, slot))
+	_act(func() -> String: return game.unequip_item(id, slot), "equip")
 
 func _terms(id: String) -> void:
 	_action(game.switch_contract(id))
@@ -296,9 +354,11 @@ func _on_clock() -> void:
 	var waiting: int = game.dungeon_checkins().size()
 	var calls: int = _dungeon_calls()
 	var last_sale: Dictionary = game.auction.log[0] if not game.auction.log.is_empty() else {}
+	var floors_before: int = _floors_logged()
 	var returned: int = game.complete_due()
 	if not game.auction.log.is_empty() and game.auction.log[0] != last_sale:
 		var e: Dictionary = game.auction.log[0]
+		Sound.play("sale")
 		if str(e["kind"]) == "sold":
 			_notify("Auction House: sold %s%s for %s." % ["%d " % int(e["qty"]) if not str(e["ref"]).begins_with("gear:") else "", game.item_ref_name(str(e["ref"])), _money(int(e["gold"]))])
 		elif str(e["kind"]) == "bought":
@@ -311,10 +371,14 @@ func _on_clock() -> void:
 		changed = true
 		if game.dungeon_checkins().size() > waiting:
 			var m: Dictionary = game.dungeon_checkins().back()
+			Sound.play("crew_waiting")
 			_notify("%s: floor %d cleared. Your crew is waiting for orders." % [str(Dungeons.by_id(str(m["dungeon"])).get("name", "The crypt")), int(m["floor_i"]) + 1])
+	if returned == 0 and _floors_logged() > floors_before and page == "dungeon" and game.dungeon_checkins().size() <= waiting:
+		Sound.play("floor_cleared")
 	if returned > 0:
+		_play_return_alert(returned)
 		_refresh()
-		_notify("%d field team(s) returned. See The Chronicle for full findings." % returned)
+		_notify("%s back up. Their reports are in the Ledger." % ("A crew is" if returned == 1 else "%d crews are" % returned))
 	elif changed:
 		_refresh()
 	else:

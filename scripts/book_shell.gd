@@ -205,6 +205,7 @@ func _turn_to(destination: String) -> void:
 	var old: String = page
 	_nav_to(destination)
 	var direction: String = "page_flip_right" if _tab_index(destination) >= _tab_index(old) else "page_flip_left"
+	Sound.play("page_turn")
 	_start_page_flip(direction)
 
 func _tab_index(destination: String) -> int:
@@ -231,4 +232,6 @@ func _animate_turn(generation: int, frames: Array) -> void:
 
 func _save_and_quit() -> void:
 	game.save_game()
+	Sound.stop_all()
+	await get_tree().create_timer(0.1).timeout  # let the audio thread let go of the sounds
 	get_tree().quit()

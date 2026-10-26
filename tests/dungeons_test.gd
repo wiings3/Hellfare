@@ -155,17 +155,23 @@ func _initialize() -> void:
 	check(autos >= 2 and (em["ev_log"] as Array).size() == autos + 1, "unanswered events are decided by the crew and logged")
 	check(DungeonEvents.auto_choice({"id": "bloody_chest", "state": "trapped", "hint": "", "roll": 1}, "bold") == 0, "bold orders open the chest")
 	check(DungeonEvents.auto_choice({"id": "bloody_chest", "state": "trapped", "hint": "x", "roll": 1}, "bold") == 1, "a hint makes the crew check for traps")
-	# A deadly outcome kills; the last death wipes the run.
-	var em_hp: Dictionary = em["hp"]
-	for id in eids:
-		em_hp[id] = 1.0
-	em["lucky"] = {}
-	var trap: Dictionary = {"t": GameClock.now(), "id": "cracked_floor", "state": "gives", "hint": "", "reader": "", "done": false, "roll": 5}
-	(em["ev"] as Array).append(trap)
-	e._apply_event(em, trap, 0, GameClock.now(), false)
-	check((em["dead"] as Array).size() == 1, "a fall kills a crew member at 1 health")
 	e.complete_due(first_t + 7200)
-	check(e.missions.is_empty() and e.reports[0].has("floor_log"), "the run still finishes and reports")
+	check(e.missions.is_empty() and e.reports[0].has("floor_log"), "the run finishes and reports")
+	# A deadly outcome kills (a fresh run, so earlier deaths don't count).
+	var k := MoneyMercsState.new()
+	k.reset_company()
+	k.gold = 5000
+	var kids: Array[String] = _crew(k, [[["steel_sword", "chainmail", "iron_helm"], 9], [["steel_sword", "chainmail"], 8]])
+	GameClock.fixed = now
+	check(k.dungeon_dispatch("calder_keep", kids, 3, "half", "bold").begins_with("The crew went"), "second run dispatched")
+	var km: Dictionary = k.missions[0]
+	for id in kids:
+		km["hp"][id] = 1.0
+	km["lucky"] = {}
+	var trap: Dictionary = {"t": now, "id": "cracked_floor", "state": "gives", "hint": "", "reader": "", "done": false, "roll": 5}
+	(km["ev"] as Array).append(trap)
+	k._apply_event(km, trap, 0, now, false)
+	check((km["dead"] as Array).size() == 1, "a fall kills a crew member at 1 health")
 	for ev_def in DungeonEvents.EVENTS:
 		for ch in ev_def["choices"]:
 			for state in ch["out"]:

@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/pause_menu.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://assets/ui/book/close/6.png" id="2_cover"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="3_header"]
+[ext_resource type="Texture2D" path="res://assets/ui/kit/step_minus.png" id="4_minus"]
+[ext_resource type="Texture2D" path="res://assets/ui/kit/step_plus.png" id="5_plus"]
 
 [node name="PauseMenu" type="Control"]
 process_mode = 3
@@ -133,7 +135,166 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "On"
 
+[node name="SoundButton" type="Button" parent="Cover/Plate/Margin/Content/Settings"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+text = "Sound  >"
+
 [node name="Back" type="Button" parent="Cover/Plate/Margin/Content/Settings"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+text = "< Back"
+
+[node name="Sound" type="VBoxContainer" parent="Cover/Plate/Margin/Content"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 5
+alignment = 1
+
+[node name="Alerts" type="HBoxContainer" parent="Cover/Plate/Margin/Content/Sound"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label" type="Label" parent="Cover/Plate/Margin/Content/Sound/Alerts"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Alerts"
+
+[node name="Down" type="Button" parent="Cover/Plate/Margin/Content/Sound/Alerts"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Quieter"
+icon = ExtResource("4_minus")
+icon_alignment = 1
+
+[node name="Value" type="Label" parent="Cover/Plate/Margin/Content/Sound/Alerts"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "80%"
+horizontal_alignment = 1
+
+[node name="Up" type="Button" parent="Cover/Plate/Margin/Content/Sound/Alerts"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Louder"
+icon = ExtResource("5_plus")
+icon_alignment = 1
+
+[node name="Interface" type="HBoxContainer" parent="Cover/Plate/Margin/Content/Sound"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label" type="Label" parent="Cover/Plate/Margin/Content/Sound/Interface"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Interface"
+
+[node name="Down" type="Button" parent="Cover/Plate/Margin/Content/Sound/Interface"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Quieter"
+icon = ExtResource("4_minus")
+icon_alignment = 1
+
+[node name="Value" type="Label" parent="Cover/Plate/Margin/Content/Sound/Interface"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "80%"
+horizontal_alignment = 1
+
+[node name="Up" type="Button" parent="Cover/Plate/Margin/Content/Sound/Interface"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Louder"
+icon = ExtResource("5_plus")
+icon_alignment = 1
+
+[node name="Ambience" type="HBoxContainer" parent="Cover/Plate/Margin/Content/Sound"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label" type="Label" parent="Cover/Plate/Margin/Content/Sound/Ambience"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Ambience"
+
+[node name="Down" type="Button" parent="Cover/Plate/Margin/Content/Sound/Ambience"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Quieter"
+icon = ExtResource("4_minus")
+icon_alignment = 1
+
+[node name="Value" type="Label" parent="Cover/Plate/Margin/Content/Sound/Ambience"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "80%"
+horizontal_alignment = 1
+
+[node name="Up" type="Button" parent="Cover/Plate/Margin/Content/Sound/Ambience"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Louder"
+icon = ExtResource("5_plus")
+icon_alignment = 1
+
+[node name="Music" type="HBoxContainer" parent="Cover/Plate/Margin/Content/Sound"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label" type="Label" parent="Cover/Plate/Margin/Content/Sound/Music"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Music"
+
+[node name="Down" type="Button" parent="Cover/Plate/Margin/Content/Sound/Music"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Quieter"
+icon = ExtResource("4_minus")
+icon_alignment = 1
+
+[node name="Value" type="Label" parent="Cover/Plate/Margin/Content/Sound/Music"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+text = "80%"
+horizontal_alignment = 1
+
+[node name="Up" type="Button" parent="Cover/Plate/Margin/Content/Sound/Music"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Louder"
+icon = ExtResource("5_plus")
+icon_alignment = 1
+
+[node name="Away" type="HBoxContainer" parent="Cover/Plate/Margin/Content/Sound"]
+layout_mode = 2
+tooltip_text = "Keep playing alerts (an event, a crew back, a death) while the game is in the background. Everything else goes quiet."
+
+[node name="Label" type="Label" parent="Cover/Plate/Margin/Content/Sound/Away"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Alerts in background"
+
+[node name="Toggle" type="Button" parent="Cover/Plate/Margin/Content/Sound/Away"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+text = "On"
+
+[node name="Back" type="Button" parent="Cover/Plate/Margin/Content/Sound"]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 theme_type_variation = &"PaperButton"

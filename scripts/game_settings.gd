@@ -7,6 +7,11 @@ const PATH := "user://settings.cfg"
 static var fullscreen: bool = false
 static var vsync: bool = true
 static var book_animations: bool = true
+## Sound: volume per group, 0 to 1 (the groups are the buses in default_bus_layout.tres).
+const VOLUME_DEFAULTS := {"Alerts": 0.8, "Interface": 0.6, "Ambience": 0.35, "Music": 0.4}
+static var volumes: Dictionary = VOLUME_DEFAULTS.duplicate()
+## Keep playing alerts while the game window is in the background (everything else goes quiet).
+static var alerts_away: bool = true
 
 ## The game was called Money Mercs before Hellfare, and Godot keeps each game's files in a
 ## folder named after it. Copies a file from the old folder the first time Hellfare looks for
@@ -28,12 +33,18 @@ static func load_settings() -> void:
 	fullscreen = bool(cfg.get_value("display", "fullscreen", fullscreen))
 	vsync = bool(cfg.get_value("display", "vsync", vsync))
 	book_animations = bool(cfg.get_value("interface", "book_animations", book_animations))
+	for group in VOLUME_DEFAULTS:
+		volumes[group] = clampf(float(cfg.get_value("sound", group.to_lower(), volumes[group])), 0.0, 1.0)
+	alerts_away = bool(cfg.get_value("sound", "alerts_away", alerts_away))
 
 static func save_settings() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("display", "fullscreen", fullscreen)
 	cfg.set_value("display", "vsync", vsync)
 	cfg.set_value("interface", "book_animations", book_animations)
+	for group in volumes:
+		cfg.set_value("sound", str(group).to_lower(), float(volumes[group]))
+	cfg.set_value("sound", "alerts_away", alerts_away)
 	cfg.save(PATH)
 
 ## Push display settings to the window. Skipped when running headless (tests, CI).
@@ -44,3 +55,13 @@ static func apply() -> void:
 	if DisplayServer.window_get_mode() != mode:
 		DisplayServer.window_set_mode(mode)
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if vsync else DisplayServer.VSYNC_DISABLED)
+
+## Push the volumes to the sound groups. Runs headless too (the dummy audio driver takes them).
+static func apply_volumes() -> void:
+	for group in volumes:
+		var bus: int = AudioServer.get_bus_index(str(group))
+		if bus < 0:
+			continue
+		var v: float = float(volumes[group])
+		AudioServer.set_bus_mute(bus, v <= 0.001)
+		AudioServer.set_bus_volume_db(bus, linear_to_db(maxf(v, 0.001)))

@@ -24,7 +24,8 @@ const XP_SCALE := 4
 
 ## Seconds between events on a floor (a floor lasts Dungeons.FLOOR_TIME), and on the walk out.
 const GAP := [90, 140]
-const WALK_GAP := [35, 50]
+## The walk out lasts 80 s per floor: the first event comes early, the rest at the floor's pace.
+const WALK_GAP := [25, 45]
 ## Seconds the player has to choose before the crew decides by its orders.
 const EVENT_WAIT := 30
 
@@ -264,24 +265,22 @@ static func reader(e: Dictionary, crew: Array) -> Dictionary:
 static func schedule(dungeon: String, phase: String, floor_i: int, start: int, end: int, seed_value: int, crew: Array, avoid: Array = []) -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
-	var gaps: Array = GAP if phase == "floor" else WALK_GAP
+	var gaps: Array = GAP
+	var first_gap: Array = GAP if phase == "floor" else WALK_GAP
 	var out: Array = []
 	var options: Array = pool(dungeon, phase, floor_i)
-	# No event twice in one run while there are others to choose from.
-	var fresh: Array = options.filter(func(e: Dictionary) -> bool: return not avoid.has(str(e["id"])))
-	if not fresh.is_empty():
-		options = fresh
+	# No event twice in one run: when this part of the crypt runs out of new ones, it goes quiet.
+	options = options.filter(func(e: Dictionary) -> bool: return not avoid.has(str(e["id"])))
 	if options.is_empty():
 		return out
-	var t: int = start + rng.randi_range(int(gaps[0]), int(gaps[1]))
+	var t: int = start + rng.randi_range(int(first_gap[0]), int(first_gap[1]))
 	var last: String = ""
 	while t + EVENT_WAIT < end:
+		if options.is_empty():
+			break
 		var e: Dictionary = options[rng.randi_range(0, options.size() - 1)]
-		if str(e["id"]) == last and options.size() > 1:
-			e = options[(options.find(e) + 1) % options.size()]
 		last = str(e["id"])
-		if options.size() > 1:
-			options = options.filter(func(o: Dictionary) -> bool: return str(o["id"]) != last)
+		options = options.filter(func(o: Dictionary) -> bool: return str(o["id"]) != last)
 		var state: String = _pick_weighted(e["states"], rng)
 		var who: Dictionary = reader(e, crew)
 		var hint: String = ""

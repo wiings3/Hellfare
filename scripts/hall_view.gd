@@ -125,6 +125,7 @@ func clock() -> void:
 				elif pm_trader != trader:
 					ui.notification_text("%s messaged you." % trader)
 			"trade_request":
+				Sound.play("trade_request")
 				ui.notification_text("%s sent a trade request." % trader)
 			"trade_done", "trade_failed":
 				ui.notification_text(str(event.get("message", "")))
@@ -651,6 +652,7 @@ func send_chat() -> void:
 	if problem != "":
 		ui.notification_text(problem)
 		return
+	Sound.play("chat_post")
 	composer_text = ""
 	composer_links.clear()
 	composer.text = ""

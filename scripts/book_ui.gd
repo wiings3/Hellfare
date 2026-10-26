@@ -126,6 +126,7 @@ func _refresh() -> void:
 	_clear(right_leaf)
 	_restore_tab_art()
 	title_label.text = str(PAGE_TITLES.get(page, "The Guild"))
+	_set_ambience()
 	if page == "harlow":
 		page = "site"
 		selected_site = "harlow"
@@ -157,7 +158,14 @@ func _refresh() -> void:
 		"warehouse": _draw_ledger()
 		_: _draw_company()
 
+## Gold at the last header update: a change right after a click jingles.
+var _heard_gold: int = -1
+
 func _update_header() -> void:
+	if _heard_gold >= 0 and game.gold != _heard_gold and Sound.pressed_within(1500) and not Sound.alerted_within(1500):
+		var delta: int = game.gold - _heard_gold
+		Sound.play("coin_spend" if delta < 0 else ("coin_big" if delta >= 1000 else "coin_earn"))
+	_heard_gold = game.gold
 	money_label.text = _money(game.gold)
 	worth_label.text = "Worth  " + _money(game.wealth())
 	missions_label.text = "%d / %d" % [game.missions.size(), game.expedition_slots]
@@ -202,6 +210,20 @@ func _mount_page(scene: PackedScene, leaf: Control) -> Control:
 func _item_icon(key: String) -> Texture2D:
 	var path := "res://assets/ui/icons/%s.png" % key
 	return load(path) as Texture2D if ResourceLoader.exists(path) else null
+
+## The hall's hearth always; the Maw under it, louder while a crew is in a crypt; the crypt's
+## own drips and wind on a run's page.
+func _set_ambience() -> void:
+	var below: bool = false
+	var on_run: bool = false
+	for m in game.missions:
+		if str(m.get("region", "")) == "dungeon":
+			below = true
+			on_run = on_run or (page == "dungeon" and str(m.get("dungeon", "")) == selected_dungeon)
+	var levels: Dictionary = {"amb_hall": 0.5 if on_run else 1.0, "amb_maw": 1.0 if below else 0.6}
+	if on_run:
+		levels["amb_below"] = 1.0
+	Sound.ambience(levels)
 
 func _resource_name(key: String) -> String:
 	return str(MoneyMercsState.RESOURCE_NAMES.get(key, key.capitalize()))
@@ -527,7 +549,7 @@ func _needs() -> Array:
 		var cost: int = game.repair_gold(game.repair_cost(item))
 		out.append({"icon": _gear_icon(str(item["key"])), "title": "%s is nearly worn out" % str(Catalog.item(str(item["key"])).get("name", "Gear")),
 			"details": "%d / %d  ·  works at half pace once broken" % [Gear.durability(item), Gear.max_durability(item)],
-			"action": "Repair %s" % _money(cost) if cost > 0 else "Repair", "call": func() -> void: _action(game.repair(str(item["uid"]))), "disabled": game.gold < cost, "why": "Not enough gold."})
+			"action": "Repair %s" % _money(cost) if cost > 0 else "Repair", "call": func() -> void: _act(func() -> String: return game.repair(str(item["uid"])), "repair"), "disabled": game.gold < cost, "why": "Not enough gold."})
 	elif worn.size() > 1:
 		out.append({"icon": _gear_icon(str(worn[0]["key"])), "title": "%d pieces of gear nearly worn out" % worn.size(),
 			"details": "Broken gear works at half pace", "action": "Armory", "call": _outfit.bind(selected_merc)})
@@ -543,7 +565,7 @@ func _needs() -> Array:
 	if next_charter != "" and game.charter_block().is_empty():
 		var charter: Dictionary = Catalog.data()["upgrades"][next_charter]
 		out.append({"icon": ICON_FIELD, "title": "%s is within reach" % str(charter["name"]), "details": str(charter["effect"]),
-			"action": "Sign  ·  %s" % _money(game.upgrade_gold(next_charter)), "call": func() -> void: _action(game.build_upgrade(next_charter))})
+			"action": "Sign  ·  %s" % _money(game.upgrade_gold(next_charter)), "call": func() -> void: _act(func() -> String: return game.build_upgrade(next_charter), "sign_charter")})
 	if game.can_accept_guild_work():
 		out.append({"icon": ICON_GUILD, "title": "The Wardens offer safe work", "details": "Small, risk-free jobs for guilds on hard times",
 			"action": "Warden work", "call": _turn_to.bind("guildwork")})
@@ -1736,7 +1758,7 @@ func _draw_accounts() -> void:
 		expand.text = "Sign  ·  %s" % _money(game.upgrade_gold(next))
 		expand.disabled = not block.is_empty()
 		expand.tooltip_text = "%s: %s.\nCosts %s and %s; materials you lack are bought from the merchants." % [str(charter["name"]), str(charter["effect"]).to_lower(), _money(int(charter.get("gold", 0))), _cost_line(charter["cost"])]
-		expand.pressed.connect(func() -> void: _action(game.build_upgrade(next)))
+		expand.pressed.connect(func() -> void: _act(func() -> String: return game.build_upgrade(next), "sign_charter"))
 		note.text = "Next: %s  ·  %s + %s%s" % [str(charter["name"]), _money(int(charter.get("gold", 0))), _cost_line(charter["cost"]),
 			("  ·  " + block) if game.reputation < int(charter.get("rep", 0)) else ""]
 		note.theme_type_variation = &"LabelAccent" if game.reputation < int(charter.get("rep", 0)) else &"LabelCaption"
@@ -2425,7 +2447,7 @@ func _bind_site_crew(left: Control, right: Control, site: Dictionary) -> void:
 		if why.is_empty() and game.gold < spend:
 			why = "Building needs %s for the missing materials." % _money(spend)
 		fund.disabled = not why.is_empty()
-		fund.pressed.connect(func() -> void: _action(game.build_upgrade(needs)))
+		fund.pressed.connect(func() -> void: _act(func() -> String: return game.build_upgrade(needs), "craft"))
 		reason.text = why if not why.is_empty() else "%s must be built before any crew can work here." % str(building["name"])
 		reason.visible = true
 		return
@@ -2451,6 +2473,8 @@ func _set_crew_filter(filter: String) -> void:
 
 func _dispatch_site() -> void:
 	var result: String = game.site_dispatch(selected_site, _selected_available(), tactic)
+	if result.begins_with("The crew set out"):
+		Sound.play("send_down")
 	if result.begins_with("The crew set out"):
 		selected_crew.clear()
 		harlow_view.selected.clear()
@@ -2682,12 +2706,15 @@ func _back_to_dungeons() -> void:
 func _enter_dungeon() -> void:
 	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk)
 	if result.begins_with("The crew went"):
+		Sound.play("send_down")
+	if result.begins_with("The crew went"):
 		selected_crew.clear()
 		harlow_view.selected.clear()
 		dungeon_planning = false
 	_action(result)
 
 func _dungeon_answer(mission_id: String, push: bool) -> void:
+	Sound.play("choice_bold" if push else "retreat")
 	_action(game.dungeon_choose(mission_id, push))
 
 func _plan_another() -> void:
@@ -3099,7 +3126,12 @@ func _bind_ah_item(right: Control) -> void:
 	place.text = "Place buy order  ·  %s" % _money(ah_order_qty * ah_order_price)
 	place.disabled = game.gold < ah_order_qty * ah_order_price or game.auction.orders.size() >= AuctionHouse.MAX_ORDERS
 	place.tooltip_text = "Not enough gold." if game.gold < ah_order_qty * ah_order_price else ""
-	place.pressed.connect(func() -> void: _ah_action(game.ah_order(ref, ah_order_qty, ah_order_price, ah_order_time)))
+	place.pressed.connect(func() -> void:
+		var n: int = game.auction.orders.size()
+		var said: String = game.ah_order(ref, ah_order_qty, ah_order_price, ah_order_time)
+		if game.auction.orders.size() > n:
+			Sound.play("list_item")
+		_ah_action(said))
 
 var ah_order_for: String = ""
 
@@ -3209,7 +3241,10 @@ func _bind_ah_sell(right: Control, ch: Dictionary) -> void:
 	var post := right.get_node(c + "Post") as Button
 	post.pressed.connect(func() -> void:
 		var uid: String = str(ch["item"]["uid"]) if gear else ""
+		var listed: int = game.auction.listings.size()
 		var result: String = game.ah_post(ref, ah_qty, ah_price, ah_time, uid)
+		if game.auction.listings.size() > listed:
+			Sound.play("list_item")
 		if result.begins_with("Listed"):
 			ah_qty = 0
 		_ah_action(result))
@@ -3333,6 +3368,8 @@ func _draw_ah_yours() -> void:
 ## The event on the card ({mission id, index}), and until when an answer's result stays up.
 var card_event: Dictionary = {}
 var card_result_until: int = 0
+## The seconds-left the event card last ticked at (one tick a second near the end).
+var card_tick_at: int = -1
 
 func _event_card() -> Control:
 	return stage.get_node_or_null("EventCard") as Control if is_instance_valid(stage) else null
@@ -3359,6 +3396,11 @@ func _update_event_card() -> void:
 	card_event = key
 	card.visible = true
 	var left_s: int = maxi(0, int(ev["t"]) + DungeonEvents.EVENT_WAIT - _now())
+	if fresh:
+		Sound.play("event_open")
+	elif left_s <= 5 and left_s > 0 and left_s != card_tick_at:
+		Sound.play("event_tick")
+	card_tick_at = left_s
 	(card.get_node(b + "Timer") as ProgressBar).value = 100.0 * float(left_s) / float(DungeonEvents.EVENT_WAIT)
 	(card.get_node(b + "TimerText") as Label).text = "The crew decides in %ds (%s)." % [left_s, "playing it safe" if str(m.get("risk", "safe")) == "safe" else "taking chances"]
 	if not fresh:
@@ -3388,7 +3430,23 @@ func _update_event_card() -> void:
 	_fit_event_card(card)
 
 func _answer_event(mission_id: String, index: int, choice: int) -> void:
+	var m: Dictionary = game.mission_by_id(mission_id)
+	var before: Dictionary = _run_mark(m)
+	var ev: Dictionary = (m.get("ev", []) as Array)[index] if index < (m.get("ev", []) as Array).size() else {}
+	var tag: String = ""
+	if not ev.is_empty():
+		var choices: Array = DungeonEvents.by_id(str(ev["id"])).get("choices", [])
+		tag = str(choices[choice].get("tag", "")) if choice < choices.size() else ""
 	var result: String = game.dungeon_answer(mission_id, index, choice)
+	Sound.play("choice_bold" if tag == "bold" else "choice_safe")
+	var after: Dictionary = _run_mark(m)
+	var outcome: String = ""
+	if int(after["dead"]) > int(before["dead"]) or float(after["hp"]) < float(before["hp"]) - 0.5 or int(after["carry"]) < int(before["carry"]):
+		outcome = "outcome_bad"
+	elif int(after["carry"]) > int(before["carry"]) or int(after["gear"]) > int(before["gear"]) or float(after["hp"]) > float(before["hp"]) + 0.5:
+		outcome = "outcome_good"
+	if outcome != "":
+		get_tree().create_timer(0.35).timeout.connect(func() -> void: Sound.play(outcome))
 	var card := _event_card()
 	if card == null:
 		return
@@ -3406,6 +3464,16 @@ func _answer_event(mission_id: String, index: int, choice: int) -> void:
 	_fit_event_card(card)
 	if page == "dungeon":
 		_refresh()
+
+## What a crypt run holds right now, to tell whether an event helped or hurt.
+func _run_mark(m: Dictionary) -> Dictionary:
+	var hp: float = 0.0
+	for id in m.get("hp", {}):
+		hp += float(m["hp"][id])
+	var carry: int = 0
+	for good in m.get("carry", {}):
+		carry += int(m["carry"][good]) * (1 if good == "coin" else 5)
+	return {"hp": hp, "dead": (m.get("dead", []) as Array).size(), "carry": carry, "gear": (m.get("event_gear", []) as Array).size()}
 
 ## The card grows upward from the bottom-right corner to fit what's on it.
 func _fit_event_card(card: Control) -> void:
