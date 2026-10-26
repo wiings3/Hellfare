@@ -98,22 +98,20 @@
   "group": "interface",
   "files": [
    "res://assets/audio/interface/click_1.ogg",
-   "res://assets/audio/interface/click_2.ogg",
-   "res://assets/audio/interface/click_3.ogg"
+   "res://assets/audio/interface/click_2.ogg"
   ],
-  "db": -10,
-  "pitch": 0.05,
+  "db": -14,
+  "pitch": 0.06,
   "loop": false
  },
  "toggle": {
   "group": "interface",
   "files": [
    "res://assets/audio/interface/toggle_1.ogg",
-   "res://assets/audio/interface/toggle_2.ogg",
-   "res://assets/audio/interface/toggle_3.ogg"
+   "res://assets/audio/interface/toggle_2.ogg"
   ],
-  "db": -10,
-  "pitch": 0.05,
+  "db": -14,
+  "pitch": 0.04,
   "loop": false
  },
  "denied": {
@@ -122,7 +120,7 @@
    "res://assets/audio/interface/denied_1.ogg",
    "res://assets/audio/interface/denied_2.ogg"
   ],
-  "db": -8,
+  "db": -12,
   "pitch": 0.05,
   "loop": false
  },

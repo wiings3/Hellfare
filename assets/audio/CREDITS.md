@@ -14,9 +14,9 @@ Recordings from Kenney's **RPG Audio** and **Interface Sounds** packs (CC0, http
 | `trade_request` | alerts | Kenney RPG Audio (bookPlace3) |
 | `level_up` | alerts | Kenney Interface Sounds (scratch_004) + synthesised chime |
 | `page_turn` | interface | Kenney RPG Audio (bookFlip1-3) |
-| `click` | interface | Kenney Interface Sounds (click_002, 003, 005) |
-| `toggle` | interface | Kenney Interface Sounds (toggle_001, 002, 004) |
-| `denied` | interface | Kenney Interface Sounds (drop_002, 003) |
+| `click` | interface | Kenney RPG Audio (leather tap) |
+| `toggle` | interface | Kenney RPG Audio (leather tap, lower) |
+| `denied` | interface | Kenney RPG Audio (bookPlace2-3, muffled) |
 | `coin_spend` | interface | Kenney RPG Audio (handleCoins, handleCoins2) |
 | `coin_earn` | interface | Kenney RPG Audio (handleCoins) |
 | `coin_big` | interface | Kenney RPG Audio (handleCoins, dropLeather) + synthesised chime |

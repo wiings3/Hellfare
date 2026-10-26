@@ -1,6 +1,6 @@
 """Build every game sound from Kenney's CC0 packs and from synthesis (run from the project root).
 
-    python3 tools/make_sounds.py <rpg-audio folder> <interface-sounds folder>
+    python3 tools/make_sounds.py <rpg-audio folder> <interface-sounds folder> [--only=click,toggle]
 
 The two folders are the "Audio" folders of Kenney's RPG Audio and Interface Sounds packs
 (CC0, kenney.nl). They are not kept in the repository; the processed sounds are.
@@ -23,6 +23,8 @@ from scipy import signal
 
 SR = 44100
 OUT = "assets/audio/"
+## Which tap the buttons make: "leather", "paper" or "wood".
+CLICK_STYLE = "leather"
 rng = np.random.default_rng(7)
 
 
@@ -191,11 +193,22 @@ def build(rpg, ui):
     # ---- interface
     add("page_turn", "interface", [R("bookFlip1"), R("bookFlip2"), R("bookFlip3")], db=-4,
         source="Kenney RPG Audio (bookFlip1-3)")
-    add("click", "interface", [lowpass(U(n), 5000) for n in ("click_002", "click_003", "click_005")], db=-10,
-        source="Kenney Interface Sounds (click_002, 003, 005)")
-    add("toggle", "interface", [lowpass(U(n), 5000) for n in ("toggle_001", "toggle_002", "toggle_004")], db=-10,
-        source="Kenney Interface Sounds (toggle_001, 002, 004)")
-    add("denied", "interface", [U("drop_002"), U("drop_003")], db=-8, source="Kenney Interface Sounds (drop_002, 003)")
+    # Buttons: soft, short taps from real recordings (the book is leather and paper).
+    def tap(name, ms, lp, hp=None):
+        x = R(name)
+        i = max(0, int(np.argmax(np.abs(x))) - int(0.004 * SR))
+        y = lowpass(x[i: i + int(ms / 1000 * SR)], lp)
+        return fade(highpass(y, hp) if hp else y, 0.001, 0.025)
+    leather = [tap("handleSmallLeather", 90, 3000, 120), tap("handleSmallLeather2", 90, 3000, 120)]
+    paper = [tap("bookFlip3", 80, 6000, 500), tap("bookFlip2", 80, 6000, 500)]
+    wood = [tap("bookPlace3", 60, 1600), tap("bookPlace1", 60, 1600)]
+    CLICKS = {"leather": leather, "paper": paper, "wood": wood}
+    click = CLICKS[CLICK_STYLE]
+    add("click", "interface", click, db=-14, pitch=0.06, source="Kenney RPG Audio (%s tap)" % CLICK_STYLE)
+    add("toggle", "interface", [signal.resample(c, int(len(c) * 1.18)) for c in click], db=-14, pitch=0.04,
+        source="Kenney RPG Audio (%s tap, lower)" % CLICK_STYLE)
+    add("denied", "interface", [tap("bookPlace3", 120, 700), tap("bookPlace2", 120, 700)], db=-12,
+        source="Kenney RPG Audio (bookPlace2-3, muffled)")
     add("coin_spend", "interface", [coins, R("handleCoins")[: int(0.45 * SR)]], db=-6,
         source="Kenney RPG Audio (handleCoins, handleCoins2)")
     add("coin_earn", "interface", [R("handleCoins")], db=-5, source="Kenney RPG Audio (handleCoins)")
@@ -441,12 +454,25 @@ def compose(add):
 
 
 def main():
-    if len(sys.argv) < 3:
+    args = [a for a in sys.argv[1:] if not a.startswith("--only=")]
+    only = [a[len("--only="):].split(",") for a in sys.argv[1:] if a.startswith("--only=")]
+    only = set(only[0]) if only else None
+    if len(args) < 2:
         sys.exit(__doc__)
-    sounds = build(sys.argv[1], sys.argv[2])
-    if os.path.isdir(OUT):
-        for g in ("alerts", "interface", "ambience", "music"):
-            shutil.rmtree(OUT + g, ignore_errors=True)
+    sounds = build(args[0], args[1])
+    # Rewrite only the sounds asked for (all by default). Encoding is never byte-identical, so a
+    # full rebuild touches every file; Godot's .import files next to them are kept either way.
+    for name, s in sounds.items():
+        if only is not None and name not in only:
+            continue
+        group_dir = OUT + s["group"] + "/"
+        if os.path.isdir(group_dir):
+            for f in os.listdir(group_dir):
+                if f.startswith(name + "_") and f.endswith(".ogg") and f[len(name) + 1:-4].isdigit():
+                    if int(f[len(name) + 1:-4]) > len(s["takes"]):
+                        os.remove(group_dir + f)
+                        if os.path.exists(group_dir + f + ".import"):
+                            os.remove(group_dir + f + ".import")
     table = {}
     credits = ["# Sound credits", "",
                "Recordings from Kenney's **RPG Audio** and **Interface Sounds** packs (CC0, https://kenney.nl). "
@@ -456,11 +482,13 @@ def main():
         files = []
         for i, take in enumerate(s["takes"], 1):
             path = OUT + "%s/%s_%d.ogg" % (s["group"], name, i)
+            files.append("res://" + path)
+            if only is not None and name not in only:
+                continue
             if isinstance(take, tuple):
                 save(take[0], path, s["peak"], stereo=take[1])
             else:
                 save(take, path, s["peak"])
-            files.append("res://" + path)
         table[name] = {"group": s["group"], "files": files, "db": s["db"], "pitch": s["pitch"], "loop": s["loop"]}
         credits.append("| `%s` | %s | %s |" % (name, s["group"], s["source"]))
     json.dump(table, open(OUT + "sounds.json", "w"), indent=1)
