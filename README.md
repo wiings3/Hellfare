@@ -36,7 +36,12 @@ It replaces the Ledger's Warehouse tab and the Workshop's Storeroom.
 ## V0.30 – First-launch tutorial
 
 A new guild gets a short tutorial: a card in the bottom right of the book walks through the first
-loop, and a gold pointer bobs beside the bookmark to open.
+loop. It holds the player's hand the whole way: a gold pointer bobs beside the very next thing to
+click (the bookmark, then the tab, the applicant, the Hire button, the trade, the site, the crew
+card, Send them down, the good, the Sell button), and a line on the card says what to do. It reads
+what's on screen, so a wrong turn (another applicant, another site, the wrong filter or tab) gets
+pointed back. The next clicks are worked out in `_tutorial_guide` in `scripts/book_ui.gd`, from
+controls tagged with the meta `tut` where they're drawn.
 
 1. Welcome: what the guild does (Show me).
 2. Hire a Hellfarer: Mercenaries → Recruit, a woodcutter.

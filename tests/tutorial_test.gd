@@ -9,6 +9,21 @@ func check(ok: bool, what: String) -> void:
 		failures += 1
 		push_error("Tutorial check failed: " + what)
 
+func _settle(ui) -> void:
+	await create_timer(0.7).timeout  # the page turn
+	ui._update_tutorial()
+	await process_frame
+
+## True if the pointer is showing just left of the control tagged `tag`, level with it.
+func _points_at(ui, pointer: Control, tag: String) -> bool:
+	var target: Control = ui._tut_find(tag)
+	if target == null or not pointer.visible:
+		return false
+	var at: Vector2 = pointer.get_meta("at", Vector2(-999, -999))
+	var r: Rect2 = target.get_global_rect()
+	var mid: float = at.y + pointer.size.y * pointer.get_global_transform().get_scale().y / 2.0
+	return absf(mid - r.get_center().y) < 3.0 and at.x < r.position.x and at.x > r.position.x - 80.0
+
 func _initialize() -> void:
 	call_deferred("_run")
 
@@ -91,10 +106,38 @@ func _run() -> void:
 	var label := ui.stage.get_node("ChapterLabels/Label2") as Control
 	check(pointer.visible and absf(pointer.position.y + pointer.size.y / 2.0 - (label.position.y + label.get_parent().position.y + label.size.y / 2.0)) < 3.0,
 		"the pointer sits beside the Mercenaries bookmark")
+	# Then it keeps pointing at the next click, all the way through hiring and sending.
+	var do_text := card.get_node(body + "Do/Text") as Label
 	ui._turn_to("roster")
-	await create_timer(0.3).timeout
-	ui._update_tutorial()
-	check(not pointer.visible, "the pointer hides once that page is open")
+	await _settle(ui)
+	check(_points_at(ui, pointer, "tab:recruits"), "on Mercenaries it points at the Recruit tab (%s)" % do_text.text)
+	ui._set_roster_tab("recruits")
+	var other := ""
+	var wood := ""
+	for c in ui.game.recruitment_board():
+		if Mercs.role_of(c) != "Woodcutter" and other == "":
+			other = str(c["id"])
+		if Mercs.role_of(c) == "Woodcutter" and wood == "" and int(c["hire"]) <= ui.game.gold:
+			wood = str(c["id"])
+	ui._choose_candidate(other)
+	await _settle(ui)
+	check(_points_at(ui, pointer, "recruit:Woodcutter"), "with someone else chosen it points at a woodcutter (%s)" % do_text.text)
+	ui._choose_candidate(wood)
+	await _settle(ui)
+	check(_points_at(ui, pointer, "hire") and do_text.text.begins_with("Press Hire"), "with a woodcutter chosen it points at Hire (%s)" % do_text.text)
+	ui._hire(wood)
+	await _settle(ui)
+	check((card.get_node(body + "Title") as Label).text == "Send them down", "hiring moves the card on")
+	check(pointer.visible and do_text.text.contains("Expeditions"), "then it points at the Expeditions bookmark (%s)" % do_text.text)
+	ui._turn_to("expeditions")
+	await _settle(ui)
+	check(_points_at(ui, pointer, "site:mossward_copse"), "on the board it points at Cinderwood (%s)" % do_text.text)
+	ui._open_site("mossward_copse")
+	await _settle(ui)
+	check(_points_at(ui, pointer, "crew_free"), "at Cinderwood it points at the woodcutter (%s)" % do_text.text)
+	ui._toggle_crew(true, wood)
+	await _settle(ui)
+	check(_points_at(ui, pointer, "fund"), "with a crew picked it points at Send them down (%s)" % do_text.text)
 	(card.get_node(body + "Head/Skip") as Button).pressed.emit()
 	await process_frame
 	check(not card.visible, "Skip hides the card")

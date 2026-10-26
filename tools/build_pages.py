@@ -942,6 +942,10 @@ def tutorial_card():
     button(s, B + "/Head/Skip", "Skip tutorial", "TextButton", {"tooltip_text": "Hide the tutorial for this guild."})
     label(s, B + "/Title", "Welcome to Last Lantern", "LabelAccent", {"autowrap_mode": 3})
     label(s, B + "/Text", "", None, {"custom_minimum_size": (230, 0), "autowrap_mode": 3})
+    s.node(B + "/Do", "HBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(B + "/Do/Arrow", "TextureRect", {"custom_minimum_size": (10, 9), "size_flags_vertical": 4, "mouse_filter": 2,
+        "texture": Res("res://assets/ui/kit/pointer.png"), "expand_mode": 1, "stretch_mode": 5})
+    label(s, B + "/Do/Text", "", "LabelAccent", {"size_flags_horizontal": 3, "autowrap_mode": 3})
     button(s, B + "/Next", "Show me", None, {"custom_minimum_size": (0, 22)})
     s.save("scenes/journal/widgets/tutorial_card.tscn")
 

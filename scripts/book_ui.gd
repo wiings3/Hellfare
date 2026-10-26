@@ -837,6 +837,7 @@ func _draw_people() -> void:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
 		btn.set_pressed_no_signal(roster_tab == str(tab[1]) or (str(tab[1]) == "employed" and roster_tab != "recruits"))
 		btn.pressed.connect(_set_roster_tab.bind(str(tab[1])))
+		btn.set_meta("tut", "tab:" + str(tab[1]))
 	(tabs.get_node("Tabs/EmployeesTab") as Button).text = "Roster  ·  %d" % game.crew.size()
 	(tabs.get_node("Tabs/RecruitmentTab") as Button).text = "Recruit  ·  %d" % game.recruitment_board().size()
 
@@ -1119,6 +1120,7 @@ func _draw_recruitment() -> void:
 	for name in ["All", "Logging", "Mining", "Guards", "Other"]:
 		var tab := left.get_node(c + "Filter/" + name) as Button
 		tab.set_pressed_no_signal(recruit_filter == name.to_lower())
+		tab.set_meta("tut", "filter:" + name.to_lower())
 		tab.pressed.connect(func() -> void:
 			recruit_filter = name.to_lower()
 			_refresh())
@@ -1150,6 +1152,7 @@ func _draw_recruitment() -> void:
 			var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(candidate["name"]),
 				_candidate_line(candidate).replace("  ·  contract", ""), "", _money(fee), str(candidate["id"]) == selected_candidate, _choose_candidate.bind(str(candidate["id"])))
 			card.tooltip_text = Mercs.trait_lines(candidate)
+			card.set_meta("tut", "recruit:" + role)
 			if game.gold < fee:
 				(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelMuted"
 	var tier: int = game.rep_tier()
@@ -1200,6 +1203,7 @@ func _draw_recruitment() -> void:
 	(right.get_node(c + "Traits") as Label).text = "\n".join(lines) if not lines.is_empty() else "None"
 	var fee: int = int(chosen["hire"])
 	var hire := right.get_node(c + "Hire") as Button
+	hire.set_meta("tut", "hire")
 	hire.text = "%s %s  ·  %s" % ["Buy" if contract else "Hire", str(chosen["name"]).get_slice(" ", 0), _money(fee)]
 	hire.disabled = game.gold < fee
 	hire.pressed.connect(_hire.bind(str(chosen["id"])))
@@ -1797,6 +1801,7 @@ func _draw_exchange() -> void:
 		row.tooltip_text = "%s\nUsual price %d G, today %d G." % [str(MoneyMercsState.RESOURCE_DESC.get(key, "")), base, now_price]
 		row.set_pressed_no_signal(key == selected_market_item)
 		row.pressed.connect(_choose_commodity.bind(key))
+		row.set_meta("tut", "good:" + key)
 	(left.get_node(c + "Summary/Hint") as Label).text = "Held goods worth %s" % _money(held_total)
 	market_filter = chosen_filter
 	var shift := left.get_node(c + "Summary/Shift") as Label
@@ -1864,6 +1869,7 @@ func _draw_exchange() -> void:
 		sell.disabled = owned < n
 		sell.tooltip_text = "+%s (%s each)" % [_money(game.sell_price(key, n) * n), _money(game.sell_price(key, n))]
 		sell.pressed.connect(_trade.bind(key, false, n))
+		sell.set_meta("tut", "sell%d:%s" % [n, key])
 		var buy := right.get_node(desk + "BuyRow/" + str(pair[0])) as Button
 		buy.disabled = not buyable or game.gold < game.buy_price(key, n) * n
 		buy.tooltip_text = "-%s (%s each)" % [_money(game.buy_price(key, n) * n), _money(game.buy_price(key, n))] if buyable else ("Merchants never sell these. Find them below." if key in ["relic", "sovereign"] else "Merchants don't stock food or potions: cook or brew them, or buy from players.")
@@ -1890,6 +1896,7 @@ func _mount_exchange_tabs() -> void:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
 		btn.set_pressed_no_signal(page == str(tab[1]))
 		btn.pressed.connect(_nav_to.bind(str(tab[1])))
+		btn.set_meta("tut", "tab:" + str(tab[1]))
 
 # --- Trade Hall -----------------------------------------------------------------
 # The chat, inventory, private messages and trade window live in HallView.
@@ -2278,6 +2285,7 @@ func _draw_board() -> void:
 		var who: String = "Nobody trained yet" if merc.is_empty() else "Best: %s  ·  Lv %d" % [str(merc.get("name", "")), int(best["level"])]
 		var card := _list_card(trades, TRADE_ICONS.get(trade), str(entry["name"]), who, "%d out" % out if out > 0 else "",
 			"%d of %d open" % [open, sites.size()], selected_trade == trade, _select_trade.bind(trade))
+		card.set_meta("tut", "trade:" + trade)
 		if out > 0:
 			(card.get_node("Body/Side/Caption") as Label).theme_type_variation = &"LabelGood"
 	var guard: Dictionary = _best_in("combat")
@@ -2313,6 +2321,7 @@ func _draw_board() -> void:
 		var card := ROW_SITE.instantiate() as Button
 		open_list.add_child(card)
 		card.pressed.connect(_open_site.bind(id))
+		card.set_meta("tut", "site:" + id)
 		card.tooltip_text = str(site.get("tagline", ""))
 		var threat: Dictionary = site.get("threat", {})
 		var risk: String = "safe" if float(site.get("death", 0.0)) <= 0.0 else "%.1f%% death" % (float(site["death"]) * 100.0)
@@ -2473,6 +2482,7 @@ func _bind_site_crew(left: Control, right: Control, site: Dictionary) -> void:
 		tab.pressed.connect(_set_crew_filter.bind(str(pair[1])))
 	(left.get_node(c + "Footer/Back") as Button).text = "<  All %s sites" % str(TradeSkills.NAMES.get(trade, trade)).to_lower()
 	(left.get_node(c + "Footer/Back") as Button).pressed.connect(_turn_to.bind("expeditions"))
+	(left.get_node(c + "Footer/Back") as Button).set_meta("tut", "site_back")
 	var free: Array = game.available_guild_workers()
 	var shown: Array = []
 	for merc in free:
@@ -2542,6 +2552,8 @@ func _bind_site_crew(left: Control, right: Control, site: Dictionary) -> void:
 		else:
 			tag.text = "+ Add"
 		card.pressed.connect(_toggle_crew.bind(not assigned, id))
+		if not assigned and not card.disabled:
+			card.set_meta("tut", "crew_free")
 	var no_crew := left.get_node(c + "NoCrew") as Control
 	no_crew.visible = list.get_child_count() == 0
 	if free.is_empty():
@@ -2599,6 +2611,7 @@ func _bind_site_crew(left: Control, right: Control, site: Dictionary) -> void:
 	risk_tile.tooltip_text = "Per worker: %.0f%% chance of injury, %.1f%% chance of death." % [injury, death]
 	# Fund button.
 	var fund := right.get_node(c + "Fund") as Button
+	fund.set_meta("tut", "fund")
 	var reason := right.get_node(c + "Reason") as Label
 	var why: String = ""
 	var needs: String = str(site.get("needs", ""))
@@ -3698,25 +3711,127 @@ func _update_tutorial() -> void:
 			game.save_game()
 			_update_tutorial())
 		_fit_tutorial_card.call_deferred(card)
-	# The pointer: beside the bookmark to open, unless that page is already open.
+	# The next click: said on the card and pointed at, all the way through the step.
+	var guide: Dictionary = _tutorial_guide(id)
+	var do_row := card.get_node(b + "Do") as Control
+	var do_text := card.get_node(b + "Do/Text") as Label
+	if do_text.text != str(guide.get("do", "")):
+		do_text.text = str(guide.get("do", ""))
+		do_row.visible = do_text.text != ""
+		_fit_tutorial_card.call_deferred(card)
 	var pointer := card.get_node("Pointer") as Control
-	var target: String = str(step.get("point", ""))
-	var on_it: bool = page == target or (target == "expeditions" and page in ["site", "dungeon"]) or (target == "market" and page in ["auction", "hall"])
-	pointer.visible = target != "" and not on_it and Tutorial.BOOKMARKS.has(target)
-	if pointer.visible:
-		var label := stage.get_node_or_null("ChapterLabels/Label%d" % int(Tutorial.BOOKMARKS[target])) as Label
-		if label != null:
-			var text_w: float = label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x
-			var at := Vector2(label.position.x + label.get_parent().position.x + label.size.x - text_w - pointer.size.x - 6.0,
-				label.position.y + label.get_parent().position.y + (label.size.y - pointer.size.y) / 2.0)
-			if pointer.get_meta("at", Vector2.ZERO) != at:
-				pointer.set_meta("at", at)
-				pointer.position = at
-				if _pointer_tween:
-					_pointer_tween.kill()
-				_pointer_tween = create_tween().set_loops()
-				_pointer_tween.tween_property(pointer, "position:x", at.x + 4.0, 0.45).set_trans(Tween.TRANS_SINE)
-				_pointer_tween.tween_property(pointer, "position:x", at.x, 0.45).set_trans(Tween.TRANS_SINE)
+	var target: Control = null
+	if guide.has("bookmark"):
+		target = stage.get_node_or_null("ChapterLabels/Label%d" % int(Tutorial.BOOKMARKS[str(guide["bookmark"])])) as Control
+	elif guide.has("tag"):
+		target = _tut_find(str(guide["tag"]))
+	pointer.visible = target != null
+	if target == null:
+		return
+	var at: Vector2
+	if guide.has("bookmark"):
+		var label := target as Label
+		var text_w: float = label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x
+		var r: Rect2 = label.get_global_rect()
+		at = Vector2(r.end.x - text_w * label.get_global_transform().get_scale().x, r.get_center().y)
+	else:
+		var scroller := _scroll_parent(target)
+		if scroller != null:
+			scroller.ensure_control_visible(target)
+		var r: Rect2 = target.get_global_rect()
+		at = Vector2(r.position.x, r.get_center().y)
+	# The arrow sits just left of the target, pointing at it.
+	var scale_x: float = pointer.get_global_transform().get_scale().x
+	var psize: Vector2 = pointer.size * pointer.get_global_transform().get_scale()
+	var spot := Vector2(at.x - psize.x - 4.0 * scale_x, at.y - psize.y / 2.0)
+	if pointer.get_meta("at", Vector2(-1, -1)) != spot:
+		pointer.set_meta("at", spot)
+		pointer.global_position = spot
+		if _pointer_tween:
+			_pointer_tween.kill()
+		var base_x: float = pointer.position.x
+		_pointer_tween = create_tween().set_loops()
+		_pointer_tween.tween_property(pointer, "position:x", base_x + 4.0, 0.45).set_trans(Tween.TRANS_SINE)
+		_pointer_tween.tween_property(pointer, "position:x", base_x, 0.45).set_trans(Tween.TRANS_SINE)
+
+## The control on the open pages carrying a tutorial tag (set where it's drawn), if it's showing.
+func _tut_find(tag: String) -> Control:
+	for leaf in [left_leaf, right_leaf]:
+		var found := _tut_search(leaf, tag)
+		if found != null:
+			return found
+	return null
+
+func _tut_search(node: Node, tag: String) -> Control:
+	if node is Control and node.has_meta("tut") and str(node.get_meta("tut")) == tag and (node as Control).is_visible_in_tree():
+		return node as Control
+	for child in node.get_children():
+		var found := _tut_search(child, tag)
+		if found != null:
+			return found
+	return null
+
+func _scroll_parent(node: Node) -> ScrollContainer:
+	var p := node.get_parent()
+	while p != null and p != stage:
+		if p is ScrollContainer:
+			return p as ScrollContainer
+		p = p.get_parent()
+	return null
+
+## The next click for the current step, from what's on screen now:
+## {"do": what to do, and "bookmark": page or "tag": a tagged control to point at}.
+func _tutorial_guide(id: String) -> Dictionary:
+	match id:
+		"hire":
+			if page != "roster":
+				return {"do": "Click the Mercenaries bookmark on the left.", "bookmark": "roster"}
+			if roster_tab != "recruits":
+				return {"do": "Click the Recruit tab at the top of the page.", "tag": "tab:recruits"}
+			var chosen: Dictionary = {}
+			for candidate in game.recruitment_board():
+				if str(candidate["id"]) == selected_candidate:
+					chosen = candidate
+			if not chosen.is_empty() and Mercs.role_of(chosen) == "Woodcutter":
+				if game.gold < int(chosen["hire"]):
+					return {"do": "%s costs more than you have. Pick a cheaper woodcutter." % str(chosen["name"]), "tag": "recruit:Woodcutter"}
+				return {"do": "Press Hire to take %s on." % str(chosen["name"]).get_slice(" ", 0), "tag": "hire"}
+			if _tut_find("recruit:Woodcutter") != null:
+				return {"do": "Click a woodcutter in the list: the ones with an axe.", "tag": "recruit:Woodcutter"}
+			if recruit_filter not in ["all", "logging"]:
+				return {"do": "Click Logging to show the woodcutters.", "tag": "filter:logging"}
+			return {"do": "No woodcutter today. Hire anyone, or wait for new faces.", "tag": "hire"}
+		"send":
+			if not page in ["expeditions", "site"]:
+				return {"do": "Click the Expeditions bookmark on the left.", "bookmark": "expeditions"}
+			if page == "expeditions":
+				if selected_trade != "logging":
+					return {"do": "Click Logging in the list of trades.", "tag": "trade:logging"}
+				return {"do": "Click Cinderwood on the right-hand page.", "tag": "site:mossward_copse"}
+			if selected_site != "mossward_copse":
+				return {"do": "This isn't Cinderwood. Go back to the logging sites.", "tag": "site_back"}
+			if _selected_available().is_empty():
+				if _tut_find("crew_free") == null:
+					return {"do": "Nobody is free to send. Hire a woodcutter first.", "tag": ""}
+				return {"do": "Click your woodcutter to add them to the crew.", "tag": "crew_free"}
+			return {"do": "Press Send them down.", "tag": "fund"}
+		"wait":
+			if page != "hq":
+				return {"do": "Click the Company bookmark to watch them.", "bookmark": "hq"}
+			return {"do": "They're on their way. The bar fills as they work; a bell rings when they're back."}
+		"sell":
+			if int(game.resources.get("timber", 0)) <= 0:
+				return {"do": "There's no ashwood left to sell. Press Keep it for now."}
+			if not page in ["market", "auction", "hall"]:
+				return {"do": "Click the Market bookmark on the left.", "bookmark": "market"}
+			if page != "market":
+				return {"do": "Click the Merchants tab.", "tag": "tab:market"}
+			if selected_market_item != "timber":
+				return {"do": "Click Ashwood in the list of goods.", "tag": "good:timber"}
+			if int(game.resources.get("timber", 0)) >= 10:
+				return {"do": "Press Sell 10 to sell some.", "tag": "sell10:timber"}
+			return {"do": "Press Sell 1 to sell one.", "tag": "sell1:timber"}
+	return {}
 
 ## Fit the tutorial card to its text (after the text has wrapped, hence deferred).
 func _fit_tutorial_card(card: Control) -> void:
