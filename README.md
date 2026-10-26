@@ -65,6 +65,17 @@ check-ins takes about 20 minutes:
 - **Check-ins.** After each cleared floor the crew waits two minutes at the stairs: push on or
   take it out. A toast and a Today entry say so. With no answer the crew follows its orders,
   so a run finishes on its own while the game is closed.
+- **Events.** About every 20 seconds, on each floor and on the walk out, something comes up:
+  a chest with blood around it, a wounded mercenary with a fine sword, a side passage, a
+  gambler, toll men at the stairs. A card slides in over whatever page is open with two or
+  three choices; a crew member with the right trait or skill (Keen eye, Tracker, Herbalist,
+  Combat 15…) may read the situation and say so. Choose within 15 seconds, or the crew
+  decides by a new order set in the planner, **Play it safe** or **Take chances**, using what
+  it was told. Outcomes: coin, silk, bone, tier-1 gear, healing, a blessing or curse on the
+  next fight, sleeping or singed monsters, a stranger who fights beside you, wounds, deaths,
+  dropped loot. Over 150 simulated hours, careful crews nobody watches earn what they did
+  before events; crews taking chances earn about 15% more, with fewer boss kills. Reading the
+  hints yourself is meant to beat both.
 - **Harsher death.** A death makes the survivors drop half of everything they carry; a wiped
   crew loses everything. The dead lose their share, and each piece they wore has a 70% chance
   to stay in the keep for others to find (otherwise it is ruined). Only what gets out counts.
