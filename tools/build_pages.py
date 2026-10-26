@@ -690,6 +690,13 @@ def dungeon_pages():
                             ("Death", "Someone dies", "Keep going until someone dies."),
                             ("Never", "Never", "Go all the way to the planned depth, whatever happens.")]:
         button(s, C + "/Back/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": back, "tooltip_text": tip})
+    risk = s.sub("risk", "ButtonGroup", {})
+    s.node(C + "/Risk", "HBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/Risk/Caption", "If unsure", "LabelCaption", {"custom_minimum_size": (52, 0),
+        "tooltip_text": "Things happen about every 20 seconds. You choose; if you don't within 15 seconds, the crew does, this way."})
+    for name, text, tip in [("Safe", "Play it safe", "The crew takes the careful choice when nobody answers."),
+                            ("Bold", "Take chances", "The crew takes the risky choice when nobody answers.")]:
+        button(s, C + "/Risk/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": risk, "tooltip_text": tip})
     s.node(C + "/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})
     tile(s, C + "/Forecast/Haul", "Haul out", extra={"tooltip_text": "Average coin and goods carried out under these orders, after the crew's share."})
     tile(s, C + "/Forecast/Death", "Someone dies", extra={"tooltip_text": "Chance at least one of the crew dies under these orders."})
@@ -707,6 +714,8 @@ def dungeon_pages():
     s.node(C + "/Carry", "HBoxContainer", {"theme_override_constants/separation": 3})
     label(s, C + "/NoCarry", "Nothing yet.", "LabelMuted")
     label(s, C + "/Found", "", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/EventsCaption", "Along the way", "LabelCaption", {"visible": False})
+    s.node(C + "/Events", "VBoxContainer", {"theme_override_constants/separation": 1})
     label(s, C + "/DroppedCaption", "Left in the keep", "LabelCaption")
     s.node(C + "/Dropped", "HBoxContainer", {"theme_override_constants/separation": 3})
     spacer(s, C + "/Spacer")
@@ -872,6 +881,33 @@ def auction_pages():
     scroll(s, C + "/Log", 80)
     label(s, C + "/NoLog", "Nothing has sold or arrived yet.", "LabelMuted", {"visible": False, "horizontal_alignment": 1})
     s.save(P + "auction_yours_right.tscn")
+
+
+def event_card():
+    """Something happening in a dungeon: the card that slides in over any page, with the choices."""
+    s = Scene("EventCard", "Control", {"visible": False, "layout_mode": 3, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2})
+    s.node("Card", "PanelContainer", {"layout_mode": 1, "anchors_preset": 3, "anchor_left": 1.0, "anchor_top": 1.0, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "offset_left": -262.0, "offset_top": -190.0, "offset_right": -16.0, "offset_bottom": -14.0, "grow_horizontal": 0, "grow_vertical": 0,
+        "theme_type_variation": Raw('&"InsetPanel"')})
+    s.node("Card/Margin", "MarginContainer", {"theme_override_constants/margin_left": 8, "theme_override_constants/margin_top": 6,
+        "theme_override_constants/margin_right": 8, "theme_override_constants/margin_bottom": 6})
+    B = "Card/Margin/Body"
+    s.node(B, "VBoxContainer", {"theme_override_constants/separation": 3})
+    s.node(B + "/Head", "HBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(B + "/Head/Icon", "TextureRect", {"custom_minimum_size": (14, 14), "size_flags_vertical": 4, "mouse_filter": 2, "stretch_mode": 3,
+        "texture": Res("res://assets/ui/icons/relic.png")})
+    label(s, B + "/Head/Title", "Calder Keep  ·  Floor 1", "LabelCaption", {"size_flags_horizontal": 3})
+    button(s, B + "/Head/Open", "Run  >", "TextButton", {"tooltip_text": "Open the run."})
+    label(s, B + "/Text", "", None, {"custom_minimum_size": (230, 0), "autowrap_mode": 3})
+    label(s, B + "/Hint", "", "LabelGood", {"autowrap_mode": 3})
+    s.node(B + "/Choices", "VBoxContainer", {"theme_override_constants/separation": 3})
+    for i in range(3):
+        button(s, B + "/Choices/C%d" % i, "Choice", "PaperButton", {"custom_minimum_size": (0, 20)})
+    label(s, B + "/Result", "", None, {"visible": False, "autowrap_mode": 3})
+    s.node(B + "/Timer", "ProgressBar", {"custom_minimum_size": (0, 4), "theme_type_variation": Raw('&"GoldBar"'), "max_value": 100.0, "value": 100.0, "show_percentage": False})
+    label(s, B + "/TimerText", "", "LabelCaption")
+    s.save("scenes/journal/widgets/event_card.tscn")
 
 
 def exchange_tabs():

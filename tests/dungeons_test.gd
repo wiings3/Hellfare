@@ -117,6 +117,50 @@ func _initialize() -> void:
 		check(w.retired_ids.has(weak[0]), "the dead are retired")
 	else:
 		check(false, "weak crew should still pass the kit gate for the wipe test (%s)" % gate)
+	# Events: scheduled through each floor, waiting for the player, decided by orders when not.
+	var e := MoneyMercsState.new()
+	e.reset_company()
+	e.gold = 5000
+	var eids: Array[String] = _crew(e, [[["steel_sword", "chainmail", "iron_helm"], 9], [["steel_sword", "chainmail"], 8]])
+	check(e.dungeon_dispatch("calder_keep", eids, 3, "half", "bold").begins_with("The crew went"), "dispatch with bold orders")
+	var em: Dictionary = e.missions[0]
+	var evs: Array = em["ev"]
+	check(evs.size() >= 6, "events through the first floor (%d)" % evs.size())
+	var gaps_ok: bool = true
+	for k in range(1, evs.size()):
+		var gap: int = int(evs[k]["t"]) - int(evs[k - 1]["t"])
+		gaps_ok = gaps_ok and gap >= DungeonEvents.GAP[0] and gap <= DungeonEvents.GAP[1]
+	check(gaps_ok, "events come every 15-25 seconds")
+	var first_t: int = int(evs[0]["t"])
+	check(e.dungeon_pending(first_t - 1).is_empty() and e.dungeon_pending(first_t).size() == 1, "an event waits for the player when it happens")
+	GameClock.fixed = first_t + 2
+	var said: String = e.dungeon_answer(str(em["id"]), 0, 0)
+	check(said != "" and bool(evs[0]["done"]) and not bool(evs[0]["auto"]), "the player's choice is applied")
+	check(e.dungeon_answer(str(em["id"]), 0, 1).begins_with("Too late"), "an event is decided once")
+	e.complete_due(first_t + 200)
+	var auto_done: int = 0
+	for ev in em["ev"]:
+		if bool(ev["done"]) and int(ev["t"]) + DungeonEvents.EVENT_WAIT <= first_t + 200:
+			auto_done += 1
+	check(auto_done >= 5, "unanswered events are decided by the crew")
+	check((em["ev_log"] as Array).size() >= auto_done, "decisions are logged")
+	check(DungeonEvents.auto_choice({"id": "bloody_chest", "state": "trapped", "hint": "", "roll": 1}, "bold") == 0, "bold orders open the chest")
+	check(DungeonEvents.auto_choice({"id": "bloody_chest", "state": "trapped", "hint": "x", "roll": 1}, "bold") == 1, "a hint makes the crew check for traps")
+	# A deadly outcome kills; the last death wipes the run.
+	var em_hp: Dictionary = em["hp"]
+	for id in eids:
+		em_hp[id] = 1.0
+	em["lucky"] = {}
+	var trap: Dictionary = {"t": GameClock.now(), "id": "cracked_floor", "state": "gives", "hint": "", "reader": "", "done": false, "roll": 5}
+	(em["ev"] as Array).append(trap)
+	e._apply_event(em, trap, 0, GameClock.now(), false)
+	check((em["dead"] as Array).size() == 1, "a fall kills a crew member at 1 health")
+	e.complete_due(first_t + 7200)
+	check(e.missions.is_empty() and e.reports[0].has("floor_log"), "the run still finishes and reports")
+	for ev_def in DungeonEvents.EVENTS:
+		for ch in ev_def["choices"]:
+			for state in ch["out"]:
+				check(state == "any" or (ev_def["states"] as Dictionary).has(state), "%s: outcome state %s exists" % [ev_def["id"], state])
 	GameClock.fixed = -1
 	if failures > 0:
 		push_error("%d dungeon checks failed." % failures)

@@ -1,10 +1,12 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="1_stat_tile"]
 
 [sub_resource type="ButtonGroup" id="depth"]
 
 [sub_resource type="ButtonGroup" id="back"]
+
+[sub_resource type="ButtonGroup" id="risk"]
 
 [node name="DungeonRight" type="Control"]
 layout_mode = 3
@@ -233,6 +235,37 @@ size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("back")
 tooltip_text = "Go all the way to the planned depth, whatever happens."
+
+[node name="Risk" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Risk"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "If unsure"
+custom_minimum_size = Vector2(52, 0)
+tooltip_text = "Things happen about every 20 seconds. You choose; if you don't within 15 seconds, the crew does, this way."
+
+[node name="Safe" type="Button" parent="Margin/Content/Risk"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Play it safe"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("risk")
+tooltip_text = "The crew takes the careful choice when nobody answers."
+
+[node name="Bold" type="Button" parent="Margin/Content/Risk"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Take chances"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("risk")
+tooltip_text = "The crew takes the risky choice when nobody answers."
 
 [node name="Forecast" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2

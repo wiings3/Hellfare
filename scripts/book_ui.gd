@@ -164,6 +164,7 @@ func _update_header() -> void:
 
 func _live_tick() -> void:
 	_update_header()
+	_update_event_card()
 	_hall_clock()
 	if _now() - market_sampled_at >= 60:
 		market_sampled_at = _now()
@@ -2618,6 +2619,12 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		var btn := right.get_node(c + "Back/" + str(pair[0])) as Button
 		btn.set_pressed_no_signal(dungeon_turn_back == str(pair[1]))
 		btn.pressed.connect(_set_dungeon_turn_back.bind(str(pair[1])))
+	for pair in [["Safe", "safe"], ["Bold", "bold"]]:
+		var btn := right.get_node(c + "Risk/" + str(pair[0])) as Button
+		btn.set_pressed_no_signal(dungeon_risk == str(pair[1]))
+		btn.pressed.connect(func() -> void:
+			dungeon_risk = str(pair[1])
+			_refresh())
 	var empty: bool = ids.is_empty()
 	right.get_node(c + "Forecast/Haul").value = "~" + _money(int(plan["haul"])) if not empty else "-"
 	var death_tile := right.get_node(c + "Forecast/Death")
@@ -2659,7 +2666,7 @@ func _back_to_dungeons() -> void:
 	_turn_to("expeditions")
 
 func _enter_dungeon() -> void:
-	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back)
+	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk)
 	if result.begins_with("The crew went"):
 		selected_crew.clear()
 		harlow_view.selected.clear()
@@ -2737,6 +2744,18 @@ func _draw_run(d: Dictionary, m: Dictionary) -> void:
 	var found := left.get_node(c + "Found") as Label
 	found.text = "Found among the fallen: %s. It's yours if its carrier gets out." % ", ".join(finds) if not finds.is_empty() else ""
 	found.visible = not finds.is_empty() and not logs_so_far(m).is_empty()
+	# The last few things that happened, newest first.
+	var happened: Array = m.get("ev_log", [])
+	var ev_box := left.get_node(c + "Events") as VBoxContainer
+	for k in range(happened.size() - 1, maxi(-1, happened.size() - 4), -1):
+		var e: Dictionary = happened[k]
+		var line := Label.new()
+		line.text = "%s%s: %s" % ["(crew) " if bool(e["auto"]) else "", str(e["choice"]), str(e["text"])]
+		line.theme_type_variation = &"LabelCaption"
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.custom_minimum_size = Vector2(200, 0)
+		ev_box.add_child(line)
+	(left.get_node(c + "EventsCaption") as Control).visible = not happened.is_empty()
 	var dropped: Dictionary = m.get("dropped", {})
 	(left.get_node(c + "DroppedCaption") as Label).text = "Left in %s" % str(d["name"])
 	(left.get_node(c + "DroppedCaption") as Control).visible = not dropped.is_empty()
@@ -3293,3 +3312,90 @@ func _draw_ah_yours() -> void:
 		if value.begins_with("+"):
 			(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelGood"
 	(right.get_node(c + "NoLog") as Control).visible = a.log.is_empty()
+
+
+# --- Dungeon event card -------------------------------------------------------------------
+
+## The event on the card ({mission id, index}), and until when an answer's result stays up.
+var card_event: Dictionary = {}
+var card_result_until: int = 0
+
+func _event_card() -> Control:
+	return stage.get_node_or_null("EventCard") as Control if is_instance_valid(stage) else null
+
+## Show the next event waiting for the player, or keep an answer's result up for a moment.
+func _update_event_card() -> void:
+	var card := _event_card()
+	if card == null:
+		return
+	var b := "Card/Margin/Body/"
+	if Time.get_ticks_msec() < card_result_until:
+		return
+	var pending: Array = game.dungeon_pending()
+	if pending.is_empty():
+		card.visible = false
+		card_event = {}
+		return
+	var p: Dictionary = pending[0]
+	var m: Dictionary = p["mission"]
+	var ev: Dictionary = p["event"]
+	var e: Dictionary = DungeonEvents.by_id(str(ev["id"]))
+	var key: Dictionary = {"mission": str(m["id"]), "index": int(p["index"])}
+	var fresh: bool = key != card_event
+	card_event = key
+	card.visible = true
+	var left_s: int = maxi(0, int(ev["t"]) + DungeonEvents.EVENT_WAIT - _now())
+	(card.get_node(b + "Timer") as ProgressBar).value = 100.0 * float(left_s) / float(DungeonEvents.EVENT_WAIT)
+	(card.get_node(b + "TimerText") as Label).text = "The crew decides in %ds (%s)." % [left_s, "playing it safe" if str(m.get("risk", "safe")) == "safe" else "taking chances"]
+	if not fresh:
+		return
+	var where: String = "Floor %d" % (int(m.get("floor_i", 0)) + 1) if str(m.get("ev_phase", "floor")) == "floor" else "The way out"
+	(card.get_node(b + "Head/Title") as Label).text = "%s  ·  %s" % [str(Dungeons.by_id(str(m["dungeon"])).get("name", "Dungeon")), where]
+	var open := card.get_node(b + "Head/Open") as Button
+	_reconnect(open, func() -> void: _open_dungeon(str(m["dungeon"])))
+	(card.get_node(b + "Text") as Label).text = str(e.get("text", ""))
+	var hint := card.get_node(b + "Hint") as Label
+	hint.text = str(ev.get("hint", ""))
+	hint.visible = hint.text != ""
+	(card.get_node(b + "Result") as Control).visible = false
+	(card.get_node(b + "Timer") as Control).visible = true
+	(card.get_node(b + "TimerText") as Control).visible = true
+	var choices: Array = e.get("choices", [])
+	var lean: int = DungeonEvents.auto_choice(ev, str(m.get("risk", "safe")))
+	for i in range(3):
+		var btn := card.get_node(b + "Choices/C%d" % i) as Button
+		btn.visible = i < choices.size()
+		if i >= choices.size():
+			continue
+		var tag: String = str(choices[i].get("tag", ""))
+		btn.text = str(choices[i]["label"]) + ("   (crew's pick)" if i == lean else "")
+		btn.tooltip_text = {"bold": "The risky choice.", "safe": "The careful choice."}.get(tag, "")
+		_reconnect(btn, _answer_event.bind(str(m["id"]), int(p["index"]), i))
+	_fit_event_card(card)
+
+func _answer_event(mission_id: String, index: int, choice: int) -> void:
+	var result: String = game.dungeon_answer(mission_id, index, choice)
+	var card := _event_card()
+	if card == null:
+		return
+	var b := "Card/Margin/Body/"
+	for i in range(3):
+		(card.get_node(b + "Choices/C%d" % i) as Control).visible = false
+	(card.get_node(b + "Hint") as Control).visible = false
+	(card.get_node(b + "Timer") as Control).visible = false
+	(card.get_node(b + "TimerText") as Control).visible = false
+	var res := card.get_node(b + "Result") as Label
+	res.text = result
+	res.visible = true
+	card_result_until = Time.get_ticks_msec() + 4500
+	card_event = {}
+	_fit_event_card(card)
+	if page == "dungeon":
+		_refresh()
+
+## The card grows upward from the bottom-right corner to fit what's on it.
+func _fit_event_card(card: Control) -> void:
+	var panel := card.get_node("Card") as Control
+	panel.offset_top = panel.offset_bottom - 40.0
+	panel.reset_size()
+	panel.offset_top = panel.offset_bottom - panel.get_combined_minimum_size().y

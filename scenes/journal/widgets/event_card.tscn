@@ -1,0 +1,120 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/relic.png" id="1_relic"]
+
+[node name="EventCard" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Card" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -262.0
+offset_top = -190.0
+offset_right = -16.0
+offset_bottom = -14.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"InsetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Card"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="Body" type="VBoxContainer" parent="Card/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Head" type="HBoxContainer" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Icon" type="TextureRect" parent="Card/Margin/Body/Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(14, 14)
+size_flags_vertical = 4
+mouse_filter = 2
+stretch_mode = 3
+texture = ExtResource("1_relic")
+
+[node name="Title" type="Label" parent="Card/Margin/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Calder Keep  ·  Floor 1"
+size_flags_horizontal = 3
+
+[node name="Open" type="Button" parent="Card/Margin/Body/Head"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TextButton"
+text = "Run  >"
+tooltip_text = "Open the run."
+
+[node name="Text" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+text = ""
+custom_minimum_size = Vector2(230, 0)
+autowrap_mode = 3
+
+[node name="Hint" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelGood"
+text = ""
+autowrap_mode = 3
+
+[node name="Choices" type="VBoxContainer" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="C0" type="Button" parent="Card/Margin/Body/Choices"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Choice"
+custom_minimum_size = Vector2(0, 20)
+
+[node name="C1" type="Button" parent="Card/Margin/Body/Choices"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Choice"
+custom_minimum_size = Vector2(0, 20)
+
+[node name="C2" type="Button" parent="Card/Margin/Body/Choices"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Choice"
+custom_minimum_size = Vector2(0, 20)
+
+[node name="Result" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+text = ""
+visible = false
+autowrap_mode = 3
+
+[node name="Timer" type="ProgressBar" parent="Card/Margin/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 4)
+theme_type_variation = &"GoldBar"
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="TimerText" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""

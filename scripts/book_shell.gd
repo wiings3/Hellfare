@@ -52,6 +52,7 @@ var selected_dungeon: String = "calder_keep"
 var dungeon_filter: String = "fighters"
 var dungeon_depth: int = 2
 var dungeon_turn_back: String = "half"
+var dungeon_risk: String = "safe"
 ## Mercenaries: the roster filter and the dossier view; the Workshop chapter's tab.
 var roster_filter: String = "all"
 var recruit_filter: String = "all"

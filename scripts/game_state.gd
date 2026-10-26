@@ -793,7 +793,7 @@ func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		"floors": f["floors"], "cost": int(d.get("supplies", 0)) + wages, "duration": time, "share": share,
 		"blocked": blocked, "fighters": fighters, "depth": depth}
 
-func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String) -> String:
+func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe") -> String:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
 	if d.is_empty():
 		return "That dungeon isn't open."
@@ -834,9 +834,11 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		"share": float(plan["share"]), "seed": randi(), "started": now,
 		"stage": "floor", "floor_i": 0, "floor_end": now + Dungeons.FLOOR_TIME, "await_until": 0,
 		"hp": hp, "heal": heal, "lucky": lucky, "drank": [], "carry": {}, "dropped": {}, "log": [], "dead": [],
-		"overrode": -1,
+		"overrode": -1, "risk": "bold" if risk == "bold" else "safe", "ev": [], "ev_log": [], "event_gear": [],
+		"buff": {}, "weaken": 0, "ally": false, "bonus_xp": 0,
 	}
 	mission["finish"] = _dungeon_projection(mission)
+	_schedule_events(mission, "floor", now, now + Dungeons.FLOOR_TIME)
 	missions.append(mission)
 	_roll_fallen(mission, dungeon_id)
 	save_game()
@@ -903,9 +905,15 @@ func dungeon_tick(now: int = -1) -> bool:
 		if str(m.get("region", "")) != "dungeon":
 			continue
 		var guard: int = 0
-		while guard < 10:
+		while guard < 400:
 			guard += 1
 			var stage: String = str(m.get("stage", "out"))
+			# Events nobody answered: the crew decides by its orders once the wait is up.
+			var due: Dictionary = _next_due_event(m, now)
+			if not due.is_empty() and (stage != "floor" or int(due["t"]) < int(m["floor_end"])):
+				_apply_event(m, due, DungeonEvents.auto_choice(due, str(m.get("risk", "safe"))), int(due["t"]) + DungeonEvents.EVENT_WAIT, true)
+				changed = true
+				continue
 			if stage == "floor" and int(m["floor_end"]) <= now:
 				_dungeon_floor(m)
 				changed = true
@@ -943,11 +951,171 @@ func _dungeon_next(m: Dictionary, push: bool, t: int) -> void:
 		m["floor_end"] = t + Dungeons.FLOOR_TIME
 		# Pushing past the planned depth makes the new floor the plan.
 		m["depth"] = maxi(int(m["depth"]), int(m["floor_i"]) + 1)
+		_schedule_events(m, "floor", t, int(m["floor_end"]))
 	else:
-		m["stage"] = "out"
-		m["finish"] = t + (int(m["floor_i"]) + 1) * Dungeons.WALK_TIME
+		_start_walk(m, t)
 		return
 	m["finish"] = _dungeon_projection(m)
+
+## Head for the exit from `t`, through every floor reached, with things happening on the way.
+func _start_walk(m: Dictionary, t: int) -> void:
+	m["stage"] = "out"
+	m["finish"] = t + (int(m["floor_i"]) + 1) * Dungeons.WALK_TIME
+	_schedule_events(m, "walk", t, int(m["finish"]))
+
+## The events for a floor or the walk out, from the run's seed.
+func _schedule_events(m: Dictionary, phase: String, start: int, end: int) -> void:
+	var crew_now: Array = []
+	for id in m.get("ids", []):
+		if not (m.get("dead", []) as Array).has(str(id)) and not merc_by_id(str(id)).is_empty():
+			crew_now.append(merc_by_id(str(id)))
+	var seed_value: int = int(m["seed"]) + 104729 * (int(m.get("floor_i", 0)) + 1) + (7 if phase == "walk" else 0)
+	m["ev"] = DungeonEvents.schedule(str(m["dungeon"]), phase, int(m.get("floor_i", 0)), start, end, seed_value, crew_now)
+	m["ev_phase"] = phase
+
+## The earliest unanswered event whose wait is over at `now`.
+func _next_due_event(m: Dictionary, now: int) -> Dictionary:
+	for ev in m.get("ev", []):
+		if not bool(ev["done"]) and int(ev["t"]) + DungeonEvents.EVENT_WAIT <= now:
+			return ev
+	return {}
+
+## Events waiting for the player right now: [{"mission", "index", "event"}].
+func dungeon_pending(now: int = -1) -> Array:
+	if now < 0:
+		now = GameClock.now()
+	var out: Array = []
+	for m in missions:
+		if str(m.get("region", "")) != "dungeon":
+			continue
+		var evs: Array = m.get("ev", [])
+		for i in range(evs.size()):
+			var ev: Dictionary = evs[i]
+			if not bool(ev["done"]) and int(ev["t"]) <= now and now < int(ev["t"]) + DungeonEvents.EVENT_WAIT:
+				out.append({"mission": m, "index": i, "event": ev})
+	return out
+
+## The player's choice on an event card.
+func dungeon_answer(mission_id: String, index: int, choice: int) -> String:
+	var m: Dictionary = mission_by_id(mission_id)
+	if m.is_empty():
+		return "That crew is gone."
+	var evs: Array = m.get("ev", [])
+	if index < 0 or index >= evs.size() or bool(evs[index]["done"]):
+		return "Too late: the crew already decided."
+	var now: int = GameClock.now()
+	_apply_event(m, evs[index], choice, maxi(now, int(evs[index]["t"])), false)
+	save_game()
+	return str(evs[index].get("result", ""))
+
+## What a choice on an event does to the run.
+func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool) -> void:
+	var o: Dictionary = DungeonEvents.outcome(ev, choice)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(ev.get("roll", 1)) ^ 0x51ED27
+	var alive: Array = []
+	for id in m.get("ids", []):
+		if not (m["dead"] as Array).has(str(id)) and not merc_by_id(str(id)).is_empty():
+			alive.append(str(id))
+	ev["done"] = true
+	ev["choice"] = choice
+	ev["auto"] = auto
+	if alive.is_empty():
+		return
+	var who_id: String = str(alive[rng.randi_range(0, alive.size() - 1)])
+	var who: String = str(merc_by_id(who_id).get("name", "Someone"))
+	var carry: Dictionary = m["carry"]
+	var notes: Array[String] = []
+	if o.has("coin"):
+		var n: int = rng.randi_range(int(o["coin"][0]), int(o["coin"][1]))
+		carry["coin"] = maxi(0, int(carry.get("coin", 0)) + n)
+	for good in o.get("goods", {}):
+		var n: int = rng.randi_range(int(o["goods"][good][0]), int(o["goods"][good][1]))
+		if n > 0:
+			carry[good] = int(carry.get(good, 0)) + n
+	if o.has("gear"):
+		var table: Dictionary = FallenGear.NPC_LOOT.get(str(m["dungeon"]), {})
+		var total: float = 0.0
+		for k in table:
+			total += float(table[k])
+		var pick: float = rng.randf() * total
+		for k in table:
+			pick -= float(table[k])
+			if pick <= 0.0:
+				(m["event_gear"] as Array).append(str(k))
+				notes.append("Found: %s." % str(Catalog.item(str(k)).get("name", k)))
+				break
+	if o.has("heal"):
+		for id in alive:
+			m["hp"][id] = minf(100.0, float(m["hp"].get(id, 100.0)) + float(o["heal"]))
+	if o.has("buff"):
+		var buff: Dictionary = m["buff"]
+		for k in o["buff"]:
+			buff[k] = float(buff.get(k, 0.0)) + float(o["buff"][k])
+	if o.has("weaken"):
+		m["weaken"] = mini(60, int(m.get("weaken", 0)) + int(o["weaken"]))
+	if bool(o.get("ally", false)):
+		m["ally"] = true
+	if o.has("xp"):
+		m["bonus_xp"] = int(m.get("bonus_xp", 0)) + int(o["xp"])
+	if o.has("lose"):
+		var dropped: Dictionary = m["dropped"]
+		for good in carry.keys():
+			var lost: int = int(round(float(carry[good]) * float(o["lose"])))
+			if lost > 0:
+				carry[good] = int(carry[good]) - lost
+				dropped[good] = int(dropped.get(good, 0)) + lost
+	var hurt: Array = []
+	if o.has("hurt"):
+		hurt.append([who_id, rng.randi_range(int(o["hurt"][0]), int(o["hurt"][1]))])
+	if o.has("hurt_all"):
+		for id in alive:
+			hurt.append([id, rng.randi_range(int(o["hurt_all"][0]), int(o["hurt_all"][1]))])
+	var died: Array[String] = []
+	for h in hurt:
+		var id: String = str(h[0])
+		var merc: Dictionary = merc_by_id(id)
+		var dmg: float = float(h[1]) * Mercs.injury_damage_mult(merc)
+		var hp: float = float(m["hp"].get(id, 100.0)) - dmg
+		if hp > 0.0 and hp < 35.0 and int(m["heal"].get(id, 0)) > 0:
+			hp += float(m["heal"][id])
+			m["heal"][id] = 0
+			(m["drank"] as Array).append(id)
+		if hp <= 0.0 and bool(m["lucky"].get(id, false)):
+			hp = 5.0
+			m["lucky"][id] = false
+			notes.append("%s should have died. Lucky." % str(merc.get("name", "")))
+		m["hp"][id] = maxf(0.0, hp)
+		if hp <= 0.0:
+			(m["dead"] as Array).append(id)
+			died.append(str(merc.get("name", "")))
+	var text: String = str(o.get("text", "")).replace("{who}", who)
+	if not died.is_empty():
+		notes.append("%s died." % ", ".join(died))
+		if (m["dead"] as Array).size() >= (m["ids"] as Array).size():
+			var dropped: Dictionary = m["dropped"]
+			for good in carry:
+				dropped[good] = int(dropped.get(good, 0)) + int(carry[good])
+			carry.clear()
+			(m["event_gear"] as Array).clear()
+			notes.append("Nobody is left to carry anything out.")
+			for other in m.get("ev", []):
+				other["done"] = true
+			m["stage"] = "out"
+			m["finish"] = t
+		else:
+			var lost: Dictionary = Dungeons.drop_half(carry)
+			var dropped2: Dictionary = m["dropped"]
+			for good in lost:
+				dropped2[good] = int(dropped2.get(good, 0)) + int(lost[good])
+			notes.append("The crew dropped half of what it carried.")
+	if not notes.is_empty():
+		text += " " + " ".join(notes)
+	ev["result"] = text
+	var e: Dictionary = DungeonEvents.by_id(str(ev["id"]))
+	var label: String = str((e["choices"] as Array)[clampi(choice, 0, (e["choices"] as Array).size() - 1)]["label"])
+	(m["ev_log"] as Array).append({"t": t, "floor": int(m.get("floor_i", 0)), "phase": str(m.get("ev_phase", "floor")), "id": str(ev["id"]),
+		"choice": label, "auto": auto, "text": text})
 
 ## Resolve the fight on the current floor at floor_end.
 func _dungeon_floor(m: Dictionary) -> void:
@@ -959,7 +1127,29 @@ func _dungeon_floor(m: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(m["seed"]) + 7919 * (i + 1)
 	var crew_now: Array = _run_crew(m)
-	var r: Dictionary = Dungeons.fight(crew_now, floor, rng, float(Dungeons.RETREAT_AT.get(str(m["turn_back"]), 0.0)))
+	# What happened on the floor shapes the fight: blessings and curses, sleeping or singed
+	# monsters, a stranger fighting beside the crew.
+	var buff: Dictionary = m.get("buff", {})
+	for c in crew_now:
+		c["damage"] = float(c["damage"]) * (1.0 + float(buff.get("damage", 0.0)) / 100.0)
+		c["armour"] = float(c["armour"]) + float(buff.get("armour", 0.0))
+	var foes: Dictionary = floor.duplicate()
+	foes["hp"] = float(floor["hp"]) * (1.0 - float(m.get("weaken", 0)) / 100.0)
+	var ally: Dictionary = {}
+	if bool(m.get("ally", false)):
+		ally = {"id": "ally", "name": "The stranger", "porter": false, "hp": 70.0, "max_hp": 70.0, "damage": 10.0 + 4.0 * float(d.get("tier", 1)),
+			"speed": 1.0, "crit": 0.05, "crit_damage": 1.5, "pen": 0.0, "first": 0.0, "armour": 10.0 * float(d.get("tier", 1)), "dodge": 0.0,
+			"parry": 0.0, "block": 0.0, "lucky": false, "heal": 0}
+		crew_now.append(ally)
+	m["buff"] = {}
+	m["weaken"] = 0
+	m["ally"] = false
+	var r: Dictionary = Dungeons.fight(crew_now, foes, rng, float(Dungeons.RETREAT_AT.get(str(m["turn_back"]), 0.0)))
+	if not ally.is_empty():
+		crew_now.erase(ally)
+		(r["dead"] as Array).erase("ally")
+		if float(ally["hp"]) > 0.0:
+			(r["lines"] as Array).append("The stranger fought with you and walked away.")
 	_store_run_crew(m, crew_now)
 	for id in r["potions"]:
 		(m["drank"] as Array).append(str(id))
@@ -985,10 +1175,11 @@ func _dungeon_floor(m: Dictionary) -> void:
 	if str(r["result"]) == "wiped":
 		m["stage"] = "out"
 		m["finish"] = t
+		m["ev"] = []
+		(m["event_gear"] as Array).clear()
 		return
 	if str(r["result"]) != "cleared":
-		m["stage"] = "out"
-		m["finish"] = t + (i + 1) * Dungeons.WALK_TIME
+		_start_walk(m, t)
 		return
 	var alive: Array = crew_now.filter(func(c): return float(c["hp"]) > 0.0)
 	Dungeons.patch_up(alive)
@@ -1007,9 +1198,9 @@ func _dungeon_floor(m: Dictionary) -> void:
 	if not gained.is_empty():
 		entry["lines"].append("Picked up %s." % ", ".join(gained))
 	if i + 1 >= floors.size():
-		m["stage"] = "out"
-		m["finish"] = t + (i + 1) * Dungeons.WALK_TIME
+		_start_walk(m, t)
 		return
+	m["ev"] = []
 	m["stage"] = "await"
 	m["await_until"] = t + Dungeons.CHECKIN
 	m["finish"] = _dungeon_projection(m)
@@ -1078,6 +1269,7 @@ func _dungeon_finish(m: Dictionary) -> void:
 				xp += DUNGEON_FLOOR_XP * (3 if bool((d["floors"][int(e["floor"])] as Dictionary).get("boss", false)) else 1)
 			else:
 				xp += DUNGEON_FLOOR_XP / 2
+		xp += int(m.get("bonus_xp", 0))
 		xp = int(round(float(xp) * Gear.xp_mult(merc)))
 		if TradeSkills.grant(merc, "combat", xp) > 0:
 			events.append("%s reached Combat %d." % [str(merc["name"]), TradeSkills.level_of(merc, "combat")])
@@ -1108,6 +1300,14 @@ func _dungeon_finish(m: Dictionary) -> void:
 		value = _settle_finds(m, str(m["dungeon"]), dead_ids, events, finds)
 	else:
 		_settle_finds(m, str(m["dungeon"]), m.get("ids", []), events, finds)
+	# Gear picked up along the way comes out with the survivors.
+	if not survivors.is_empty():
+		for key in m.get("event_gear", []):
+			if Gear.exists(str(key)):
+				var piece: Dictionary = make_item(str(key))
+				equipment_inventory.append(piece)
+				finds.append(Gear.full_name(piece))
+				value += resale_value(piece)
 	if survivors.size() > 0 and str(m.get("blueprint", "")) != "" and not blueprints.has(str(m["blueprint"])):
 		var bp: String = str(m["blueprint"])
 		blueprints.append(bp)
@@ -1124,6 +1324,13 @@ func _dungeon_finish(m: Dictionary) -> void:
 	var notes: Array[String] = []
 	for e in m.get("log", []):
 		notes.append("Floor %d, %s. %s" % [int(e["floor"]) + 1, str(e["name"]), " ".join(e.get("lines", []))])
+	var answered: int = 0
+	for e in m.get("ev_log", []):
+		if not bool(e["auto"]):
+			answered += 1
+		notes.append("%s: %s. %s" % ["Floor %d" % (int(e["floor"]) + 1) if str(e["phase"]) == "floor" else "On the way out", str(e["choice"]), str(e["text"])])
+	if not (m.get("ev_log", []) as Array).is_empty():
+		notes.append("You made %d of the crew's %d calls; it made the rest %s." % [answered, (m["ev_log"] as Array).size(), "carefully" if str(m.get("risk", "safe")) == "safe" else "boldly"])
 	if int(m.get("overrode", -1)) >= 0:
 		notes.append("You overrode the standing orders at floor %d." % int(m["overrode"]))
 	var dropped: Dictionary = m.get("dropped", {})

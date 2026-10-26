@@ -275,6 +275,13 @@ func _loot_text(items: Dictionary) -> String:
 		results.append("%d %s" % [int(items[key]), str(MoneyMercsState.RESOURCE_NAMES.get(key,key))])
 	return ", ".join(results) if not results.is_empty() else "No resources returned."
 
+## How many dungeon events have been decided, to redraw a run as the crew decides them.
+func _dungeon_calls() -> int:
+	var n: int = 0
+	for m in game.missions:
+		n += (m.get("ev_log", []) as Array).size()
+	return n
+
 ## What the dungeon runs look like, to notice a floor resolving or a crew reaching the stairs.
 func _delving_state() -> String:
 	var parts: Array[String] = []
@@ -287,6 +294,7 @@ func _on_clock() -> void:
 	var changed: bool = game.harlow_sync()
 	var before: String = _delving_state()
 	var waiting: int = game.dungeon_checkins().size()
+	var calls: int = _dungeon_calls()
 	var last_sale: Dictionary = game.auction.log[0] if not game.auction.log.is_empty() else {}
 	var returned: int = game.complete_due()
 	if not game.auction.log.is_empty() and game.auction.log[0] != last_sale:
@@ -297,6 +305,8 @@ func _on_clock() -> void:
 			_notify("Auction House: your order bought %d %s." % [int(e["qty"]), game.item_ref_name(str(e["ref"]))])
 		if page in ["auction", "hq"]:
 			changed = true
+	if _dungeon_calls() != calls and page == "dungeon":
+		changed = true
 	if _delving_state() != before:
 		changed = true
 		if game.dungeon_checkins().size() > waiting:

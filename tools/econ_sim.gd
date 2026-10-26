@@ -24,6 +24,7 @@ extends SceneTree
 ##   delver         guards in Calder Keep: buy a sword and armour to reach gear score 8, pick the
 ##                  depth with the best forecast after a death penalty, sell loot to merchants
 ##   delver_ah      the same, selling loot at the Auction House
+##   delver_bold    delver whose crews take chances on dungeon events (nobody answers the cards)
 ##   forager, angler, hunter, farmer
 ##                  one of the newer trades only, every site it can reach, merchants only;
 ##                  the farmer builds the farm buildings once it can spare three times their cost
@@ -36,7 +37,7 @@ const SAMPLE := 900
 const MILESTONES := [1000, 10000, 100000, 1000000, 10000000]
 const CHECKPOINTS := [10, 100, 1000, 3000, 12000]
 const ALL := ["minimal", "logging", "logging_hall", "miner", "everything", "hall_trader", "contracts", "casual", "evening", "idle", "forager", "angler", "hunter", "farmer",
-	"logging_ah", "delver", "delver_ah"]
+	"logging_ah", "delver", "delver_ah", "delver_bold"]
 ## The newer trades' strategies: trade, job name and the shop tool.
 const NEW_TRADES := {"forager": ["foraging", "Forager", "copper_sickle"], "angler": ["fishing", "Angler", "birch_rod"],
 	"hunter": ["hunting", "Hunter", "birch_shortbow"], "farmer": ["farming", "Farmhand", "iron_hoe"]}
@@ -221,7 +222,7 @@ func _trade() -> String:
 		return str(NEW_TRADES[strategy][0])
 	match strategy:
 		"contracts", "miner": return "mining"
-		"delver", "delver_ah": return "combat"
+		"delver", "delver_ah", "delver_bold": return "combat"
 	return "logging"
 
 func _add(key: String, amount: float) -> void:
@@ -297,7 +298,7 @@ func _policy() -> void:
 		"evening": _logging(true) if _leaving() else _everything()
 		"forager", "angler", "hunter", "farmer": _new_trade()
 		"logging_ah": _logging_ah()
-		"delver", "delver_ah": _delve()
+		"delver", "delver_ah", "delver_bold": _delve()
 	if strategy != "minimal":
 		_expand()
 	_guild_fallback()
@@ -900,7 +901,7 @@ func _delve() -> void:
 				best_depth = depth
 		if best_rate <= 0.0:
 			break
-		if best_depth == 0 or not g.dungeon_dispatch("calder_keep", crew, best_depth, "half").begins_with("The crew went"):
+		if best_depth == 0 or not g.dungeon_dispatch("calder_keep", crew, best_depth, "half", "bold" if strategy == "delver_bold" else "safe").begins_with("The crew went"):
 			break
 		var dk: String = "depth %d" % best_depth
 		rec["trips"][dk] = int(rec["trips"].get(dk, 0)) + 1

@@ -53,6 +53,16 @@ theme_type_variation = &"LabelCaption"
 text = ""
 autowrap_mode = 3
 
+[node name="EventsCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Along the way"
+visible = false
+
+[node name="Events" type="VBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 1
+
 [node name="DroppedCaption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
