@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=64 format=3]
+[gd_resource type="Theme" load_steps=66 format=3]
 
 [ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="f_body"]
 [ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="f_title"]
@@ -26,6 +26,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/kit/bar_gold.png" id="t_bar_gold"]
 [ext_resource type="Texture2D" path="res://assets/ui/kit/bar_green.png" id="t_bar_green"]
 [ext_resource type="Texture2D" path="res://assets/ui/kit/bar_ink.png" id="t_bar_ink"]
+[ext_resource type="Texture2D" path="res://assets/ui/kit/slider_grabber.png" id="t_grab"]
+[ext_resource type="Texture2D" path="res://assets/ui/kit/slider_grabber_hover.png" id="t_grab_h"]
 
 [sub_resource type="StyleBoxTexture" id="card"]
 texture = ExtResource("t_card")
@@ -542,3 +544,9 @@ VScrollBar/styles/grabber_highlight = SubResource("grabber_hl")
 VScrollBar/styles/grabber_pressed = SubResource("grabber_hl")
 VScrollBar/styles/scroll = SubResource("scroll")
 VScrollBar/styles/scroll_focus = SubResource("scroll")
+HSlider/icons/grabber = ExtResource("t_grab")
+HSlider/icons/grabber_highlight = ExtResource("t_grab_h")
+HSlider/icons/grabber_disabled = ExtResource("t_grab")
+HSlider/styles/slider = SubResource("bar_bg")
+HSlider/styles/grabber_area = SubResource("bar_red")
+HSlider/styles/grabber_area_highlight = SubResource("bar_red")

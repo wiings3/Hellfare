@@ -38,7 +38,7 @@ func _run() -> void:
 	GameSettings.volumes["Interface"] = 0.5
 	GameSettings.volumes["Music"] = 0.0
 	sfx.refresh()
-	check(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Interface")) - linear_to_db(0.5)) < 0.01, "interface volume applied")
+	check(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Interface")) - linear_to_db(0.25)) < 0.01, "interface volume follows the square of the slider (half = a quarter)")
 	check(AudioServer.is_bus_mute(AudioServer.get_bus_index("Music")), "volume 0 mutes the group")
 	GameSettings.volumes = saved
 	sfx.refresh()
