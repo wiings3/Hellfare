@@ -34,6 +34,44 @@ theme_type_variation = &"LabelCaption"
 text = "Shift+click to link an item in chat. During a trade, click to put it in."
 autowrap_mode = 3
 
+[node name="Find" type="LineEdit" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 20)
+placeholder_text = "Link anything: type an item's name..."
+clear_button_enabled = true
+context_menu_enabled = false
+max_length = 40
+tooltip_text = "Find any item or good, even one you don't own, and click it to link it in chat. Handy for WTB."
+
+[node name="FoundCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Matches  ·  click one to link it"
+visible = false
+
+[node name="FoundScroll" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+visible = false
+custom_minimum_size = Vector2(0, 62)
+horizontal_scroll_mode = 0
+
+[node name="Found" type="GridContainer" parent="Margin/Content/FoundScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 8
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 3
+
+[node name="FoundNone" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nothing by that name."
+visible = false
+
+[node name="GoodsHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Warehouse"
+
 [node name="GoodsScroll" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 64)

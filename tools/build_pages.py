@@ -832,6 +832,14 @@ def trade_hall():
     s = page("HallRight")
     header(s, C + "/Header", "Inventory")
     label(s, C + "/Caption", "Shift+click to link an item in chat. During a trade, click to put it in.", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Find", "LineEdit", {"custom_minimum_size": (0, 20), "placeholder_text": "Link anything: type an item's name...",
+        "clear_button_enabled": True, "context_menu_enabled": False, "max_length": 40,
+        "tooltip_text": "Find any item or good, even one you don't own, and click it to link it in chat. Handy for WTB."})
+    label(s, C + "/FoundCaption", "Matches  ·  click one to link it", "LabelCaption", {"visible": False})
+    s.node(C + "/FoundScroll", "ScrollContainer", {"visible": False, "custom_minimum_size": (0, 62), "horizontal_scroll_mode": 0})
+    s.node(C + "/FoundScroll/Found", "GridContainer", {"size_flags_horizontal": 3, "columns": 8, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3})
+    label(s, C + "/FoundNone", "Nothing by that name.", "LabelMuted", {"visible": False})
+    header(s, C + "/GoodsHeader", "Warehouse")
     s.node(C + "/GoodsScroll", "ScrollContainer", {"custom_minimum_size": (0, 64), "horizontal_scroll_mode": 0})
     s.node(C + "/GoodsScroll/Goods", "GridContainer", {"size_flags_horizontal": 3, "columns": 8, "theme_override_constants/h_separation": 3, "theme_override_constants/v_separation": 3})
     label(s, C + "/GoodsEmpty", "The warehouse is empty. Goods your crews bring home show here.", "LabelMuted", {"autowrap_mode": 3})

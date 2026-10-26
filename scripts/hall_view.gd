@@ -42,6 +42,8 @@ var shown_id: int = 0
 var _pm_seen: String = ""
 var _trade_seen: String = ""
 var _wired: bool = false
+## What's typed in the "link anything" box, kept across page redraws.
+var find_text: String = ""
 
 func _init(owner: Control) -> void:
 	ui = owner
@@ -209,6 +211,7 @@ func _draw_inventory(right: Control) -> void:
 		var uid: String = str(item.get("uid", ""))
 		var slot := _slot(gear_grid, ui._gear_icon(key), "", "gear:" + key, uid)
 		slot.set_pressed_no_signal(trading and s.mine_gear.has(uid))
+	_wire_find(right)
 	(right.get_node(c + "GearEmpty") as Control).visible = game.equipment_inventory.is_empty()
 	(right.get_node(c + "GearScroll") as Control).visible = not game.equipment_inventory.is_empty()
 	# Conversations, newest first.
@@ -234,6 +237,72 @@ func _draw_inventory(right: Control) -> void:
 		for name in blocked.duplicate():
 			game.hall_block(str(name), false)
 		ui._refresh())
+
+## The "link anything" box: any good or piece of gear by name, owned or not.
+func _wire_find(right: Control) -> void:
+	var c := "Margin/Content/"
+	var box := right.get_node(c + "Find") as LineEdit
+	box.text = find_text
+	box.text_changed.connect(func(t: String) -> void:
+		find_text = t
+		_fill_found(right))
+	box.text_submitted.connect(func(_t: String) -> void:
+		var found := right.get_node(c + "FoundScroll/Found") as GridContainer
+		if found.get_child_count() > 0:
+			link_item(str(found.get_child(0).get_meta("ref"))))
+	box.focus_entered.connect(func() -> void:
+		if not (_pm_window().visible and pm_trader != ""):
+			link_target = "chat")
+	box.gui_input.connect(_escape_releases.bind(box))
+	_fill_found(right)
+
+## Every linkable thing whose name contains `text`: goods first, then gear, best matches first.
+func search_refs(text: String, limit: int = 16) -> Array:
+	var q: String = text.strip_edges().to_lower()
+	if q.length() < 2:
+		return []
+	var hits: Array = []
+	var game := _game()
+	for key in MoneyMercsState.RESOURCE_ORDER:
+		var name: String = game.item_ref_name(str(key)).to_lower()
+		if name.contains(q):
+			hits.append({"ref": str(key), "score": (0 if name.begins_with(q) else 1)})
+	for key in Catalog.items():
+		if not Gear.equippable(str(key)) or Gear.consumable(str(key)):
+			continue
+		var name: String = game.item_ref_name("gear:" + str(key)).to_lower()
+		if name.contains(q):
+			hits.append({"ref": "gear:" + str(key), "score": (0 if name.begins_with(q) else 1) + 2})
+	hits.sort_custom(func(a, b): return int(a["score"]) < int(b["score"]) or (int(a["score"]) == int(b["score"]) and game.item_ref_name(a["ref"]) < game.item_ref_name(b["ref"])))
+	return hits.slice(0, limit).map(func(h): return h["ref"])
+
+func _fill_found(right: Control) -> void:
+	var c := "Margin/Content/"
+	var found := right.get_node(c + "FoundScroll/Found") as GridContainer
+	for child in found.get_children():
+		found.remove_child(child)
+		child.queue_free()
+	var refs: Array = search_refs(find_text)
+	for ref in refs:
+		var r: String = str(ref)
+		var key: String = r.trim_prefix("gear:")
+		var icon: Texture2D = ui._gear_icon(key) if r.begins_with("gear:") else ui._item_icon(r)
+		var held: int = int(_game().resources.get(r, 0)) if not r.begins_with("gear:") else 0
+		var slot := ROW_SLOT.instantiate() as Button
+		found.add_child(slot)
+		slot.toggle_mode = false
+		slot.set_meta("ref", r)
+		(slot.get_node("Icon") as TextureRect).texture = icon
+		(slot.get_node("Count") as Label).text = str(held) if held > 0 else ""
+		slot.tooltip_text = "%s: click to link it in chat." % _game().item_ref_name(r)
+		slot.mouse_entered.connect(show_card.bind(r))
+		slot.mouse_exited.connect(hide_card)
+		slot.pressed.connect(link_item.bind(r, ""))
+	var searching: bool = find_text.strip_edges().length() >= 2
+	(right.get_node(c + "FoundScroll") as Control).visible = searching and not refs.is_empty()
+	(right.get_node(c + "FoundCaption") as Label).text = "%s  ·  click one to link it" % ("%d matches" % refs.size() if refs.size() < 16 else "First 16 matches")
+	(right.get_node(c + "FoundCaption") as Control).visible = searching and not refs.is_empty()
+	(right.get_node(c + "FoundNone") as Control).visible = searching and refs.is_empty()
 
 func _conversations() -> Array:
 	var names: Array = []

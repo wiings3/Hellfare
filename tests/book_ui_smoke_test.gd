@@ -252,6 +252,26 @@ func _verify() -> void:
 	hv.link_target = "chat"
 	hv.link_item("timber")
 	check(hv.composer.text.find("[Birch Timber]") >= 0 and hv.composer_links.size() == 1, "shift+click links an item into the message")
+	# Anything can be linked from the find box, owned or not (for WTB posts).
+	check(hv.search_refs("steel sword").has("gear:steel_sword"), "find box finds gear you don't own")
+	check(hv.search_refs("spider").has("spider_silk"), "find box finds goods you don't hold")
+	var hall_right: Control = view.right_leaf.get_child(0)
+	var find_box := hall_right.get_node("Margin/Content/Find") as LineEdit
+	find_box.text = "steel sword"
+	find_box.text_changed.emit("steel sword")
+	var found := hall_right.get_node("Margin/Content/FoundScroll/Found") as GridContainer
+	check(found.get_child_count() > 0 and (hall_right.get_node("Margin/Content/FoundScroll") as Control).visible, "find results shown")
+	var steel: Button = null
+	for slot in found.get_children():
+		if str(slot.get_meta("ref")) == "gear:steel_sword":
+			steel = slot
+	check(steel != null, "steel sword among the results")
+	if steel != null:
+		steel.pressed.emit()
+	check(hv.composer.text.find("[Steel Sword]") >= 0 and hv.composer_links.size() == 2, "clicking a result links it in chat")
+	hv.composer_links.resize(1)
+	hv.composer.text = hv.composer.text.replace(" [Steel Sword] ", "").replace("[Steel Sword] ", "")
+	find_box.text_changed.emit("")
 	hv.composer.text = "WTS " + hv.composer.text + "x40 6g each"
 	hv.composer_text = hv.composer.text
 	view.game.resources["timber"] = 60
