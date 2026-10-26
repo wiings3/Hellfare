@@ -43,7 +43,7 @@ func _run() -> void:
 	assert(str(view.game.missions[0]["region"]) == "guild_work")
 	assert(view.game.complete_due(int(Time.get_unix_time_from_system()) + 1000) == 1)
 	view._nav_to("ledger")
-	assert(str(view.game.reports[0]["region"]) == "Guild Work Order")
+	assert(str(view.game.reports[0]["region"]) == "Warden Work")
 	view.game.reset_company()
 	print("Guild Ledger UI navigation, guild work recovery, and legacy operations passed.")
 	quit(0)

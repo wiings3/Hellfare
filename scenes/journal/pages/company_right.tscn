@@ -32,7 +32,7 @@ text = "Today"
 [node name="FieldCaption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "In the field"
+text = "Out"
 
 [node name="Expeditions" type="VBoxContainer" parent="Margin/Content"]
 layout_mode = 2
@@ -68,7 +68,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 caption = "Reputation"
 value = "Unknown"
-tooltip_text = "Earned by delivering goods. Better applicants join a better-known company."
+tooltip_text = "Earned by bringing goods up. Better applicants join a better-known guild."
 
 [node name="Warehouse" parent="Margin/Content/Tiles" instance=ExtResource("2_stat_tile")]
 layout_mode = 2

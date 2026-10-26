@@ -178,7 +178,7 @@ func _test() -> void:
 	# Relief work is a floor for broke companies, never an unlimited gold farm.
 	restored.gold = 120
 	assert(not restored.can_accept_guild_work())
-	assert(restored.start_guild_work("garrick").contains("reserved"))
+	assert(restored.start_guild_work("garrick").contains("only for"))
 	restored.gold = 20
 	restored.resources["relic"] = 1
 	assert(not restored.can_accept_guild_work())

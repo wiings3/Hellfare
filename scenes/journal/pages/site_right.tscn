@@ -205,7 +205,7 @@ mouse_filter = 2
 [node name="Fund" type="Button" parent="Margin/Content"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-text = "Fund expedition"
+text = "Send them down"
 custom_minimum_size = Vector2(0, 26)
 tooltip_text = "Deaths and lost gear are permanent."
 

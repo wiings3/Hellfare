@@ -56,7 +56,7 @@ func _ready() -> void:
 	if returned > 0:
 		_notify("%d expedition(s) returned while you were away. Their reports await." % returned)
 	else:
-		_notify("Guild office open. All company records are saved automatically.")
+		_notify("The guild hall is open. Records are saved automatically.")
 	var timer := Timer.new()
 	timer.wait_time = 1.0
 	timer.autostart = true
@@ -258,12 +258,12 @@ func _select_region(id: String) -> void:
 func _reset() -> void:
 	if not _reset_confirm:
 		_reset_confirm = true
-		_action("Reset armed. Press confirm to permanently reset this test company.")
+		_action("Reset armed. Press confirm to permanently reset this test guild.")
 		return
 	game.reset_company()
 	selected_crew.clear()
 	_reset_confirm = false
-	_action("Test company reset.")
+	_action("Test guild reset.")
 
 func _select_report(index: int) -> void:
 	selected_report = index
@@ -311,7 +311,7 @@ func _on_clock() -> void:
 		changed = true
 		if game.dungeon_checkins().size() > waiting:
 			var m: Dictionary = game.dungeon_checkins().back()
-			_notify("%s: floor %d cleared. Your crew is waiting for orders." % [str(Dungeons.by_id(str(m["dungeon"])).get("name", "The dungeon")), int(m["floor_i"]) + 1])
+			_notify("%s: floor %d cleared. Your crew is waiting for orders." % [str(Dungeons.by_id(str(m["dungeon"])).get("name", "The crypt")), int(m["floor_i"]) + 1])
 	if returned > 0:
 		_refresh()
 		_notify("%d field team(s) returned. See The Chronicle for full findings." % returned)

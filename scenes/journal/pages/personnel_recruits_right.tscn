@@ -320,7 +320,7 @@ layout_mode = 2
 mouse_default_cursor_shape = 2
 text = "Hire"
 custom_minimum_size = Vector2(0, 26)
-tooltip_text = "Traits are for life. The fallen cannot be rehired."
+tooltip_text = "Traits are for life. Nobody who stays below can be rehired."
 
 [node name="Reason" type="Label" parent="Margin/Content"]
 layout_mode = 2

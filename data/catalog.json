@@ -2,7 +2,7 @@
  "version": 2,
  "sources": {
   "mossward_copse": {
-   "name": "Mossward Copse",
+   "name": "Cinderwood",
    "kind": "site",
    "trade": "logging",
    "tier": 1,
@@ -10,7 +10,7 @@
    "level": 0
   },
   "old_oakwood": {
-   "name": "Old Oakwood",
+   "name": "Weepingwood",
    "kind": "site",
    "trade": "logging",
    "tier": 2,
@@ -18,7 +18,7 @@
    "level": 8
   },
   "thornwald": {
-   "name": "Thornwald",
+   "name": "The Briar Wastes",
    "kind": "site",
    "trade": "logging",
    "tier": 3,
@@ -34,7 +34,7 @@
    "level": 30
   },
   "palewood": {
-   "name": "The Palewood",
+   "name": "The Bonewood",
    "kind": "site",
    "trade": "logging",
    "tier": 5,
@@ -42,7 +42,7 @@
    "level": 45
   },
   "harlow": {
-   "name": "Harlow Mines",
+   "name": "The Gatepit",
    "kind": "site",
    "trade": "mining",
    "tier": 1,
@@ -50,7 +50,7 @@
    "level": 0
   },
   "deepdelve": {
-   "name": "Deepdelve",
+   "name": "The Sulphur Deeps",
    "kind": "site",
    "trade": "mining",
    "tier": 2,
@@ -74,7 +74,7 @@
    "level": 30
   },
   "mossward_meadows": {
-   "name": "Mossward Meadows",
+   "name": "Ashmeadow",
    "kind": "site",
    "trade": "foraging",
    "tier": 1,
@@ -82,7 +82,7 @@
    "level": 0
   },
   "fenmire": {
-   "name": "Fenmire",
+   "name": "The Bloodfen",
    "kind": "site",
    "trade": "foraging",
    "tier": 2,
@@ -90,7 +90,7 @@
    "level": 8
   },
   "sunreach": {
-   "name": "Sunreach Slopes",
+   "name": "Ember Slopes",
    "kind": "site",
    "trade": "foraging",
    "tier": 3,
@@ -98,7 +98,7 @@
    "level": 18
   },
   "frostvale": {
-   "name": "Frostvale",
+   "name": "Lament's Edge",
    "kind": "site",
    "trade": "foraging",
    "tier": 4,
@@ -106,7 +106,7 @@
    "level": 30
   },
   "millbrook_pond": {
-   "name": "Millbrook Pond",
+   "name": "The Cinder Pool",
    "kind": "site",
    "trade": "fishing",
    "tier": 1,
@@ -114,7 +114,7 @@
    "level": 0
   },
   "silverrun": {
-   "name": "Silverrun River",
+   "name": "The Styx Shallows",
    "kind": "site",
    "trade": "fishing",
    "tier": 2,
@@ -122,7 +122,7 @@
    "level": 8
   },
   "glasswater": {
-   "name": "Glasswater Lake",
+   "name": "The Lake of Glass",
    "kind": "site",
    "trade": "fishing",
    "tier": 3,
@@ -130,7 +130,7 @@
    "level": 18
   },
   "greywater_coast": {
-   "name": "Greywater Coast",
+   "name": "The Shore of Tears",
    "kind": "site",
    "trade": "fishing",
    "tier": 4,
@@ -154,7 +154,7 @@
    "level": 0
   },
   "greyfang_hills": {
-   "name": "Greyfang Hills",
+   "name": "Houndfang Hills",
    "kind": "site",
    "trade": "hunting",
    "tier": 2,
@@ -162,7 +162,7 @@
    "level": 8
   },
   "elkmoor": {
-   "name": "Elkmoor",
+   "name": "Gorehorn Moor",
    "kind": "site",
    "trade": "hunting",
    "tier": 3,
@@ -213,21 +213,21 @@
    "needs": "glasshouse_build"
   },
   "calder_keep": {
-   "name": "Calder Keep",
+   "name": "The Fallen Keep",
    "kind": "dungeon",
    "trade": "combat",
    "tier": 1,
    "status": "planned"
   },
   "sunken_abbey": {
-   "name": "The Sunken Abbey",
+   "name": "The Drowned Abbey",
    "kind": "dungeon",
    "trade": "combat",
    "tier": 2,
    "status": "planned"
   },
   "wyrms_hollow": {
-   "name": "Wyrm's Hollow",
+   "name": "The Throne Below",
    "kind": "dungeon",
    "trade": "combat",
    "tier": 3,
@@ -241,7 +241,7 @@
    "status": "live"
   },
   "fallen": {
-   "name": "Gear of the fallen",
+   "name": "What the dead left below",
    "kind": "found",
    "trade": "",
    "tier": 0,
@@ -264,7 +264,7 @@
  },
  "materials": {
   "timber": {
-   "name": "Birch Timber",
+   "name": "Ashwood",
    "tier": 1,
    "group": "timber",
    "value": 6,
@@ -275,7 +275,7 @@
    "sell_only": false
   },
   "oak": {
-   "name": "Oak Timber",
+   "name": "Weepwood",
    "tier": 2,
    "group": "timber",
    "value": 14,
@@ -286,7 +286,7 @@
    "sell_only": false
   },
   "yew": {
-   "name": "Yew Timber",
+   "name": "Briarwood",
    "tier": 3,
    "group": "timber",
    "value": 30,
@@ -297,7 +297,7 @@
    "sell_only": false
   },
   "ironwood": {
-   "name": "Ironwood",
+   "name": "Blackroot",
    "tier": 4,
    "group": "timber",
    "value": 65,
@@ -308,7 +308,7 @@
    "sell_only": false
   },
   "ghostwood": {
-   "name": "Ghostwood",
+   "name": "Bonewood",
    "tier": 5,
    "group": "timber",
    "value": 150,
@@ -316,11 +316,11 @@
     "palewood",
     "wyrms_hollow"
    ],
-   "note": "Pale, light and hard; tier-5 gear.",
+   "note": "Pale trees grown from the dead. Light and hard; tier-5 gear.",
    "sell_only": false
   },
   "resin": {
-   "name": "Thornwald Resin",
+   "name": "Brimresin",
    "tier": 3,
    "group": "sap",
    "value": 24,
@@ -332,14 +332,14 @@
    "sell_only": false
   },
   "amber": {
-   "name": "Amber",
+   "name": "Cinder Amber",
    "tier": 1,
    "group": "gem",
    "value": 10,
    "sources": [
     "mossward_copse"
    ],
-   "note": "Old sap turned to stone. Charms.",
+   "note": "Sap that hardened in the fires. Charms.",
    "sell_only": false
   },
   "copper": {
@@ -355,7 +355,7 @@
    "sell_only": false
   },
   "coal": {
-   "name": "Coal",
+   "name": "Brimstone",
    "tier": 1,
    "group": "ore",
    "value": 8,
@@ -376,7 +376,7 @@
     "deepdelve",
     "cinder_shaft"
    ],
-   "note": "Tier-1 metal and the base of steel. Harlow gives a little; Deepdelve is the main seam.",
+   "note": "Tier-1 metal and the base of steel. The Gatepit gives a little; the Sulphur Deeps are the main seam.",
    "sell_only": false
   },
   "silver": {
@@ -392,7 +392,7 @@
    "sell_only": false
   },
   "garnet": {
-   "name": "Garnet",
+   "name": "Bloodgarnet",
    "tier": 2,
    "group": "gem",
    "value": 45,
@@ -403,7 +403,7 @@
    "sell_only": false
   },
   "crystal": {
-   "name": "Azure Crystal",
+   "name": "Soulglass",
    "tier": 3,
    "group": "gem",
    "value": 75,
@@ -411,7 +411,7 @@
     "deepdelve",
     "gloamhold"
    ],
-   "note": "Amulets and crystal lanterns.",
+   "note": "Glass that remembers a face. Amulets and lanterns.",
    "sell_only": false
   },
   "emberstone": {
@@ -439,18 +439,18 @@
    "sell_only": false
   },
   "wyrmbone": {
-   "name": "Wyrmbone",
+   "name": "Kingbone",
    "tier": 5,
    "group": "metal",
    "value": 400,
    "sources": [
     "wyrms_hollow"
    ],
-   "note": "Bone of the wyrm, harder than steel; tier-5 gear.",
+   "note": "Bone from the Ashen King's court, harder than steel; tier-5 gear.",
    "sell_only": false
   },
   "wyrmscale": {
-   "name": "Wyrmscale",
+   "name": "Ashscale",
    "tier": 5,
    "group": "hide",
    "value": 320,
@@ -461,7 +461,7 @@
    "sell_only": false
   },
   "herbs": {
-   "name": "Moonleaf",
+   "name": "Ashleaf",
    "tier": 1,
    "group": "herb",
    "value": 5,
@@ -474,7 +474,7 @@
    "sell_only": false
   },
   "berries": {
-   "name": "Hedgeberries",
+   "name": "Cinderberries",
    "tier": 1,
    "group": "herb",
    "value": 4,
@@ -497,7 +497,7 @@
    "sell_only": false
   },
   "mushrooms": {
-   "name": "Fen Morels",
+   "name": "Gravecaps",
    "tier": 2,
    "group": "herb",
    "value": 12,
@@ -519,7 +519,7 @@
    "sell_only": false
   },
   "sunpetal": {
-   "name": "Sunpetal",
+   "name": "Emberbloom",
    "tier": 3,
    "group": "herb",
    "value": 26,
@@ -530,7 +530,7 @@
    "sell_only": false
   },
   "frostbloom": {
-   "name": "Frostbloom",
+   "name": "Lament Lily",
    "tier": 4,
    "group": "herb",
    "value": 60,
@@ -541,7 +541,7 @@
    "sell_only": false
   },
   "perch": {
-   "name": "Perch",
+   "name": "Ash Perch",
    "tier": 1,
    "group": "fish",
    "value": 5,
@@ -552,7 +552,7 @@
    "sell_only": false
   },
   "trout": {
-   "name": "Silver Trout",
+   "name": "Styx Trout",
    "tier": 2,
    "group": "fish",
    "value": 14,
@@ -563,7 +563,7 @@
    "sell_only": false
   },
   "eel": {
-   "name": "River Eel",
+   "name": "Bone Eel",
    "tier": 2,
    "group": "fish",
    "value": 18,
@@ -585,7 +585,7 @@
    "sell_only": false
   },
   "pearl": {
-   "name": "Pearl",
+   "name": "Tear Pearl",
    "tier": 3,
    "group": "gem",
    "value": 90,
@@ -597,7 +597,7 @@
    "sell_only": false
   },
   "cod": {
-   "name": "Greywater Cod",
+   "name": "Weeping Cod",
    "tier": 4,
    "group": "fish",
    "value": 45,
@@ -608,7 +608,7 @@
    "sell_only": false
   },
   "crab": {
-   "name": "Rock Crab",
+   "name": "Shore Crab",
    "tier": 4,
    "group": "fish",
    "value": 50,
@@ -641,7 +641,7 @@
    "sell_only": false
   },
   "game_meat": {
-   "name": "Game Meat",
+   "name": "Gaunt Meat",
    "tier": 1,
    "group": "meat",
    "value": 6,
@@ -652,7 +652,7 @@
    "sell_only": false
   },
   "rabbit_hide": {
-   "name": "Rabbit Hide",
+   "name": "Ashhare Hide",
    "tier": 1,
    "group": "hide",
    "value": 6,
@@ -663,7 +663,7 @@
    "sell_only": false
   },
   "feathers": {
-   "name": "Feathers",
+   "name": "Carrion Feathers",
    "tier": 1,
    "group": "hunt",
    "value": 3,
@@ -687,7 +687,7 @@
    "sell_only": false
   },
   "boar_meat": {
-   "name": "Boar Meat",
+   "name": "Hellboar Meat",
    "tier": 2,
    "group": "meat",
    "value": 15,
@@ -698,7 +698,7 @@
    "sell_only": false
   },
   "wolf_pelt": {
-   "name": "Wolf Pelt",
+   "name": "Hound Pelt",
    "tier": 2,
    "group": "hide",
    "value": 22,
@@ -710,7 +710,7 @@
    "sell_only": false
   },
   "fang": {
-   "name": "Wolf Fang",
+   "name": "Hound Fang",
    "tier": 2,
    "group": "hunt",
    "value": 12,
@@ -721,7 +721,7 @@
    "sell_only": false
   },
   "venison": {
-   "name": "Venison",
+   "name": "Gorehorn Meat",
    "tier": 3,
    "group": "meat",
    "value": 28,
@@ -732,7 +732,7 @@
    "sell_only": false
   },
   "elk_hide": {
-   "name": "Elk Hide",
+   "name": "Gorehorn Hide",
    "tier": 3,
    "group": "hide",
    "value": 40,
@@ -743,7 +743,7 @@
    "sell_only": false
   },
   "antler": {
-   "name": "Elk Antler",
+   "name": "Gorehorn Horn",
    "tier": 3,
    "group": "hunt",
    "value": 35,
@@ -754,18 +754,18 @@
    "sell_only": false
   },
   "bear_meat": {
-   "name": "Direbear Meat",
+   "name": "Pitbear Meat",
    "tier": 4,
    "group": "meat",
    "value": 50,
    "sources": [
     "bleakridge"
    ],
-   "note": "The Direbear Haunch.",
+   "note": "The Pitbear Haunch.",
    "sell_only": false
   },
   "direbear_pelt": {
-   "name": "Direbear Pelt",
+   "name": "Pitbear Pelt",
    "tier": 4,
    "group": "hide",
    "value": 85,
@@ -876,7 +876,7 @@
    "sell_only": false
   },
   "relic": {
-   "name": "Ancient Relic",
+   "name": "Saint's Relic",
    "tier": 4,
    "group": "treasure",
    "value": 550,
@@ -885,18 +885,18 @@
     "calder_keep",
     "sunken_abbey"
    ],
-   "note": "Carved idols. Collectors pay well; crafters make idols of them.",
+   "note": "What is left of saints who went down and stayed. Collectors pay well; crafters make idols of them.",
    "sell_only": false
   },
   "sovereign": {
-   "name": "Sovereign Orb",
+   "name": "Ashen Crown Shard",
    "tier": 5,
    "group": "treasure",
    "value": 12500,
    "sources": [
     "wyrms_hollow"
    ],
-   "note": "The rarest prize. Kept for a future mythic tier.",
+   "note": "A shard of the Ashen King's crown. Kept for a future mythic tier.",
    "sell_only": true
   }
  },
@@ -1197,7 +1197,7 @@
    "blueprint_price": 40
   },
   "birch_shortbow": {
-   "name": "Birch Shortbow",
+   "name": "Ashwood Shortbow",
    "category": "weapon",
    "kind": "bow",
    "slot": "main_hand",
@@ -1233,7 +1233,7 @@
    "blueprint_price": 40
   },
   "birch_crossbow": {
-   "name": "Birch Crossbow",
+   "name": "Ashwood Crossbow",
    "category": "weapon",
    "kind": "crossbow",
    "slot": "main_hand",
@@ -1832,7 +1832,7 @@
    "blueprint_price": 40
   },
   "birch_rod": {
-   "name": "Birch Rod",
+   "name": "Ashwood Rod",
    "category": "tool",
    "kind": "fishing_rod",
    "slot": "main_hand",
@@ -2095,7 +2095,7 @@
    "blueprint_price": 150
   },
   "oak_hunting_bow": {
-   "name": "Oak Hunting Bow",
+   "name": "Weepwood Hunting Bow",
    "category": "weapon",
    "kind": "bow",
    "slot": "main_hand",
@@ -2131,7 +2131,7 @@
    "blueprint_price": 150
   },
   "oak_crossbow": {
-   "name": "Oak Crossbow",
+   "name": "Weepwood Crossbow",
    "category": "weapon",
    "kind": "crossbow",
    "slot": "main_hand",
@@ -2261,7 +2261,7 @@
    "blueprint_price": 150
   },
   "wolfhide_cap": {
-   "name": "Wolfhide Cap",
+   "name": "Houndhide Cap",
    "category": "armour",
    "kind": "light/head",
    "slot": "head",
@@ -2293,7 +2293,7 @@
    "blueprint_price": 150
   },
   "wolfhide_jerkin": {
-   "name": "Wolfhide Jerkin",
+   "name": "Houndhide Jerkin",
    "category": "armour",
    "kind": "light/body",
    "slot": "body",
@@ -2325,7 +2325,7 @@
    "blueprint_price": 150
   },
   "wolfhide_gloves": {
-   "name": "Wolfhide Gloves",
+   "name": "Houndhide Gloves",
    "category": "armour",
    "kind": "light/hands",
    "slot": "hands",
@@ -2357,7 +2357,7 @@
    "blueprint_price": 150
   },
   "wolfhide_boots": {
-   "name": "Wolfhide Boots",
+   "name": "Houndhide Boots",
    "category": "armour",
    "kind": "light/feet",
    "slot": "feet",
@@ -2735,7 +2735,7 @@
    "blueprint_price": 150
   },
   "oak_rod": {
-   "name": "Oak Rod",
+   "name": "Weepwood Rod",
    "category": "tool",
    "kind": "fishing_rod",
    "slot": "main_hand",
@@ -2991,7 +2991,7 @@
    "value": 843
   },
   "yew_longbow": {
-   "name": "Yew Longbow",
+   "name": "Briarwood Longbow",
    "category": "weapon",
    "kind": "bow",
    "slot": "main_hand",
@@ -3027,7 +3027,7 @@
    "value": 200
   },
   "yew_crossbow": {
-   "name": "Yew Crossbow",
+   "name": "Briarwood Crossbow",
    "category": "weapon",
    "kind": "crossbow",
    "slot": "main_hand",
@@ -3156,7 +3156,7 @@
    "value": 532
   },
   "elkhide_cap": {
-   "name": "Elkhide Cap",
+   "name": "Gorehide Cap",
    "category": "armour",
    "kind": "light/head",
    "slot": "head",
@@ -3187,7 +3187,7 @@
    "value": 92
   },
   "elkhide_jerkin": {
-   "name": "Elkhide Jerkin",
+   "name": "Gorehide Jerkin",
    "category": "armour",
    "kind": "light/body",
    "slot": "body",
@@ -3218,7 +3218,7 @@
    "value": 204
   },
   "elkhide_gloves": {
-   "name": "Elkhide Gloves",
+   "name": "Gorehide Gloves",
    "category": "armour",
    "kind": "light/hands",
    "slot": "hands",
@@ -3249,7 +3249,7 @@
    "value": 92
   },
   "elkhide_boots": {
-   "name": "Elkhide Boots",
+   "name": "Gorehide Boots",
    "category": "armour",
    "kind": "light/feet",
    "slot": "feet",
@@ -3614,7 +3614,7 @@
    "value": 228
   },
   "yew_rod": {
-   "name": "Yew Rod",
+   "name": "Briarwood Rod",
    "category": "tool",
    "kind": "fishing_rod",
    "slot": "main_hand",
@@ -3870,7 +3870,7 @@
    "value": 882
   },
   "ironwood_warbow": {
-   "name": "Ironwood Warbow",
+   "name": "Blackroot Warbow",
    "category": "weapon",
    "kind": "bow",
    "slot": "main_hand",
@@ -3905,7 +3905,7 @@
    "value": 461
   },
   "ironwood_crossbow": {
-   "name": "Ironwood Crossbow",
+   "name": "Blackroot Crossbow",
    "category": "weapon",
    "kind": "crossbow",
    "slot": "main_hand",
@@ -4034,7 +4034,7 @@
    "value": 643
   },
   "direbear_cap": {
-   "name": "Direbear Cap",
+   "name": "Pitbear Cap",
    "category": "armour",
    "kind": "light/head",
    "slot": "head",
@@ -4065,7 +4065,7 @@
    "value": 273
   },
   "direbear_jerkin": {
-   "name": "Direbear Jerkin",
+   "name": "Pitbear Jerkin",
    "category": "armour",
    "kind": "light/body",
    "slot": "body",
@@ -4096,7 +4096,7 @@
    "value": 511
   },
   "direbear_gloves": {
-   "name": "Direbear Gloves",
+   "name": "Pitbear Gloves",
    "category": "armour",
    "kind": "light/hands",
    "slot": "hands",
@@ -4127,7 +4127,7 @@
    "value": 273
   },
   "direbear_boots": {
-   "name": "Direbear Boots",
+   "name": "Pitbear Boots",
    "category": "armour",
    "kind": "light/feet",
    "slot": "feet",
@@ -4492,7 +4492,7 @@
    "value": 259
   },
   "ironwood_rod": {
-   "name": "Ironwood Rod",
+   "name": "Blackroot Rod",
    "category": "tool",
    "kind": "fishing_rod",
    "slot": "main_hand",
@@ -4522,7 +4522,7 @@
    "value": 518
   },
   "wyrmbone_dagger": {
-   "name": "Wyrmbone Dagger",
+   "name": "Kingbone Dagger",
    "category": "weapon",
    "kind": "dagger",
    "slot": "main_hand",
@@ -4554,7 +4554,7 @@
    "value": 1218
   },
   "wyrmbone_sword": {
-   "name": "Wyrmbone Sword",
+   "name": "Kingbone Sword",
    "category": "weapon",
    "kind": "sword",
    "slot": "main_hand",
@@ -4587,7 +4587,7 @@
    "value": 1778
   },
   "wyrmbone_war_axe": {
-   "name": "Wyrmbone War Axe",
+   "name": "Kingbone War Axe",
    "category": "weapon",
    "kind": "war_axe",
    "slot": "main_hand",
@@ -4619,7 +4619,7 @@
    "value": 1540
   },
   "wyrmbone_mace": {
-   "name": "Wyrmbone Mace",
+   "name": "Kingbone Mace",
    "category": "weapon",
    "kind": "mace",
    "slot": "main_hand",
@@ -4652,7 +4652,7 @@
    "value": 1890
   },
   "wyrmbone_spear": {
-   "name": "Wyrmbone Spear",
+   "name": "Kingbone Spear",
    "category": "weapon",
    "kind": "spear",
    "slot": "main_hand",
@@ -4685,7 +4685,7 @@
    "value": 1190
   },
   "wyrmbone_greatsword": {
-   "name": "Wyrmbone Greatsword",
+   "name": "Kingbone Greatsword",
    "category": "weapon",
    "kind": "greatsword",
    "slot": "main_hand",
@@ -4718,7 +4718,7 @@
    "value": 2898
   },
   "ghostwood_bow": {
-   "name": "Ghostwood Bow",
+   "name": "Bonewood Bow",
    "category": "weapon",
    "kind": "bow",
    "slot": "main_hand",
@@ -4753,7 +4753,7 @@
    "value": 818
   },
   "ghostwood_crossbow": {
-   "name": "Ghostwood Crossbow",
+   "name": "Bonewood Crossbow",
    "category": "weapon",
    "kind": "crossbow",
    "slot": "main_hand",
@@ -4790,7 +4790,7 @@
    "value": 1168
   },
   "wyrmbone_buckler": {
-   "name": "Wyrmbone Buckler",
+   "name": "Kingbone Buckler",
    "category": "shield",
    "kind": "buckler",
    "slot": "off_hand",
@@ -4820,7 +4820,7 @@
    "value": 1008
   },
   "wyrmbone_kite_shield": {
-   "name": "Wyrmbone Kite Shield",
+   "name": "Kingbone Kite Shield",
    "category": "shield",
    "kind": "kite_shield",
    "slot": "off_hand",
@@ -4851,7 +4851,7 @@
    "value": 1462
   },
   "wyrmbone_tower_shield": {
-   "name": "Wyrmbone Tower Shield",
+   "name": "Kingbone Tower Shield",
    "category": "shield",
    "kind": "tower_shield",
    "slot": "off_hand",
@@ -4882,7 +4882,7 @@
    "value": 1784
   },
   "wyrmskin_cap": {
-   "name": "Wyrmskin Cap",
+   "name": "Ashskin Cap",
    "category": "armour",
    "kind": "light/head",
    "slot": "head",
@@ -4913,7 +4913,7 @@
    "value": 602
   },
   "wyrmskin_jerkin": {
-   "name": "Wyrmskin Jerkin",
+   "name": "Ashskin Jerkin",
    "category": "armour",
    "kind": "light/body",
    "slot": "body",
@@ -4944,7 +4944,7 @@
    "value": 1498
   },
   "wyrmskin_gloves": {
-   "name": "Wyrmskin Gloves",
+   "name": "Ashskin Gloves",
    "category": "armour",
    "kind": "light/hands",
    "slot": "hands",
@@ -4975,7 +4975,7 @@
    "value": 602
   },
   "wyrmskin_boots": {
-   "name": "Wyrmskin Boots",
+   "name": "Ashskin Boots",
    "category": "armour",
    "kind": "light/feet",
    "slot": "feet",
@@ -5006,7 +5006,7 @@
    "value": 602
   },
   "wyrmscale_coif": {
-   "name": "Wyrmscale Coif",
+   "name": "Ashscale Coif",
    "category": "armour",
    "kind": "medium/head",
    "slot": "head",
@@ -5036,7 +5036,7 @@
    "value": 1008
   },
   "wyrmscale_hauberk": {
-   "name": "Wyrmscale Hauberk",
+   "name": "Ashscale Hauberk",
    "category": "armour",
    "kind": "medium/body",
    "slot": "body",
@@ -5066,7 +5066,7 @@
    "value": 2128
   },
   "wyrmscale_gloves": {
-   "name": "Wyrmscale Gloves",
+   "name": "Ashscale Gloves",
    "category": "armour",
    "kind": "medium/hands",
    "slot": "hands",
@@ -5096,7 +5096,7 @@
    "value": 1008
   },
   "wyrmscale_boots": {
-   "name": "Wyrmscale Boots",
+   "name": "Ashscale Boots",
    "category": "armour",
    "kind": "medium/feet",
    "slot": "feet",
@@ -5126,7 +5126,7 @@
    "value": 1008
   },
   "wyrmbone_helm": {
-   "name": "Wyrmbone Helm",
+   "name": "Kingbone Helm",
    "category": "armour",
    "kind": "heavy/head",
    "slot": "head",
@@ -5157,7 +5157,7 @@
    "value": 1568
   },
   "wyrmbone_cuirass": {
-   "name": "Wyrmbone Cuirass",
+   "name": "Kingbone Cuirass",
    "category": "armour",
    "kind": "heavy/body",
    "slot": "body",
@@ -5188,7 +5188,7 @@
    "value": 2688
   },
   "wyrmbone_gauntlets": {
-   "name": "Wyrmbone Gauntlets",
+   "name": "Kingbone Gauntlets",
    "category": "armour",
    "kind": "heavy/hands",
    "slot": "hands",
@@ -5219,7 +5219,7 @@
    "value": 1568
   },
   "wyrmbone_greaves": {
-   "name": "Wyrmbone Greaves",
+   "name": "Kingbone Greaves",
    "category": "armour",
    "kind": "heavy/feet",
    "slot": "feet",
@@ -5250,7 +5250,7 @@
    "value": 1568
   },
   "wyrmbone_felling_axe": {
-   "name": "Wyrmbone Felling Axe",
+   "name": "Kingbone Felling Axe",
    "category": "tool",
    "kind": "felling_axe_kind",
    "slot": "main_hand",
@@ -5280,7 +5280,7 @@
    "value": 980
   },
   "wyrmbone_pickaxe": {
-   "name": "Wyrmbone Pickaxe",
+   "name": "Kingbone Pickaxe",
    "category": "tool",
    "kind": "pickaxe",
    "slot": "main_hand",
@@ -5309,7 +5309,7 @@
    "value": 1330
   },
   "ghostwood_rod": {
-   "name": "Ghostwood Rod",
+   "name": "Bonewood Rod",
    "category": "tool",
    "kind": "fishing_rod",
    "slot": "main_hand",
@@ -5362,12 +5362,12 @@
     "quartermaster"
    ],
    "found_only": false,
-   "note": "Lights the way in mines and dungeons: more rare finds, but no armour.",
+   "note": "Lights the way in mines and crypts: more rare finds, but no armour.",
    "value": 76,
    "blueprint_price": 40
   },
   "crystal_lantern": {
-   "name": "Crystal Lantern",
+   "name": "Soulglass Lantern",
    "category": "lantern",
    "kind": "lantern",
    "slot": "off_hand",
@@ -5391,7 +5391,7 @@
     "cinder_shaft"
    ],
    "found_only": false,
-   "note": "Lights the way in mines and dungeons: more rare finds, but no armour.",
+   "note": "Lights the way in mines and crypts: more rare finds, but no armour.",
    "value": 164
   },
   "voidpearl_lantern": {
@@ -5418,11 +5418,11 @@
     "wyrms_hollow"
    ],
    "found_only": false,
-   "note": "Lights the way in mines and dungeons: more rare finds, but no armour.",
+   "note": "Lights the way in mines and crypts: more rare finds, but no armour.",
    "value": 1026
   },
   "amber_charm": {
-   "name": "Amber Charm",
+   "name": "Cinder Amber Charm",
    "category": "trinket",
    "kind": "trinket",
    "slot": "trinket",
@@ -5484,7 +5484,7 @@
    "blueprint_price": 40
   },
   "fang_necklace": {
-   "name": "Fang Necklace",
+   "name": "Hound Fang Necklace",
    "category": "trinket",
    "kind": "trinket",
    "slot": "trinket",
@@ -5515,7 +5515,7 @@
    "blueprint_price": 150
   },
   "garnet_ring": {
-   "name": "Garnet Ring",
+   "name": "Bloodgarnet Ring",
    "category": "trinket",
    "kind": "trinket",
    "slot": "trinket",
@@ -5546,7 +5546,7 @@
    "blueprint_price": 150
   },
   "pearl_pendant": {
-   "name": "Pearl Pendant",
+   "name": "Tear Pearl Pendant",
    "category": "trinket",
    "kind": "trinket",
    "slot": "trinket",
@@ -5576,7 +5576,7 @@
    "value": 165
   },
   "antler_talisman": {
-   "name": "Antler Talisman",
+   "name": "Gorehorn Talisman",
    "category": "trinket",
    "kind": "trinket",
    "slot": "trinket",
@@ -5606,7 +5606,7 @@
    "value": 154
   },
   "crystal_amulet": {
-   "name": "Crystal Amulet",
+   "name": "Soulglass Amulet",
    "category": "trinket",
    "kind": "trinket",
    "slot": "trinket",
@@ -5666,7 +5666,7 @@
    "value": 340
   },
   "relic_idol": {
-   "name": "Relic Idol",
+   "name": "Saint's Idol",
    "category": "trinket",
    "kind": "trinket",
    "slot": "trinket",
@@ -5755,7 +5755,7 @@
    "blueprint_price": 40
   },
   "leather_pack": {
-   "name": "Wolfhide Pack",
+   "name": "Houndhide Pack",
    "category": "pack",
    "kind": "pack",
    "slot": "back",
@@ -5784,7 +5784,7 @@
    "blueprint_price": 150
   },
   "frame_pack": {
-   "name": "Yew Frame Pack",
+   "name": "Briarwood Frame Pack",
    "category": "pack",
    "kind": "pack",
    "slot": "back",
@@ -5811,7 +5811,7 @@
    "value": 196
   },
   "ironwood_frame": {
-   "name": "Ironwood Frame Pack",
+   "name": "Blackroot Frame Pack",
    "category": "pack",
    "kind": "pack",
    "slot": "back",
@@ -5839,7 +5839,7 @@
    "value": 455
   },
   "ghostwood_frame": {
-   "name": "Ghostwood Frame Pack",
+   "name": "Bonewood Frame Pack",
    "category": "pack",
    "kind": "pack",
    "slot": "back",
@@ -5867,7 +5867,7 @@
    "value": 1022
   },
   "grilled_perch": {
-   "name": "Grilled Perch",
+   "name": "Grilled Ash Perch",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -5887,7 +5887,7 @@
    "blueprint_price": 40
   },
   "rabbit_stew": {
-   "name": "Rabbit Stew",
+   "name": "Ashhare Stew",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -5928,7 +5928,7 @@
    "blueprint_price": 40
   },
   "berry_tart": {
-   "name": "Hedgeberry Tart",
+   "name": "Cinderberry Tart",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -5968,7 +5968,7 @@
    "blueprint_price": 40
   },
   "smoked_trout": {
-   "name": "Smoked Trout",
+   "name": "Smoked Styx Trout",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -5988,7 +5988,7 @@
    "blueprint_price": 150
   },
   "boar_roast": {
-   "name": "Boar Roast",
+   "name": "Hellboar Roast",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6009,7 +6009,7 @@
    "blueprint_price": 150
   },
   "eel_pie": {
-   "name": "Eel Pie",
+   "name": "Bone Eel Pie",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6092,7 +6092,7 @@
    "blueprint_price": 150
   },
   "woodsmans_porridge": {
-   "name": "Woodsman's Porridge",
+   "name": "Ashcutter's Porridge",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6113,7 +6113,7 @@
    "blueprint_price": 150
   },
   "morel_soup": {
-   "name": "Morel Soup",
+   "name": "Gravecap Soup",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6155,7 +6155,7 @@
    "blueprint_price": 150
   },
   "venison_steak": {
-   "name": "Peppered Venison",
+   "name": "Peppered Gorehorn",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6195,7 +6195,7 @@
    "value": 57
   },
   "sunpetal_tea": {
-   "name": "Sunpetal Tea",
+   "name": "Emberbloom Tea",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6234,7 +6234,7 @@
    "value": 108
   },
   "crab_boil": {
-   "name": "Greywater Crab Boil",
+   "name": "Shore Crab Boil",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6274,7 +6274,7 @@
    "value": 84
   },
   "direbear_haunch": {
-   "name": "Direbear Haunch",
+   "name": "Pitbear Haunch",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6294,7 +6294,7 @@
    "value": 146
   },
   "frostbloom_sorbet": {
-   "name": "Frostbloom Sorbet",
+   "name": "Lament Lily Sorbet",
    "category": "food",
    "kind": "food",
    "slot": "food",
@@ -6351,7 +6351,7 @@
    "blueprint": [
     "quartermaster"
    ],
-   "note": "Drunk when hurt, in the field or mid-dungeon.",
+   "note": "Drunk when hurt, in the field or mid-crypt.",
    "value": 49,
    "blueprint_price": 40
   },
@@ -6499,7 +6499,7 @@
    "legacy_slot": "tool"
   },
   "wardens_axe": {
-   "name": "Warden's Axe",
+   "name": "Gatewarden's Axe",
    "category": "tool",
    "kind": "felling_axe_kind",
    "slot": "main_hand",
@@ -6984,46 +6984,46 @@
  },
  "upgrades": {
   "charter_1": {
-   "name": "Expedition Charter I",
+   "name": "Warden's Charter I",
    "cost": {
     "timber": 40,
     "iron": 20
    },
-   "effect": "A second crew in the field",
+   "effect": "A second crew below at once",
    "unlocks": [],
    "gold": 1200,
    "rep": 0
   },
   "charter_2": {
-   "name": "Expedition Charter II",
+   "name": "Warden's Charter II",
    "cost": {
     "oak": 40,
     "steel_ingot": 10
    },
-   "effect": "A third crew in the field",
+   "effect": "A third crew below at once",
    "unlocks": [],
    "gold": 8000,
    "rep": 500
   },
   "charter_3": {
-   "name": "Expedition Charter III",
+   "name": "Warden's Charter III",
    "cost": {
     "oak": 60,
     "silversteel_ingot": 10
    },
-   "effect": "A fourth crew in the field",
+   "effect": "A fourth crew below at once",
    "unlocks": [],
    "gold": 30000,
    "rep": 25000
   },
   "charter_4": {
-   "name": "Expedition Charter IV",
+   "name": "Warden's Charter IV",
    "cost": {
     "oak": 80,
     "silversteel_ingot": 25,
     "crystal": 10
    },
-   "effect": "A fifth crew in the field",
+   "effect": "A fifth crew below at once",
    "unlocks": [],
    "gold": 90000,
    "rep": 75000

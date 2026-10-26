@@ -104,7 +104,7 @@ tooltip_text = "Ingots, flour, cloth and other made goods."
 [node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Learn a recipe once; anyone in the company can craft it."
+text = "Learn a recipe once; anyone in the guild can craft it."
 autowrap_mode = 3
 
 [node name="Focus" type="HBoxContainer" parent="Margin/Content"]

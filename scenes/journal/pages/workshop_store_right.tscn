@@ -32,7 +32,7 @@ text = "Supplies"
 [node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Food and potions. Pack them into a mercenary's food and potion slots from their Gear page."
+text = "Food and potions. Pack them into a Hellfarer's food and potion slots from their Gear page."
 autowrap_mode = 3
 
 [node name="Supplies" type="ScrollContainer" parent="Margin/Content"]

@@ -39,7 +39,7 @@ const EVENTS := [
 			"clean": [{"w": 1, "coin": [10, 22], "text": "No trap after all. Coin inside."}]}},
 		{"label": "Leave it", "tag": "", "out": {"any": [{"w": 1, "text": "The crew walks past."}]}}],
 	 "best": {"trapped": 1, "clean": 0}},
-	{"id": "wounded_merc", "phase": "floor", "text": "A wounded mercenary sits against a pillar, breathing hard. His sword is better than anything your crew carries.",
+	{"id": "wounded_merc", "phase": "floor", "text": "A wounded Hellfarer sits against a pillar, breathing hard. His sword is better than anything your crew carries.",
 	 "states": {"honest": 5, "bait": 3}, "hint_by": ["keen_eye", "combat:12"],
 	 "hint": {"honest": "{who} sees the wound is real. He's no threat.", "bait": "{who} notices his friends' footprints in the dust. It's bait."},
 	 "choices": [
@@ -66,7 +66,7 @@ const EVENTS := [
 		{"label": "Search the pack", "tag": "bold", "out": {
 			"left": [{"w": 3, "coin": [10, 24], "text": "Some coin and a stale loaf."}, {"w": 1, "goods": {"healing_draught": [1, 1]}, "text": "A healing draught, still corked."}],
 			"owners": [{"w": 1, "hurt": [10, 20], "coin": [6, 14], "text": "Its owners come back. {who} takes a club to the head before they run."}]}},
-		{"label": "Rest by the fire", "tag": "safe", "out": {"any": [{"w": 1, "heal": 10, "text": "The crew warms up and binds its cuts."}]}}]},
+		{"label": "Rest by the fire", "tag": "safe", "out": {"any": [{"w": 1, "heal": 10, "text": "The ash is warm here. The crew binds its cuts."}]}}]},
 	{"id": "scratched_map", "phase": "floor", "text": "Someone scratched a map on the wall. An X marks a loose stone nearby.",
 	 "states": {"real": 5, "old": 5},
 	 "choices": [
@@ -83,7 +83,7 @@ const EVENTS := [
 			"poison": [{"w": 1, "hurt_all": [8, 16], "text": "Nightshade. Everyone is sick."}]}},
 		{"label": "Sell the bottles later", "tag": "safe", "out": {"any": [{"w": 1, "coin": [6, 14], "text": "The crew pockets the bottles to sell."}]}}],
 	 "best": {"tonic": 0, "poison": 1}},
-	{"id": "fallen_adventurer", "phase": "floor", "text": "A dead adventurer, not long dead. Their kit is still on them.",
+	{"id": "fallen_adventurer", "phase": "floor", "text": "A dead Hellfarer from another guild, not long dead. Their kit is still on them.",
 	 "states": {"quiet": 6, "watched": 3}, "hint_by": ["combat:15", "keen_eye"],
 	 "hint": {"quiet": "{who} checks the shadows. Whatever killed them is gone.", "watched": "{who} sees eyes in the dark. What killed them is still here."},
 	 "choices": [
@@ -108,7 +108,7 @@ const EVENTS := [
 			"light": [{"w": 1, "hurt": [10, 20], "weaken": 10, "text": "They wake as you close. {who} is caught off guard."}]}},
 		{"label": "Rest a moment first", "tag": "safe", "out": {"any": [{"w": 1, "heal": 8, "text": "The crew catches its breath before the fight."}]}}],
 	 "best": {"deep": 0, "light": 1}},
-	{"id": "gambler", "phase": "floor", "text": "A cheerful stranger offers a game of dice. Stakes: 20 coin.",
+	{"id": "gambler", "phase": "floor", "text": "A stranger, far too cheerful for down here, offers a game of dice. Stakes: 20 coin.",
 	 "states": {"fair": 5, "cheat": 5}, "hint_by": ["lucky", "keen_eye"],
 	 "hint": {"fair": "{who} watches a few throws. The dice look honest.", "cheat": "{who} sees the dice land six too often."},
 	 "choices": [
@@ -126,14 +126,14 @@ const EVENTS := [
 		{"label": "Leave an offering (5 coin)", "tag": "safe", "out": {
 			"blessed": [{"w": 1, "coin": [-10, -10], "buff": {"armour": 8}, "text": "The crew feels watched over."}],
 			"cursed": [{"w": 1, "coin": [-10, -10], "text": "Nothing happens."}]}}]},
-	{"id": "lost_porter", "phase": "floor", "text": "A frightened porter from another company begs to be taken to the exit.",
+	{"id": "lost_porter", "phase": "floor", "text": "A frightened porter from another guild begs to be taken back up.",
 	 "states": {"real": 7, "thief": 3},
 	 "choices": [
 		{"label": "Take him along", "tag": "safe", "out": {
 			"real": [{"w": 2, "coin": [15, 30], "text": "He pays what he has when you reach the stairs."}, {"w": 1, "goods": {"spider_silk": [1, 1]}, "text": "He gives you what he was carrying."}],
 			"thief": [{"w": 1, "lose": 0.15, "text": "He slips away at the stairs, with part of the haul."}]}},
 		{"label": "Send him off", "tag": "bold", "out": {"any": [{"w": 1, "text": "He runs off into the dark."}]}}]},
-	# --- Calder Keep -----------------------------------------------------------------------
+	# --- The Fallen Keep -----------------------------------------------------------------------
 	{"id": "rat_hole", "phase": "floor", "where": ["calder_keep"], "floors": [0], "text": "A hole gnawed into the wall. Something shiny is lodged inside, and the rats are nearby.",
 	 "states": {"empty": 5, "nest": 5},
 	 "choices": [
@@ -148,12 +148,12 @@ const EVENTS := [
 			"wine": [{"w": 1, "coin": [16, 32], "text": "Good wine. A merchant will pay for this."}],
 			"eels": [{"w": 1, "hurt": [10, 22], "text": "Eels. {who} gets out fast, and bleeding."}]}},
 		{"label": "Skirt the water", "tag": "safe", "out": {"any": [{"w": 1, "text": "The crew keeps its feet dry."}]}}]},
-	{"id": "web_cocoon", "phase": "floor", "where": ["calder_keep"], "floors": [1], "text": "A cocoon hangs in the webs. Something inside it moves.",
+	{"id": "web_cocoon", "phase": "floor", "where": ["calder_keep"], "floors": [1], "text": "A cocoon hangs in the webs. Something inside it moves, and it's saying a name.",
 	 "states": {"alive": 4, "spider": 5}, "hint_by": ["hunting:8", "keen_eye"],
 	 "hint": {"alive": "{who} hears a muffled voice inside.", "spider": "{who} sees eight legs pressed against the silk."},
 	 "choices": [
 		{"label": "Cut it open", "tag": "bold", "out": {
-			"alive": [{"w": 1, "ally": true, "coin": [10, 20], "text": "A trapped explorer tumbles out. He'll fight with you, gladly."}],
+			"alive": [{"w": 1, "ally": true, "coin": [10, 20], "text": "A Hellfarer from the Black Pines tumbles out. He'll fight with you, gladly."}],
 			"spider": [{"w": 1, "hurt": [14, 26], "goods": {"spider_silk": [0, 1]}, "text": "A spider bursts out at {who}."}]}},
 		{"label": "Burn the webs", "tag": "safe", "out": {"any": [{"w": 1, "goods": {"spider_silk": [0, 1]}, "weaken": 10, "text": "The webs go up. The spiders come out singed."}]}}],
 	 "best": {"alive": 0, "spider": 1}},
@@ -195,7 +195,7 @@ const EVENTS := [
 		{"label": "Hurry out", "tag": "safe", "out": {"any": [{"w": 3, "text": "The crew outpaces them."}, {"w": 1, "hurt": [6, 12], "text": "They catch {who} at the back."}]}}]},
 	{"id": "toll_men", "phase": "walk", "text": "Three men block the stairs out. \"Toll,\" says one. \"A tenth of what you carry.\"",
 	 "states": {"bluff": 5, "real": 5}, "hint_by": ["combat:15"],
-	 "hint": {"bluff": "{who} sizes them up: farmhands with clubs.", "real": "{who} knows a killer's stance. These men are dangerous."},
+	 "hint": {"bluff": "{who} sizes them up: deserters with clubs.", "real": "{who} knows a killer's stance. These men are dangerous."},
 	 "choices": [
 		{"label": "Pay the toll", "tag": "safe", "out": {"any": [{"w": 1, "lose": 0.1, "text": "You pay. They step aside."}]}},
 		{"label": "Push through", "tag": "bold", "out": {

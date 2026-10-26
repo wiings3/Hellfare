@@ -91,16 +91,16 @@ const SIGN_CROSS := preload("res://assets/ui/kit/sign_cross.png")
 const ICON_FIELD := preload("res://assets/ui/tab_icons/expeditions.png")
 const ICON_GUILD := preload("res://assets/ui/tab_icons/company.png")
 const PAGE_TITLES := {
-	"hq": "The Company",
-	"harlow": "Harlow Mines",
+	"hq": "The Guild",
+	"harlow": "The Gatepit",
 	"expeditions": "Expeditions",
 	"site": "Expedition",
-	"dungeon": "Dungeon",
+	"dungeon": "Crypt",
 	"roster": "Mercenaries",
 	"workshop": "Workshop",
-	"guildwork": "Guild Work",
+	"guildwork": "Warden Work",
 	"market": "The Market",
-	"hall": "The Trade Hall",
+	"hall": "The Gatehouse Tavern",
 	"auction": "The Auction House",
 	"finance": "The Ledger",
 	"ledger": "The Ledger",
@@ -125,7 +125,7 @@ func _refresh() -> void:
 	_clear(left_leaf)
 	_clear(right_leaf)
 	_restore_tab_art()
-	title_label.text = str(PAGE_TITLES.get(page, "The Company"))
+	title_label.text = str(PAGE_TITLES.get(page, "The Guild"))
 	if page == "harlow":
 		page = "site"
 		selected_site = "harlow"
@@ -137,7 +137,7 @@ func _refresh() -> void:
 	if page == "site":
 		title_label.text = str(TradeSites.by_id(selected_site).get("name", "Expedition"))
 	if page == "dungeon":
-		title_label.text = str(Dungeons.by_id(selected_dungeon).get("name", "Dungeon"))
+		title_label.text = str(Dungeons.by_id(selected_dungeon).get("name", "Crypt"))
 	if page != "workshop":
 		workshop_focus = ""  # The lookup card's narrowing lasts only while you're in the Workshop.
 	match page:
@@ -209,10 +209,10 @@ func _resource_name(key: String) -> String:
 func _mission_name(mission: Dictionary) -> String:
 	var region: String = str(mission.get("region", ""))
 	match region:
-		"harlow": return "Harlow Mines"
+		"harlow": return "The Gatepit"
 		"site": return str(TradeSites.by_id(str(mission.get("site", ""))).get("name", "Expedition"))
-		"dungeon": return str(Dungeons.by_id(str(mission.get("dungeon", ""))).get("name", "Dungeon"))
-		"guild_work": return "Guild work"
+		"dungeon": return str(Dungeons.by_id(str(mission.get("dungeon", ""))).get("name", "Crypt"))
+		"guild_work": return "Warden work"
 	return str(game.region_by_id(region).get("name", "Contract"))
 
 func _crew_names(ids: Array) -> String:
@@ -277,7 +277,7 @@ func _draw_region_map() -> void:
 		if phase >= RegionMap.FOUND_AT:
 			for find in mission.get("finds", []):
 				var who: String = str(game.merc_by_id(str(find.get("finder", ""))).get("name", "Someone"))
-				text += "\n%s is carrying a %s found among the fallen." % [who, str(game.item_definition(str(find.get("key", ""))).get("name", "find"))]
+				text += "\n%s is carrying a %s found on the dead." % [who, str(game.item_definition(str(find.get("key", ""))).get("name", "find"))]
 		return text
 	map.show_company(game.missions, game.free_crew())
 	var sites := "Margin/Content/Map/Sites/"
@@ -293,7 +293,7 @@ func _draw_region_map() -> void:
 		for mission in game.missions:
 			if RegionMap.road_for(mission) == id:
 				out += 1
-		btn.text = str(site["name"]) + ("  ·  %s %d" % [TradeSkills.NAMES.get(trade, trade), int(site["level"])] if locked else "")
+		btn.text = str(site["name"]).trim_prefix("The ") + ("  ·  %s %d" % [TradeSkills.NAMES.get(trade, trade), int(site["level"])] if locked else "")
 		btn.tooltip_text = "%s\n%s" % [str(site["name"]), "Needs %s level %d (yours: %d)." % [TradeSkills.NAMES.get(trade, trade), int(site["level"]), best] if locked else ("%d crew working here." % out if out > 0 else "Click to plan an expedition.")]
 		if locked:
 			btn.modulate = Color(1, 1, 1, 0.7)
@@ -324,12 +324,12 @@ func _draw_region_map() -> void:
 		region.pressed.connect(_open_site.bind(target))
 	_bind_fallen(left)
 	var town := left.get_node(sites + "town") as Button
-	town.tooltip_text = "Mossward, home of the company.\n%d resting in town." % game.free_crew()
+	town.tooltip_text = "Last Lantern, home of the guild.\n%d resting above." % game.free_crew()
 	town.pressed.connect(_turn_to.bind("warehouse"))
 	var status := left.get_node("Margin/Content/Status") as Label
 	var update := func() -> void:
 		if game.missions.is_empty():
-			status.text = "No crews out. Click a site on the map to send one." if game.free_crew() > 0 else "Nobody in the field."
+			status.text = "No crews out. Click a site on the map to send one." if game.free_crew() > 0 else "Nobody out."
 			return
 		var next: int = -1
 		var name: String = ""
@@ -338,7 +338,7 @@ func _draw_region_map() -> void:
 			if next < 0 or left_s < next:
 				next = left_s
 				name = _mission_name(mission)
-		status.text = "%s in the field  ·  %s back in %s" % [_plural(game.missions.size(), "crew"), name, _duration(maxi(0, next))]
+		status.text = "%s out  ·  %s back in %s" % [_plural(game.missions.size(), "crew"), name, _duration(maxi(0, next))]
 	update.call()
 	live_updaters.append(update)
 
@@ -359,7 +359,7 @@ func _show_fallen(card: Control, site_id: String, badge: Control) -> void:
 	var share: Array[Dictionary] = game.fallen.share(site_id, now)
 	var body := "Margin/Body/"
 	var site_name: String = str(TradeSites.by_id(site_id).get("name", "the site"))
-	(card.get_node(body + "Title") as Label).text = "Fallen at " + site_name
+	(card.get_node(body + "Title") as Label).text = "Left below at " + site_name
 	(card.get_node(body + "Summary") as Label).text = "%d pieces lie here. %d %s within your reach today." % [game.fallen.size(site_id, now), share.size(), "is" if share.size() == 1 else "are"]
 	var rows := card.get_node(body + "Rows") as VBoxContainer
 	for child in rows.get_children():
@@ -432,7 +432,7 @@ func _bind_today(right: Control) -> void:
 			action.tooltip_text = str(need.get("why", ""))
 	(right.get_node(c + "AllClear") as Control).visible = needs.get_child_count() == 0
 	right.get_node(c + "Tiles/Reputation").value = Mercs.tier_name(game.rep_tier())
-	right.get_node(c + "Tiles/Reputation").tooltip_text = "%s reputation. Better applicants join a better-known company." % _thousands(game.reputation)
+	right.get_node(c + "Tiles/Reputation").tooltip_text = "%s reputation. Better applicants join a better-known guild." % _thousands(game.reputation)
 	var stocked: int = 0
 	for key in MoneyMercsState.RESOURCE_ORDER:
 		stocked += int(game.resources.get(str(key), 0))
@@ -448,11 +448,11 @@ func _bind_today(right: Control) -> void:
 func _needs() -> Array:
 	var out: Array = []
 	if game.crew.is_empty():
-		out.append({"icon": ROLE_ICONS["Woodcutter"], "title": "Hire your first mercenary",
-			"details": "A woodcutter at Mossward Copse pays from the first trip", "action": "Recruit", "call": _open_recruitment})
-	# Crews waiting at a dungeon's stairs for orders.
+		out.append({"icon": ROLE_ICONS["Woodcutter"], "title": "Hire your first Hellfarer",
+			"details": "A woodcutter at Cinderwood pays from the first trip", "action": "Recruit", "call": _open_recruitment})
+	# Crews waiting at a crypt's stairs for orders.
 	for m in game.dungeon_checkins():
-		var dname: String = str(Dungeons.by_id(str(m["dungeon"])).get("name", "The dungeon"))
+		var dname: String = str(Dungeons.by_id(str(m["dungeon"])).get("name", "The crypt"))
 		out.append({"icon": TRADE_ICONS.get("dungeon"), "title": "%s: crew waiting for orders" % dname,
 			"details": "Floor %d cleared  ·  carrying %s  ·  orders in %s" % [int(m["floor_i"]) + 1, _money(game.dungeon_carry_value(m.get("carry", {}))), _duration(maxi(0, int(m["await_until"]) - _now()))],
 			"action": "Decide", "call": _open_dungeon.bind(str(m["dungeon"]))})
@@ -502,7 +502,7 @@ func _needs() -> Array:
 			"details": "%d%% health  ·  rested in %s" % [int(merc.get("health", 100)), _duration(MoneyMercsState.rest_eta(merc))],
 			"action": "Treat %s" % _money(cost), "call": _heal.bind(str(merc["id"])), "disabled": game.gold < cost, "why": "Not enough gold."})
 	elif hurt.size() > 1:
-		out.append({"icon": _item_icon("healing_draught"), "title": "%d mercenaries are hurt" % hurt.size(),
+		out.append({"icon": _item_icon("healing_draught"), "title": "%d Hellfarers are hurt" % hurt.size(),
 			"details": "They rest back to health for free, or a healer treats them now", "action": "Roster", "call": _turn_to.bind("roster")})
 	# Gear about to wear out (a quarter left or less).
 	var worn: Array = []
@@ -525,16 +525,16 @@ func _needs() -> Array:
 		if game.is_available(merc) and int(merc.get("health", 100)) >= 25:
 			idle += 1
 	if idle > 0 and game.missions.size() < game.expedition_slots:
-		out.append({"icon": ROLE_ICONS["Guard"], "title": "%s idle" % _plural(idle, "mercenary").replace("mercenarys", "mercenaries"),
-			"details": "Idle hands draw %s a day" % _money(game.idle_upkeep_total()), "action": "Send out", "call": _turn_to.bind("expeditions")})
+		out.append({"icon": ROLE_ICONS["Guard"], "title": "%s idle" % _plural(idle, "Hellfarer"),
+			"details": "Idle hands draw %s a day, and drink" % _money(game.idle_upkeep_total()), "action": "Send out", "call": _turn_to.bind("expeditions")})
 	var next_charter: String = game.next_charter()
 	if next_charter != "" and game.charter_block().is_empty():
 		var charter: Dictionary = Catalog.data()["upgrades"][next_charter]
 		out.append({"icon": ICON_FIELD, "title": "%s is within reach" % str(charter["name"]), "details": str(charter["effect"]),
 			"action": "Sign  ·  %s" % _money(game.upgrade_gold(next_charter)), "call": func() -> void: _action(game.build_upgrade(next_charter))})
 	if game.can_accept_guild_work():
-		out.append({"icon": ICON_GUILD, "title": "The guild offers safe work", "details": "Small, risk-free jobs for companies on hard times",
-			"action": "Guild work", "call": _turn_to.bind("guildwork")})
+		out.append({"icon": ICON_GUILD, "title": "The Wardens offer safe work", "details": "Small, risk-free jobs for guilds on hard times",
+			"action": "Warden work", "call": _turn_to.bind("guildwork")})
 	return out.slice(0, 5)
 
 # --- Shared chapter helpers ----------------------------------------------------
@@ -609,7 +609,7 @@ func _list_card(list: VBoxContainer, icon: Texture2D, title: String, details: St
 func _merc_status(merc: Dictionary) -> Array:
 	## Returns [label, variation] describing what a mercenary is doing.
 	if not game.is_available(merc):
-		return ["In the field", &"LabelAccent"]
+		return ["Out", &"LabelAccent"]
 	if int(merc.get("health", 100)) < 25:
 		return ["Resting, too hurt to work", &"LabelAccent"]
 	if int(merc.get("health", 100)) < 100:
@@ -659,7 +659,7 @@ func _sources_text(key: String) -> String:
 	if MercsV05.shop_keys().has(key):
 		parts.append("the quartermaster's shop")
 	if bool(d.get("found_only", false)):
-		parts.append("found among the fallen and in dungeons")
+		parts.append("found on the dead below and in the crypts")
 	if parts.is_empty() and not Catalog.material(key).is_empty():
 		parts.append_array(_source_names(key))
 	return ", ".join(parts) if not parts.is_empty() else "Nowhere you can reach yet."
@@ -855,7 +855,7 @@ func _draw_employees() -> void:
 	(left.get_node(c + "Summary/Count") as Label).text = "%d hired  ·  %d ready" % [game.crew.size(), game.free_crew()]
 	var payroll_label := left.get_node(c + "Summary/Payroll") as Label
 	payroll_label.text = "Payroll %s  ·  idle %s/day" % [_money(payroll), _money(game.idle_upkeep_total())]
-	payroll_label.tooltip_text = "Payroll: what one trip with every mercenary would cost in wages.\nIdle: mercenaries in town still draw half their wage each day."
+	payroll_label.tooltip_text = "Payroll: what one trip with every Hellfarer would cost in wages.\nIdle: Hellfarers above still draw half their wage each day."
 	(left.get_node(c + "List") as Control).visible = not empty
 	(left.get_node(c + "Filter") as Control).visible = not empty
 	(left.get_node(c + "Empty") as Control).visible = empty
@@ -903,7 +903,7 @@ func _bind_overview(right: Control, merc: Dictionary) -> void:
 	right.get_node(o + "Stats/Skill").value = _money(Mercs.value(merc))
 	var wage_tile := right.get_node(o + "Stats/Wage")
 	wage_tile.value = _money(int(terms["wage"]))
-	wage_tile.tooltip_text = "Paid for each trip. In town they draw half of it each day (%s/day)." % _money(int(round(game.idle_upkeep(merc))))
+	wage_tile.tooltip_text = "Paid for each trip. Above, they draw half of it each day (%s/day)." % _money(int(round(game.idle_upkeep(merc))))
 	right.get_node(o + "Stats/Share").value = "%d%%" % int(round(float(terms["cut"]) * 100.0))
 	right.get_node(o + "Stats/Kit").value = str(Gear.kit_rating(merc))
 	var health: int = int(merc.get("health", 100))
@@ -917,7 +917,7 @@ func _bind_overview(right: Control, merc: Dictionary) -> void:
 		var cost: int = MoneyMercsState.treat_cost(merc)
 		heal.text = "Treat  ·  %d G" % cost
 		heal.disabled = game.gold < cost or not game.is_available(merc)
-		heal.tooltip_text = "Resting in town heals %d health an hour for free: back to full in %s.\nTreat now to send them out sooner." % [MoneyMercsState.REST_PER_HOUR, _duration(MoneyMercsState.rest_eta(merc))]
+		heal.tooltip_text = "Resting above heals %d health an hour for free: back to full in %s.\nTreat now to send them down sooner." % [MoneyMercsState.REST_PER_HOUR, _duration(MoneyMercsState.rest_eta(merc))]
 		heal.pressed.connect(_heal.bind(selected_merc))
 	for trade in SKILL_ORDER:
 		var base := o + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
@@ -941,7 +941,7 @@ func _bind_overview(right: Control, merc: Dictionary) -> void:
 	sell.text = ("Confirm  ·  %s" % _money(offer)) if confirm_sell == selected_merc else "Sell contract"
 	sell.disabled = not game.is_available(merc) or settling > 0
 	sell.tooltip_text = "Settling in: can be sold in %s." % _duration(settling) if settling > 0 else \
-		"Another guild buys their contract for %s (half their value), with the gear they wear.\nMercenaries talk: each sale costs a little reputation." % _money(offer)
+		"Another guild buys their contract for %s (half their value), with the gear they wear.\nHellfarers talk: each sale costs a little reputation." % _money(offer)
 	sell.pressed.connect(_sell_contract.bind(selected_merc))
 
 ## The Gear view: ten slots, the chosen slot's piece, and what in the storeroom fits it.
@@ -1032,7 +1032,7 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 			var equip := card.get_node("Row/Primary") as Button
 			equip.text = "Equip"
 			equip.disabled = not available
-			equip.tooltip_text = "Equip on %s. The tool in their hands sets their job." % str(owner.get("name", "")) if available else "They're in the field."
+			equip.tooltip_text = "Equip on %s. The tool in their hands sets their job." % str(owner.get("name", "")) if available else "They're out."
 			equip.pressed.connect(_equip.bind(selected_merc, str(item.get("uid", ""))))
 	(right.get_node(g + "Fits") as Control).visible = fits.get_child_count() > 0
 	(right.get_node(g + "FitsEmpty") as Control).visible = fits.get_child_count() == 0
@@ -1118,7 +1118,7 @@ func _draw_recruitment() -> void:
 	var standing := left.get_node(c + "Summary/Standing") as Label
 	standing.text = "%s  ·  up to level %d" % [Mercs.tier_name(tier), int(Mercs.TIERS[tier]["cap"])]
 	var next: int = Mercs.rep_to_next(game.reputation)
-	standing.tooltip_text = "Reputation %s.%s\nBetter mercenaries apply to more reputable companies." % [_thousands(game.reputation),
+	standing.tooltip_text = "Reputation %s.%s\nBetter Hellfarers apply to more reputable guilds." % [_thousands(game.reputation),
 		("  %s at %s." % [Mercs.tier_name(tier + 1), _thousands(int(Mercs.TIERS[tier + 1]["rep"]))]) if next > 0 else ""]
 	var refresh := left.get_node(c + "Summary/Refresh") as Label
 	var tick := func() -> void:
@@ -1624,7 +1624,7 @@ func _draw_exchange() -> void:
 		sell.pressed.connect(_trade.bind(key, false, n))
 		var buy := right.get_node(desk + "BuyRow/" + str(pair[0])) as Button
 		buy.disabled = not buyable or game.gold < game.buy_price(key, n) * n
-		buy.tooltip_text = "-%s (%s each)" % [_money(game.buy_price(key, n) * n), _money(game.buy_price(key, n))] if buyable else ("Merchants never sell these. Find them in the field." if key in ["relic", "sovereign"] else "Merchants don't stock food or potions: cook or brew them, or buy from players.")
+		buy.tooltip_text = "-%s (%s each)" % [_money(game.buy_price(key, n) * n), _money(game.buy_price(key, n))] if buyable else ("Merchants never sell these. Find them below." if key in ["relic", "sovereign"] else "Merchants don't stock food or potions: cook or brew them, or buy from players.")
 		buy.pressed.connect(_trade.bind(key, true, n))
 	var sell_all := right.get_node(desk + "SellRow/All") as Button
 	sell_all.disabled = owned <= 0
@@ -1717,7 +1717,7 @@ func _draw_accounts() -> void:
 	if next == "":
 		expand.text = "All slots open"
 		expand.disabled = true
-		note.text = "Your company holds every expedition charter."
+		note.text = "Your guild holds every Warden's charter."
 	else:
 		var charter: Dictionary = Catalog.data()["upgrades"][next]
 		var block: String = game.charter_block()
@@ -1866,7 +1866,7 @@ func _draw_guild_jobs() -> void:
 	office.pressed.connect(_guild_work.bind(""))
 	(left.get_node(c + "ReturnBoard") as Button).pressed.connect(_turn_to.bind("expeditions"))
 	if not can_take:
-		var why: String = "Not available: " + ("every expedition slot is busy." if not slot_free else "the guild only helps companies with under 120 G cash and under 250 G in cash, goods and spare gear.")
+		var why: String = "Not available: " + ("every expedition slot is busy." if not slot_free else "the Wardens only help guilds with under 120 G cash and under 250 G in cash, goods and spare gear.")
 		var caption := right.get_node(c + "Caption") as Label
 		caption.text = why
 		caption.theme_type_variation = &"LabelAccent"
@@ -2103,7 +2103,7 @@ func _draw_board() -> void:
 			locked_list.add_child(row)
 			(row.get_node("Body/Name") as Label).text = str(site["name"])
 			(row.get_node("Body/Need") as Label).text = "%s %d" % [TradeSkills.NAMES.get(selected_trade, selected_trade), int(site["level"])]
-			row.tooltip_text = "%s\nNeeds a mercenary with %s level %d (your best: %d)." % [str(site.get("tagline", "")), TradeSkills.NAMES.get(selected_trade, selected_trade), int(site["level"]), level]
+			row.tooltip_text = "%s\nNeeds a Hellfarer with %s level %d (your best: %d)." % [str(site.get("tagline", "")), TradeSkills.NAMES.get(selected_trade, selected_trade), int(site["level"]), level]
 			row.pressed.connect(_open_site.bind(id))
 			continue
 		var card := ROW_SITE.instantiate() as Button
@@ -2145,7 +2145,7 @@ func _draw_board() -> void:
 ## The board's right page for dungeons: the open ones as cards, the planned ones locked.
 func _draw_dungeon_list(right: Control) -> void:
 	var c := "Margin/Content/"
-	right.get_node(c + "Header").text = "Dungeons"
+	right.get_node(c + "Header").text = "Crypts"
 	var open_list := right.get_node(c + "Open") as VBoxContainer
 	var locked_list := right.get_node(c + "Locked") as VBoxContainer
 	for id in Dungeons.DUNGEONS:
@@ -2339,7 +2339,7 @@ func _bind_site_crew(left: Control, right: Control, site: Dictionary) -> void:
 	var no_crew := left.get_node(c + "NoCrew") as Control
 	no_crew.visible = list.get_child_count() == 0
 	if free.is_empty():
-		no_crew.text = "No mercenaries are free. Hire one in Mercenaries."
+		no_crew.text = "No Hellfarers are free. Hire one in Mercenaries."
 	elif no_crew.visible:
 		no_crew.text = "No free %ss. Try Everyone." % job_name.to_lower() if crew_filter == "trade" else "Nobody free to guard. Try Everyone."
 	var hire := left.get_node(c + "Hire") as Button
@@ -2418,14 +2418,14 @@ func _bind_site_crew(left: Control, right: Control, site: Dictionary) -> void:
 	if busy:
 		why = "All expedition slots are busy. Wait for a crew to return."
 	elif ids.is_empty() and free.is_empty():
-		why = "Hire a mercenary in Mercenaries to start."
+		why = "Hire a Hellfarer in Mercenaries to start."
 	elif ids.is_empty():
 		why = "Choose a crew from the list on the left."
 	elif not bool(forecast["meets_level"]):
-		why = "Needs a mercenary with %s level %d." % [TradeSkills.NAMES.get(trade, trade), needed]
+		why = "Needs a Hellfarer with %s level %d." % [TradeSkills.NAMES.get(trade, trade), needed]
 	elif game.gold < int(forecast["cost"]):
 		why = "Not enough gold: wages and supplies cost %s." % _money(int(forecast["cost"]))
-	fund.text = "Expedition underway" if busy else "Fund expedition  ·  " + _money(int(forecast["cost"]))
+	fund.text = "Crew is out" if busy else "%s  ·  %s" % ["Send them out" if trade == "farming" else "Send them down", _money(int(forecast["cost"]))]
 	fund.disabled = not why.is_empty()
 	fund.pressed.connect(_dispatch_site)
 	reason.text = why
@@ -2590,7 +2590,7 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		for good in fl.get("loot", {}):
 			loot.append(_resource_name(str(good)).to_lower())
 		box.tooltip_text = "%s: %s\nHealth %d, hits for %d, armour %d.\nCarries %s.%s" % [str(fl["name"]), str(fl["foe"]), int(fl["hp"]), int(fl["damage"]), int(fl["armour"]), ", ".join(loot),
-			"\nA chance at a tier-3 blueprint and an ancient relic." if boss else ""]
+			"\nA chance at a tier-3 blueprint and a saint's relic." if boss else ""]
 		var odds := box.get_node("Body/Odds") as Label
 		if ids.is_empty():
 			odds.text = "-"
@@ -2724,7 +2724,7 @@ func _draw_run(d: Dictionary, m: Dictionary) -> void:
 		var pct: int = int(round(clampf(hp_now / top, 0.0, 1.0) * 100.0))
 		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(Mercs.role_of(merc), ROLE_ICONS["Guard"])
 		(card.get_node("Body/Info/Name") as Label).text = str(merc.get("name", "?"))
-		(card.get_node("Body/Info/Details") as Label).text = "Fallen" if dead.has(str(id)) else ("porter  ·  armour %d" % int(f["armour"]) if bool(f["porter"]) else "%d dmg  ·  armour %d" % [int(round(float(f["damage"]))), int(f["armour"])])
+		(card.get_node("Body/Info/Details") as Label).text = "Did not come back up" if dead.has(str(id)) else ("porter  ·  armour %d" % int(f["armour"]) if bool(f["porter"]) else "%d dmg  ·  armour %d" % [int(round(float(f["damage"]))), int(f["armour"])])
 		card.tooltip_text = _fighter_line(f)
 		(card.get_node("Body/Health/HealthText") as Label).text = "%d%%" % pct
 		var bar := card.get_node("Body/Health/HealthBar") as ProgressBar
@@ -2742,7 +2742,7 @@ func _draw_run(d: Dictionary, m: Dictionary) -> void:
 	for find in m.get("finds", []):
 		finds.append(str(game.item_definition(str(find.get("key", ""))).get("name", "something")))
 	var found := left.get_node(c + "Found") as Label
-	found.text = "Found among the fallen: %s. It's yours if its carrier gets out." % ", ".join(finds) if not finds.is_empty() else ""
+	found.text = "Found on the dead: %s. It's yours if its carrier gets back up." % ", ".join(finds) if not finds.is_empty() else ""
 	found.visible = not finds.is_empty() and not logs_so_far(m).is_empty()
 	# The last few things that happened, newest first.
 	var happened: Array = m.get("ev_log", [])
@@ -3350,7 +3350,7 @@ func _update_event_card() -> void:
 	if not fresh:
 		return
 	var where: String = "Floor %d" % (int(m.get("floor_i", 0)) + 1) if str(m.get("ev_phase", "floor")) == "floor" else "The way out"
-	(card.get_node(b + "Head/Title") as Label).text = "%s  ·  %s" % [str(Dungeons.by_id(str(m["dungeon"])).get("name", "Dungeon")), where]
+	(card.get_node(b + "Head/Title") as Label).text = "%s  ·  %s" % [str(Dungeons.by_id(str(m["dungeon"])).get("name", "Crypt")), where]
 	var open := card.get_node(b + "Head/Open") as Button
 	_reconnect(open, func() -> void: _open_dungeon(str(m["dungeon"])))
 	(card.get_node(b + "Text") as Label).text = str(e.get("text", ""))

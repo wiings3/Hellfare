@@ -140,7 +140,7 @@ func harlow_dispatch(ids: Array[String], approach: String) -> String:
 	for id in ids:
 		var merc := merc_by_id(id)
 		if merc.is_empty() or not is_available(merc) or seen.has(id):
-			return "A selected mercenary is unavailable."
+			return "A chosen Hellfarer is unavailable."
 		if int(merc.get("health", 100)) < 25:
 			return "%s is too injured for deployment." % str(merc["name"])
 		seen[id] = true
@@ -544,7 +544,7 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 	for id in ids:
 		var merc: Dictionary = merc_by_id(id)
 		if merc.is_empty() or not is_available(merc):
-			return "A selected mercenary is unavailable."
+			return "A chosen Hellfarer is unavailable."
 		if int(merc.get("health", 100)) < 25:
 			return "%s is too injured for work." % str(merc["name"])
 	var plan: Dictionary = site_forecast(site_id, ids, approach)
@@ -673,9 +673,9 @@ func _site_finish(mission: Dictionary) -> void:
 	if int(threat.get("danger", 0)) > 0 and (not wounded.is_empty() or not casualties.is_empty()):
 		events.append("%s found the crew." % str(threat.get("name", "Trouble")))
 	if not casualties.is_empty():
-		events.append("%s did not come back. Their gear was lost." % ", ".join(casualties))
+		events.append("%s did not come back up. Their gear is lost below, and %s on the Wall at the Maw." % [", ".join(casualties), "the name goes" if casualties.size() == 1 else "the names go"])
 	if not left_behind.is_empty():
-		events.append("Some of their gear stayed where they fell: %s. Another company may find it." % ", ".join(left_behind))
+		events.append("Some of their gear stays below: %s. Another guild may find it." % ", ".join(left_behind))
 	if not wounded.is_empty():
 		events.append("%s returned injured." % ", ".join(wounded))
 	# The crew keeps its agreed share of the haul.
@@ -703,7 +703,7 @@ func _site_finish(mission: Dictionary) -> void:
 			var bp: String = str(found_bp[rng.randi_range(0, found_bp.size() - 1)])
 			blueprints.append(bp)
 			finds.append("Blueprint: " + str(Catalog.item(bp)["name"]))
-			events.append("Found a blueprint: %s. The company can make it now." % str(Catalog.item(bp)["name"]))
+			events.append("Found a blueprint: %s. The guild can make it now." % str(Catalog.item(bp)["name"]))
 	var hauled: Array[String] = []
 	var value: int = _settle_finds(mission, str(mission.get("site", "")), dead_ids, events, finds)
 	for good in loot:
@@ -796,17 +796,17 @@ func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_b
 func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe") -> String:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
 	if d.is_empty():
-		return "That dungeon isn't open."
+		return "That crypt isn't open."
 	if not Dungeons.TURN_BACK.has(turn_back):
 		return "Unrecognized orders."
 	if ids.is_empty() or ids.size() > int(d.get("crew", 3)):
-		return "Choose between one and %d mercenaries." % int(d.get("crew", 3))
+		return "Choose between one and %d Hellfarers." % int(d.get("crew", 3))
 	if missions.size() >= expedition_slots:
 		return "No expedition slots are free."
 	for id in ids:
 		var merc: Dictionary = merc_by_id(id)
 		if merc.is_empty():
-			return "A selected mercenary is unavailable."
+			return "A chosen Hellfarer is unavailable."
 		var why: String = dungeon_fit(dungeon_id, merc)
 		if why != "":
 			return "%s can't go: %s." % [str(merc["name"]), why.to_lower()]
@@ -1169,7 +1169,7 @@ func _dungeon_floor(m: Dictionary) -> void:
 		for good in carry:
 			dropped[good] = int(dropped.get(good, 0)) + int(carry[good])
 		carry.clear()
-		entry["lines"].append("Everything they carried stays in the keep.")
+		entry["lines"].append("Everything they carried stays below.")
 	elif not (r["dead"] as Array).is_empty():
 		var lost: Dictionary = Dungeons.drop_half(carry)
 		for good in lost:
@@ -1317,7 +1317,7 @@ func _dungeon_finish(m: Dictionary) -> void:
 		var bp: String = str(m["blueprint"])
 		blueprints.append(bp)
 		finds.append("Blueprint: " + str(Catalog.item(bp)["name"]))
-		events.append("Found a blueprint on the top floor: %s. The company can make it now." % str(Catalog.item(bp)["name"]))
+		events.append("Found a blueprint on the last floor: %s. The guild can make it now." % str(Catalog.item(bp)["name"]))
 	gold += coin
 	value += coin
 	for good in loot:
@@ -1346,14 +1346,14 @@ func _dungeon_finish(m: Dictionary) -> void:
 		notes.append("Left in %s: %s." % [str(d["name"]), ", ".join(left)])
 	for f in fallen_notes:
 		if str(f["note"]) != "":
-			notes.append("%s fell. %s." % [str(f["name"]), str(f["note"])])
+			notes.append("%s did not come back up. %s." % [str(f["name"]), str(f["note"])])
 	notes.append_array(events)
 	events = notes
 	var outcome: String = "wiped" if survivors.is_empty() else ("loss" if not casualties.is_empty() else ("cleared" if boss_down else "out"))
 	reports.push_front({
 		"region": str(d["name"]), "dungeon": str(m["dungeon"]), "trade": "combat", "won": outcome == "cleared" or (outcome == "out" and cleared > 0),
 		"outcome": outcome, "floors_cleared": cleared, "floor_log": m.get("log", []), "loot": loot, "cash": coin,
-		"commission": 0, "cost": int(m.get("cost", 0)), "value": value, "tactic": "Dungeon run", "crew": m.get("ids", []),
+		"commission": 0, "cost": int(m.get("cost", 0)), "value": value, "tactic": "Crypt run", "crew": m.get("ids", []),
 		"depth": int(m.get("depth", 1)), "turn_back": str(m.get("turn_back", "half")), "overrode": int(m.get("overrode", -1)),
 		"time": t, "started": int(m.get("started", t)), "casualties": casualties, "injured": [], "lost_items": lost_items,
 		"found_items": finds, "events": events, "dropped": m.get("dropped", {}), "fallen_notes": fallen_notes,

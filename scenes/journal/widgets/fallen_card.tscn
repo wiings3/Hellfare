@@ -21,7 +21,7 @@ theme_override_constants/separation = 3
 [node name="Title" type="Label" parent="Margin/Body"]
 layout_mode = 2
 theme_type_variation = &"LabelTitle"
-text = "Fallen gear"
+text = "Left below"
 
 [node name="Summary" type="Label" parent="Margin/Body"]
 layout_mode = 2

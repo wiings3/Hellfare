@@ -70,7 +70,7 @@ offset_left = 20.0
 offset_top = 16.0
 offset_right = 172.0
 offset_bottom = 56.0
-tooltip_text = "Expedition teams currently out in the field"
+tooltip_text = "Crews out right now, and how many can be"
 theme_type_variation = &"DeskPanel"
 
 [node name="Row" type="HBoxContainer" parent="Header/Field"]
@@ -98,7 +98,7 @@ text = "0 / 1"
 [node name="JobsCaption" type="Label" parent="Header/Field/Row/Text"]
 layout_mode = 2
 theme_type_variation = &"DeskCaption"
-text = "Teams in the field"
+text = "Crews out"
 
 [node name="Purse" type="PanelContainer" parent="Header"]
 layout_mode = 0
@@ -331,7 +331,7 @@ layout_mode = 0
 offset_right = 44.0
 offset_bottom = 37.0
 tooltip_text = "Company
-The region map and what needs you today"
+The Gatelands and what needs you today"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -361,7 +361,7 @@ offset_top = 96.0
 offset_right = 44.0
 offset_bottom = 133.0
 tooltip_text = "Mercenaries
-The roster, their gear, and new recruits"
+Your Hellfarers, their gear, and new recruits"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -391,7 +391,7 @@ offset_top = 192.0
 offset_right = 44.0
 offset_bottom = 229.0
 tooltip_text = "Market
-Merchants and the Trade Hall"
+Merchants, the Auction House and the Tavern"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")

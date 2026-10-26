@@ -79,7 +79,7 @@ func show_company(missions: Array, free_mercs: int) -> void:
 			_tokens.append({"node": token, "mission": mission, "index": i, "road": road, "tool": tool, "carrying": carriers.has(i)})
 	for i in range(mini(idle, MAX_IDLE)):
 		var token := _add_token()
-		token.tooltip_text = "Resting in Mossward."
+		token.tooltip_text = "Resting in Last Lantern."
 		var spot: Vector2 = _town_spot()
 		_idlers.append({"node": token, "pos": spot, "target": spot, "wait": _rng.randf_range(0.0, 3.0)})
 	_process(0.0)

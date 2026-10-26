@@ -25,7 +25,7 @@ const TRAITS := {
 	"tough": {"name": "Tough", "rarity": "common", "text": "Injuries are 30% lighter.", "value": 40},
 	"reckless": {"name": "Reckless", "rarity": "common", "text": "Guards as if 5 Combat levels higher, but 30% more likely to be hurt.", "value": 0},
 	"coward": {"name": "Coward", "rarity": "common", "text": "Half as likely to die, but brings back 10% less.", "value": 0},
-	"woodsman": {"name": "Woodsman", "rarity": "uncommon", "text": "Logging experience +25%.", "value": 120},
+	"woodsman": {"name": "Ashcutter", "rarity": "uncommon", "text": "Logging experience +25%.", "value": 120},
 	"steady_hands": {"name": "Steady hands", "rarity": "uncommon", "text": "Mining experience +25%.", "value": 120},
 	"brawler": {"name": "Brawler", "rarity": "uncommon", "text": "Combat experience +25%.", "value": 120},
 	"quick_healer": {"name": "Quick healer", "rarity": "uncommon", "text": "Rests back to health twice as fast.", "value": 100},
@@ -34,7 +34,7 @@ const TRAITS := {
 	"tracker": {"name": "Tracker", "rarity": "uncommon", "text": "Hunting experience +25%.", "value": 120},
 	"green_thumb": {"name": "Green thumb", "rarity": "uncommon", "text": "Farming experience +25%.", "value": 120},
 	"strong_back": {"name": "Strong back", "rarity": "rare", "text": "Brings back 10% more from work sites.", "value": 450},
-	"keen_eye": {"name": "Keen eye", "rarity": "rare", "text": "The crew is 50% more likely to make rare finds and find gear of the fallen.", "value": 450},
+	"keen_eye": {"name": "Keen eye", "rarity": "rare", "text": "The crew is 50% more likely to make rare finds and find what the dead left below.", "value": 450},
 	"lucky": {"name": "Lucky", "rarity": "rare", "text": "Survives one killing blow in three.", "value": 500},
 	"prodigy": {"name": "Prodigy", "rarity": "legendary", "text": "All experience +50%.", "value": 2500},
 	"born_leader": {"name": "Born leader", "rarity": "legendary", "text": "The whole crew brings back 10% more.", "value": 2500},
@@ -49,7 +49,7 @@ const XP_TRAITS := {"woodsman": "logging", "steady_hands": "mining", "brawler": 
 const TIERS := [
 	{"name": "Unknown", "rep": 0, "cap": 5, "rare": 0.0, "legendary": 0.0},
 	{"name": "Known", "rep": 500, "cap": 10, "rare": 0.05, "legendary": 0.0},
-	{"name": "Respected", "rep": 5000, "cap": 20, "rare": 0.125, "legendary": 0.0025},
+	{"name": "Trusted", "rep": 5000, "cap": 20, "rare": 0.125, "legendary": 0.0025},
 	{"name": "Renowned", "rep": 25000, "cap": 30, "rare": 0.2, "legendary": 0.0067},
 	{"name": "Legendary", "rep": 75000, "cap": 40, "rare": 0.25, "legendary": 0.0167},
 ]
@@ -66,7 +66,7 @@ const SETTLE_SECONDS := 3 * 86400
 const SALE_REP_LOSS := 0.02
 const SALE_REP_MIN := 5
 const CONTRACT_EPOCH := 14400
-const GUILDS := ["the Red Wolves", "Ashford Company", "the Grey Banners", "Hollowmere Free Company", "the Lantern Guild", "Brannoc's Blades"]
+const GUILDS := ["the Red Wolves", "the Iron Hands", "the Grey Lanterns", "the Black Pines", "the Copper Crowns", "the Salt Kings"]
 
 # --- Reputation ------------------------------------------------------------------
 

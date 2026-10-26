@@ -134,7 +134,7 @@ theme_override_constants/separation = 3
 [node name="KnownEmpty" parent="Margin/Content" instance=ExtResource("1_info_box")]
 layout_mode = 2
 visible = false
-text = "No blueprints here yet. Buy them in the Shop; better ones turn up in dungeons."
+text = "No blueprints here yet. Buy them in the Shop; better ones turn up in the crypts."
 icon_kind = "plus"
 
 [node name="ShopLink" type="Button" parent="Margin/Content"]

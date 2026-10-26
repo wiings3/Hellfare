@@ -99,12 +99,12 @@ theme_override_constants/separation = 3
 [node name="Empty" parent="Margin/Content" instance=ExtResource("1_info_box")]
 layout_mode = 2
 visible = false
-text = "Nobody is on the payroll yet. A woodcutter at Mossward Copse pays from the first trip."
+text = "Nobody is on the payroll yet. A woodcutter at Cinderwood pays from the first trip."
 icon_kind = "plus"
 
 [node name="Recruit" type="Button" parent="Margin/Content"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-text = "Recruit mercenaries"
+text = "Recruit Hellfarers"
 visible = false
 size_flags_horizontal = 4

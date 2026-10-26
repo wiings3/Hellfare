@@ -103,7 +103,7 @@ size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("filter")
 custom_minimum_size = Vector2(0, 16)
-tooltip_text = "Meals a mercenary can carry on an expedition."
+tooltip_text = "Meals a Hellfarer can carry on an expedition."
 
 [node name="Columns" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2

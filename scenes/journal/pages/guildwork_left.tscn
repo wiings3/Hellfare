@@ -28,11 +28,11 @@ theme_override_constants/separation = 6
 
 [node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
-text = "Guild Work"
+text = "Warden Work"
 
 [node name="About" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
-text = "Safe, small jobs from the guild for companies that have fallen on hard times. No risk, no equipment, modest pay."
+text = "Safe, small jobs from the Wardens of the Maw for guilds on hard times: watches, hauling, the gate. No risk, no equipment, modest pay."
 icon_kind = "home"
 
 [node name="EligibleCaption" type="Label" parent="Margin/Content"]
