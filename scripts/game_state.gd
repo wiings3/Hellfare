@@ -1027,7 +1027,7 @@ func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool
 	var carry: Dictionary = m["carry"]
 	var notes: Array[String] = []
 	if o.has("coin"):
-		var n: int = rng.randi_range(int(o["coin"][0]), int(o["coin"][1]))
+		var n: int = int(round(float(rng.randi_range(int(o["coin"][0]), int(o["coin"][1]))) * DungeonEvents.COIN_SCALE))
 		carry["coin"] = maxi(0, int(carry.get("coin", 0)) + n)
 	for good in o.get("goods", {}):
 		var n: int = rng.randi_range(int(o["goods"][good][0]), int(o["goods"][good][1]))
@@ -1075,7 +1075,7 @@ func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool
 	for h in hurt:
 		var id: String = str(h[0])
 		var merc: Dictionary = merc_by_id(id)
-		var dmg: float = float(h[1]) * Mercs.injury_damage_mult(merc)
+		var dmg: float = float(h[1]) * DungeonEvents.HURT_SCALE * Mercs.injury_damage_mult(merc)
 		var hp: float = float(m["hp"].get(id, 100.0)) - dmg
 		if hp > 0.0 and hp < 35.0 and int(m["heal"].get(id, 0)) > 0:
 			hp += float(m["heal"][id])

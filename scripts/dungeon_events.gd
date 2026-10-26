@@ -7,12 +7,17 @@ class_name DungeonEvents
 ## seconds to choose; otherwise the crew decides by its standing order (play it safe / take
 ## chances), using a hint when it has one. So runs still finish on their own when nobody watches.
 ##
-## Outcome effects (all optional):
+## Outcome effects (all optional; coin and wounds are scaled by COIN_SCALE and HURT_SCALE):
 ##   coin [a, b] · goods {good: [a, b]} · gear tier (a piece like those lying in the dungeon)
 ##   hurt [a, b] (one member) · hurt_all [a, b] · heal n (everyone) · lose f (share of the haul)
 ##   buff {damage: %, armour: n} for the next fight · weaken % off the next foes' health
 ##   ally (a stranger fights with the crew in the next fight) · xp n Combat XP each
 ##   blueprint chance of a blueprint from this dungeon · text, where {who} is the one affected
+
+## Events come thick and fast (a dozen a floor), so each one's coin and wounds are scaled
+## here to keep a whole run in balance (tuned with tools/econ_sim.gd).
+const COIN_SCALE := 0.5
+const HURT_SCALE := 0.6
 
 const GAP := [15, 25]
 const EVENT_WAIT := 15
@@ -108,8 +113,8 @@ const EVENTS := [
 	 "hint": {"fair": "{who} watches a few throws. The dice look honest.", "cheat": "{who} sees the dice land six too often."},
 	 "choices": [
 		{"label": "Play", "tag": "bold", "out": {
-			"fair": [{"w": 1, "coin": [20, 20], "text": "{who} wins the throw: 20 coin."}, {"w": 1, "coin": [-20, -20], "text": "{who} loses the throw: 20 coin."}],
-			"cheat": [{"w": 3, "coin": [-20, -20], "text": "Loaded dice. 20 coin gone."}, {"w": 1, "coin": [40, 40], "text": "{who} catches him cheating and takes his purse."}]}},
+			"fair": [{"w": 1, "coin": [40, 40], "text": "{who} wins the throw: 20 coin."}, {"w": 1, "coin": [-40, -40], "text": "{who} loses the throw: 20 coin."}],
+			"cheat": [{"w": 3, "coin": [-40, -40], "text": "Loaded dice. 20 coin gone."}, {"w": 1, "coin": [80, 80], "text": "{who} catches him cheating and takes his purse."}]}},
 		{"label": "Decline", "tag": "safe", "out": {"any": [{"w": 1, "text": "He shrugs and shuffles off into the dark."}]}}],
 	 "best": {"fair": 0, "cheat": 1}},
 	{"id": "shrine", "phase": "floor", "text": "A little shrine with an offering bowl. Coins glint in it.",
@@ -119,8 +124,8 @@ const EVENTS := [
 			"blessed": [{"w": 1, "coin": [14, 30], "text": "Nothing happens. The coins are yours."}],
 			"cursed": [{"w": 1, "coin": [14, 30], "buff": {"damage": -15}, "text": "The air turns cold. The crew's hands feel heavy for the next fight."}]}},
 		{"label": "Leave an offering (5 coin)", "tag": "safe", "out": {
-			"blessed": [{"w": 1, "coin": [-5, -5], "buff": {"armour": 8}, "text": "The crew feels watched over."}],
-			"cursed": [{"w": 1, "coin": [-5, -5], "text": "Nothing happens."}]}}]},
+			"blessed": [{"w": 1, "coin": [-10, -10], "buff": {"armour": 8}, "text": "The crew feels watched over."}],
+			"cursed": [{"w": 1, "coin": [-10, -10], "text": "Nothing happens."}]}}]},
 	{"id": "lost_porter", "phase": "floor", "text": "A frightened porter from another company begs to be taken to the exit.",
 	 "states": {"real": 7, "thief": 3},
 	 "choices": [
