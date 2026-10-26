@@ -16,7 +16,7 @@ class_name DungeonEvents
 
 ## Events come thick and fast (a dozen a floor), so each one's coin and wounds are scaled
 ## here to keep a whole run in balance (tuned with tools/econ_sim.gd).
-const COIN_SCALE := 0.4
+const COIN_SCALE := 0.25
 const HURT_SCALE := 0.6
 
 const GAP := [15, 25]
@@ -130,7 +130,7 @@ const EVENTS := [
 	 "states": {"real": 7, "thief": 3},
 	 "choices": [
 		{"label": "Take him along", "tag": "safe", "out": {
-			"real": [{"w": 2, "coin": [15, 30], "text": "He pays what he has when you reach the stairs."}, {"w": 1, "goods": {"spider_silk": [1, 2]}, "text": "He gives you what he was carrying."}],
+			"real": [{"w": 2, "coin": [15, 30], "text": "He pays what he has when you reach the stairs."}, {"w": 1, "goods": {"spider_silk": [1, 1]}, "text": "He gives you what he was carrying."}],
 			"thief": [{"w": 1, "lose": 0.15, "text": "He slips away at the stairs, with part of the haul."}]}},
 		{"label": "Send him off", "tag": "bold", "out": {"any": [{"w": 1, "text": "He runs off into the dark."}]}}]},
 	# --- Calder Keep -----------------------------------------------------------------------
@@ -154,16 +154,16 @@ const EVENTS := [
 	 "choices": [
 		{"label": "Cut it open", "tag": "bold", "out": {
 			"alive": [{"w": 1, "ally": true, "coin": [10, 20], "text": "A trapped explorer tumbles out. He'll fight with you, gladly."}],
-			"spider": [{"w": 1, "hurt": [14, 26], "goods": {"spider_silk": [1, 2]}, "text": "A spider bursts out at {who}."}]}},
-		{"label": "Burn the webs", "tag": "safe", "out": {"any": [{"w": 1, "goods": {"spider_silk": [1, 2]}, "weaken": 10, "text": "The webs go up. The spiders come out singed."}]}}],
+			"spider": [{"w": 1, "hurt": [14, 26], "goods": {"spider_silk": [0, 1]}, "text": "A spider bursts out at {who}."}]}},
+		{"label": "Burn the webs", "tag": "safe", "out": {"any": [{"w": 1, "goods": {"spider_silk": [0, 1]}, "weaken": 10, "text": "The webs go up. The spiders come out singed."}]}}],
 	 "best": {"alive": 0, "spider": 1}},
 	{"id": "silk_harvest", "phase": "floor", "where": ["calder_keep"], "floors": [1], "text": "Thick sheets of silk, unguarded for the moment.",
 	 "states": {"quiet": 6, "watched": 4},
 	 "choices": [
 		{"label": "Harvest it", "tag": "bold", "out": {
-			"quiet": [{"w": 1, "goods": {"spider_silk": [2, 4]}, "text": "The crew bundles up good silk."}],
-			"watched": [{"w": 1, "goods": {"spider_silk": [1, 2]}, "hurt": [12, 22], "text": "A spider drops onto {who}."}]}},
-		{"label": "Take a little", "tag": "safe", "out": {"any": [{"w": 1, "goods": {"spider_silk": [1, 1]}, "text": "A strip of silk, quietly."}]}}]},
+			"quiet": [{"w": 1, "goods": {"spider_silk": [1, 2]}, "text": "The crew bundles up good silk."}],
+			"watched": [{"w": 1, "goods": {"spider_silk": [0, 1]}, "hurt": [12, 22], "text": "A spider drops onto {who}."}]}},
+		{"label": "Take a little", "tag": "safe", "out": {"any": [{"w": 1, "goods": {"spider_silk": [0, 1]}, "text": "A strip of silk, quietly, if any is loose."}]}}]},
 	{"id": "knights_squire", "phase": "floor", "where": ["calder_keep"], "floors": [2], "text": "A squire's ghost kneels by the stairs. \"My master is tired,\" it whispers. \"Let him rest.\"",
 	 "states": {"kind": 5, "warning": 5},
 	 "choices": [
