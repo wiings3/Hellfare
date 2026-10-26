@@ -224,6 +224,8 @@ func _init() -> void:
 	load_game()
 
 func load_game() -> void:
+	if persist:
+		GameSettings.carry_over(SAVE_PATH)
 	if not persist or not FileAccess.file_exists(SAVE_PATH):
 		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)

@@ -1,4 +1,4 @@
-"""Generate Money Mercs' pixel UI kit (nine-patch frames, slots, bars, pips, desk).
+"""Generate Hellfare's pixel UI kit (nine-patch frames, slots, bars, pips, desk).
 All art is authored at 1 texel = 1 stage unit so it stays crisp at 2x (1080p)."""
 import os, random
 import numpy as np

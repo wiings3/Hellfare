@@ -36,7 +36,7 @@ func _build_shell() -> void:
 func _refresh() -> void:
 	pass
 
-# Money Mercs is entirely mouse-driven. Always restore the OS pointer on
+# Hellfare is entirely mouse-driven. Always restore the OS pointer on
 # launch and when returning from another window (including the Godot editor).
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_WINDOW_FOCUS_IN:

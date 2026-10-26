@@ -1,22 +1,33 @@
-# Money Mercs (becoming Hellfare)
+# Hellfare
 
-**Version 0.26 — Hellfare: art**
+**Version 0.27 — Hellfare**
 
 A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
 Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
-or to fight through its crypts toward the Ashen King. The game's title and repository name change
-last, after the art.
+or to fight through its crypts toward the Ashen King. It was called Money Mercs until v0.27.
 
 > *Build a fortune. Let someone else go down for it.*
 
 ## Play
 
-1. Pull `main` or clone https://github.com/wiings3/Money-Mercs
+1. Pull `main` or clone https://github.com/wiings3/Hellfare
 2. Import `project.godot` in Godot **4.5.1**. Run with **F5**.
 3. Open **Mercenaries → Recruit** and hire a woodcutter; new faces turn up every 30 minutes.
 4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.27 – Hellfare
+
+The game is called Hellfare now: the window, the pause menu and the repository
+(github.com/wiings3/Hellfare; the old address redirects).
+
+- **Saves carry over.** Godot keeps a game's files in a folder named after the game, so the new
+  name means a new folder. The first time Hellfare looks for its save or settings and finds none,
+  it copies them from the old Money Mercs folder (`GameSettings.carry_over`). It never overwrites
+  a file that already exists, and the old files stay where they were.
+- Internal names stay: `MoneyMercsState`, `money_mercs_save.json`, the theme file. They are never
+  shown to players.
 
 ## V0.26 – Hellfare: art
 

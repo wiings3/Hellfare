@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Money Mercs"
-config/description="A slow-burn mercenary company and resource-economy management game."
+config/name="Hellfare"
+config/description="Run a guild of Hellfarers from the last town before the Maw."
 run/main_scene="res://scenes/journal/widgets/main.tscn"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://assets/icon.svg"

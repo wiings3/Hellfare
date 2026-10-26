@@ -51,7 +51,7 @@ theme_override_constants/separation = 6
 [node name="Title" type="Label" parent="Cover/Plate/Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelTitleBig"
-text = "Money Mercs"
+text = "Hellfare"
 horizontal_alignment = 1
 
 [node name="Subtitle" parent="Cover/Plate/Margin/Content" instance=ExtResource("3_header")]

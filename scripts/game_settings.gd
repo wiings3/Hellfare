@@ -8,7 +8,20 @@ static var fullscreen: bool = false
 static var vsync: bool = true
 static var book_animations: bool = true
 
+## The game was called Money Mercs before Hellfare, and Godot keeps each game's files in a
+## folder named after it. Copies a file from the old folder the first time Hellfare looks for
+## it, so saves and settings carry over. Never overwrites a file that already exists.
+const OLD_NAME := "Money Mercs"
+
+static func carry_over(path: String) -> void:
+	if FileAccess.file_exists(path):
+		return
+	var old: String = OS.get_user_data_dir().get_base_dir().path_join(OLD_NAME).path_join(path.trim_prefix("user://"))
+	if old != ProjectSettings.globalize_path(path) and FileAccess.file_exists(old):
+		DirAccess.copy_absolute(old, ProjectSettings.globalize_path(path))
+
 static func load_settings() -> void:
+	carry_over(PATH)
 	var cfg := ConfigFile.new()
 	if cfg.load(PATH) != OK:
 		return

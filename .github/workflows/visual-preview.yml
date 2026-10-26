@@ -34,7 +34,7 @@ jobs:
       - name: Upload editable-UI visual snapshots
         uses: actions/upload-artifact@v4
         with:
-          name: money-mercs-ui-preview
+          name: hellfare-ui-preview
           path: docs/ui_*_preview.jpg
           retention-days: 7
           if-no-files-found: error
