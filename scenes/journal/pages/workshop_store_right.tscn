@@ -49,7 +49,7 @@ theme_override_constants/separation = 3
 [node name="SuppliesEmpty" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
 visible = false
-text = "No food or potions. Craft them, or buy them from traders in the Trade Hall."
+text = "No food or potions. Craft them, or buy them at the Auction House."
 icon_kind = "home"
 
 [node name="Tip" parent="Margin/Content" instance=ExtResource("2_info_box")]

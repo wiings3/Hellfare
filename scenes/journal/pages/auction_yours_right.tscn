@@ -1,0 +1,75 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="2_stat_tile"]
+
+[node name="AuctionYoursRight" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Last 24 Hours"
+
+[node name="Totals" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Sold" parent="Margin/Content/Totals" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Sold"
+value = "0"
+
+[node name="Bought" parent="Margin/Content/Totals" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Bought"
+value = "0"
+
+[node name="Fees" parent="Margin/Content/Totals" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Fees and cut"
+value = "0"
+
+[node name="RecentCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Recent"
+
+[node name="Log" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Log"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="NoLog" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nothing has sold or arrived yet."
+visible = false
+horizontal_alignment = 1

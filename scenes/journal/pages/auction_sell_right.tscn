@@ -1,0 +1,287 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="2_stat_tile"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="3_info_box"]
+
+[sub_resource type="ButtonGroup" id="time"]
+
+[node name="AuctionSellRight" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Head" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Slot" type="PanelContainer" parent="Margin/Content/Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(34, 34)
+theme_type_variation = &"SlotPanel"
+
+[node name="Icon" type="TextureRect" parent="Margin/Content/Head/Slot"]
+layout_mode = 2
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Id" type="VBoxContainer" parent="Margin/Content/Head"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -3
+
+[node name="Name" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Item"
+text_overrun_behavior = 3
+
+[node name="Desc" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Order" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+visible = false
+theme_type_variation = &"GoldPanel"
+
+[node name="Row" type="HBoxContainer" parent="Margin/Content/Order"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Text" type="Label" parent="Margin/Content/Order/Row"]
+layout_mode = 2
+text = ""
+size_flags_horizontal = 3
+autowrap_mode = 3
+
+[node name="Fill" type="Button" parent="Margin/Content/Order/Row"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Sell"
+size_flags_vertical = 4
+
+[node name="PostHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Post a Listing"
+
+[node name="Qty" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Qty"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "How many"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="Minus" type="Button" parent="Margin/Content/Qty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="Value" type="LineEdit" parent="Margin/Content/Qty"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)
+size_flags_horizontal = 3
+context_menu_enabled = false
+max_length = 7
+
+[node name="Plus" type="Button" parent="Margin/Content/Qty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="All" type="Button" parent="Margin/Content/Qty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "All"
+custom_minimum_size = Vector2(28, 18)
+
+[node name="Price" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Price"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Price each"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="Minus" type="Button" parent="Margin/Content/Price"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="Value" type="LineEdit" parent="Margin/Content/Price"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)
+size_flags_horizontal = 3
+context_menu_enabled = false
+max_length = 7
+
+[node name="Plus" type="Button" parent="Margin/Content/Price"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="Marks" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Marks"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Set to"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="Merchant" type="Button" parent="Margin/Content/Marks"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Merchants"
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "What merchants pay you now: sells at once, but for less."
+
+[node name="Cheapest" type="Button" parent="Margin/Content/Marks"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Cheapest"
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "Match the cheapest listing: buyers take the cheapest first."
+
+[node name="Usual" type="Button" parent="Margin/Content/Marks"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Usual"
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "The usual price for it lately."
+
+[node name="Time" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Time"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Up for"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="H12" type="Button" parent="Margin/Content/Time"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "12 hours"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("time")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="D1" type="Button" parent="Margin/Content/Time"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "1 day"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("time")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="D2" type="Button" parent="Margin/Content/Time"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "2 days"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("time")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Forecast" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Sells" parent="Margin/Content/Forecast" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Sells in"
+value = "0"
+tooltip_text = "Roughly how long until it all sells at this price."
+
+[node name="Fee" parent="Margin/Content/Forecast" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Fee  ·  cut"
+value = "0"
+tooltip_text = "1% of the asking total when posting (kept even if it doesn't sell), and 5% of each sale."
+
+[node name="Take" parent="Margin/Content/Forecast" instance=ExtResource("2_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "You get"
+value = "0"
+tooltip_text = "If it all sells: the sales less the cut and the fee."
+
+[node name="Advice" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Post" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Post listing"
+custom_minimum_size = Vector2(0, 24)
+
+[node name="Reason" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Gold arrives as it sells. Whatever's left when it ends comes back."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Empty" parent="Margin/Content" instance=ExtResource("3_info_box")]
+layout_mode = 2
+visible = false
+text = "Pick something to sell on the left."
+icon_kind = "home"

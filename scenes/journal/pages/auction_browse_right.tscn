@@ -1,0 +1,248 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
+
+[sub_resource type="ButtonGroup" id="qty"]
+
+[sub_resource type="ButtonGroup" id="otime"]
+
+[node name="AuctionBrowseRight" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Head" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Slot" type="PanelContainer" parent="Margin/Content/Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(34, 34)
+theme_type_variation = &"SlotPanel"
+
+[node name="Icon" type="TextureRect" parent="Margin/Content/Head/Slot"]
+layout_mode = 2
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Id" type="VBoxContainer" parent="Margin/Content/Head"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = -3
+
+[node name="Name" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Item"
+text_overrun_behavior = 3
+
+[node name="Desc" type="Label" parent="Margin/Content/Head/Id"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="SaleHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "For Sale"
+
+[node name="BuyQty" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/BuyQty"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Buy"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="One" type="Button" parent="Margin/Content/BuyQty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "1"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("qty")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Ten" type="Button" parent="Margin/Content/BuyQty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "10"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("qty")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="All" type="Button" parent="Margin/Content/BuyQty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "All of it"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("qty")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Listings" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 60)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Listings"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="NoListings" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nobody is selling one right now. Post a buy order below and sellers come to you."
+visible = false
+autowrap_mode = 3
+
+[node name="OrderHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Buy Order"
+
+[node name="OrderQty" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/OrderQty"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "How many"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="Minus" type="Button" parent="Margin/Content/OrderQty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="Value" type="LineEdit" parent="Margin/Content/OrderQty"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)
+size_flags_horizontal = 3
+context_menu_enabled = false
+max_length = 7
+
+[node name="Plus" type="Button" parent="Margin/Content/OrderQty"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="OrderPrice" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/OrderPrice"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Price each"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="Minus" type="Button" parent="Margin/Content/OrderPrice"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "-"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="Value" type="LineEdit" parent="Margin/Content/OrderPrice"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)
+size_flags_horizontal = 3
+context_menu_enabled = false
+max_length = 7
+
+[node name="Plus" type="Button" parent="Margin/Content/OrderPrice"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "+"
+custom_minimum_size = Vector2(18, 18)
+
+[node name="OrderTime" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/OrderTime"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Up for"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="H12" type="Button" parent="Margin/Content/OrderTime"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "12 hours"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("otime")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="D1" type="Button" parent="Margin/Content/OrderTime"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "1 day"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("otime")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="D2" type="Button" parent="Margin/Content/OrderTime"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "2 days"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("otime")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="OrderNote" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Place" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Place buy order"
+custom_minimum_size = Vector2(0, 22)
+
+[node name="Empty" parent="Margin/Content" instance=ExtResource("2_info_box")]
+layout_mode = 2
+visible = false
+text = "Pick an item on the left."
+icon_kind = "home"

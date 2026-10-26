@@ -63,6 +63,21 @@ var craft_filter: String = "all"
 var workshop_focus: String = ""
 ## Exchange list filter: "all", "held", "raw", "crafted" or "food".
 var market_filter: String = "held"
+## The Auction House: which tab, the Browse search and filter, the chosen items, and the
+## numbers being typed into the buy order and the listing.
+var auction_tab: String = "browse"
+var ah_search: String = ""
+var ah_filter: String = "all"
+var ah_sell_filter: String = "all"
+var ah_item: String = ""
+var ah_sell_item: String = ""
+var ah_buy_qty: String = "ten"
+var ah_order_qty: int = 0
+var ah_order_price: int = 0
+var ah_order_time: String = "1d"
+var ah_qty: int = 0
+var ah_price: int = 0
+var ah_time: String = "1d"
 var selected_report_index: int = 0
 var tab_host: Control
 var pause_menu: Control
@@ -139,7 +154,7 @@ func _active_tab_index() -> int:
 	# These secondary pages belong to the Expeditions chapter.
 	if page in ["harlow", "site", "contracts", "guildwork", "dungeon"]:
 		return 1
-	if page in ["hall", "market"]:
+	if page in ["hall", "market", "auction"]:
 		return 4
 	if page in ["ledger", "warehouse"]:
 		return 5
@@ -192,7 +207,7 @@ func _turn_to(destination: String) -> void:
 	_start_page_flip(direction)
 
 func _tab_index(destination: String) -> int:
-	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "roster", "workshop", "market", "hall", "finance", "ledger", "warehouse"]
+	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "dungeon", "roster", "workshop", "market", "auction", "hall", "finance", "ledger", "warehouse"]
 	return keys.find(destination)
 
 func _start_page_flip(direction: String) -> void:

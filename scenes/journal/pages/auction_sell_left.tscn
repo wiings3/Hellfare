@@ -1,0 +1,145 @@
+[gd_scene load_steps=3 format=3]
+
+[sub_resource type="ButtonGroup" id="sub"]
+
+[sub_resource type="ButtonGroup" id="filter"]
+
+[node name="AuctionSellLeft" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Sub" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Browse" type="Button" parent="Margin/Content/Sub"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Browse"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("sub")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Sell" type="Button" parent="Margin/Content/Sub"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Sell"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("sub")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Yours" type="Button" parent="Margin/Content/Sub"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Yours"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("sub")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Filter" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="All" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "All"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Goods" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Goods"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Gear" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Gear"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Columns" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Item" type="Label" parent="Margin/Content/Columns"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Item"
+size_flags_horizontal = 3
+
+[node name="Count" type="Label" parent="Margin/Content/Columns"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Held"
+custom_minimum_size = Vector2(34, 0)
+horizontal_alignment = 2
+
+[node name="Price" type="Label" parent="Margin/Content/Columns"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Going for"
+custom_minimum_size = Vector2(52, 0)
+horizontal_alignment = 2
+
+[node name="List" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/List"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="Empty" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nothing to sell yet. Goods your crews bring home and spare gear show here."
+visible = false
+autowrap_mode = 3
+horizontal_alignment = 1
+
+[node name="Hint" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "\"Going for\" is the cheapest listing right now."
+autowrap_mode = 3
+horizontal_alignment = 1

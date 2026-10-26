@@ -101,6 +101,7 @@ const PAGE_TITLES := {
 	"guildwork": "Guild Work",
 	"market": "The Market",
 	"hall": "The Trade Hall",
+	"auction": "The Auction House",
 	"finance": "The Ledger",
 	"ledger": "The Ledger",
 	"warehouse": "The Ledger",
@@ -149,6 +150,7 @@ func _refresh() -> void:
 		"workshop": _draw_workshop_chapter()
 		"guildwork": _draw_guild_jobs()
 		"market": _draw_exchange()
+		"auction": _draw_auction()
 		"hall": _draw_hall()
 		"finance": _draw_ledger()
 		"ledger": _draw_ledger()
@@ -453,6 +455,20 @@ func _needs() -> Array:
 		out.append({"icon": TRADE_ICONS.get("dungeon"), "title": "%s: crew waiting for orders" % dname,
 			"details": "Floor %d cleared  ·  carrying %s  ·  orders in %s" % [int(m["floor_i"]) + 1, _money(game.dungeon_carry_value(m.get("carry", {}))), _duration(maxi(0, int(m["await_until"]) - _now()))],
 			"action": "Decide", "call": _open_dungeon.bind(str(m["dungeon"]))})
+	# Auction House news since it was last looked at.
+	var fresh_sold: int = 0
+	var fresh_gold: int = 0
+	for e in game.auction.log:
+		if _now() - int(e["t"]) > REPORT_FRESH or int(e["t"]) <= ah_seen:
+			break
+		if str(e["kind"]) == "sold":
+			fresh_sold += 1
+			fresh_gold += int(e["gold"])
+	if fresh_sold > 0:
+		out.append({"icon": SIGN_COIN, "title": "Auction House: %s sold" % _plural(fresh_sold, "sale"),
+			"details": "+%s while you were away" % _money(fresh_gold), "action": "See", "call": func() -> void:
+				auction_tab = "yours"
+				_turn_to("auction")})
 	# Crews just back.
 	var now: int = _now()
 	for i in range(mini(2, game.reports.size())):
@@ -1622,12 +1638,12 @@ func _draw_exchange() -> void:
 		note.text = "Market news: %s Lasts %s more." % [str(event["news"]), _duration(game.market.event_ends_in())]
 		note.icon_kind = "alert"
 	else:
-		note.text = "Merchants pay about 75% of fair value. Traders in the Trade Hall pay more, if you can wait for a buyer."
+		note.text = "Merchants pay about 75% of fair value at once. The Auction House pays more, if you can wait for a buyer."
 	_mount_exchange_tabs()
 
 func _mount_exchange_tabs() -> void:
 	var tabs := _mount_page(EXCHANGE_TABS, left_leaf)
-	for tab in [["MerchantsTab", "market"], ["HallTab", "hall"]]:
+	for tab in [["MerchantsTab", "market"], ["AuctionTab", "auction"], ["HallTab", "hall"]]:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
 		btn.set_pressed_no_signal(page == str(tab[1]))
 		btn.pressed.connect(_nav_to.bind(str(tab[1])))
@@ -2816,3 +2832,464 @@ func _draw_run(d: Dictionary, m: Dictionary) -> void:
 	plan_btn.visible = game.missions.size() < game.expedition_slots
 	plan_btn.pressed.connect(_plan_another)
 	right.get_node(c).add_child(plan_btn)
+
+# --- Auction House ----------------------------------------------------------------------
+
+const AUCTION_BROWSE_LEFT := preload("res://scenes/journal/pages/auction_browse_left.tscn")
+const AUCTION_BROWSE_RIGHT := preload("res://scenes/journal/pages/auction_browse_right.tscn")
+const AUCTION_SELL_LEFT := preload("res://scenes/journal/pages/auction_sell_left.tscn")
+const AUCTION_SELL_RIGHT := preload("res://scenes/journal/pages/auction_sell_right.tscn")
+const AUCTION_YOURS_LEFT := preload("res://scenes/journal/pages/auction_yours_left.tscn")
+const AUCTION_YOURS_RIGHT := preload("res://scenes/journal/pages/auction_yours_right.tscn")
+const AH_TIMES := [["H12", "12h"], ["D1", "1d"], ["D2", "2d"]]
+
+## NPC listings per ref, for the current three-hour window (cleared after buying).
+var _ah_cache: Dictionary = {}
+var _ah_cache_epoch: int = -1
+
+func _ah_listings(ref: String) -> Array:
+	var epoch: int = int(_now() / AuctionHouse.EPOCH)
+	if epoch != _ah_cache_epoch:
+		_ah_cache.clear()
+		_ah_cache_epoch = epoch
+	if not _ah_cache.has(ref):
+		_ah_cache[ref] = game.ah_listings_for(ref)
+	return _ah_cache[ref]
+
+func _ah_icon(ref: String) -> Texture2D:
+	return _gear_icon(ref.substr(5)) if ref.begins_with("gear:") else _item_icon(ref)
+
+func _ah_key(ref: String) -> String:
+	return ref.substr(5) if ref.begins_with("gear:") else ref
+
+## Browse's filter group for a ref.
+func _ah_group(ref: String) -> String:
+	var d: Dictionary = Catalog.item(_ah_key(ref))
+	var cat: String = str(d.get("category", ""))
+	if not ref.begins_with("gear:"):
+		return "food" if cat in ["food", "potion"] else "goods"
+	match cat:
+		"weapon": return "arms"
+		"tool", "lantern": return "tools"
+	return "armour"
+
+func _ah_all_refs() -> Array:
+	var out: Array = []
+	for key in MoneyMercsState.RESOURCE_ORDER:
+		out.append(str(key))
+	for key in Catalog.items():
+		if Gear.equippable(str(key)) and not Gear.consumable(str(key)):
+			out.append("gear:" + str(key))
+	return out
+
+func _ends_in(t: int) -> String:
+	var left: int = maxi(0, t - _now())
+	if left >= 86400:
+		return "%dd %dh" % [left / 86400, (left % 86400) / 3600]
+	if left >= 3600:
+		return "%dh" % (left / 3600)
+	return "%dm" % maxi(1, left / 60)
+
+func _draw_auction() -> void:
+	match auction_tab:
+		"sell": _draw_ah_sell()
+		"yours": _draw_ah_yours()
+		_: _draw_ah_browse()
+	_mount_exchange_tabs()
+
+func _bind_ah_sub(left: Control) -> void:
+	var c := "Margin/Content/"
+	for pair in [["Browse", "browse"], ["Sell", "sell"], ["Yours", "yours"]]:
+		var b := left.get_node(c + "Sub/" + str(pair[0])) as Button
+		b.set_pressed_no_signal(auction_tab == str(pair[1]))
+		b.pressed.connect(func() -> void:
+			auction_tab = str(pair[1])
+			_refresh())
+	var mine: int = game.auction.listings.size() + game.auction.orders.size()
+	(left.get_node(c + "Sub/Yours") as Button).text = "Yours  ·  %d" % mine if mine > 0 else "Yours"
+
+func _ah_action(result: String) -> void:
+	_ah_cache.clear()
+	_action(result)
+
+## A number box with − and + buttons; `apply` gets the new value (at least 1).
+func _ah_stepper(row: Control, value: int, step: int, apply: Callable, live: Callable = Callable()) -> void:
+	var box := row.get_node("Value") as LineEdit
+	box.text = str(value)
+	var set_to := func(v: int) -> void:
+		apply.call(maxi(1, v))
+		_refresh()
+	(row.get_node("Minus") as Button).pressed.connect(func() -> void: set_to.call(value - step))
+	(row.get_node("Plus") as Button).pressed.connect(func() -> void: set_to.call(value + step))
+	box.text_submitted.connect(func(t: String) -> void: set_to.call(int(t) if t.is_valid_int() else value))
+	box.focus_exited.connect(func() -> void:
+		if box.text.is_valid_int() and int(box.text) != value:
+			set_to.call(int(box.text)))
+	if live.is_valid():
+		box.text_changed.connect(func(t: String) -> void:
+			if t.is_valid_int() and int(t) > 0:
+				live.call(int(t)))
+
+func _ah_times(row: Control, current: String, apply: Callable) -> void:
+	for pair in AH_TIMES:
+		var b := row.get_node(str(pair[0])) as Button
+		b.set_pressed_no_signal(current == str(pair[1]))
+		b.pressed.connect(func() -> void:
+			apply.call(str(pair[1]))
+			_refresh())
+
+# Browse ------------------------------------------------------------------------------
+
+func _draw_ah_browse() -> void:
+	var left := _mount_page(AUCTION_BROWSE_LEFT, left_leaf)
+	var right := _mount_page(AUCTION_BROWSE_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	_bind_ah_sub(left)
+	var search := left.get_node(c + "Search") as LineEdit
+	search.text = ah_search
+	search.text_submitted.connect(func(t: String) -> void:
+		ah_search = t
+		_refresh())
+	search.text_changed.connect(func(t: String) -> void:
+		if t == "" and ah_search != "":
+			ah_search = ""
+			_refresh())
+	for pair in [["All", "all"], ["Goods", "goods"], ["Arms", "arms"], ["Armour", "armour"], ["Tools", "tools"], ["Food", "food"]]:
+		var b := left.get_node(c + "Filter/" + str(pair[0])) as Button
+		b.set_pressed_no_signal(ah_filter == str(pair[1]))
+		b.pressed.connect(func() -> void:
+			ah_filter = str(pair[1])
+			_refresh())
+	var list := left.get_node(c + "List/Items") as VBoxContainer
+	var refs: Array = _hall().search_refs(ah_search, 60) if ah_search.strip_edges().length() >= 2 else _ah_all_refs()
+	var shown: int = 0
+	for ref in refs:
+		var r: String = str(ref)
+		if ah_filter != "all" and _ah_group(r) != ah_filter:
+			continue
+		var npc: Array = _ah_listings(r)
+		var searching: bool = ah_search.strip_edges().length() >= 2
+		if npc.is_empty() and not searching and r != ah_item:
+			continue
+		var count: int = 0
+		for l in npc:
+			count += int(l["left"])
+		var detail: String = ""
+		var held: int = game.ah_held(r)
+		if npc.is_empty():
+			detail = "Nobody selling"
+		elif held > 0:
+			detail = "You hold %d" % held
+		elif r.begins_with("gear:"):
+			detail = "Tier %d" % int(Catalog.item(_ah_key(r)).get("tier", 1))
+		var card := _list_card(list, _ah_icon(r), game.item_ref_name(r), detail, "%d listed" % count if count > 0 else "",
+			_money(int(npc[0]["price"])) if not npc.is_empty() else "-", ah_item == r, func() -> void:
+				ah_item = r
+				_refresh())
+		if npc.is_empty():
+			card.modulate = Color(1, 1, 1, 0.65)
+		shown += 1
+		if shown >= 60:
+			break
+	(left.get_node(c + "Empty") as Control).visible = shown == 0
+	_bind_ah_item(right)
+
+func _bind_ah_item(right: Control) -> void:
+	var c := "Margin/Content/"
+	var empty: bool = ah_item == ""
+	for n in ["Head", "SaleHeader", "BuyQty", "Listings", "NoListings", "OrderHeader", "OrderQty", "OrderPrice", "OrderTime", "OrderNote", "Place"]:
+		(right.get_node(c + n) as Control).visible = not empty
+	(right.get_node(c + "Empty") as Control).visible = empty
+	if empty:
+		return
+	var ref: String = ah_item
+	var gear: bool = ref.begins_with("gear:")
+	var key: String = _ah_key(ref)
+	var fair: float = game.ah_fair(ref)
+	(right.get_node(c + "Head/Slot/Icon") as TextureRect).texture = _ah_icon(ref)
+	_lookup_on(right.get_node(c + "Head/Slot") as Control, key)
+	(right.get_node(c + "Head/Id/Name") as Label).text = game.item_ref_name(ref)
+	var d: Dictionary = Catalog.item(key)
+	var desc: String
+	if gear:
+		desc = "%s%s  ·  usually ~%s" % [Gear.summary(key), ("  ·  gear score +%d" % int(d.get("kit", 0))) if int(d.get("kit", 0)) > 0 else "", _money(int(round(fair)))]
+	else:
+		desc = "Usually ~%s  ·  merchants charge %s  ·  you hold %d" % [_money(int(round(fair))), _money(game.buy_price(ref)), game.ah_held(ref)]
+	(right.get_node(c + "Head/Id/Desc") as Label).text = desc
+	# Listings, cheapest first.
+	(right.get_node(c + "BuyQty") as Control).visible = not gear
+	for pair in [["One", "one"], ["Ten", "ten"], ["All", "all"]]:
+		var b := right.get_node(c + "BuyQty/" + str(pair[0])) as Button
+		b.set_pressed_no_signal(ah_buy_qty == str(pair[1]))
+		b.pressed.connect(func() -> void:
+			ah_buy_qty = str(pair[1])
+			_refresh())
+	var want: int = {"one": 1, "ten": 10}.get(ah_buy_qty, 1000000)
+	var list := right.get_node(c + "Listings/Items") as VBoxContainer
+	var npc: Array = _ah_listings(ref)
+	for l in npc:
+		var card: Control
+		if gear:
+			var item: Dictionary = l["item"]
+			var rolls: String = Gear.rolls_text(item)
+			card = _item_row(list, _gear_icon(key), "%s  ·  %s" % [str(l["seller"]), str(item.get("rarity", "common")).capitalize()], "%s%sends in %s" % [rolls, "  ·  " if rolls != "" else "", _ends_in(int(l["ends"]))], key)
+			card.tooltip_text = Gear.describe(item)
+			_row_button(card, "Primary", "Buy  ·  %s" % _money(int(l["price"])), _ah_buy.bind(str(l["uid"]), 1), game.gold < int(l["price"]), "Not enough gold." if game.gold < int(l["price"]) else "")
+		else:
+			var n: int = mini(want, int(l["left"]))
+			card = _item_row(list, _item_icon(ref), "%s  ·  %s each" % [str(l["seller"]), _money(int(l["price"]))], "%d for sale  ·  ends in %s" % [int(l["left"]), _ends_in(int(l["ends"]))], ref)
+			_row_button(card, "Primary", "Buy %d  ·  %s" % [n, _money(n * int(l["price"]))], _ah_buy.bind(str(l["uid"]), n), game.gold < int(l["price"]), "Not enough gold." if game.gold < int(l["price"]) else "Buys as many as you can afford, up to %d." % n)
+	for mine in game.auction.listings:
+		if str(mine["ref"]) == ref:
+			var card := _item_row(list, _ah_icon(ref), "You  ·  %s each" % _money(int(mine["price"])), "%d left  ·  ends in %s" % [int(mine["left"]), _ends_in(int(mine["ends"]))], key)
+			_row_button(card, "Primary", "Cancel", func() -> void: _ah_action(game.ah_cancel_listing(int(mine["id"]))))
+	(right.get_node(c + "NoListings") as Control).visible = list.get_child_count() == 0
+	# A buy order (its numbers start fresh for each item).
+	if ah_order_for != ref:
+		ah_order_for = ref
+		ah_order_price = 0
+		ah_order_qty = 0
+	if ah_order_price <= 0:
+		ah_order_price = maxi(1, int(round(fair * 0.9)))
+	if ah_order_qty <= 0:
+		ah_order_qty = 1 if gear else 10
+	(right.get_node(c + "OrderHeader") as Control).set("text", "Want One Cheaper?" if not npc.is_empty() else "Buy Order")
+	_ah_stepper(right.get_node(c + "OrderQty"), ah_order_qty, 1 if gear else 5, func(v: int) -> void: ah_order_qty = mini(v, 5) if gear else v)
+	_ah_stepper(right.get_node(c + "OrderPrice"), ah_order_price, maxi(1, int(round(fair * 0.05))), func(v: int) -> void: ah_order_price = v)
+	_ah_times(right.get_node(c + "OrderTime"), ah_order_time, func(t: String) -> void: ah_order_time = t)
+	var rate: float = AuctionHouse.fill_rate(ref, float(ah_order_price), fair)
+	var est: Dictionary = AuctionHouse.estimate(ah_order_qty, rate, int(AuctionHouse.DURATIONS[ah_order_time]))
+	(right.get_node(c + "OrderNote") as Label).text = "The %s is held until sellers fill it, or you cancel. At %s each, %s." % [
+		_money(ah_order_qty * ah_order_price), _money(ah_order_price),
+		"it should fill in about %s" % _duration(int(float(est["hours"]) * 3600.0)) if float(est["share"]) >= 0.95 else "about %d%% should fill before it ends" % int(float(est["share"]) * 100.0)]
+	var place := right.get_node(c + "Place") as Button
+	place.text = "Place buy order  ·  %s" % _money(ah_order_qty * ah_order_price)
+	place.disabled = game.gold < ah_order_qty * ah_order_price or game.auction.orders.size() >= AuctionHouse.MAX_ORDERS
+	place.tooltip_text = "Not enough gold." if game.gold < ah_order_qty * ah_order_price else ""
+	place.pressed.connect(func() -> void: _ah_action(game.ah_order(ref, ah_order_qty, ah_order_price, ah_order_time)))
+
+var ah_order_for: String = ""
+
+func _ah_buy(uid: String, qty: int) -> void:
+	_ah_action(game.ah_buy(uid, qty))
+
+# Sell --------------------------------------------------------------------------------
+
+func _draw_ah_sell() -> void:
+	var left := _mount_page(AUCTION_SELL_LEFT, left_leaf)
+	var right := _mount_page(AUCTION_SELL_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	_bind_ah_sub(left)
+	for pair in [["All", "all"], ["Goods", "goods"], ["Gear", "gear"]]:
+		var b := left.get_node(c + "Filter/" + str(pair[0])) as Button
+		b.set_pressed_no_signal(ah_sell_filter == str(pair[1]))
+		b.pressed.connect(func() -> void:
+			ah_sell_filter = str(pair[1])
+			_refresh())
+	var list := left.get_node(c + "List/Items") as VBoxContainer
+	var choices: Array = []
+	if ah_sell_filter != "gear":
+		for key in MoneyMercsState.RESOURCE_ORDER:
+			if int(game.resources.get(str(key), 0)) > 0:
+				choices.append({"pick": str(key), "ref": str(key), "count": int(game.resources[str(key)]), "name": _resource_name(str(key))})
+	if ah_sell_filter != "goods":
+		for item in game.equipment_inventory:
+			choices.append({"pick": "uid:" + str(item["uid"]), "ref": "gear:" + str(item["key"]), "count": 1, "name": Gear.full_name(item), "item": item})
+	if ah_sell_item == "" or not choices.any(func(ch): return str(ch["pick"]) == ah_sell_item):
+		ah_sell_item = str(choices[0]["pick"]) if not choices.is_empty() else ""
+	for ch in choices:
+		var ref: String = str(ch["ref"])
+		var npc: Array = _ah_listings(ref)
+		var orders: Array = game.ah_orders_for(ref)
+		var detail: String = "%d buy order%s waiting" % [orders.size(), "" if orders.size() == 1 else "s"] if not orders.is_empty() else ("Spare gear" if ch.has("item") else "")
+		var pick: String = str(ch["pick"])
+		_list_card(list, _ah_icon(ref), str(ch["name"]), detail, str(ch["count"]) if not ch.has("item") else "",
+			_money(int(npc[0]["price"])) if not npc.is_empty() else "-", ah_sell_item == pick, func() -> void:
+				ah_sell_item = pick
+				ah_qty = 0
+				ah_price = 0
+				_refresh())
+	(left.get_node(c + "Empty") as Control).visible = choices.is_empty()
+	var chosen: Dictionary = {}
+	for ch in choices:
+		if str(ch["pick"]) == ah_sell_item:
+			chosen = ch
+	_bind_ah_sell(right, chosen)
+
+func _bind_ah_sell(right: Control, ch: Dictionary) -> void:
+	var c := "Margin/Content/"
+	var empty: bool = ch.is_empty()
+	for n in ["Head", "PostHeader", "Qty", "Price", "Marks", "Time", "Forecast", "Advice", "Post", "Reason"]:
+		(right.get_node(c + n) as Control).visible = not empty
+	(right.get_node(c + "Empty") as Control).visible = empty
+	if empty:
+		(right.get_node(c + "Order") as Control).visible = false
+		return
+	var ref: String = str(ch["ref"])
+	var gear: bool = ch.has("item")
+	var held: int = int(ch["count"])
+	var fair: float = game.ah_fair(ref)
+	var npc: Array = _ah_listings(ref)
+	var low: int = AuctionHouse.cheapest(npc)
+	var merchant: int = game.sell_price(ref) if not gear else game.resale_value(ch["item"])
+	(right.get_node(c + "Head/Slot/Icon") as TextureRect).texture = _ah_icon(ref)
+	_lookup_on(right.get_node(c + "Head/Slot") as Control, _ah_key(ref))
+	(right.get_node(c + "Head/Id/Name") as Label).text = str(ch["name"])
+	(right.get_node(c + "Head/Id/Desc") as Label).text = ("You hold %d  ·  " % held if not gear else "") + "merchants pay %s now" % _money(merchant)
+	# The best NPC buy order, if any: sell into it at once.
+	var orders: Array = game.ah_orders_for(ref)
+	var order_box := right.get_node(c + "Order") as Control
+	order_box.visible = not orders.is_empty()
+	if not orders.is_empty():
+		var o: Dictionary = orders[0]
+		var n: int = mini(held, int(o["left"]))
+		var paid: int = int(round(float(n * int(o["price"])) * (1.0 - AuctionHouse.CUT)))
+		(order_box.get_node("Row/Text") as Label).text = "%s wants %d at %s each. Sell %d now for %s after the cut." % [str(o["buyer"]), int(o["left"]), _money(int(o["price"])), n, _money(paid)]
+		var fill := order_box.get_node("Row/Fill") as Button
+		fill.text = "Sell %d" % n
+		fill.pressed.connect(func() -> void: _ah_action(game.ah_fill(str(o["uid"]), n)))
+	# The listing.
+	if ah_qty <= 0 or ah_qty > held:
+		ah_qty = held
+	if gear:
+		ah_qty = 1
+	if ah_price <= 0:
+		ah_price = maxi(1, low if low > 0 else int(round(fair)))
+	(right.get_node(c + "Qty") as Control).visible = not gear
+	_ah_stepper(right.get_node(c + "Qty"), ah_qty, maxi(1, held / 10), func(v: int) -> void: ah_qty = mini(v, held))
+	(right.get_node(c + "Qty/All") as Button).pressed.connect(func() -> void:
+		ah_qty = held
+		_refresh())
+	var update := func(price: int) -> void:
+		_bind_ah_sell_forecast(right, ref, ah_qty, price, low, merchant, gear)
+	_ah_stepper(right.get_node(c + "Price"), ah_price, maxi(1, int(round(fair * 0.05))), func(v: int) -> void: ah_price = v, update)
+	for pair in [["Merchant", merchant], ["Cheapest", low], ["Usual", int(round(fair))]]:
+		var b := right.get_node(c + "Marks/" + str(pair[0])) as Button
+		var v: int = int(pair[1])
+		b.text = "%s %s" % [str(pair[0]).replace("Merchant", "Merchants"), _money(v) if v > 0 else "-"]
+		b.disabled = v <= 0
+		b.pressed.connect(func() -> void:
+			ah_price = v
+			_refresh())
+	_ah_times(right.get_node(c + "Time"), ah_time, func(t: String) -> void: ah_time = t)
+	update.call(ah_price)
+	var post := right.get_node(c + "Post") as Button
+	post.pressed.connect(func() -> void:
+		var uid: String = str(ch["item"]["uid"]) if gear else ""
+		var result: String = game.ah_post(ref, ah_qty, ah_price, ah_time, uid)
+		if result.begins_with("Listed"):
+			ah_qty = 0
+		_ah_action(result))
+	if game.auction.listings.size() >= AuctionHouse.MAX_LISTINGS:
+		post.disabled = true
+		(right.get_node(c + "Reason") as Label).text = "You have %d listings up. Cancel one in Yours, or wait for one to end." % AuctionHouse.MAX_LISTINGS
+
+func _bind_ah_sell_forecast(right: Control, ref: String, qty: int, price: int, low: int, merchant: int, gear: bool) -> void:
+	var c := "Margin/Content/"
+	var plan: Dictionary = game.ah_forecast(ref, qty, price, ah_time)
+	var hours: float = float(plan["hours"])
+	var sells := right.get_node(c + "Forecast/Sells")
+	sells.value = ("~" + _duration(int(hours * 3600.0)).get_slice(" ", 0)) if float(plan["share"]) >= 0.95 else "%d%%" % int(float(plan["share"]) * 100.0)
+	sells.caption = "Sells in" if float(plan["share"]) >= 0.95 else "Sells by the end"
+	sells.tone = "good" if hours <= 6.0 else ("normal" if float(plan["share"]) >= 0.95 else "accent")
+	right.get_node(c + "Forecast/Fee").value = "%s · 5%%" % _money(int(plan["fee"]))
+	var take := right.get_node(c + "Forecast/Take")
+	take.value = "~" + _money(int(plan["take"]))
+	take.tone = "good" if int(plan["take"]) > merchant * qty else "normal"
+	var advice: String
+	if low <= 0:
+		advice = "Nobody else is selling one, so buyers come to you. Usually worth about %s." % _money(int(round(float(plan["fair"]))))
+	elif price > low:
+		advice = "Above the cheapest listing (%s), so buyers take theirs first. At %s it would go in about %s." % [_money(low), _money(low), _duration(int(float(plan["hours_at_cheapest"]) * 3600.0)).get_slice(" ", 0)]
+	else:
+		advice = "The cheapest on offer: buyers take yours first."
+	if merchant * qty >= int(plan["take"]):
+		advice += " Merchants would pay %s right now, no wait." % _money(merchant * qty)
+	(right.get_node(c + "Advice") as Label).text = advice
+	(right.get_node(c + "Post") as Button).text = "Post %s at %s%s" % ["%d %s" % [qty, game.item_ref_name(ref)] if not gear else game.item_ref_name(ref), _money(price), " each" if not gear else ""]
+
+# Yours -------------------------------------------------------------------------------
+
+## When the Yours tab was last opened: Today stops flagging sales from before then.
+var ah_seen: int = 0
+
+func _draw_ah_yours() -> void:
+	ah_seen = _now()
+	var left := _mount_page(AUCTION_YOURS_LEFT, left_leaf)
+	var right := _mount_page(AUCTION_YOURS_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	_bind_ah_sub(left)
+	var a: AuctionHouse = game.auction
+	var listings := left.get_node(c + "Listings/Items") as VBoxContainer
+	for l in a.listings:
+		var ref: String = str(l["ref"])
+		var name: String = Gear.full_name(l["item"]) if l.has("item") else _resource_name(ref)
+		var sold: int = int(l["qty"]) - int(l["left"])
+		var details: String = "%s%s  ·  %s left" % ["%d/%d sold" % [sold, int(l["qty"])] if not l.has("item") else "Not sold yet",
+			"  ·  %s" % _money(int(l.get("earned", 0))) if int(l.get("earned", 0)) > 0 else "", _ends_in(int(l["ends"]))]
+		var low: int = AuctionHouse.cheapest(_ah_listings(ref))
+		var card := _item_row(listings, _ah_icon(ref), "%s  ·  %s%s" % [name, _money(int(l["price"])), " each" if not l.has("item") else ""], details, _ah_key(ref))
+		var id: int = int(l["id"])
+		_row_button(card, "Primary", "Cancel", func() -> void: _ah_action(game.ah_cancel_listing(id)), false, "Take it down: what's left comes back.")
+		if low > 0 and low < int(l["price"]):
+			_row_button(card, "Secondary", "Match %s" % _money(low), func() -> void: _ah_action(game.ah_reprice(id, low)), false, "Reprice to the cheapest listing (pays the 1% fee again).")
+	(left.get_node(c + "NoListings") as Control).visible = a.listings.is_empty()
+	(left.get_node(c + "Listings") as Control).visible = not a.listings.is_empty()
+	var orders := left.get_node(c + "Orders/Items") as VBoxContainer
+	for o in a.orders:
+		var ref: String = str(o["ref"])
+		var held: int = (int(o["qty"]) - int(o["got"])) * int(o["price"])
+		var card := _item_row(orders, _ah_icon(ref), "%s  ·  %s each" % [game.item_ref_name(ref), _money(int(o["price"]))],
+			"%d of %d bought  ·  %s held  ·  ends in %s" % [int(o["got"]), int(o["qty"]), _money(held), _ends_in(int(o["ends"]))], _ah_key(ref))
+		var id: int = int(o["id"])
+		_row_button(card, "Primary", "Cancel", func() -> void: _ah_action(game.ah_cancel_order(id)), false, "The held gold comes back.")
+	(left.get_node(c + "NoOrders") as Control).visible = a.orders.is_empty()
+	(left.get_node(c + "Orders") as Control).visible = not a.orders.is_empty()
+	# Right: the last day.
+	var sold_g: int = 0
+	var bought: int = 0
+	var fees: int = 0
+	var since: int = _now() - 86400
+	for e in a.log:
+		if int(e["t"]) < since:
+			continue
+		match str(e["kind"]):
+			"sold":
+				sold_g += int(e["gold"])
+				fees += int(round(float(int(e["gold"])) / (1.0 - AuctionHouse.CUT) * AuctionHouse.CUT))
+			"bought":
+				bought += int(e["qty"])
+	for l in a.listings:
+		if int(l["started"]) >= since:
+			fees += int(l.get("fee", 0))
+	right.get_node(c + "Totals/Sold").value = "+" + _money(sold_g)
+	right.get_node(c + "Totals/Sold").tone = "good" if sold_g > 0 else "normal"
+	right.get_node(c + "Totals/Bought").value = _plural(bought, "item")
+	right.get_node(c + "Totals/Fees").value = _money(fees)
+	var log_list := right.get_node(c + "Log/Items") as VBoxContainer
+	for e in a.log:
+		var ref: String = str(e["ref"])
+		var name: String = game.item_ref_name(ref)
+		var title: String
+		var value: String = ""
+		match str(e["kind"]):
+			"sold":
+				title = "Sold %d %s" % [int(e["qty"]), name] if not ref.begins_with("gear:") else "Sold %s" % name
+				value = "+" + _money(int(e["gold"]))
+			"bought":
+				title = "Bought %d %s" % [int(e["qty"]), name] if not ref.begins_with("gear:") or int(e["qty"]) > 1 else "Bought %s" % name
+				value = _money(int(e["gold"]))
+			"expired":
+				title = "%s ended unsold" % ("%d %s" % [int(e["qty"]), name] if not ref.begins_with("gear:") else name)
+				value = "-"
+			"order_ended":
+				title = "Order for %s ended" % name
+				value = "+" + _money(int(e["gold"]))
+		var where: String = {"sold": str(e["who"]), "bought": "%s  ·  %s" % [str(e["who"]), "in the storeroom" if ref.begins_with("gear:") else "in the warehouse"],
+			"expired": "Back in the %s" % ("storeroom" if ref.begins_with("gear:") else "warehouse"), "order_ended": "Unspent gold returned"}.get(str(e["kind"]), "")
+		var card := _list_card(log_list, _ah_icon(ref), title, "%s  ·  %s" % [where, _ago(int(e["t"]))], "", value, false, func() -> void: pass)
+		card.toggle_mode = false
+		card.mouse_default_cursor_shape = Control.CURSOR_ARROW
+		if value.begins_with("+"):
+			(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelGood"
+	(right.get_node(c + "NoLog") as Control).visible = a.log.is_empty()

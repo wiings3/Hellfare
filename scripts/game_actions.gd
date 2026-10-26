@@ -287,7 +287,16 @@ func _on_clock() -> void:
 	var changed: bool = game.harlow_sync()
 	var before: String = _delving_state()
 	var waiting: int = game.dungeon_checkins().size()
+	var last_sale: Dictionary = game.auction.log[0] if not game.auction.log.is_empty() else {}
 	var returned: int = game.complete_due()
+	if not game.auction.log.is_empty() and game.auction.log[0] != last_sale:
+		var e: Dictionary = game.auction.log[0]
+		if str(e["kind"]) == "sold":
+			_notify("Auction House: sold %s%s for %s." % ["%d " % int(e["qty"]) if not str(e["ref"]).begins_with("gear:") else "", game.item_ref_name(str(e["ref"])), _money(int(e["gold"]))])
+		elif str(e["kind"]) == "bought":
+			_notify("Auction House: your order bought %d %s." % [int(e["qty"]), game.item_ref_name(str(e["ref"]))])
+		if page in ["auction", "hq"]:
+			changed = true
 	if _delving_state() != before:
 		changed = true
 		if game.dungeon_checkins().size() > waiting:

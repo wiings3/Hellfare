@@ -530,6 +530,33 @@ func _verify() -> void:
 	view.game.reputation = 500
 	check(view.game.build_upgrade("charter_3").begins_with("Charters are built in order"), "charters go in order")
 	check(view.game.expand_operations().contains("signed") and view.game.expedition_slots == 3, "charter II opens a third slot")
+	# The Auction House: browse and buy, post a listing, see it under Yours.
+	view.game.reset_company()
+	view.game.gold = 3000
+	view.game.resources["timber"] = 100
+	view._nav_to("auction")
+	check(view.page == "auction" and view._active_tab_index() == 4, "auction house sits under the Market tab")
+	view.auction_tab = "browse"
+	view.ah_item = "timber"
+	view._refresh()
+	var ah_right: Control = view.right_leaf.get_child(0)
+	check(ah_right.scene_file_path.ends_with("/auction_browse_right.tscn"), "browse spread")
+	var ah_rows := ah_right.get_node("Margin/Content/Listings/Items") as VBoxContainer
+	check(ah_rows.get_child_count() > 0, "timber listings shown")
+	var timber_before: int = int(view.game.resources["timber"])
+	(ah_rows.get_child(0).get_node("Row/Primary") as Button).pressed.emit()
+	check(int(view.game.resources["timber"]) > timber_before, "buying from a listing adds timber")
+	view.auction_tab = "sell"
+	view.ah_sell_item = "timber"
+	view._refresh()
+	var post := view.right_leaf.get_child(0).get_node("Margin/Content/Post") as Button
+	check(post.text.begins_with("Post"), "sell spread offers to post")
+	post.pressed.emit()
+	check(view.game.auction.listings.size() == 1, "posting from the Sell tab lists it")
+	view.auction_tab = "yours"
+	view._refresh()
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Listings/Items").get_child_count() == 1, "the listing shows under Yours")
+	view.game.reset_company()
 	# Calder Keep: the planner gates on kit, enters, and the run waits at the stairs for orders.
 	view.game.reset_company()
 	view.game.gold = 5000

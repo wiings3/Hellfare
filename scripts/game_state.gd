@@ -1149,3 +1149,283 @@ func _dungeon_finish(m: Dictionary) -> void:
 	})
 	if reports.size() > 35:
 		reports.resize(35)
+
+
+# --- Auction House (rules and NPC listings in auction_house.gd) ---------------------------
+
+func ah_fair(ref: String, now: int = -1) -> float:
+	return hall.fair(ref, GameClock.now() if now < 0 else now)
+
+func ah_listings_for(ref: String) -> Array:
+	var now: int = GameClock.now()
+	return auction.npc_listings(ref, ah_fair(ref, now), now)
+
+func ah_orders_for(ref: String) -> Array:
+	var now: int = GameClock.now()
+	return auction.npc_orders(ref, ah_fair(ref, now), now)
+
+## How many of a ref the company could put up: goods in the warehouse, or spare pieces.
+func ah_held(ref: String) -> int:
+	if ref.begins_with("gear:"):
+		return equipment_inventory.filter(func(i): return "gear:" + str(i.get("key", "")) == ref).size()
+	return int(resources.get(ref, 0))
+
+## What the Sell page shows before posting: sale time, the chance it all goes, fee and take.
+func ah_forecast(ref: String, qty: int, price: int, duration: String) -> Dictionary:
+	var now: int = GameClock.now()
+	var fair: float = ah_fair(ref, now)
+	var low: int = AuctionHouse.cheapest(auction.npc_listings(ref, fair, now))
+	var rate: float = AuctionHouse.sell_rate(ref, float(price), fair, float(low))
+	var est: Dictionary = AuctionHouse.estimate(qty, rate, int(AuctionHouse.DURATIONS.get(duration, 86400)))
+	var fee: int = maxi(1, int(round(float(qty * price) * AuctionHouse.LISTING_FEE)))
+	var take: int = int(round(float(qty * price) * (1.0 - AuctionHouse.CUT))) - fee
+	var at_low: Dictionary = AuctionHouse.estimate(qty, AuctionHouse.sell_rate(ref, float(maxi(1, low)), fair, float(low)), 86400) if low > 0 else {}
+	return {"fair": fair, "cheapest": low, "hours": est["hours"], "share": est["share"], "fee": fee, "take": take,
+		"merchant": sell_price(ref) if not ref.begins_with("gear:") else int(floor(Catalog.value_of(ref.substr(5)) * 0.65)),
+		"hours_at_cheapest": float(at_low.get("hours", 0.0))}
+
+func ah_post(ref: String, qty: int, price: int, duration: String, uid: String = "") -> String:
+	var a: AuctionHouse = auction
+	if a.listings.size() >= AuctionHouse.MAX_LISTINGS:
+		return "You have %d listings up already. Cancel one or wait for one to end." % AuctionHouse.MAX_LISTINGS
+	if not AuctionHouse.DURATIONS.has(duration):
+		return "Choose how long it stays up."
+	if price < 1 or qty < 1:
+		return "Set a price and how many."
+	var gear: bool = ref.begins_with("gear:")
+	var item: Dictionary = {}
+	if gear:
+		qty = 1
+		for i in equipment_inventory:
+			if "gear:" + str(i.get("key", "")) == ref and (uid == "" or str(i.get("uid", "")) == uid):
+				item = i
+				break
+		if item.is_empty():
+			return "That piece isn't in the storeroom."
+	elif int(resources.get(ref, 0)) < qty:
+		return "You only hold %d." % int(resources.get(ref, 0))
+	var fee: int = maxi(1, int(round(float(qty * price) * AuctionHouse.LISTING_FEE)))
+	if gold < fee:
+		return "The listing fee is %d G." % fee
+	gold -= fee
+	if gear:
+		equipment_inventory.erase(item)
+	else:
+		resources[ref] = int(resources[ref]) - qty
+	var now: int = GameClock.now()
+	var listing: Dictionary = {"id": a.next_id, "ref": ref, "qty": qty, "left": qty, "price": price, "started": now,
+		"ends": now + int(AuctionHouse.DURATIONS[duration]), "last": now, "earned": 0, "seed": randi(), "fee": fee}
+	if gear:
+		listing["item"] = item
+	a.next_id += 1
+	a.listings.append(listing)
+	save_game()
+	return "Listed %d %s at %d G each for %s." % [qty, item_ref_name(ref), price, AuctionHouse.DURATION_NAMES[duration]]
+
+func _ah_return(l: Dictionary) -> void:
+	var left: int = int(l["left"])
+	if left <= 0:
+		return
+	if l.has("item"):
+		equipment_inventory.append(l["item"])
+	else:
+		resources[str(l["ref"])] = int(resources.get(str(l["ref"]), 0)) + left
+
+func ah_cancel_listing(id: int) -> String:
+	var l: Dictionary = auction.listing_by_id(id)
+	if l.is_empty():
+		return "That listing has ended."
+	_ah_return(l)
+	auction.listings.erase(l)
+	save_game()
+	return "Took down %s. %d came back." % [item_ref_name(str(l["ref"])), int(l["left"])]
+
+## A new price for what's left; the listing fee is paid again on the new total.
+func ah_reprice(id: int, price: int) -> String:
+	var l: Dictionary = auction.listing_by_id(id)
+	if l.is_empty():
+		return "That listing has ended."
+	var fee: int = maxi(1, int(round(float(int(l["left"]) * price) * AuctionHouse.LISTING_FEE)))
+	if gold < fee:
+		return "Repricing costs a %d G fee." % fee
+	gold -= fee
+	l["price"] = price
+	l["fee"] = int(l.get("fee", 0)) + fee
+	save_game()
+	return "Repriced to %d G (fee %d G)." % [price, fee]
+
+func ah_order(ref: String, qty: int, price: int, duration: String) -> String:
+	if auction.orders.size() >= AuctionHouse.MAX_ORDERS:
+		return "You have %d buy orders up already." % AuctionHouse.MAX_ORDERS
+	if price < 1 or qty < 1 or not AuctionHouse.DURATIONS.has(duration):
+		return "Set a price, how many and how long."
+	if ref.begins_with("gear:") and qty > 5:
+		return "Gear orders are for up to 5 pieces."
+	var held: int = qty * price
+	if gold < held:
+		return "The order holds %d G until it fills." % held
+	gold -= held
+	var now: int = GameClock.now()
+	auction.orders.append({"id": auction.next_id, "ref": ref, "qty": qty, "got": 0, "price": price, "started": now,
+		"ends": now + int(AuctionHouse.DURATIONS[duration]), "last": now, "seed": randi()})
+	auction.next_id += 1
+	save_game()
+	return "Buy order up: %d %s at %d G each. %d G held." % [qty, item_ref_name(ref), price, held]
+
+func ah_cancel_order(id: int) -> String:
+	var o: Dictionary = auction.order_by_id(id)
+	if o.is_empty():
+		return "That order has ended."
+	var back: int = (int(o["qty"]) - int(o["got"])) * int(o["price"])
+	gold += back
+	auction.orders.erase(o)
+	save_game()
+	return "Cancelled the order. %d G came back." % back
+
+## The ref an NPC listing or order belongs to, from its uid.
+static func _ah_ref(uid: String) -> String:
+	return uid.substr(uid.find(":") + 1).get_slice("|", 0)
+
+## Buy from an NPC listing: goods to the warehouse, gear to the storeroom.
+func ah_buy(uid: String, qty: int = 1) -> String:
+	var ref: String = _ah_ref(uid)
+	var entry: Dictionary = {}
+	for l in ah_listings_for(ref):
+		if str(l["uid"]) == uid:
+			entry = l
+	if entry.is_empty():
+		return "Someone else bought it first."
+	qty = clampi(qty, 1, int(entry["left"]))
+	var cost: int = qty * int(entry["price"])
+	if gold < cost:
+		qty = gold / int(entry["price"])
+		if qty < 1:
+			return "Not enough gold: %d G each." % int(entry["price"])
+		cost = qty * int(entry["price"])
+	gold -= cost
+	auction.taken[uid] = int(auction.taken.get(uid, 0)) + qty
+	var name: String = item_ref_name(ref)
+	if entry.has("item"):
+		var item: Dictionary = (entry["item"] as Dictionary).duplicate(true)
+		item["uid"] = "gear_%d" % next_item_id
+		next_item_id += 1
+		equipment_inventory.append(item)
+		name = Gear.full_name(item)
+	else:
+		resources[ref] = int(resources.get(ref, 0)) + qty
+	auction.add_log(GameClock.now(), "bought", ref, qty, -cost, str(entry["seller"]))
+	save_game()
+	return "Bought %s%s from %s for %d G." % ["%d " % qty if not entry.has("item") else "", name, str(entry["seller"]), cost]
+
+## Sell straight into an NPC buy order.
+func ah_fill(uid: String, qty: int = -1) -> String:
+	var ref: String = _ah_ref(uid)
+	var entry: Dictionary = {}
+	for o in ah_orders_for(ref):
+		if str(o["uid"]) == uid:
+			entry = o
+	if entry.is_empty():
+		return "That order is gone."
+	var held: int = ah_held(ref)
+	qty = mini(held if qty < 0 else qty, int(entry["left"]))
+	if qty < 1:
+		return "You don't have any to sell."
+	if ref.begins_with("gear:"):
+		for n in range(qty):
+			for i in equipment_inventory:
+				if "gear:" + str(i.get("key", "")) == ref:
+					equipment_inventory.erase(i)
+					break
+	else:
+		resources[ref] = int(resources[ref]) - qty
+		market.record_npc_trade(ref, qty, GameClock.now())
+	var paid: int = int(round(float(qty * int(entry["price"])) * (1.0 - AuctionHouse.CUT)))
+	gold += paid
+	auction.taken[uid] = int(auction.taken.get(uid, 0)) + qty
+	auction.add_log(GameClock.now(), "sold", ref, qty, paid, str(entry["buyer"]))
+	save_game()
+	return "Sold %d %s to %s for %d G." % [qty, item_ref_name(ref), str(entry["buyer"]), paid]
+
+## Work the company's listings and orders forward to `now`. Returns true if anything changed.
+func _ah_tick(now: int) -> bool:
+	var a: AuctionHouse = auction
+	var changed: bool = false
+	var lows: Dictionary = {}
+	for l in a.listings.duplicate():
+		var ref: String = str(l["ref"])
+		var end: int = mini(now, int(l["ends"]))
+		var sold: int = 0
+		var paid: int = 0
+		var t: int = int(l["last"])
+		while t + AuctionHouse.STEP <= end and int(l["left"]) > 0:
+			t += AuctionHouse.STEP
+			var key: String = "%s|%d" % [ref, int(t / AuctionHouse.EPOCH)]
+			var fair: float = ah_fair(ref, t)
+			if not lows.has(key):
+				lows[key] = AuctionHouse.cheapest(a.npc_listings(ref, fair, t))
+			var rate: float = AuctionHouse.sell_rate(ref, float(l["price"]), fair, float(lows[key]))
+			var rng := RandomNumberGenerator.new()
+			rng.seed = int(l["seed"]) + t
+			var expected: float = rate * float(AuctionHouse.STEP) / 3600.0
+			var n: int = int(expected) + (1 if rng.randf() < expected - floorf(expected) else 0)
+			n = mini(n, int(l["left"]))
+			if n > 0:
+				l["left"] = int(l["left"]) - n
+				# Goods sold at auction weigh on the market like goods sold to merchants.
+				if not ref.begins_with("gear:"):
+					market.record_npc_trade(ref, n, t)
+				var p: int = int(round(float(n * int(l["price"])) * (1.0 - AuctionHouse.CUT)))
+				sold += n
+				paid += p
+		l["last"] = maxi(int(l["last"]), t)
+		if sold > 0:
+			gold += paid
+			l["earned"] = int(l.get("earned", 0)) + paid
+			var rng2 := RandomNumberGenerator.new()
+			rng2.seed = int(l["seed"]) ^ t
+			a.add_log(t, "sold", ref, sold, paid, AuctionHouse._who(rng2))
+			changed = true
+		if int(l["left"]) <= 0:
+			a.listings.erase(l)
+			changed = true
+		elif now >= int(l["ends"]):
+			_ah_return(l)
+			a.add_log(int(l["ends"]), "expired", ref, int(l["left"]), 0, "")
+			a.listings.erase(l)
+			changed = true
+	for o in a.orders.duplicate():
+		var ref: String = str(o["ref"])
+		var end: int = mini(now, int(o["ends"]))
+		var got: int = 0
+		var t: int = int(o["last"])
+		while t + AuctionHouse.STEP <= end and int(o["got"]) < int(o["qty"]):
+			t += AuctionHouse.STEP
+			var rate: float = AuctionHouse.fill_rate(ref, float(o["price"]), ah_fair(ref, t))
+			var rng := RandomNumberGenerator.new()
+			rng.seed = int(o["seed"]) + t
+			var expected: float = rate * float(AuctionHouse.STEP) / 3600.0
+			var n: int = mini(int(expected) + (1 if rng.randf() < expected - floorf(expected) else 0), int(o["qty"]) - int(o["got"]))
+			if n > 0:
+				o["got"] = int(o["got"]) + n
+				got += n
+		o["last"] = maxi(int(o["last"]), t)
+		if got > 0:
+			if ref.begins_with("gear:"):
+				for n in range(got):
+					equipment_inventory.append(make_item(ref.substr(5)))
+			else:
+				resources[ref] = int(resources.get(ref, 0)) + got
+			var rng2 := RandomNumberGenerator.new()
+			rng2.seed = int(o["seed"]) ^ t
+			a.add_log(t, "bought", ref, got, -got * int(o["price"]), AuctionHouse._who(rng2))
+			changed = true
+		if int(o["got"]) >= int(o["qty"]):
+			a.orders.erase(o)
+			changed = true
+		elif now >= int(o["ends"]):
+			var back: int = (int(o["qty"]) - int(o["got"])) * int(o["price"])
+			gold += back
+			a.add_log(int(o["ends"]), "order_ended", ref, int(o["qty"]) - int(o["got"]), back, "")
+			a.orders.erase(o)
+			changed = true
+	return changed

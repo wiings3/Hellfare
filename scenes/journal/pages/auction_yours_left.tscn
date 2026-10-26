@@ -1,0 +1,109 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+
+[sub_resource type="ButtonGroup" id="sub"]
+
+[node name="AuctionYoursLeft" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 36
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Sub" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Browse" type="Button" parent="Margin/Content/Sub"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Browse"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("sub")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Sell" type="Button" parent="Margin/Content/Sub"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Sell"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("sub")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="Yours" type="Button" parent="Margin/Content/Sub"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Yours"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("sub")
+custom_minimum_size = Vector2(0, 18)
+
+[node name="ListingsHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Listings"
+
+[node name="Listings" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 50)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Listings"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="NoListings" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Nothing listed. Post from the Sell tab."
+visible = false
+
+[node name="OrdersHeader" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Buy Orders"
+
+[node name="Orders" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 40)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Orders"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="NoOrders" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "No buy orders. Place one from Browse."
+visible = false
+
+[node name="Limits" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Up to 10 listings and 10 buy orders at once."
+horizontal_alignment = 1

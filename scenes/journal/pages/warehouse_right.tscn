@@ -63,7 +63,7 @@ tooltip_text = "Meals for the next trip."
 [node name="Note" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "Merchants pay less when you sell a lot of one good at once; it recovers within a day. Traders in the Trade Hall often pay more."
+text = "Merchants pay less when you sell a lot of one good at once; it recovers within a day. The Auction House pays more, if you can wait."
 autowrap_mode = 3
 
 [node name="Spacer" type="Control" parent="Margin/Content"]

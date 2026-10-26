@@ -214,6 +214,8 @@ var market: MarketModel = MarketModel.new(BASE_PRICE)
 var hall: TradeHall = TradeHall.new(market, RESOURCE_ORDER)
 ## Gear left by the fallen at each site (see fallen_gear.gd).
 var fallen: FallenGear = FallenGear.new()
+## The Auction House: the company's listings, buy orders and what it took from NPC ones.
+var auction: AuctionHouse = AuctionHouse.new()
 
 func _init() -> void:
 	for id in RESOURCE_ORDER:
@@ -272,6 +274,7 @@ func load_game() -> void:
 	market.load_dict(state.get("market", {}))
 	hall.load_dict(state.get("hall", {}))
 	fallen.load_dict(state.get("fallen", {}))
+	auction.load_dict(state.get("auction", {}))
 	# Listings no longer exist: goods left in them go back to the warehouse.
 	for listing in hall.legacy_listings:
 		resources[str(listing["good"])] = int(resources.get(str(listing["good"]), 0)) + int(listing["left"])
@@ -286,6 +289,7 @@ func save_game() -> void:
 		last_notice = "Unable to save company data."
 		return
 	fallen.prune(GameClock.now())
+	auction.prune(GameClock.now())
 	var data := {
 		"version": 1, "gold": gold, "reputation": reputation,
 		"expedition_slots": expedition_slots, "next_mission_id": next_mission_id,
@@ -293,7 +297,7 @@ func save_game() -> void:
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt, "blueprints": blueprints, "upgrades": upgrades,
 		"relief_count": relief_count, "retired_ids": retired_ids,
-		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict()
+		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict(), "auction": auction.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
 
@@ -708,6 +712,8 @@ func complete_due(now: int = -1) -> int:
 		now = GameClock.now()
 	var completed: int = 0
 	var delving: bool = _dungeon_tick(now)
+	if _ah_tick(now):
+		delving = true
 	for i in range(missions.size() - 1, -1, -1):
 		var mission: Dictionary = missions[i]
 		if int(mission["finish"]) > now:
@@ -1427,13 +1433,26 @@ func goods_value() -> int:
 ## prices and spare gear in the storeroom, less guild debt. Gear worn by the crew is left
 ## out, so a company that cannot pay wages always qualifies for guild help.
 func liquid_worth() -> int:
-	var total: int = gold + goods_value() - relief_debt
+	var total: int = gold + goods_value() - relief_debt + auction_value()
 	for item in equipment_inventory:
 		total += resale_value(item)
 	return total
 
+## What's tied up at the Auction House: listed goods and gear at merchant prices, and the
+## gold held by buy orders.
+func auction_value() -> int:
+	var total: int = 0
+	for l in auction.listings:
+		if l.has("item"):
+			total += resale_value(l["item"])
+		else:
+			total += int(l["left"]) * sell_price(str(l["ref"]), int(l["left"]))
+	for o in auction.orders:
+		total += (int(o["qty"]) - int(o["got"])) * int(o["price"])
+	return total
+
 func wealth() -> int:
-	var total: int = gold + goods_value()
+	var total: int = gold + goods_value() + auction_value()
 	for merc in crew:
 		total += int(merc.get("gear", 0)) * 60
 	total += owned_equipment_value()
@@ -1476,6 +1495,7 @@ func reset_company() -> void:
 	market.reset()
 	hall.reset()
 	fallen = FallenGear.new()
+	auction = AuctionHouse.new()
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
 	save_game()
@@ -1489,6 +1509,9 @@ func _site_finish(_mission: Dictionary) -> void:
 	push_error("CompanyStateBase needs a site expedition resolver.")
 
 func _dungeon_tick(_now: int) -> bool:
+	return false
+
+func _ah_tick(_now: int) -> bool:
 	return false
 
 func _dungeon_finish(_mission: Dictionary) -> void:

@@ -243,7 +243,7 @@ def workshop_store():
     header(s, C + "/Header", "Supplies")
     label(s, C + "/Caption", "Food and potions. Pack them into a mercenary's food and potion slots from their Gear page.", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Supplies", 80)
-    s.inst(C + "/SuppliesEmpty", INFO, {"visible": False, "text": "No food or potions. Craft them, or buy them from traders in the Trade Hall.", "icon_kind": "home"})
+    s.inst(C + "/SuppliesEmpty", INFO, {"visible": False, "text": "No food or potions. Craft them, or buy them at the Auction House.", "icon_kind": "home"})
     s.inst(C + "/Tip", INFO, {"text": "Gear wears with every trip and works at half effect once worn out. If its wearer dies, it's lost with them.", "icon_kind": "alert"})
     s.save(P + "workshop_store_right.tscn")
 
@@ -469,7 +469,7 @@ def ledger_warehouse():
     tile(s, C + "/Kinds/Raw", "Raw", "0 G", extra={"tooltip_text": "What expeditions bring home."})
     tile(s, C + "/Kinds/Crafted", "Crafted", "0 G", extra={"tooltip_text": "Ingots, cloth, potions and other made goods."})
     tile(s, C + "/Kinds/Food", "Food", "0 G", extra={"tooltip_text": "Meals for the next trip."})
-    label(s, C + "/Note", "Merchants pay less when you sell a lot of one good at once; it recovers within a day. Traders in the Trade Hall often pay more.", "LabelMuted", {"autowrap_mode": 3})
+    label(s, C + "/Note", "Merchants pay less when you sell a lot of one good at once; it recovers within a day. The Auction House pays more, if you can wait.", "LabelMuted", {"autowrap_mode": 3})
     spacer(s, C + "/Spacer")
     button(s, C + "/Market", "Sell in the Market  >", None, {"custom_minimum_size": (0, 26)})
     s.save(P + "warehouse_right.tscn")
@@ -738,11 +738,147 @@ def dungeon_pages():
     s.save(P + "run_right.tscn")
 
 
+def auction_pages():
+    """The Auction House: Browse (buy), Sell (post a listing) and Yours (listings, orders and
+    what happened), each a two-page spread under the Market's tabs."""
+    def sub(s):
+        grp = s.sub("sub", "ButtonGroup", {})
+        s.node(C + "/Sub", "HBoxContainer", {"theme_override_constants/separation": 4})
+        for name, text in [("Browse", "Browse"), ("Sell", "Sell"), ("Yours", "Yours")]:
+            button(s, C + "/Sub/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "custom_minimum_size": (0, 18)})
+
+    def filters(s, names):
+        grp = s.sub("filter", "ButtonGroup", {})
+        s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 3})
+        for name, text in names:
+            button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "custom_minimum_size": (0, 18)})
+
+    def columns(s, a, b, c):
+        s.node(C + "/Columns", "HBoxContainer", {"theme_override_constants/separation": 6})
+        label(s, C + "/Columns/Item", a, "LabelCaption", {"size_flags_horizontal": 3})
+        label(s, C + "/Columns/Count", b, "LabelCaption", {"custom_minimum_size": (34, 0), "horizontal_alignment": 2})
+        label(s, C + "/Columns/Price", c, "LabelCaption", {"custom_minimum_size": (52, 0), "horizontal_alignment": 2})
+
+    def head(s):
+        s.node(C + "/Head", "HBoxContainer", {"theme_override_constants/separation": 8})
+        s.node(C + "/Head/Slot", "PanelContainer", {"custom_minimum_size": (34, 34), "theme_type_variation": Raw('&"SlotPanel"')})
+        s.node(C + "/Head/Slot/Icon", "TextureRect", {"mouse_filter": 2, "stretch_mode": 3})
+        s.node(C + "/Head/Id", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": -3})
+        label(s, C + "/Head/Id/Name", "Item", "LabelTitle", {"text_overrun_behavior": 3})
+        label(s, C + "/Head/Id/Desc", "", "LabelCaption", {"autowrap_mode": 3})
+
+    def stepper(s, path, caption, extra=None):
+        s.node(path, "HBoxContainer", {"theme_override_constants/separation": 3})
+        label(s, path + "/Caption", caption, "LabelCaption", {"custom_minimum_size": (52, 0)})
+        button(s, path + "/Minus", "-", "PaperButton", {"custom_minimum_size": (18, 18)})
+        s.node(path + "/Value", "LineEdit", {"custom_minimum_size": (0, 18), "size_flags_horizontal": 3, "context_menu_enabled": False, "max_length": 7})
+        button(s, path + "/Plus", "+", "PaperButton", {"custom_minimum_size": (18, 18)})
+        if extra:
+            button(s, path + "/" + extra[0], extra[1], "PaperButton", {"custom_minimum_size": (28, 18)})
+
+    def durations(s, path, grp):
+        s.node(path, "HBoxContainer", {"theme_override_constants/separation": 3})
+        label(s, path + "/Caption", "Up for", "LabelCaption", {"custom_minimum_size": (52, 0)})
+        for name, text in [("H12", "12 hours"), ("D1", "1 day"), ("D2", "2 days")]:
+            button(s, path + "/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "custom_minimum_size": (0, 18)})
+
+    # Browse
+    s = page("AuctionBrowseLeft", top=36)
+    sub(s)
+    s.node(C + "/Search", "LineEdit", {"custom_minimum_size": (0, 20), "placeholder_text": "Search: sword, timber, spider silk...",
+        "clear_button_enabled": True, "context_menu_enabled": False, "max_length": 40})
+    filters(s, [("All", "All"), ("Goods", "Goods"), ("Arms", "Arms"), ("Armour", "Armour"), ("Tools", "Tools"), ("Food", "Food")])
+    columns(s, "Item", "Listed", "From")
+    scroll(s, C + "/List", 80)
+    label(s, C + "/Empty", "Nothing listed matches. Search by name to post a buy order for anything.", "LabelMuted", {"visible": False, "autowrap_mode": 3, "horizontal_alignment": 1})
+    label(s, C + "/Hint", "Prices are each. Search to find things nobody is selling right now.", "LabelMuted", {"autowrap_mode": 3, "horizontal_alignment": 1})
+    s.save(P + "auction_browse_left.tscn")
+
+    s = page("AuctionBrowseRight")
+    head(s)
+    header(s, C + "/SaleHeader", "For Sale")
+    s.node(C + "/BuyQty", "HBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/BuyQty/Caption", "Buy", "LabelCaption", {"custom_minimum_size": (52, 0)})
+    grp = s.sub("qty", "ButtonGroup", {})
+    for name, text in [("One", "1"), ("Ten", "10"), ("All", "All of it")]:
+        button(s, C + "/BuyQty/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp, "custom_minimum_size": (0, 18)})
+    scroll(s, C + "/Listings", 60)
+    label(s, C + "/NoListings", "Nobody is selling one right now. Post a buy order below and sellers come to you.", "LabelMuted", {"visible": False, "autowrap_mode": 3})
+    header(s, C + "/OrderHeader", "Buy Order")
+    stepper(s, C + "/OrderQty", "How many")
+    stepper(s, C + "/OrderPrice", "Price each")
+    durations(s, C + "/OrderTime", s.sub("otime", "ButtonGroup", {}))
+    label(s, C + "/OrderNote", "", "LabelCaption", {"autowrap_mode": 3})
+    button(s, C + "/Place", "Place buy order", None, {"custom_minimum_size": (0, 22)})
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Pick an item on the left.", "icon_kind": "home"})
+    s.save(P + "auction_browse_right.tscn")
+
+    # Sell
+    s = page("AuctionSellLeft", top=36)
+    sub(s)
+    filters(s, [("All", "All"), ("Goods", "Goods"), ("Gear", "Gear")])
+    columns(s, "Item", "Held", "Going for")
+    scroll(s, C + "/List", 80)
+    label(s, C + "/Empty", "Nothing to sell yet. Goods your crews bring home and spare gear show here.", "LabelMuted", {"visible": False, "autowrap_mode": 3, "horizontal_alignment": 1})
+    label(s, C + "/Hint", "\"Going for\" is the cheapest listing right now.", "LabelMuted", {"autowrap_mode": 3, "horizontal_alignment": 1})
+    s.save(P + "auction_sell_left.tscn")
+
+    s = page("AuctionSellRight")
+    head(s)
+    s.node(C + "/Order", "PanelContainer", {"visible": False, "theme_type_variation": Raw('&"GoldPanel"')})
+    s.node(C + "/Order/Row", "HBoxContainer", {"theme_override_constants/separation": 6})
+    label(s, C + "/Order/Row/Text", "", None, {"size_flags_horizontal": 3, "autowrap_mode": 3})
+    button(s, C + "/Order/Row/Fill", "Sell", None, {"size_flags_vertical": 4})
+    header(s, C + "/PostHeader", "Post a Listing")
+    stepper(s, C + "/Qty", "How many", ("All", "All"))
+    stepper(s, C + "/Price", "Price each")
+    s.node(C + "/Marks", "HBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/Marks/Caption", "Set to", "LabelCaption", {"custom_minimum_size": (52, 0)})
+    for name, text, tip in [("Merchant", "Merchants", "What merchants pay you now: sells at once, but for less."),
+                            ("Cheapest", "Cheapest", "Match the cheapest listing: buyers take the cheapest first."),
+                            ("Usual", "Usual", "The usual price for it lately.")]:
+        button(s, C + "/Marks/" + name, text, "PaperButton", {"size_flags_horizontal": 3, "custom_minimum_size": (0, 18), "tooltip_text": tip})
+    durations(s, C + "/Time", s.sub("time", "ButtonGroup", {}))
+    s.node(C + "/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, C + "/Forecast/Sells", "Sells in", extra={"tooltip_text": "Roughly how long until it all sells at this price."})
+    tile(s, C + "/Forecast/Fee", "Fee  ·  cut", extra={"tooltip_text": "1% of the asking total when posting (kept even if it doesn't sell), and 5% of each sale."})
+    tile(s, C + "/Forecast/Take", "You get", extra={"tooltip_text": "If it all sells: the sales less the cut and the fee."})
+    label(s, C + "/Advice", "", "LabelCaption", {"autowrap_mode": 3})
+    spacer(s, C + "/Spacer")
+    button(s, C + "/Post", "Post listing", None, {"custom_minimum_size": (0, 24)})
+    label(s, C + "/Reason", "Gold arrives as it sells. Whatever's left when it ends comes back.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Pick something to sell on the left.", "icon_kind": "home"})
+    s.save(P + "auction_sell_right.tscn")
+
+    # Yours
+    s = page("AuctionYoursLeft", top=36)
+    sub(s)
+    header(s, C + "/ListingsHeader", "Listings")
+    scroll(s, C + "/Listings", 50)
+    label(s, C + "/NoListings", "Nothing listed. Post from the Sell tab.", "LabelMuted", {"visible": False})
+    header(s, C + "/OrdersHeader", "Buy Orders")
+    scroll(s, C + "/Orders", 40)
+    label(s, C + "/NoOrders", "No buy orders. Place one from Browse.", "LabelMuted", {"visible": False})
+    label(s, C + "/Limits", "Up to 10 listings and 10 buy orders at once.", "LabelMuted", {"horizontal_alignment": 1})
+    s.save(P + "auction_yours_left.tscn")
+
+    s = page("AuctionYoursRight")
+    header(s, C + "/Header", "Last 24 Hours")
+    s.node(C + "/Totals", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, C + "/Totals/Sold", "Sold")
+    tile(s, C + "/Totals/Bought", "Bought")
+    tile(s, C + "/Totals/Fees", "Fees and cut")
+    label(s, C + "/RecentCaption", "Recent", "LabelCaption")
+    scroll(s, C + "/Log", 80)
+    label(s, C + "/NoLog", "Nothing has sold or arrived yet.", "LabelMuted", {"visible": False, "horizontal_alignment": 1})
+    s.save(P + "auction_yours_right.tscn")
+
+
 def exchange_tabs():
     s = Scene("ExchangeTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})
     s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
-    for name, text in [("MerchantsTab", "Merchants"), ("HallTab", "Trade Hall")]:
+    for name, text in [("MerchantsTab", "Merchants"), ("AuctionTab", "Auction House"), ("HallTab", "Trade Hall")]:
         button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
     s.save(P + "exchange_tabs.tscn")
 
@@ -1099,4 +1235,5 @@ if __name__ == "__main__":
     locked_row()
     site_pages()
     dungeon_pages()
+    auction_pages()
     print("pages written")

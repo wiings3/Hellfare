@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.23 — Calder Keep, the first dungeon**
+**Version 0.24 — The Auction House**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,32 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## V0.24 – The Auction House
+
+Market → **Auction House** is now the main way to trade, between Merchants (instant, at
+about 75% of fair value) and the Trade Hall (haggling in chat). Three tabs:
+
+- **Browse:** search or filter (Goods, Arms, Armour, Tools, Food); each item shows how many
+  are listed and the cheapest price. Pick one to see every listing cheapest first (gear with
+  its rarity and rolls) and buy 1, 10 or all of a listing. Nobody selling? Place a **buy order**:
+  the gold is held and sellers fill it over time; the page says roughly how long.
+- **Sell:** what you hold, with what each is going for. Set how many and the price (or one
+  click to match Merchants, the Cheapest listing or the Usual price), and 12 hours, a day or
+  two days. It shows roughly how long it takes to sell, the fee and cut, and what you'll get.
+  If an NPC company has a buy order for it, you can sell straight into it.
+- **Yours:** listings and buy orders with progress, Cancel and "Match the cheapest", and the
+  last 24 hours: sold, bought, fees and a recent list.
+
+Gold arrives as things sell, purchases go straight to the warehouse or storeroom, and whatever
+is left when a listing ends comes back by itself. Listing costs 1% of the asking total, and 5%
+of each sale is taken. Up to 10 listings and 10 buy orders at once. Sales run while the game
+is closed, worked out in ten-minute steps, and a toast and a Today entry report them.
+
+Until real players arrive, NPC companies keep their own listings and buy orders (refreshed
+every three hours) and buy and sell against yours: a listing at the usual price sells in
+hours, one at 40% over may not sell at all, and the cheapest listing sells first. Goods sold
+at auction weigh on the market price like goods sold to merchants.
 
 ## V0.23 – Calder Keep, the first dungeon
 
