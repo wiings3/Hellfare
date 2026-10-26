@@ -503,7 +503,32 @@ def calder_keep():
     ground(d); return img
 
 
-DUNGEONS = {"dungeon_calder_keep": calder_keep}
+def sunken_abbey():
+    img, d = base(); rnd = random.Random(73)
+    hills(d, rnd, 70, 6, FAINT)
+    # A drowned abbey: a nave half under black water, a broken bell tower, a lit window.
+    water(d, rnd, 84, GROUND, fill=SOFT, ripples=FAINT, n=22)
+    d.polygon([(70, 84), (70, 46), (120, 30), (170, 46), (170, 84)], fill=SOFT)
+    d.polygon([(70, 46), (120, 30), (170, 46), (164, 46), (120, 36), (76, 46)], fill=INK)
+    for x in (84, 104, 136, 156):
+        d.pieslice([x - 6, 52, x + 6, 64], 180, 360, fill=INK)
+        d.rectangle([x - 6, 58, x + 6, 72], fill=INK)
+    d.pieslice([112, 50, 128, 66], 180, 360, fill=GOLD)
+    d.rectangle([112, 58, 128, 74], fill=GOLD)
+    # The bell tower, its top fallen away.
+    d.rectangle([176, 20, 198, 84], fill=INK)
+    d.polygon([(176, 20), (182, 12), (188, 18), (194, 8), (198, 14), (198, 20)], fill=INK)
+    d.pieslice([181, 30, 193, 42], 180, 360, fill=(20, 12, 10, 255))
+    d.rectangle([181, 36, 193, 46], fill=(20, 12, 10, 255))
+    # Fallen stones and drowned pillars.
+    for x, h in [(40, 18), (52, 10), (214, 14), (228, 22)]:
+        d.rectangle([x, 84 - h, x + 6, 84], fill=SOFT)
+    for x in (26, 238):
+        dead_tree(d, x, 84, 34)
+    ground(d); return img
+
+
+DUNGEONS = {"dungeon_calder_keep": calder_keep, "dungeon_sunken_abbey": sunken_abbey}
 
 SITES = {
     "mossward_meadows": mossward_meadows, "fenmire": fenmire, "sunreach": sunreach, "frostvale": frostvale,
