@@ -1,6 +1,6 @@
 extends RefCounted
 class_name DungeonEvents
-## Things that happen to a crew in a dungeon, about every twenty seconds: a chest with blood
+## Things that happen to a crew in a crypt, once or twice a floor and once on the way out: a chest with blood
 ## around it, a wounded mercenary, a side passage. Each event has hidden states (the chest is
 ## trapped or it isn't), two or three choices, and outcomes by state. Someone in the crew with
 ## the right trait or skill reads the state and says so (a hint). The player has EVENT_WAIT
@@ -14,15 +14,19 @@ class_name DungeonEvents
 ##   ally (a stranger fights with the crew in the next fight) · xp n Combat XP each
 ##   blueprint chance of a blueprint from this dungeon · text, where {who} is the one affected
 
-## Events come thick and fast (a dozen a floor), so each one's coin and wounds are scaled
-## here to keep a whole run in balance (tuned with tools/econ_sim.gd).
-const COIN_SCALE := 0.25
-const HURT_SCALE := 0.6
+## Events are few (five or six a run, none repeated), so each one counts: these scale the
+## numbers in EVENTS to keep a whole run in balance (tuned with tools/econ_sim.gd).
+const COIN_SCALE := 1.6
+const HURT_SCALE := 0.8
+const HEAL_SCALE := 2.5
+const GOODS_SCALE := 3
+const XP_SCALE := 4
 
-const GAP := [15, 25]
-const EVENT_WAIT := 15
-## Gaps between events on the walk out.
-const WALK_GAP := [18, 28]
+## Seconds between events on a floor (a floor lasts Dungeons.FLOOR_TIME), and on the walk out.
+const GAP := [90, 140]
+const WALK_GAP := [35, 50]
+## Seconds the player has to choose before the crew decides by its orders.
+const EVENT_WAIT := 30
 
 const EVENTS := [
 	# --- Anywhere ------------------------------------------------------------------------
@@ -64,7 +68,7 @@ const EVENTS := [
 	 "states": {"left": 6, "owners": 3},
 	 "choices": [
 		{"label": "Search the pack", "tag": "bold", "out": {
-			"left": [{"w": 3, "coin": [10, 24], "text": "Some coin and a stale loaf."}, {"w": 1, "goods": {"healing_draught": [1, 1]}, "text": "A healing draught, still corked."}],
+			"left": [{"w": 3, "coin": [10, 24], "text": "Some coin and a stale loaf."}, {"w": 1, "goods": {"healing_draught": [1, 1]}, "text": "Healing draughts, still corked."}],
 			"owners": [{"w": 1, "hurt": [10, 20], "coin": [6, 14], "text": "Its owners come back. {who} takes a club to the head before they run."}]}},
 		{"label": "Rest by the fire", "tag": "safe", "out": {"any": [{"w": 1, "heal": 10, "text": "The ash is warm here. The crew binds its cuts."}]}}]},
 	{"id": "scratched_map", "phase": "floor", "text": "Someone scratched a map on the wall. An X marks a loose stone nearby.",
@@ -257,12 +261,16 @@ static func reader(e: Dictionary, crew: Array) -> Dictionary:
 
 ## Schedule a phase's events from `start` to `end` (seconds). Each is
 ## {"t", "id", "state", "hint", "reader", "done": false}. Deterministic for the seed.
-static func schedule(dungeon: String, phase: String, floor_i: int, start: int, end: int, seed_value: int, crew: Array) -> Array:
+static func schedule(dungeon: String, phase: String, floor_i: int, start: int, end: int, seed_value: int, crew: Array, avoid: Array = []) -> Array:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var gaps: Array = GAP if phase == "floor" else WALK_GAP
 	var out: Array = []
 	var options: Array = pool(dungeon, phase, floor_i)
+	# No event twice in one run while there are others to choose from.
+	var fresh: Array = options.filter(func(e: Dictionary) -> bool: return not avoid.has(str(e["id"])))
+	if not fresh.is_empty():
+		options = fresh
 	if options.is_empty():
 		return out
 	var t: int = start + rng.randi_range(int(gaps[0]), int(gaps[1]))
@@ -272,6 +280,8 @@ static func schedule(dungeon: String, phase: String, floor_i: int, start: int, e
 		if str(e["id"]) == last and options.size() > 1:
 			e = options[(options.find(e) + 1) % options.size()]
 		last = str(e["id"])
+		if options.size() > 1:
+			options = options.filter(func(o: Dictionary) -> bool: return str(o["id"]) != last)
 		var state: String = _pick_weighted(e["states"], rng)
 		var who: Dictionary = reader(e, crew)
 		var hint: String = ""

@@ -970,7 +970,11 @@ func _schedule_events(m: Dictionary, phase: String, start: int, end: int) -> voi
 		if not (m.get("dead", []) as Array).has(str(id)) and not merc_by_id(str(id)).is_empty():
 			crew_now.append(merc_by_id(str(id)))
 	var seed_value: int = int(m["seed"]) + 104729 * (int(m.get("floor_i", 0)) + 1) + (7 if phase == "walk" else 0)
-	m["ev"] = DungeonEvents.schedule(str(m["dungeon"]), phase, int(m.get("floor_i", 0)), start, end, seed_value, crew_now)
+	var seen: Array = m.get("ev_seen", [])
+	m["ev"] = DungeonEvents.schedule(str(m["dungeon"]), phase, int(m.get("floor_i", 0)), start, end, seed_value, crew_now, seen)
+	for ev in m["ev"]:
+		seen.append(str(ev["id"]))
+	m["ev_seen"] = seen
 	m["ev_phase"] = phase
 
 ## The earliest unanswered event whose wait is over at `now`.
@@ -1030,7 +1034,7 @@ func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool
 		var n: int = int(round(float(rng.randi_range(int(o["coin"][0]), int(o["coin"][1]))) * DungeonEvents.COIN_SCALE))
 		carry["coin"] = maxi(0, int(carry.get("coin", 0)) + n)
 	for good in o.get("goods", {}):
-		var n: int = rng.randi_range(int(o["goods"][good][0]), int(o["goods"][good][1]))
+		var n: int = rng.randi_range(int(o["goods"][good][0]), int(o["goods"][good][1])) * DungeonEvents.GOODS_SCALE
 		if n > 0:
 			carry[good] = int(carry.get(good, 0)) + n
 	if o.has("gear"):
@@ -1052,7 +1056,7 @@ func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool
 				break
 	if o.has("heal"):
 		for id in alive:
-			m["hp"][id] = minf(100.0, float(m["hp"].get(id, 100.0)) + float(o["heal"]))
+			m["hp"][id] = minf(100.0, float(m["hp"].get(id, 100.0)) + float(o["heal"]) * DungeonEvents.HEAL_SCALE)
 	if o.has("buff"):
 		var buff: Dictionary = m["buff"]
 		for k in o["buff"]:
@@ -1062,7 +1066,7 @@ func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool
 	if bool(o.get("ally", false)):
 		m["ally"] = true
 	if o.has("xp"):
-		m["bonus_xp"] = int(m.get("bonus_xp", 0)) + int(o["xp"])
+		m["bonus_xp"] = int(m.get("bonus_xp", 0)) + int(o["xp"]) * DungeonEvents.XP_SCALE
 	if o.has("lose"):
 		var dropped: Dictionary = m["dropped"]
 		for good in carry.keys():

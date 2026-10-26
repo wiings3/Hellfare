@@ -126,25 +126,33 @@ func _initialize() -> void:
 	check(e.dungeon_dispatch("calder_keep", eids, 3, "half", "bold").begins_with("The crew went"), "dispatch with bold orders")
 	var em: Dictionary = e.missions[0]
 	var evs: Array = em["ev"]
-	check(evs.size() >= 6, "events through the first floor (%d)" % evs.size())
-	var gaps_ok: bool = true
+	check(evs.size() >= 1 and evs.size() <= 2, "one or two events on the first floor (%d)" % evs.size())
+	var gaps_ok: bool = int(evs[0]["t"]) - int(em["started"]) >= DungeonEvents.GAP[0]
 	for k in range(1, evs.size()):
 		var gap: int = int(evs[k]["t"]) - int(evs[k - 1]["t"])
 		gaps_ok = gaps_ok and gap >= DungeonEvents.GAP[0] and gap <= DungeonEvents.GAP[1]
-	check(gaps_ok, "events come every 15-25 seconds")
+	check(gaps_ok, "events are well apart")
 	var first_t: int = int(evs[0]["t"])
 	check(e.dungeon_pending(first_t - 1).is_empty() and e.dungeon_pending(first_t).size() == 1, "an event waits for the player when it happens")
+	check(e.dungeon_pending(first_t + DungeonEvents.EVENT_WAIT - 1).size() == 1, "the player has the whole wait to choose")
 	GameClock.fixed = first_t + 2
 	var said: String = e.dungeon_answer(str(em["id"]), 0, 0)
 	check(said != "" and bool(evs[0]["done"]) and not bool(evs[0]["auto"]), "the player's choice is applied")
 	check(e.dungeon_answer(str(em["id"]), 0, 1).begins_with("Too late"), "an event is decided once")
-	e.complete_due(first_t + 200)
-	var auto_done: int = 0
-	for ev in em["ev"]:
-		if bool(ev["done"]) and int(ev["t"]) + DungeonEvents.EVENT_WAIT <= first_t + 200:
-			auto_done += 1
-	check(auto_done >= 5, "unanswered events are decided by the crew")
-	check((em["ev_log"] as Array).size() >= auto_done, "decisions are logged")
+	# Nobody answers the rest: the crew decides, through the floors and out.
+	for step in range(1, 40):
+		e.complete_due(first_t + step * 30)
+		for c in e.dungeon_checkins():
+			e.dungeon_choose(str(c["id"]), true)
+	var seen: Array = em.get("ev_seen", [])
+	var unique: Dictionary = {}
+	for id in seen:
+		unique[id] = true
+	check(seen.size() >= 3 and unique.size() == seen.size(), "a run sees several events and none twice (%s)" % str(seen))
+	var autos: int = 0
+	for entry in em["ev_log"]:
+		autos += 1 if bool(entry["auto"]) else 0
+	check(autos >= 2 and (em["ev_log"] as Array).size() == autos + 1, "unanswered events are decided by the crew and logged")
 	check(DungeonEvents.auto_choice({"id": "bloody_chest", "state": "trapped", "hint": "", "roll": 1}, "bold") == 0, "bold orders open the chest")
 	check(DungeonEvents.auto_choice({"id": "bloody_chest", "state": "trapped", "hint": "x", "roll": 1}, "bold") == 1, "a hint makes the crew check for traps")
 	# A deadly outcome kills; the last death wipes the run.

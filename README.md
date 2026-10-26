@@ -1,6 +1,6 @@
 # Hellfare
 
-**Version 0.27 — Hellfare**
+**Version 0.28 — Fewer, bigger crypt choices**
 
 A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
 Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
@@ -16,6 +16,14 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.28 – Fewer, bigger crypt choices
+
+Crypt events come once or twice a floor and once on the way out (five or six a run, down from
+about 36), and no event repeats within a run. Each one carries about four times the stakes: more
+coin, deeper wounds, bigger heals, three times the goods. You get 30 seconds to choose instead of
+15. Simulated over 150 hours (3 runs each): a keep company whose crew plays it safe makes 232k
+(228k with no events); one that takes chances makes 246k, with about the same deaths.
 
 ## V0.27 – Hellfare
 
@@ -120,11 +128,11 @@ check-ins takes about 20 minutes:
 - **Check-ins.** After each cleared floor the crew waits two minutes at the stairs: push on or
   take it out. A toast and a Today entry say so. With no answer the crew follows its orders,
   so a run finishes on its own while the game is closed.
-- **Events.** About every 20 seconds, on each floor and on the walk out, something comes up:
+- **Events.** Once or twice a floor and once on the walk out (since v0.28), something comes up:
   a chest with blood around it, a wounded mercenary with a fine sword, a side passage, a
   gambler, toll men at the stairs. A card slides in over whatever page is open with two or
   three choices; a crew member with the right trait or skill (Keen eye, Tracker, Herbalist,
-  Combat 15…) may read the situation and say so. Choose within 15 seconds, or the crew
+  Combat 15…) may read the situation and say so. Choose within 30 seconds, or the crew
   decides by a new order set in the planner, **Play it safe** or **Take chances**, using what
   it was told. Outcomes: coin, silk, bone, tier-1 gear, healing, a blessing or curse on the
   next fight, sleeping or singed monsters, a stranger who fights beside you, wounds, deaths,
