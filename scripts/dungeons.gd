@@ -8,9 +8,10 @@ class_name Dungeons
 ##
 ## Calder Keep is tier 1: monsters only, three floors, the third a boss.
 
-## How long a floor takes, and the walk back out through each floor already cleared.
-const FLOOR_TIME := 600
-const WALK_TIME := 240
+## How long a floor takes, and the walk back out through each floor already cleared. A full run
+## (three floors, two check-ins, the walk out) takes 20 minutes.
+const FLOOR_TIME := 240
+const WALK_TIME := 80
 ## The check-in between floors: how long the crew waits for the player before following orders.
 const CHECKIN := 120
 ## A fight that hasn't ended after this many rounds ends with the crew backing out.
@@ -32,11 +33,11 @@ const DUNGEONS := {
 		"art": "res://assets/ui/art/dungeon_calder_keep.png",
 		"floors": [
 			{"name": "The Cellars", "foe": "Giant rats", "count": 5, "hp": 18, "damage": 10, "speed": 1.2, "armour": 2,
-			 "coin": [18, 34], "loot": {"bone": [1, 3]}},
+			 "coin": [22, 41], "loot": {"bone": [1, 3]}},
 			{"name": "Webbed Halls", "foe": "Cave spiders", "count": 3, "hp": 50, "damage": 16, "speed": 1.1, "armour": 10,
-			 "coin": [36, 64], "loot": {"spider_silk": [1, 3], "bone": [0, 2]}},
+			 "coin": [43, 77], "loot": {"spider_silk": [1, 3], "bone": [0, 2]}},
 			{"name": "The Bone Knight", "foe": "The Bone Knight", "count": 1, "hp": 340, "damage": 18, "speed": 0.9, "armour": 32, "boss": true,
-			 "coin": [130, 210], "loot": {"bone": [3, 5]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
+			 "coin": [156, 252], "loot": {"bone": [3, 5]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
 		],
 	},
 }

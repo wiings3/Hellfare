@@ -44,13 +44,14 @@ at auction weigh on the market price like goods sold to merchants.
 ## V0.23 – Calder Keep, the first dungeon
 
 Expeditions → **Dungeons** opens Calder Keep (tier 1, gear score 8 to enter, 30 G supplies plus
-wages, up to three mercenaries). It is fought floor by floor, about ten minutes a floor:
+wages, up to three mercenaries). It is fought floor by floor, four minutes a floor; a full run with the walk out and two
+check-ins takes about 20 minutes:
 
 | Floor | Foes | Carries |
 |---|---|---|
-| 1 · The Cellars | 5 giant rats | 18–34 coin, bone |
-| 2 · Webbed Halls | 3 cave spiders | 36–64 coin, spider silk, bone |
-| 3 · The Bone Knight | the boss, armoured | 130–210 coin, bone; 8% an ancient relic, 20% a tier-3 blueprint |
+| 1 · The Cellars | 5 giant rats | 22–41 coin, bone |
+| 2 · Webbed Halls | 3 cave spiders | 43–77 coin, spider silk, bone |
+| 3 · The Bone Knight | the boss, armoured | 156–252 coin, bone; 8% an ancient relic, 20% a tier-3 blueprint |
 
 - **Fights** come from what the crew carries and wears: weapon damage, attack speed, crit and
   armour piercing against the monsters; armour, dodge, parry and block against their blows. A
