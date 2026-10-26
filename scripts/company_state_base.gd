@@ -707,9 +707,12 @@ func complete_due(now: int = -1) -> int:
 	if now < 0:
 		now = GameClock.now()
 	var completed: int = 0
+	var delving: bool = _dungeon_tick(now)
 	for i in range(missions.size() - 1, -1, -1):
 		var mission: Dictionary = missions[i]
 		if int(mission["finish"]) > now:
+			continue
+		if str(mission.get("region", "")) == "dungeon" and str(mission.get("stage", "out")) != "out":
 			continue
 		# Returning crews start resting from the moment they got home, not from now.
 		for id in mission.get("ids", []):
@@ -717,7 +720,9 @@ func complete_due(now: int = -1) -> int:
 			if not back.is_empty():
 				back["rest_t"] = int(mission["finish"])
 				back["idle_t"] = int(mission["finish"])
-		if mission.has("site"):
+		if str(mission.get("region", "")) == "dungeon":
+			_dungeon_finish(mission)
+		elif mission.has("site"):
 			_site_finish(mission)
 		elif str(mission.get("region", "")) == "harlow":
 			_harlow_finish(mission)
@@ -730,7 +735,7 @@ func complete_due(now: int = -1) -> int:
 	rest(now)
 	if upkeep(now) > 0 and completed == 0:
 		save_game()
-	if completed > 0:
+	if completed > 0 or delving:
 		save_game()
 	return completed
 
@@ -1445,6 +1450,9 @@ func free_crew() -> int:
 func debug_skip(seconds: int) -> String:
 	for mission in missions:
 		mission["finish"] = int(mission["finish"]) - seconds
+		for k in ["floor_end", "await_until"]:
+			if mission.has(k):
+				mission[k] = int(mission[k]) - seconds
 	var resolved: int = complete_due()
 	save_game()
 	return "Simulated %d minutes forward; %d expedition(s) completed." % [int(seconds / 60), resolved]
@@ -1479,6 +1487,12 @@ func _harlow_finish(_mission: Dictionary) -> void:
 
 func _site_finish(_mission: Dictionary) -> void:
 	push_error("CompanyStateBase needs a site expedition resolver.")
+
+func _dungeon_tick(_now: int) -> bool:
+	return false
+
+func _dungeon_finish(_mission: Dictionary) -> void:
+	push_error("CompanyStateBase needs a dungeon resolver.")
 
 
 

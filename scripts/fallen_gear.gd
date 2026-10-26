@@ -28,7 +28,7 @@ const TAKEN_CHANCE := 0.4
 ## NPC pool items added per hour at each site (dangerous sites see more deaths).
 const NPC_RATE := {"mossward_copse": 6.0, "old_oakwood": 14.0, "harlow": 6.0, "deepdelve": 16.0,
 	"fenmire": 8.0, "sunreach": 10.0, "frostvale": 14.0, "silverrun": 4.0, "glasswater": 6.0, "greywater_coast": 10.0,
-	"drowned_deep": 14.0, "hollow_fields": 4.0, "greyfang_hills": 12.0, "elkmoor": 14.0, "bleakridge": 18.0}
+	"drowned_deep": 14.0, "hollow_fields": 4.0, "greyfang_hills": 12.0, "elkmoor": 14.0, "bleakridge": 18.0, "calder_keep": 20.0}
 ## What fallen NPC mercenaries carried, by site. Weights.
 const NPC_LOOT := {
 	"mossward_copse": {"hand_axe": 30, "leather": 24, "felling_axe": 12, "rusted_sword": 10, "leather_cap": 6, "leather_boots": 6, "iron_spear": 4, "chainmail": 4, "steel_sword": 3, "birch_shortbow": 3, "wardens_axe": 1.2, "veil_of_ashes": 0.4, "knights_blade": 0.3, "gilded_plate": 0.2},
@@ -45,6 +45,7 @@ const NPC_LOOT := {
 	"greyfang_hills": {"oak_hunting_bow": 24, "steel_spear": 12, "oak_crossbow": 6, "wolfhide_jerkin": 10, "steel_war_axe": 4, "huntmasters_spear": 1.0, "stormstring": 0.6},
 	"elkmoor": {"yew_longbow": 20, "silversteel_spear": 10, "yew_crossbow": 6, "elkhide_jerkin": 10, "huntmasters_spear": 1.0, "stormstring": 0.8},
 	"bleakridge": {"ironwood_warbow": 16, "gloomiron_spear": 8, "ironwood_crossbow": 6, "direbear_jerkin": 8, "graveward_maul": 0.8, "stormstring": 1.0, "widowmaker": 0.6},
+	"calder_keep": {"rusted_sword": 22, "iron_dagger": 14, "leather": 18, "leather_cap": 10, "leather_boots": 8, "iron_helm": 6, "chainmail": 6, "steel_sword": 5, "birch_shortbow": 6, "iron_spear": 5, "steel_kite_shield": 2, "knights_blade": 0.8, "gilded_plate": 0.6, "veil_of_ashes": 0.4},
 	"harlow": {"basic_pick": 30, "leather": 24, "reinforced_pick": 10, "rusted_sword": 10, "ringmail_coif": 5, "iron_dagger": 4, "chainmail": 4, "steel_sword": 3, "iron_helm": 3, "dwarven_pick": 0.8, "knights_blade": 0.3, "gilded_plate": 0.2},
 }
 const COMPANIES := ["Iron Hands", "Grey Lanterns", "Red Wolves", "Ashford Free Company", "Black Pines", "Copper Crowns", "Hollow Oaks", "Brightwater Guild", "Lantern Road Co.", "Salt Kings"]
