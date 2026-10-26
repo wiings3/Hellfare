@@ -108,6 +108,7 @@ func _initialize() -> void:
 		# Make the run deadly: the crew starts nearly dead.
 		wm["hp"][weak[0]] = 1.0
 		wm["carry"] = {"coin": 50}
+		wm["ev"] = []  # This checks the fight's wipe rule, without events moving the coin first.
 		w.complete_due(now + 10 * 3600)
 		check(w.missions.is_empty(), "wiped run finishes")
 		check(w.merc_by_id(weak[0]).is_empty(), "the dead leave the roster")
