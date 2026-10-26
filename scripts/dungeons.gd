@@ -28,8 +28,8 @@ const RETREAT_AT := {"half": 15.0, "death": 0.0, "never": 0.0}
 
 const DUNGEONS := {
 	"calder_keep": {
-		"id": "calder_keep", "name": "Calder Keep", "tier": 1, "min_kit": 8, "supplies": 30, "crew": 3,
-		"tagline": "A ruined keep in the hills north of Mossward. Rats in the cellars, spiders in the halls, and something in armour on the top floor.",
+		"id": "calder_keep", "name": "The Fallen Keep", "tier": 1, "min_kit": 8, "supplies": 30, "crew": 3,
+		"tagline": "A keep the Maw swallowed when it opened. Rats in the cellars, spiders in the halls, and something in armour on the top floor, still on guard.",
 		"art": "res://assets/ui/art/dungeon_calder_keep.png",
 		"floors": [
 			{"name": "The Cellars", "foe": "Giant rats", "count": 5, "hp": 18, "damage": 10, "speed": 1.2, "armour": 2,
@@ -41,10 +41,10 @@ const DUNGEONS := {
 		],
 	},
 }
-## Dungeons designed but not open yet, for the board.
+## Crypts designed but not open yet, for the board.
 const PLANNED := [
-	{"id": "sunken_abbey", "name": "The Sunken Abbey", "min_kit": 24, "note": "rival crews"},
-	{"id": "wyrms_hollow", "name": "Wyrm's Hollow", "min_kit": 36, "note": "rival crews"},
+	{"id": "sunken_abbey", "name": "The Drowned Abbey", "min_kit": 24, "note": "rival crews"},
+	{"id": "wyrms_hollow", "name": "The Throne Below", "min_kit": 36, "note": "rival crews"},
 ]
 
 static func by_id(id: String) -> Dictionary:

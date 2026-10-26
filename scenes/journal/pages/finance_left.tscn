@@ -170,7 +170,7 @@ layout_mode = 2
 [node name="Name" type="Label" parent="Margin/Content/Ledger/Rows/Total"]
 layout_mode = 2
 theme_type_variation = &"LabelTitle"
-text = "Company worth"
+text = "Guild worth"
 size_flags_horizontal = 3
 
 [node name="Value" type="Label" parent="Margin/Content/Ledger/Rows/Total"]
@@ -209,7 +209,7 @@ mouse_default_cursor_shape = 2
 theme_type_variation = &"PaperButton"
 text = "Sign charter"
 size_flags_vertical = 4
-tooltip_text = "An expedition charter lets one more crew work at the same time."
+tooltip_text = "A Warden's charter lets one more crew go below at the same time."
 
 [node name="SlotsNote" type="Label" parent="Margin/Content"]
 layout_mode = 2
@@ -226,7 +226,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 caption = "Payroll"
 value = "0"
-tooltip_text = "Wages for one expedition with every mercenary on the roster."
+tooltip_text = "Wages for one expedition with every Hellfarer on the roster."
 
 [node name="Reputation" parent="Margin/Content/Costs" instance=ExtResource("4_stat_tile")]
 layout_mode = 2

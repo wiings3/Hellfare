@@ -32,7 +32,7 @@ text = "Gear"
 [node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Spare gear nobody is wearing. Equip it from a mercenary's Gear page."
+text = "Spare gear nobody is wearing. Equip it from a Hellfarer's Gear page."
 autowrap_mode = 3
 
 [node name="Store" type="ScrollContainer" parent="Margin/Content"]

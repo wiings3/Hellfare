@@ -99,7 +99,7 @@ layout_mode = 2
 theme_type_variation = &"LabelCaption"
 text = "Unknown"
 mouse_filter = 1
-tooltip_text = "Better mercenaries apply to more reputable companies. Reputation comes from the value your crews deliver."
+tooltip_text = "Better Hellfarers apply to more reputable guilds. Reputation comes from the value your crews bring up."
 
 [node name="List" type="ScrollContainer" parent="Margin/Content"]
 layout_mode = 2

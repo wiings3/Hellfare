@@ -104,8 +104,8 @@ def personnel_roster():
     label(s, C + "/Summary/Count", "0 hired", "LabelCaption", {"size_flags_horizontal": 3})
     label(s, C + "/Summary/Payroll", "Payroll 0 G", "LabelCaption", {"mouse_filter": 1})
     scroll(s, C + "/List", 80)
-    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Nobody is on the payroll yet. A woodcutter at Mossward Copse pays from the first trip.", "icon_kind": "plus"})
-    button(s, C + "/Recruit", "Recruit mercenaries", None, {"visible": False, "size_flags_horizontal": 4})
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Nobody is on the payroll yet. A woodcutter at Cinderwood pays from the first trip.", "icon_kind": "plus"})
+    button(s, C + "/Recruit", "Recruit Hellfarers", None, {"visible": False, "size_flags_horizontal": 4})
     s.save(P + "personnel_employed_left.tscn")
 
     s = page("PersonnelDossierRight")
@@ -131,7 +131,7 @@ def personnel_roster():
     tile(s, O + "/Stats/Skill", "Value", extra={"tooltip_text": "Rough market value of their contract: skills, traits and the gear they wear."})
     tile(s, O + "/Stats/Wage", "Wage", extra={"tooltip_text": "Paid up front for each expedition."})
     tile(s, O + "/Stats/Share", "Share", extra={"tooltip_text": "Their cut of the coin an expedition brings back."})
-    tile(s, O + "/Stats/Kit", "Gear score", extra={"tooltip_text": "Gear score: how well equipped they are for a fight, and what dungeons check at the door. Each worn piece adds its tier times the slot's weight (main hand 4, body 3, off hand 2, head, hands and feet 1; two-handers 6). Worn-out pieces count half."})
+    tile(s, O + "/Stats/Kit", "Gear score", extra={"tooltip_text": "Gear score: how well equipped they are for a fight, and what crypts check at the door. Each worn piece adds its tier times the slot's weight (main hand 4, body 3, off hand 2, head, hands and feet 1; two-handers 6). Worn-out pieces count half."})
     s.node(O + "/Health", "HBoxContainer", {"theme_override_constants/separation": 6})
     label(s, O + "/Health/Caption", "Health", "LabelCaption")
     s.node(O + "/Health/Bar", "ProgressBar", {"custom_minimum_size": (0, 6), "size_flags_horizontal": 3, "size_flags_vertical": 4, "mouse_filter": 2, "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0, "show_percentage": False})
@@ -175,7 +175,7 @@ def personnel_roster():
     scroll(s, G + "/Fits", 60)
     label(s, G + "/FitsEmpty", "Nothing in the storeroom fits this slot.", "LabelMuted", {"autowrap_mode": 3})
     button(s, G + "/Workshop", "Buy or craft more in the Workshop  >", "TextButton", {"size_flags_horizontal": 8})
-    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Select a mercenary to read their dossier.", "icon_kind": "home"})
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "Select a Hellfarer to read their dossier.", "icon_kind": "home"})
     s.save(P + "personnel_employed_right.tscn")
 
 
@@ -191,7 +191,7 @@ def personnel_recruit():
     s.node(C + "/Summary", "HBoxContainer")
     label(s, C + "/Summary/Refresh", "New applicants in 30m", "LabelCaption", {"size_flags_horizontal": 3})
     label(s, C + "/Summary/Standing", "Unknown", "LabelCaption", {"mouse_filter": 1,
-        "tooltip_text": "Better mercenaries apply to more reputable companies. Reputation comes from the value your crews deliver."})
+        "tooltip_text": "Better Hellfarers apply to more reputable guilds. Reputation comes from the value your crews bring up."})
     scroll(s, C + "/List", 80)
     s.inst(C + "/Empty", INFO, {"visible": False, "text": "Nobody of this kind is looking for work. New faces arrive every half hour.", "icon_kind": "home"})
     s.save(P + "personnel_recruits_left.tscn")
@@ -224,7 +224,7 @@ def personnel_recruit():
     label(s, C + "/TraitsCaption", "Traits", "LabelCaption")
     label(s, C + "/Traits", "None", None, {"autowrap_mode": 3})
     spacer(s, C + "/Spacer")
-    button(s, C + "/Hire", "Hire", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Traits are for life. The fallen cannot be rehired."})
+    button(s, C + "/Hire", "Hire", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Traits are for life. Nobody who stays below can be rehired."})
     label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.inst(C + "/Empty", INFO, {"visible": False, "text": "Select an applicant to see their terms.", "icon_kind": "home"})
     s.save(P + "personnel_recruits_right.tscn")
@@ -234,14 +234,14 @@ def personnel_recruit():
 def workshop_store():
     s = page("WorkshopStoreLeft", top=36)
     header(s, C + "/Header", "Gear")
-    label(s, C + "/Caption", "Spare gear nobody is wearing. Equip it from a mercenary's Gear page.", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/Caption", "Spare gear nobody is wearing. Equip it from a Hellfarer's Gear page.", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Store", 80)
     s.inst(C + "/StoreEmpty", INFO, {"visible": False, "text": "No spare gear. Buy it in the Shop, or craft better.", "icon_kind": "home"})
     s.save(P + "workshop_store_left.tscn")
 
     s = page("WorkshopStoreRight")
     header(s, C + "/Header", "Supplies")
-    label(s, C + "/Caption", "Food and potions. Pack them into a mercenary's food and potion slots from their Gear page.", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/Caption", "Food and potions. Pack them into a Hellfarer's food and potion slots from their Gear page.", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Supplies", 80)
     s.inst(C + "/SuppliesEmpty", INFO, {"visible": False, "text": "No food or potions. Craft them, or buy them at the Auction House.", "icon_kind": "home"})
     s.inst(C + "/Tip", INFO, {"text": "Gear wears with every trip and works at half effect once worn out. If its wearer dies, it's lost with them.", "icon_kind": "alert"})
@@ -262,7 +262,7 @@ def workshop_shop():
     for name, text, tip in CRAFT_GROUPS:
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 16), "tooltip_text": tip})
-    label(s, C + "/Caption", "Learn a recipe once; anyone in the company can craft it.", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/Caption", "Learn a recipe once; anyone in the guild can craft it.", "LabelCaption", {"autowrap_mode": 3})
     s.node(C + "/Focus", "HBoxContainer", {"visible": False, "theme_override_constants/separation": 4})
     label(s, C + "/Focus/Text", "", "LabelAccent", {"size_flags_horizontal": 3, "text_overrun_behavior": 3})
     button(s, C + "/Focus/Clear", "Show all", "PaperButton")
@@ -296,7 +296,7 @@ def personnel_workshop():
     label(s, C + "/Focus/Text", "", "LabelAccent", {"size_flags_horizontal": 3, "text_overrun_behavior": 3})
     button(s, C + "/Focus/Clear", "Show all", "PaperButton")
     scroll(s, C + "/Known", 110)
-    s.inst(C + "/KnownEmpty", INFO, {"visible": False, "text": "No blueprints here yet. Buy them in the Shop; better ones turn up in dungeons.", "icon_kind": "plus"})
+    s.inst(C + "/KnownEmpty", INFO, {"visible": False, "text": "No blueprints here yet. Buy them in the Shop; better ones turn up in the crypts.", "icon_kind": "plus"})
     button(s, C + "/ShopLink", "Blueprints for sale in the Shop  >", "TextButton", {"size_flags_horizontal": 8})
     s.save(P + "personnel_workshop_left.tscn")
 
@@ -331,7 +331,7 @@ def exchange():
     s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 3})
     for name, text, tip in [("All", "All", "Every good the merchants trade."), ("Held", "Held", "Goods in your warehouse."),
                             ("Raw", "Raw", "What expeditions bring home."), ("Crafted", "Crafted", "Ingots, cloth, potions and other made goods."),
-                            ("Food", "Food", "Meals a mercenary can carry on an expedition.")]:
+                            ("Food", "Food", "Meals a Hellfarer can carry on an expedition.")]:
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 16), "tooltip_text": tip})
     s.node(C + "/Columns", "HBoxContainer", {"theme_override_constants/separation": 4})
@@ -415,17 +415,17 @@ def finances():
         label(s, row + "/Value", "0 G", None, {"horizontal_alignment": 2})
     s.node(C + "/Ledger/Rows/Rule", "HSeparator")
     s.node(C + "/Ledger/Rows/Total", "HBoxContainer")
-    label(s, C + "/Ledger/Rows/Total/Name", "Company worth", "LabelTitle", {"size_flags_horizontal": 3})
+    label(s, C + "/Ledger/Rows/Total/Name", "Guild worth", "LabelTitle", {"size_flags_horizontal": 3})
     label(s, C + "/Ledger/Rows/Total/Value", "0 G", "LabelBig")
     header(s, C + "/OpsHeader", "Operations")
     s.node(C + "/Slots", "HBoxContainer", {"theme_override_constants/separation": 6})
     s.node(C + "/Slots/Text", "VBoxContainer", {"size_flags_horizontal": 3, "size_flags_vertical": 4, "theme_override_constants/separation": 0})
     label(s, C + "/Slots/Text/Caption", "Expedition slots", "LabelCaption")
     s.inst(C + "/Slots/Text/Pips", PIPS, {"value": 1, "max_value": 5, "gold": True})
-    button(s, C + "/Slots/Expand", "Sign charter", "PaperButton", {"size_flags_vertical": 4, "tooltip_text": "An expedition charter lets one more crew work at the same time."})
+    button(s, C + "/Slots/Expand", "Sign charter", "PaperButton", {"size_flags_vertical": 4, "tooltip_text": "A Warden's charter lets one more crew go below at the same time."})
     label(s, C + "/SlotsNote", "", "LabelCaption", {"autowrap_mode": 3})
     s.node(C + "/Costs", "HBoxContainer", {"theme_override_constants/separation": 5})
-    tile(s, C + "/Costs/Payroll", "Payroll", extra={"tooltip_text": "Wages for one expedition with every mercenary on the roster."})
+    tile(s, C + "/Costs/Payroll", "Payroll", extra={"tooltip_text": "Wages for one expedition with every Hellfarer on the roster."})
     tile(s, C + "/Costs/Reputation", "Reputation", icon=ICON + "crystal.png", extra={"tooltip_text": "Earned through successful expeditions. Unlocks contracts."})
     spacer(s, C + "/Spacer")
     s.inst(C + "/Relief", INFO, {"visible": False, "text": "", "icon_kind": "coin"})
@@ -511,8 +511,8 @@ def chronicle():
 # --- Regional contracts --------------------------------------------------------
 def guildwork():
     s = page("GuildWorkLeft")
-    header(s, C + "/Header", "Guild Work")
-    s.inst(C + "/About", INFO, {"text": "Safe, small jobs from the guild for companies that have fallen on hard times. No risk, no equipment, modest pay.", "icon_kind": "home"})
+    header(s, C + "/Header", "Warden Work")
+    s.inst(C + "/About", INFO, {"text": "Safe, small jobs from the Wardens of the Maw for guilds on hard times: watches, hauling, the gate. No risk, no equipment, modest pay.", "icon_kind": "home"})
     label(s, C + "/EligibleCaption", "Who qualifies", "LabelCaption")
     s.node(C + "/Rules", "PanelContainer", {"theme_type_variation": Raw('&"InsetPanel"')})
     s.node(C + "/Rules/Body", "VBoxContainer", {"theme_override_constants/separation": 2})
@@ -538,7 +538,7 @@ def guildwork():
     header(s, C + "/Header", "Contract Labor")
     label(s, C + "/Caption", "2m 30s  ·  18 G each  ·  no injury or gear risk", "LabelCaption")
     scroll(s, C + "/List", 80)
-    s.inst(C + "/Empty", INFO, {"visible": False, "text": "No mercenaries are free for labor right now.", "icon_kind": "home"})
+    s.inst(C + "/Empty", INFO, {"visible": False, "text": "No Hellfarers are free for work right now.", "icon_kind": "home"})
     s.save(P + "guildwork_right.tscn")
 
 
@@ -579,7 +579,7 @@ def site_card():
 
 
 def locked_row():
-    """A site the company can't work yet: one quiet line."""
+    """A site the guild can't work yet: one quiet line."""
     s = Scene("LockedRow", "Button", {"custom_minimum_size": (0, 20), "size_flags_horizontal": 3, "mouse_default_cursor_shape": 2,
         "theme_type_variation": Raw('&"TextButton"')})
     s.node("Body", "HBoxContainer", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
@@ -595,14 +595,14 @@ def site_pages():
     grp = s.sub("filter", "ButtonGroup", {})
     header(s, C + "/Header", "Choose a Crew")
     s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 4})
-    for name, text, tip in [("Trade", "Workers", "Mercenaries with the right tool for this site."),
+    for name, text, tip in [("Trade", "Workers", "Hellfarers with the right tool for this site."),
                             ("Guards", "Guards", "Guards cut the risk for the whole crew but gather at half pace."),
                             ("All", "Everyone", "Everyone free, best at this trade first.")]:
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 18), "tooltip_text": tip})
     label(s, C + "/Caption", "Up to 3. Click to add or remove.", "LabelCaption")
     scroll(s, C + "/Roster", 80)
-    s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "No mercenaries are free. Hire one in Mercenaries.", "icon_kind": "plus"})
+    s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "No Hellfarers are free. Hire one in Mercenaries.", "icon_kind": "plus"})
     button(s, C + "/Hire", "Hire in Mercenaries  >", "PaperButton", {"visible": False, "size_flags_horizontal": 4})
     s.node(C + "/Footer", "HBoxContainer")
     button(s, C + "/Footer/Back", "<  All sites", "TextButton")
@@ -637,7 +637,7 @@ def site_pages():
     tile(s, C + "/Forecast/Profit", "Profit", extra={"tooltip_text": "Value of the haul at today's merchant price, minus wages and supplies."})
     tile(s, C + "/Forecast/Risk", "Risk each", extra={"tooltip_text": "Chance each worker is injured, and killed."})
     spacer(s, C + "/Spacer")
-    button(s, C + "/Fund", "Fund expedition", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Deaths and lost gear are permanent."})
+    button(s, C + "/Fund", "Send them down", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Deaths and lost gear are permanent."})
     label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "site_right.tscn")
 
@@ -649,7 +649,7 @@ def dungeon_pages():
     grp = s.sub("filter", "ButtonGroup", {})
     header(s, C + "/Header", "Choose Fighters")
     s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 4})
-    for name, text, tip in [("Fighters", "Fighters", "Mercenaries holding a weapon. They fight on every floor."),
+    for name, text, tip in [("Fighters", "Fighters", "Hellfarers holding a weapon. They fight on every floor."),
                             ("Porters", "Porters", "No weapon: they don't fight, carry half again as much out, and die easily."),
                             ("All", "Everyone", "Everyone free, best gear first.")]:
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
@@ -658,7 +658,7 @@ def dungeon_pages():
     scroll(s, C + "/Roster", 80)
     s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "Nobody is free. Hire fighters in Mercenaries.", "icon_kind": "plus"})
     s.node(C + "/Footer", "HBoxContainer")
-    button(s, C + "/Footer/Back", "<  All dungeons", "TextButton")
+    button(s, C + "/Footer/Back", "<  All crypts", "TextButton")
     s.save(P + "dungeon_left.tscn")
 
     s = page("DungeonRight")
@@ -716,12 +716,12 @@ def dungeon_pages():
     label(s, C + "/Found", "", "LabelCaption", {"autowrap_mode": 3})
     label(s, C + "/EventsCaption", "Along the way", "LabelCaption", {"visible": False})
     s.node(C + "/Events", "VBoxContainer", {"theme_override_constants/separation": 1})
-    label(s, C + "/DroppedCaption", "Left in the keep", "LabelCaption")
+    label(s, C + "/DroppedCaption", "Left below", "LabelCaption")
     s.node(C + "/Dropped", "HBoxContainer", {"theme_override_constants/separation": 3})
     spacer(s, C + "/Spacer")
     label(s, C + "/Walk", "", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.node(C + "/Footer", "HBoxContainer")
-    button(s, C + "/Footer/Back", "<  All dungeons", "TextButton")
+    button(s, C + "/Footer/Back", "<  All crypts", "TextButton")
     s.save(P + "run_left.tscn")
 
     s = page("RunRight")
@@ -897,7 +897,7 @@ def event_card():
     s.node(B + "/Head", "HBoxContainer", {"theme_override_constants/separation": 4})
     s.node(B + "/Head/Icon", "TextureRect", {"custom_minimum_size": (14, 14), "size_flags_vertical": 4, "mouse_filter": 2, "stretch_mode": 3,
         "texture": Res("res://assets/ui/icons/relic.png")})
-    label(s, B + "/Head/Title", "Calder Keep  ·  Floor 1", "LabelCaption", {"size_flags_horizontal": 3})
+    label(s, B + "/Head/Title", "The Fallen Keep  ·  Floor 1", "LabelCaption", {"size_flags_horizontal": 3})
     button(s, B + "/Head/Open", "Run  >", "TextButton", {"tooltip_text": "Open the run."})
     label(s, B + "/Text", "", None, {"custom_minimum_size": (230, 0), "autowrap_mode": 3})
     label(s, B + "/Hint", "", "LabelGood", {"autowrap_mode": 3})
@@ -914,7 +914,7 @@ def exchange_tabs():
     s = Scene("ExchangeTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})
     s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
-    for name, text in [("MerchantsTab", "Merchants"), ("AuctionTab", "Auction House"), ("HallTab", "Trade Hall")]:
+    for name, text in [("MerchantsTab", "Merchants"), ("AuctionTab", "Auction House"), ("HallTab", "Tavern")]:
         button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
     s.save(P + "exchange_tabs.tscn")
 
@@ -1132,7 +1132,7 @@ def company_today():
     """The Company home's right page: crews in the field, then only what needs the player."""
     s = page("CompanyRight")
     header(s, C + "/Header", "Today")
-    label(s, C + "/FieldCaption", "In the field", "LabelCaption")
+    label(s, C + "/FieldCaption", "Out", "LabelCaption")
     s.node(C + "/Expeditions", "VBoxContainer", {"theme_override_constants/separation": 4})
     label(s, C + "/NeedsCaption", "Needs you", "LabelCaption")
     s.node(C + "/Needs", "VBoxContainer", {"theme_override_constants/separation": 4})
@@ -1140,7 +1140,7 @@ def company_today():
           {"visible": False, "autowrap_mode": 3})
     spacer(s, C + "/Spacer")
     s.node(C + "/Tiles", "HBoxContainer", {"theme_override_constants/separation": 4})
-    tile(s, C + "/Tiles/Reputation", "Reputation", "Unknown", extra={"tooltip_text": "Earned by delivering goods. Better applicants join a better-known company."})
+    tile(s, C + "/Tiles/Reputation", "Reputation", "Unknown", extra={"tooltip_text": "Earned by bringing goods up. Better applicants join a better-known guild."})
     tile(s, C + "/Tiles/Warehouse", "Warehouse", "Empty", extra={"tooltip_text": "Goods waiting to be sold or crafted. The Exchange sells them."})
     s.save(P + "company_right.tscn")
 
@@ -1186,7 +1186,7 @@ def fallen_card():
     s.node("Margin", "MarginContainer", {"mouse_filter": 2, "theme_override_constants/margin_left": 2, "theme_override_constants/margin_top": 2,
         "theme_override_constants/margin_right": 2, "theme_override_constants/margin_bottom": 2})
     s.node("Margin/Body", "VBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 3})
-    label(s, "Margin/Body/Title", "Fallen gear", "LabelTitle")
+    label(s, "Margin/Body/Title", "Left below", "LabelTitle")
     label(s, "Margin/Body/Summary", "", "LabelCaption", {"autowrap_mode": 3, "custom_minimum_size": (164, 0)})
     s.node("Margin/Body/Rows", "VBoxContainer", {"mouse_filter": 2, "theme_override_constants/separation": 2})
     label(s, "Margin/Body/Empty", "Nothing within your reach today.", "LabelMuted", {"visible": False, "horizontal_alignment": 1})
@@ -1198,7 +1198,7 @@ def company_map():
     import json
     roads = json.load(open("tools/map_roads.json"))
     s = page("CompanyMapLeft")
-    header(s, C + "/Header", "Mossward Region")
+    header(s, C + "/Header", "The Gatelands")
     M = C + "/Map"
     s.node(M, "Control", {"custom_minimum_size": (257, 280), "size_flags_horizontal": 4, "mouse_filter": 2,
         "script": Res("res://scripts/ui/region_map.gd")})
@@ -1221,12 +1221,12 @@ def company_map():
             "tooltip_text": "Not yet surveyed. New work sites will open here."})
     # Site names: click one to plan an expedition there.
     s.node(M + "/Sites", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
-    for site, text, x, y, w in [("mossward_copse", "Mossward Copse", 14, 190, 76), ("old_oakwood", "Old Oakwood", 8, 24, 104),
-                                ("harlow", "Harlow Mines", 174, 98, 66), ("town", "Mossward", 104, 222, 40),
-                                ("deepdelve", "Deepdelve", 196, 28, 52),
+    for site, text, x, y, w in [("mossward_copse", "Cinderwood", 14, 190, 76), ("old_oakwood", "Weepingwood", 8, 24, 104),
+                                ("harlow", "The Gatepit", 174, 98, 66), ("town", "Last Lantern", 94, 222, 60),
+                                ("deepdelve", "Sulphur Deeps", 166, 28, 70),
                                 # The newer trades: one label per region, shared by its sites.
-                                ("foraging", "Fenmire", 196, 230, 50), ("fishing", "Millbrook", 166, 212, 48),
-                                ("hunting", "Greyfang Hills", 4, 100, 70), ("farming", "Home Fields", 36, 258, 56)]:
+                                ("foraging", "Bloodfen", 196, 230, 50), ("fishing", "Cinder Pool", 160, 212, 58),
+                                ("hunting", "Houndfang Hills", 4, 100, 76), ("farming", "Home Fields", 36, 258, 56)]:
         button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 13)})
     # Grave markers: gear of the fallen this company could find at each site.

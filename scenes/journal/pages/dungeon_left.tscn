@@ -44,7 +44,7 @@ size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("filter")
 custom_minimum_size = Vector2(0, 18)
-tooltip_text = "Mercenaries holding a weapon. They fight on every floor."
+tooltip_text = "Hellfarers holding a weapon. They fight on every floor."
 
 [node name="Porters" type="Button" parent="Margin/Content/Filter"]
 layout_mode = 2
@@ -98,4 +98,4 @@ layout_mode = 2
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"TextButton"
-text = "<  All dungeons"
+text = "<  All crypts"

@@ -1,19 +1,47 @@
-# Money Mercs
+# Money Mercs (becoming Hellfare)
 
-**Version 0.24 — The Auction House**
+**Version 0.25 — Hellfare: names and writing**
 
-Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
+A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
+Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
+or to fight through its crypts toward the Ashen King. The game's title and repository name change
+last, after the art.
 
-> *Build a fortune. Let someone else risk their life.*
+> *Build a fortune. Let someone else go down for it.*
 
 ## Play
 
 1. Pull `main` or clone https://github.com/wiings3/Money-Mercs
 2. Import `project.godot` in Godot **4.5.1**. Run with **F5**.
-3. Visit **Mercenaries**; hire Garrick (Miner) and ideally Oswin (Guard). The recruitment board refreshes with replacement applicants every 30 minutes.
-4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
-5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
-6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+3. Open **Mercenaries → Recruit** and hire a woodcutter; new faces turn up every 30 minutes.
+4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
+5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
+   **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.25 – Hellfare: names and writing
+
+The same game, renamed for its new setting (see the Hellfare theme sheet). Every internal id is
+unchanged, so saves, recipes, prices and tests carry over; only the words players see changed.
+
+- **Places.** Mossward is Last Lantern, in the Gatelands. Work sites moved into hell's layers:
+  Cinderwood, Weepingwood, the Gatepit, the Sulphur Deeps, Ashmeadow, the Bloodfen, Ember Slopes,
+  Lament's Edge, the Cinder Pool, the Styx Shallows, the Lake of Glass, the Shore of Tears,
+  Houndfang Hills and Gorehorn Moor; Hollow Fields, Bleakridge and the Drowned Deep keep their
+  names. Farms stay above with their warm names.
+- **Crypts.** Dungeons are crypts: Calder Keep is the Fallen Keep, the Sunken Abbey is the Drowned
+  Abbey and Wyrm's Hollow is the Throne Below, where the Ashen King waits.
+- **Goods and gear.** Birch timber is ashwood, oak is weepwood, coal is brimstone, moonleaf is
+  ashleaf, azure crystal is soulglass, wolf pelts are hound pelts, and so on; gear made from them
+  takes the new names (Ashwood Shortbow, Houndhide Jerkin, Kingbone Sword). Gear ids still use the
+  old words (`birch_shortbow`): `display()` in `tools/catalog_gen.py` maps them.
+- **People.** Mercenaries are Hellfarers in the writing (the bookmarks keep their names). Death
+  reads as not coming back up, with a name on the Wall at the Maw. Respected is now Trusted;
+  Woodsman is Ashcutter. Contracts sell to the rival guilds: the Red Wolves, Iron Hands, Grey
+  Lanterns, Black Pines, Copper Crowns and Salt Kings.
+- **Town.** The Trade Hall is the Gatehouse Tavern; expedition charters are Warden's charters;
+  guild relief work comes from the Wardens of the Maw.
+- **Wording.** Crews are "out" rather than "in the field"; site planners send them down; crypt
+  events name Hellfarers and other guilds.
 
 ## V0.24 – The Auction House
 

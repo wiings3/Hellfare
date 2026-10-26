@@ -1,9 +1,10 @@
 """Authoring script for the item catalog (run from the project root: python3 tools/catalog_gen.py).
 
 Writes data/catalog.json: every expedition, material, piece of gear, food, potion, trinket,
-crafting intermediate, stat roll and company upgrade in Money Mercs. The game and
+crafting intermediate, stat roll and company upgrade in Hellfare. The game and
 tests/catalog_test.gd read the JSON; edit this script and re-run it to change the catalog.
-Ids already used by saves (timber, copper, basic_pick, leather, ...) never change.
+Ids already used by saves (timber, copper, basic_pick, leather, ...) never change. Gear ids
+come from the names the game shipped with (birch_shortbow); display() gives the Hellfare name.
 
 How the catalog is built
 - Tiers 1-5. Each tier has a metal, a timber, a hide, a cloth and a gem; gear of a tier is made
@@ -17,7 +18,7 @@ How the catalog is built
   or Masterwork (3), drawn from its family's pool of stat rolls. Found-only pieces are fixed.
 - Crafted value is about 1.4x the materials (the validator keeps it within 1.1-2.2x).
 - Blueprints: the quartermaster sells tier 1-2; tier 3-5 blueprints drop in the dungeon two tiers
-  below (Calder Keep -> 3, Sunken Abbey -> 4, Wyrm's Hollow -> 5) or, for trade tools, food,
+  below (the Fallen Keep -> 3, the Drowned Abbey -> 4, the Throne Below -> 5) or, for trade tools, food,
   trinkets and packs, at an expedition of the same tier.
 - Food and drink go in a mercenary's food slot and are eaten on the next trip; potions go in the
   potion slot. Cooking burns timber as firewood.
@@ -36,31 +37,31 @@ STARTER_BLUEPRINTS = ["leather", "leather_cap", "leather_gloves", "leather_boots
 
 SOURCES = {
     # Logging
-    "mossward_copse": ("Mossward Copse", "site", "logging", 1, "live", {}),
-    "old_oakwood": ("Old Oakwood", "site", "logging", 2, "live", {}),
-    "thornwald": ("Thornwald", "site", "logging", 3, "planned", {}),
+    "mossward_copse": ("Cinderwood", "site", "logging", 1, "live", {}),
+    "old_oakwood": ("Weepingwood", "site", "logging", 2, "live", {}),
+    "thornwald": ("The Briar Wastes", "site", "logging", 3, "planned", {}),
     "blackroot_weald": ("Blackroot Weald", "site", "logging", 4, "planned", {}),
-    "palewood": ("The Palewood", "site", "logging", 5, "planned", {}),
+    "palewood": ("The Bonewood", "site", "logging", 5, "planned", {}),
     # Mining
-    "harlow": ("Harlow Mines", "site", "mining", 1, "live", {}),
-    "deepdelve": ("Deepdelve", "site", "mining", 2, "live", {}),
+    "harlow": ("The Gatepit", "site", "mining", 1, "live", {}),
+    "deepdelve": ("The Sulphur Deeps", "site", "mining", 2, "live", {}),
     "cinder_shaft": ("Cinder Shaft", "site", "mining", 3, "planned", {}),
     "gloamhold": ("Gloamhold Deeps", "site", "mining", 4, "planned", {}),
     # Foraging
-    "mossward_meadows": ("Mossward Meadows", "site", "foraging", 1, "live", {}),
-    "fenmire": ("Fenmire", "site", "foraging", 2, "live", {}),
-    "sunreach": ("Sunreach Slopes", "site", "foraging", 3, "live", {}),
-    "frostvale": ("Frostvale", "site", "foraging", 4, "live", {}),
+    "mossward_meadows": ("Ashmeadow", "site", "foraging", 1, "live", {}),
+    "fenmire": ("The Bloodfen", "site", "foraging", 2, "live", {}),
+    "sunreach": ("Ember Slopes", "site", "foraging", 3, "live", {}),
+    "frostvale": ("Lament's Edge", "site", "foraging", 4, "live", {}),
     # Fishing (deeper waters need a higher Fishing level, like every trade)
-    "millbrook_pond": ("Millbrook Pond", "site", "fishing", 1, "live", {}),
-    "silverrun": ("Silverrun River", "site", "fishing", 2, "live", {}),
-    "glasswater": ("Glasswater Lake", "site", "fishing", 3, "live", {}),
-    "greywater_coast": ("Greywater Coast", "site", "fishing", 4, "live", {}),
+    "millbrook_pond": ("The Cinder Pool", "site", "fishing", 1, "live", {}),
+    "silverrun": ("The Styx Shallows", "site", "fishing", 2, "live", {}),
+    "glasswater": ("The Lake of Glass", "site", "fishing", 3, "live", {}),
+    "greywater_coast": ("The Shore of Tears", "site", "fishing", 4, "live", {}),
     "drowned_deep": ("The Drowned Deep", "site", "fishing", 5, "live", {}),
     # Hunting (hunters use weapons: bows, crossbows and spears hunt best)
     "hollow_fields": ("Hollow Fields", "site", "hunting", 1, "live", {}),
-    "greyfang_hills": ("Greyfang Hills", "site", "hunting", 2, "live", {}),
-    "elkmoor": ("Elkmoor", "site", "hunting", 3, "live", {}),
+    "greyfang_hills": ("Houndfang Hills", "site", "hunting", 2, "live", {}),
+    "elkmoor": ("Gorehorn Moor", "site", "hunting", 3, "live", {}),
     "bleakridge": ("Bleakridge", "site", "hunting", 4, "live", {}),
     # Farming (company land, worked by mercenaries with hoes)
     "home_fields": ("Home Fields", "farm", "farming", 1, "live", {}),
@@ -68,12 +69,12 @@ SOURCES = {
     "beehives": ("Beehives", "farm", "farming", 2, "live", {"needs": "apiary"}),
     "glasshouse": ("Glasshouse", "farm", "farming", 3, "live", {"needs": "glasshouse_build"}),
     # Dungeons
-    "calder_keep": ("Calder Keep", "dungeon", "combat", 1, "planned", {}),
-    "sunken_abbey": ("The Sunken Abbey", "dungeon", "combat", 2, "planned", {}),
-    "wyrms_hollow": ("Wyrm's Hollow", "dungeon", "combat", 3, "planned", {}),
+    "calder_keep": ("The Fallen Keep", "dungeon", "combat", 1, "planned", {}),
+    "sunken_abbey": ("The Drowned Abbey", "dungeon", "combat", 2, "planned", {}),
+    "wyrms_hollow": ("The Throne Below", "dungeon", "combat", 3, "planned", {}),
     # Other ways in
     "quartermaster": ("Quartermaster", "shop", "", 0, "live", {}),
-    "fallen": ("Gear of the fallen", "found", "", 0, "live", {}),
+    "fallen": ("What the dead left below", "found", "", 0, "live", {}),
     "crafting": ("Known to everyone", "craft", "", 0, "planned", {}),
     "starter": ("Known from the start", "starter", "", 0, "live", {}),
 }
@@ -82,55 +83,55 @@ SOURCES = {
 # id: (name, tier, group, value, sources, note). The eight goods in today's game keep their ids.
 MATERIALS = {
     # Timber and sap
-    "timber": ("Birch Timber", 1, "timber", 6, ["mossward_copse"], "Tier-1 handles, rods and bows; firewood for cooking."),
-    "oak": ("Oak Timber", 2, "timber", 14, ["old_oakwood"], "Tier-2 handles, rods, bows and shields."),
-    "yew": ("Yew Timber", 3, "timber", 30, ["thornwald"], "Tier-3 handles, longbows and frame packs."),
-    "ironwood": ("Ironwood", 4, "timber", 65, ["blackroot_weald"], "Tier-4 handles and hafts."),
-    "ghostwood": ("Ghostwood", 5, "timber", 150, ["palewood", "wyrms_hollow"], "Pale, light and hard; tier-5 gear."),
-    "resin": ("Thornwald Resin", 3, "sap", 24, ["thornwald", "blackroot_weald"], "Varnish for tier-3+ bows and shields."),
-    "amber": ("Amber", 1, "gem", 10, ["mossward_copse"], "Old sap turned to stone. Charms."),
+    "timber": ("Ashwood", 1, "timber", 6, ["mossward_copse"], "Tier-1 handles, rods and bows; firewood for cooking."),
+    "oak": ("Weepwood", 2, "timber", 14, ["old_oakwood"], "Tier-2 handles, rods, bows and shields."),
+    "yew": ("Briarwood", 3, "timber", 30, ["thornwald"], "Tier-3 handles, longbows and frame packs."),
+    "ironwood": ("Blackroot", 4, "timber", 65, ["blackroot_weald"], "Tier-4 handles and hafts."),
+    "ghostwood": ("Bonewood", 5, "timber", 150, ["palewood", "wyrms_hollow"], "Pale trees grown from the dead. Light and hard; tier-5 gear."),
+    "resin": ("Brimresin", 3, "sap", 24, ["thornwald", "blackroot_weald"], "Varnish for tier-3+ bows and shields."),
+    "amber": ("Cinder Amber", 1, "gem", 10, ["mossward_copse"], "Sap that hardened in the fires. Charms."),
     # Ores, metal and gems
     "copper": ("Copper Ore", 1, "ore", 20, ["harlow", "deepdelve"], "Fittings, sickles, hooks, flasks and lanterns."),
-    "coal": ("Coal", 1, "ore", 8, ["harlow", "cinder_shaft"], "Fuel for smelting steel."),
-    "iron": ("Iron Ore", 1, "ore", 17, ["harlow", "deepdelve", "cinder_shaft"], "Tier-1 metal and the base of steel. Harlow gives a little; Deepdelve is the main seam."),
+    "coal": ("Brimstone", 1, "ore", 8, ["harlow", "cinder_shaft"], "Fuel for smelting steel."),
+    "iron": ("Iron Ore", 1, "ore", 17, ["harlow", "deepdelve", "cinder_shaft"], "Tier-1 metal and the base of steel. The Gatepit gives a little; the Sulphur Deeps are the main seam."),
     "silver": ("Silver", 2, "ore", 28, ["deepdelve", "gloamhold"], "Silversteel, rings and fine fittings."),
-    "garnet": ("Garnet", 2, "gem", 45, ["deepdelve"], "Blood-red stones for rings of striking."),
-    "crystal": ("Azure Crystal", 3, "gem", 75, ["deepdelve", "gloamhold"], "Amulets and crystal lanterns."),
+    "garnet": ("Bloodgarnet", 2, "gem", 45, ["deepdelve"], "Blood-red stones for rings of striking."),
+    "crystal": ("Soulglass", 3, "gem", 75, ["deepdelve", "gloamhold"], "Glass that remembers a face. Amulets and lanterns."),
     "emberstone": ("Emberstone", 4, "gem", 110, ["cinder_shaft", "gloamhold"], "Stones that never cool. Rings of fury."),
     "gloomiron": ("Gloomiron", 4, "metal", 120, ["gloamhold", "sunken_abbey"], "Dark deep-metal; tier-4 gear."),
-    "wyrmbone": ("Wyrmbone", 5, "metal", 400, ["wyrms_hollow"], "Bone of the wyrm, harder than steel; tier-5 gear."),
-    "wyrmscale": ("Wyrmscale", 5, "hide", 320, ["wyrms_hollow"], "Tier-5 light armour and packs."),
+    "wyrmbone": ("Kingbone", 5, "metal", 400, ["wyrms_hollow"], "Bone from the Ashen King's court, harder than steel; tier-5 gear."),
+    "wyrmscale": ("Ashscale", 5, "hide", 320, ["wyrms_hollow"], "Tier-5 light armour and packs."),
     # Foraged plants
-    "herbs": ("Moonleaf", 1, "herb", 5, ["old_oakwood", "mossward_meadows", "fenmire"], "Healing draughts."),
-    "berries": ("Hedgeberries", 1, "herb", 4, ["mossward_meadows"], "Tarts, porridge and quick draughts."),
+    "herbs": ("Ashleaf", 1, "herb", 5, ["old_oakwood", "mossward_meadows", "fenmire"], "Healing draughts."),
+    "berries": ("Cinderberries", 1, "herb", 4, ["mossward_meadows"], "Tarts, porridge and quick draughts."),
     "bloodcap": ("Bloodcap", 2, "herb", 18, ["fenmire", "frostvale"], "Greater healing and tonics."),
-    "mushrooms": ("Fen Morels", 2, "herb", 12, ["fenmire"], "Soups and tonics."),
+    "mushrooms": ("Gravecaps", 2, "herb", 12, ["fenmire"], "Soups and tonics."),
     "nightshade": ("Nightshade", 3, "herb", 30, ["sunreach"], "Blade venom."),
-    "sunpetal": ("Sunpetal", 3, "herb", 26, ["sunreach"], "Tea that sharpens the mind; fortune brews."),
-    "frostbloom": ("Frostbloom", 4, "herb", 60, ["frostvale"], "Sorbets and brews."),
+    "sunpetal": ("Emberbloom", 3, "herb", 26, ["sunreach"], "Tea that sharpens the mind; fortune brews."),
+    "frostbloom": ("Lament Lily", 4, "herb", 60, ["frostvale"], "Sorbets and brews."),
     # Fish
-    "perch": ("Perch", 1, "fish", 5, ["millbrook_pond"], "Grilled, or pressed into fish oil."),
-    "trout": ("Silver Trout", 2, "fish", 14, ["silverrun"], "Smoked trout."),
-    "eel": ("River Eel", 2, "fish", 18, ["silverrun"], "Eel pie."),
+    "perch": ("Ash Perch", 1, "fish", 5, ["millbrook_pond"], "Grilled, or pressed into fish oil."),
+    "trout": ("Styx Trout", 2, "fish", 14, ["silverrun"], "Smoked trout."),
+    "eel": ("Bone Eel", 2, "fish", 18, ["silverrun"], "Eel pie."),
     "pike": ("Glass Pike", 3, "fish", 30, ["glasswater"], "Chowder."),
-    "pearl": ("Pearl", 3, "gem", 90, ["glasswater", "greywater_coast"], "Pendants and fortune brews."),
-    "cod": ("Greywater Cod", 4, "fish", 45, ["greywater_coast"], "Cod suppers."),
-    "crab": ("Rock Crab", 4, "fish", 50, ["greywater_coast"], "Crab boils."),
+    "pearl": ("Tear Pearl", 3, "gem", 90, ["glasswater", "greywater_coast"], "Pendants and fortune brews."),
+    "cod": ("Weeping Cod", 4, "fish", 45, ["greywater_coast"], "Cod suppers."),
+    "crab": ("Shore Crab", 4, "fish", 50, ["greywater_coast"], "Crab boils."),
     "abyssal_eel": ("Abyssal Eel", 5, "fish", 160, ["drowned_deep"], "The Abyssal Feast."),
     "voidpearl": ("Voidpearl", 5, "gem", 600, ["drowned_deep"], "Black pearls from the deep. Amulets and lanterns."),
     # Hunting
-    "game_meat": ("Game Meat", 1, "meat", 6, ["hollow_fields"], "Stews and jerky."),
-    "rabbit_hide": ("Rabbit Hide", 1, "hide", 6, ["hollow_fields"], "Tier-1 light armour, satchels and grips."),
-    "feathers": ("Feathers", 1, "hunt", 3, ["hollow_fields"], "Fletching for bows."),
+    "game_meat": ("Gaunt Meat", 1, "meat", 6, ["hollow_fields"], "Stews and jerky."),
+    "rabbit_hide": ("Ashhare Hide", 1, "hide", 6, ["hollow_fields"], "Tier-1 light armour, satchels and grips."),
+    "feathers": ("Carrion Feathers", 1, "hunt", 3, ["hollow_fields"], "Fletching for bows."),
     "bone": ("Bone", 1, "hunt", 2, ["hollow_fields", "greyfang_hills", "calder_keep"], "Charms, bone meal and tonics."),
-    "boar_meat": ("Boar Meat", 2, "meat", 15, ["greyfang_hills"], "Roasts, pasties and chili."),
-    "wolf_pelt": ("Wolf Pelt", 2, "hide", 22, ["greyfang_hills", "old_oakwood"], "Tier-2 light armour, packs and grips."),
-    "fang": ("Wolf Fang", 2, "hunt", 12, ["greyfang_hills"], "Fang necklaces."),
-    "venison": ("Venison", 3, "meat", 28, ["elkmoor"], "Steaks."),
-    "elk_hide": ("Elk Hide", 3, "hide", 40, ["elkmoor"], "Tier-3 light armour and frame packs."),
-    "antler": ("Elk Antler", 3, "hunt", 35, ["elkmoor"], "Hunting talismans."),
-    "bear_meat": ("Direbear Meat", 4, "meat", 50, ["bleakridge"], "The Direbear Haunch."),
-    "direbear_pelt": ("Direbear Pelt", 4, "hide", 85, ["bleakridge"], "Tier-4 light armour and packs."),
+    "boar_meat": ("Hellboar Meat", 2, "meat", 15, ["greyfang_hills"], "Roasts, pasties and chili."),
+    "wolf_pelt": ("Hound Pelt", 2, "hide", 22, ["greyfang_hills", "old_oakwood"], "Tier-2 light armour, packs and grips."),
+    "fang": ("Hound Fang", 2, "hunt", 12, ["greyfang_hills"], "Fang necklaces."),
+    "venison": ("Gorehorn Meat", 3, "meat", 28, ["elkmoor"], "Steaks."),
+    "elk_hide": ("Gorehorn Hide", 3, "hide", 40, ["elkmoor"], "Tier-3 light armour and frame packs."),
+    "antler": ("Gorehorn Horn", 3, "hunt", 35, ["elkmoor"], "Hunting talismans."),
+    "bear_meat": ("Pitbear Meat", 4, "meat", 50, ["bleakridge"], "The Pitbear Haunch."),
+    "direbear_pelt": ("Pitbear Pelt", 4, "hide", 85, ["bleakridge"], "Tier-4 light armour and packs."),
     # Farming
     "wheat": ("Wheat", 1, "crop", 3, ["home_fields"], "Milled into flour."),
     "cabbage": ("Cabbage", 1, "crop", 4, ["home_fields"], "Stews, soups and chowder."),
@@ -143,8 +144,8 @@ MATERIALS = {
     "spider_silk": ("Spider Silk", 2, "fibre", 26, ["calder_keep", "deepdelve"], "Tier 2-3 bowstrings, fishing line and linings."),
     "shadowsilk": ("Shadowsilk", 4, "fibre", 110, ["sunken_abbey"], "Tier 4-5 bowstrings, line and light armour."),
     # Treasures
-    "relic": ("Ancient Relic", 4, "treasure", 550, ["old_oakwood", "calder_keep", "sunken_abbey"], "Carved idols. Collectors pay well; crafters make idols of them."),
-    "sovereign": ("Sovereign Orb", 5, "treasure", 12500, ["wyrms_hollow"], "The rarest prize. Kept for a future mythic tier."),
+    "relic": ("Saint's Relic", 4, "treasure", 550, ["old_oakwood", "calder_keep", "sunken_abbey"], "What is left of saints who went down and stayed. Collectors pay well; crafters make idols of them."),
+    "sovereign": ("Ashen Crown Shard", 5, "treasure", 12500, ["wyrms_hollow"], "A shard of the Ashen King's crown. Kept for a future mythic tier."),
 }
 SELL_ONLY = {"sovereign"}
 
@@ -278,7 +279,7 @@ LEGACY = {
 # Found only on the fallen (never sold or crafted). Between tiers 4 and 5, with fixed rolls.
 FOUND = [
     ("dwarven_pick", "Dwarven Pickaxe", "pickaxe", 900, {"yield": 12, "rare_find": 5}, "tool"),
-    ("wardens_axe", "Warden's Axe", "felling_axe_kind", 800, {"yield": 12, "speed": 6}, "tool"),
+    ("wardens_axe", "Gatewarden's Axe", "felling_axe_kind", 800, {"yield": 12, "speed": 6}, "tool"),
     ("knights_blade", "Knight's Blade", "sword", 1100, {"damage": 10, "parry": 6}, "tool"),
     ("gilded_plate", "Gilded Plate", "heavy/body", 1500, {"armour": 8, "health": 15}, "armor"),
     ("nightfang", "Nightfang", "dagger", 1000, {"crit_chance": 6, "bleed": 8}, None),
@@ -301,32 +302,32 @@ BUFFS = {
 }
 # id: (name, tier, recipe, buffs, blueprint sources, note)
 FOOD = {
-    "grilled_perch": ("Grilled Perch", 1, {"perch": 2, "timber": 1}, {"yield": 5}, ["quartermaster"], ""),
-    "rabbit_stew": ("Rabbit Stew", 1, {"game_meat": 1, "cabbage": 1, "timber": 1}, {"injury": -10}, ["quartermaster"], ""),
+    "grilled_perch": ("Grilled Ash Perch", 1, {"perch": 2, "timber": 1}, {"yield": 5}, ["quartermaster"], ""),
+    "rabbit_stew": ("Ashhare Stew", 1, {"game_meat": 1, "cabbage": 1, "timber": 1}, {"injury": -10}, ["quartermaster"], ""),
     "brown_bread": ("Brown Bread", 1, {"flour": 1, "timber": 1}, {"xp": 8}, ["quartermaster"], ""),
-    "berry_tart": ("Hedgeberry Tart", 1, {"berries": 2, "flour": 1}, {"duration": -5}, ["quartermaster"], ""),
+    "berry_tart": ("Cinderberry Tart", 1, {"berries": 2, "flour": 1}, {"duration": -5}, ["quartermaster"], ""),
     "hunters_jerky": ("Hunter's Jerky", 1, {"game_meat": 2, "timber": 1}, {"yield_hunting": 12}, ["quartermaster"], ""),
-    "smoked_trout": ("Smoked Trout", 2, {"trout": 2, "oak": 1}, {"yield_fishing": 12}, ["quartermaster"], ""),
-    "boar_roast": ("Boar Roast", 2, {"boar_meat": 1, "potato": 1, "oak": 1}, {"damage": 8}, ["quartermaster"], ""),
-    "eel_pie": ("Eel Pie", 2, {"eel": 1, "flour": 1, "oak": 1}, {"rare_find": 10}, ["quartermaster"], ""),
+    "smoked_trout": ("Smoked Styx Trout", 2, {"trout": 2, "oak": 1}, {"yield_fishing": 12}, ["quartermaster"], ""),
+    "boar_roast": ("Hellboar Roast", 2, {"boar_meat": 1, "potato": 1, "oak": 1}, {"damage": 8}, ["quartermaster"], ""),
+    "eel_pie": ("Bone Eel Pie", 2, {"eel": 1, "flour": 1, "oak": 1}, {"rare_find": 10}, ["quartermaster"], ""),
     "honey_cakes": ("Honey Cakes", 2, {"honey": 1, "flour": 1}, {"attack_speed": 6}, ["quartermaster"], ""),
     "barley_ale": ("Barley Ale", 2, {"barley": 2, "honey": 1}, {"xp": 15, "injury": 5}, ["quartermaster"], "Strong stuff: they learn faster and fall over more."),
     "miners_pasty": ("Miner's Pasty", 2, {"boar_meat": 1, "potato": 1, "flour": 1}, {"yield_mining": 12}, ["quartermaster"], ""),
-    "woodsmans_porridge": ("Woodsman's Porridge", 2, {"barley": 1, "honey": 1, "berries": 1}, {"yield_logging": 12}, ["quartermaster"], ""),
-    "morel_soup": ("Morel Soup", 2, {"mushrooms": 2, "cabbage": 1, "oak": 1}, {"yield_foraging": 12}, ["quartermaster"], ""),
+    "woodsmans_porridge": ("Ashcutter's Porridge", 2, {"barley": 1, "honey": 1, "berries": 1}, {"yield_logging": 12}, ["quartermaster"], ""),
+    "morel_soup": ("Gravecap Soup", 2, {"mushrooms": 2, "cabbage": 1, "oak": 1}, {"yield_foraging": 12}, ["quartermaster"], ""),
     "harvest_loaf": ("Harvest Loaf", 2, {"flour": 2, "honey": 1, "oak": 1}, {"yield_farming": 12}, ["quartermaster"], ""),
-    "venison_steak": ("Peppered Venison", 3, {"venison": 1, "emberpepper": 1, "oak": 1}, {"damage": 12}, ["elkmoor"], ""),
+    "venison_steak": ("Peppered Gorehorn", 3, {"venison": 1, "emberpepper": 1, "oak": 1}, {"damage": 12}, ["elkmoor"], ""),
     "pike_chowder": ("Pike Chowder", 3, {"pike": 1, "potato": 1, "cabbage": 1}, {"injury": -20}, ["glasswater"], ""),
-    "sunpetal_tea": ("Sunpetal Tea", 3, {"sunpetal": 2, "honey": 1}, {"xp": 20}, ["sunreach"], ""),
+    "sunpetal_tea": ("Emberbloom Tea", 3, {"sunpetal": 2, "honey": 1}, {"xp": 20}, ["sunreach"], ""),
     "ember_chili": ("Emberpepper Chili", 3, {"emberpepper": 2, "boar_meat": 1, "oak": 1}, {"crit_chance": 5}, ["glasshouse"], ""),
-    "crab_boil": ("Greywater Crab Boil", 4, {"crab": 2, "potato": 1, "yew": 1}, {"yield": 12}, ["greywater_coast"], ""),
+    "crab_boil": ("Shore Crab Boil", 4, {"crab": 2, "potato": 1, "yew": 1}, {"yield": 12}, ["greywater_coast"], ""),
     "cod_supper": ("Cod Supper", 4, {"cod": 1, "potato": 1, "flour": 1}, {"duration": -10}, ["greywater_coast"], ""),
-    "direbear_haunch": ("Direbear Haunch", 4, {"bear_meat": 1, "emberpepper": 1, "yew": 1}, {"health": 20}, ["bleakridge"], ""),
-    "frostbloom_sorbet": ("Frostbloom Sorbet", 4, {"frostbloom": 1, "honey": 1, "berries": 1}, {"crit_damage": 20}, ["frostvale"], ""),
+    "direbear_haunch": ("Pitbear Haunch", 4, {"bear_meat": 1, "emberpepper": 1, "yew": 1}, {"health": 20}, ["bleakridge"], ""),
+    "frostbloom_sorbet": ("Lament Lily Sorbet", 4, {"frostbloom": 1, "honey": 1, "berries": 1}, {"crit_damage": 20}, ["frostvale"], ""),
     "abyssal_feast": ("The Abyssal Feast", 5, {"abyssal_eel": 1, "emberpepper": 1, "flour": 1, "ironwood": 1}, {"rare_find": 20, "find_fallen": 15}, ["drowned_deep"], "A feast before a deep run."),
 }
 POTIONS = {
-    "healing_draught": ("Healing Draught", 1, {"herbs": 3, "copper": 1}, {"heal": 40}, ["quartermaster"], "Drunk when hurt, in the field or mid-dungeon."),
+    "healing_draught": ("Healing Draught", 1, {"herbs": 3, "copper": 1}, {"heal": 40}, ["quartermaster"], "Drunk when hurt, in the field or mid-crypt."),
     "swiftfoot_draught": ("Swiftfoot Draught", 2, {"berries": 2, "honey": 1, "mushrooms": 1}, {"duration": -10}, ["quartermaster"], ""),
     "ironskin_tonic": ("Ironskin Tonic", 2, {"bloodcap": 1, "mushrooms": 1, "bone": 2}, {"armour": 10}, ["quartermaster"], ""),
     "greater_draught": ("Greater Draught", 3, {"bloodcap": 2, "herbs": 2, "silver": 1}, {"heal": 100}, ["calder_keep"], "Drunk when hurt; heals fully."),
@@ -337,29 +338,29 @@ POTIONS = {
 
 # ---------------------------------------------------------------- trinkets, packs, lanterns
 TRINKETS = {
-    "amber_charm": ("Amber Charm", 1, {"amber": 1, "copper": 1}, {"xp": 5}, ["quartermaster"]),
+    "amber_charm": ("Cinder Amber Charm", 1, {"amber": 1, "copper": 1}, {"xp": 5}, ["quartermaster"]),
     "bone_charm": ("Bone Charm", 1, {"bone": 3, "linen": 1}, {"injury_resist": 5}, ["quartermaster"]),
-    "fang_necklace": ("Fang Necklace", 2, {"fang": 3, "linen": 1}, {"crit_chance": 3}, ["quartermaster"]),
-    "garnet_ring": ("Garnet Ring", 2, {"garnet": 1, "silver": 1}, {"crit_damage": 15}, ["quartermaster"]),
-    "pearl_pendant": ("Pearl Pendant", 3, {"pearl": 1, "silver": 1}, {"rare_find": 5}, ["glasswater"]),
-    "antler_talisman": ("Antler Talisman", 3, {"antler": 2, "elk_hide": 1}, {"yield": 12}, ["elkmoor"]),
-    "crystal_amulet": ("Crystal Amulet", 3, {"crystal": 1, "silver": 2}, {"rare_find": 8}, ["calder_keep"]),
+    "fang_necklace": ("Hound Fang Necklace", 2, {"fang": 3, "linen": 1}, {"crit_chance": 3}, ["quartermaster"]),
+    "garnet_ring": ("Bloodgarnet Ring", 2, {"garnet": 1, "silver": 1}, {"crit_damage": 15}, ["quartermaster"]),
+    "pearl_pendant": ("Tear Pearl Pendant", 3, {"pearl": 1, "silver": 1}, {"rare_find": 5}, ["glasswater"]),
+    "antler_talisman": ("Gorehorn Talisman", 3, {"antler": 2, "elk_hide": 1}, {"yield": 12}, ["elkmoor"]),
+    "crystal_amulet": ("Soulglass Amulet", 3, {"crystal": 1, "silver": 2}, {"rare_find": 8}, ["calder_keep"]),
     "emberstone_ring": ("Emberstone Ring", 4, {"emberstone": 1, "silversteel_ingot": 1}, {"damage": 8}, ["gloamhold"]),
-    "relic_idol": ("Relic Idol", 4, {"relic": 1, "ironwood": 1}, {"xp": 15}, ["sunken_abbey"]),
+    "relic_idol": ("Saint's Idol", 4, {"relic": 1, "ironwood": 1}, {"xp": 15}, ["sunken_abbey"]),
     "voidpearl_amulet": ("Voidpearl Amulet", 5, {"voidpearl": 1, "silversteel_ingot": 1, "shadowsilk": 1}, {"rare_find": 15}, ["drowned_deep"]),
 }
 TRINKET_POOL = ["xp", "rare_find", "crit_chance", "crit_damage", "health", "injury_resist", "yield"]
 PACKS = {
     "linen_satchel": ("Linen Satchel", 1, {"linen": 2, "rabbit_hide": 1}, 10, ["quartermaster"]),
-    "leather_pack": ("Wolfhide Pack", 2, {"wolf_pelt": 2, "linen": 1, "copper": 1}, 15, ["quartermaster"]),
-    "frame_pack": ("Yew Frame Pack", 3, {"yew": 2, "elk_hide": 2}, 20, ["thornwald"]),
-    "ironwood_frame": ("Ironwood Frame Pack", 4, {"ironwood": 2, "direbear_pelt": 1, "shadowsilk": 1}, 25, ["blackroot_weald"]),
-    "ghostwood_frame": ("Ghostwood Frame Pack", 5, {"ghostwood": 2, "wyrmscale": 1, "shadowsilk": 1}, 30, ["palewood"]),
+    "leather_pack": ("Houndhide Pack", 2, {"wolf_pelt": 2, "linen": 1, "copper": 1}, 15, ["quartermaster"]),
+    "frame_pack": ("Briarwood Frame Pack", 3, {"yew": 2, "elk_hide": 2}, 20, ["thornwald"]),
+    "ironwood_frame": ("Blackroot Frame Pack", 4, {"ironwood": 2, "direbear_pelt": 1, "shadowsilk": 1}, 25, ["blackroot_weald"]),
+    "ghostwood_frame": ("Bonewood Frame Pack", 5, {"ghostwood": 2, "wyrmscale": 1, "shadowsilk": 1}, 30, ["palewood"]),
 }
 PACK_POOL = ["carry", "speed", "sturdy"]
 LANTERNS = {
     "copper_lantern": ("Copper Lantern", 1, {"copper": 2, "fish_oil": 1}, 3, ["quartermaster"]),
-    "crystal_lantern": ("Crystal Lantern", 3, {"silver": 1, "crystal": 1, "fish_oil": 1}, 6, ["cinder_shaft"]),
+    "crystal_lantern": ("Soulglass Lantern", 3, {"silver": 1, "crystal": 1, "fish_oil": 1}, 6, ["cinder_shaft"]),
     "voidpearl_lantern": ("Voidpearl Lantern", 5, {"silversteel_ingot": 1, "voidpearl": 1}, 10, ["wyrms_hollow"]),
 }
 LANTERN_POOL = ["rare_find", "xp", "sturdy"]
@@ -375,10 +376,10 @@ INTERMEDIATES = {
 
 # ---------------------------------------------------------------- company upgrades
 UPGRADES = {
-    "charter_1": ("Expedition Charter I", {"timber": 40, "iron": 20}, "A second crew in the field", []),
-    "charter_2": ("Expedition Charter II", {"oak": 40, "steel_ingot": 10}, "A third crew in the field", []),
-    "charter_3": ("Expedition Charter III", {"oak": 60, "silversteel_ingot": 10}, "A fourth crew in the field", []),
-    "charter_4": ("Expedition Charter IV", {"oak": 80, "silversteel_ingot": 25, "crystal": 10}, "A fifth crew in the field", []),
+    "charter_1": ("Warden's Charter I", {"timber": 40, "iron": 20}, "A second crew below at once", []),
+    "charter_2": ("Warden's Charter II", {"oak": 40, "steel_ingot": 10}, "A third crew below at once", []),
+    "charter_3": ("Warden's Charter III", {"oak": 60, "silversteel_ingot": 10}, "A fourth crew below at once", []),
+    "charter_4": ("Warden's Charter IV", {"oak": 80, "silversteel_ingot": 25, "crystal": 10}, "A fifth crew below at once", []),
     "field_plots": ("Field Plots", {"timber": 30, "iron": 6}, "Opens the Tilled Acres (barley, potatoes)", ["tilled_acres"]),
     "apiary": ("Apiary", {"timber": 20, "linen": 4}, "Opens the Beehives (honey)", ["beehives"]),
     "glasshouse_build": ("Glasshouse", {"oak": 30, "crystal": 2, "iron": 8}, "Opens the Glasshouse (emberpepper)", ["glasshouse"]),
@@ -395,6 +396,18 @@ BLUEPRINT_PRICE = {1: 40, 2: 150}
 
 def slug(s):
     return re.sub(r"[^a-z0-9]+", "_", s.lower()).strip("_")
+
+
+## Hellfare names for the woods, hides and metals in generated gear names (ids keep the old words).
+DISPLAY_WORDS = [("Ironwood", "Blackroot"), ("Ghostwood", "Bonewood"), ("Birch", "Ashwood"), ("Oak", "Weepwood"),
+                 ("Yew", "Briarwood"), ("Wyrmbone", "Kingbone"), ("Wyrmscale", "Ashscale"), ("Wyrmskin", "Ashskin"),
+                 ("Wolfhide", "Houndhide"), ("Elkhide", "Gorehide"), ("Direbear", "Pitbear")]
+
+
+def display(name):
+    for old, new in DISPLAY_WORDS:
+        name = re.sub(r"\b%s\b" % old, new, name)
+    return name
 
 
 def build():
@@ -480,13 +493,13 @@ def build():
                 name = "%s Crossbow" % WOOD_NAME[t]
             else:
                 name = "%s %s" % (METAL_NAME[t], f["name"])
-            gear(slug(name), name, "weapon", fam, "main_hand", t, weapon_stats(fam, t), f["pool"],
+            gear(slug(name), display(name), "weapon", fam, "main_hand", t, weapon_stats(fam, t), f["pool"],
                  recipe_for(f["shape"], t), blueprints(t), hands=f["hands"])
         for kind, s in SHIELDS.items():
             name = "%s %s" % (METAL_NAME[t], s["name"])
             stats = {"armour": int(round(ARMOUR[t] * s["armour"])), "block": s["block"]}
             stats.update(s["extra"])
-            gear(slug(name), name, "shield", kind, "off_hand", t, stats, s["pool"], recipe_for(s["shape"], t), blueprints(t))
+            gear(slug(name), display(name), "shield", kind, "off_hand", t, stats, s["pool"], recipe_for(s["shape"], t), blueprints(t))
         for weight, a in ARMOUR_WEIGHTS.items():
             for piece in PIECE_SHARE:
                 name = "%s %s" % (a["names"][t], a["pieces"][piece])
@@ -497,7 +510,7 @@ def build():
                     recipe = {METAL[t]: u, HIDE[t]: 1}
                 else:
                     recipe = {METAL[t]: u + 1, HIDE[t]: 1}
-                gear(slug(name), name, "armour", "%s/%s" % (weight, piece), piece, t, armour_stats(weight, piece, t),
+                gear(slug(name), display(name), "armour", "%s/%s" % (weight, piece), piece, t, armour_stats(weight, piece, t),
                      a["pool"], recipe, blueprints(t), {"weight": weight})
         for kind, (trade, base, shape, top) in TOOLS.items():
             if t > top:
@@ -512,13 +525,13 @@ def build():
             if kind == "sickle" and t == 1:
                 recipe = {"copper": 1, "timber": 1}
             local = next((k for k, s in SOURCES.items() if s[2] == trade and s[3] == t), None)
-            gear(slug(name), name, "tool", kind, "main_hand", t, {trade: TOOL[t]}, TOOL_POOL, recipe, blueprints(t, local),
+            gear(slug(name), display(name), "tool", kind, "main_hand", t, {trade: TOOL[t]}, TOOL_POOL, recipe, blueprints(t, local),
                  {"trade": trade})
 
     for k, (n, t, r, find, bp) in LANTERNS.items():
         add(k, {"name": n, "category": "lantern", "kind": "lantern", "slot": "off_hand", "tier": t, "stats": {"rare_find": find},
                 "rolls": LANTERN_POOL, "durability": DURABILITY[t], "kit": 0, "recipe": r, "blueprint": bp, "found_only": False,
-                "note": "Lights the way in mines and dungeons: more rare finds, but no armour."})
+                "note": "Lights the way in mines and crypts: more rare finds, but no armour."})
     for k, (n, t, r, stats, bp) in TRINKETS.items():
         add(k, {"name": n, "category": "trinket", "kind": "trinket", "slot": "trinket", "tier": t, "stats": stats,
                 "rolls": TRINKET_POOL, "durability": None, "kit": 0, "recipe": r, "blueprint": bp, "found_only": False})

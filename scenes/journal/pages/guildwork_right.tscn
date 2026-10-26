@@ -48,5 +48,5 @@ theme_override_constants/separation = 3
 [node name="Empty" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
 visible = false
-text = "No mercenaries are free for labor right now."
+text = "No Hellfarers are free for work right now."
 icon_kind = "home"

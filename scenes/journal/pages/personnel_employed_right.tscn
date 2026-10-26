@@ -137,7 +137,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 caption = "Gear score"
 value = "0"
-tooltip_text = "Gear score: how well equipped they are for a fight, and what dungeons check at the door. Each worn piece adds its tier times the slot's weight (main hand 4, body 3, off hand 2, head, hands and feet 1; two-handers 6). Worn-out pieces count half."
+tooltip_text = "Gear score: how well equipped they are for a fight, and what crypts check at the door. Each worn piece adds its tier times the slot's weight (main hand 4, body 3, off hand 2, head, hands and feet 1; two-handers 6). Worn-out pieces count half."
 
 [node name="Health" type="HBoxContainer" parent="Margin/Content/Overview"]
 layout_mode = 2
@@ -522,5 +522,5 @@ size_flags_horizontal = 8
 [node name="Empty" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
 visible = false
-text = "Select a mercenary to read their dossier."
+text = "Select a Hellfarer to read their dossier."
 icon_kind = "home"

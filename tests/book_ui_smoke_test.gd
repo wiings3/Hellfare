@@ -78,7 +78,7 @@ func _verify() -> void:
 	check(grave.text == str(view.game.fallen.share("harlow", view._now()).size()), "grave marker counts this company's share")
 	var fallen_card := map_page.get_node("Margin/Content/Map/FallenCard") as Control
 	grave.mouse_entered.emit()
-	check(fallen_card.visible and (fallen_card.get_node("Margin/Body/Title") as Label).text.contains("Harlow"), "hovering a grave opens the fallen gear card")
+	check(fallen_card.visible and (fallen_card.get_node("Margin/Body/Title") as Label).text.contains("Gatepit"), "hovering a grave opens the fallen gear card")
 	grave.mouse_exited.emit()
 	check(not fallen_card.visible, "card closes")
 	var company_left: Control = view.left_leaf.get_child(0)
@@ -88,7 +88,7 @@ func _verify() -> void:
 	check(view.money_label.text.contains("350"), "purse shows starting gold")
 	check(company_right.get_node("Margin/Content/Expeditions").get_child_count() == 1, "one row for the free slots")
 	var needs: VBoxContainer = company_right.get_node("Margin/Content/Needs")
-	check(needs.get_child_count() > 0 and (needs.get_child(0).get_node("Row/Info/Name") as Label).text == "Hire your first mercenary", "a new company is told to hire")
+	check(needs.get_child_count() > 0 and (needs.get_child(0).get_node("Row/Info/Name") as Label).text == "Hire your first Hellfarer", "a new company is told to hire")
 	view._nav_to("standing")
 	check(view.page == "hq", "the retired Standing tab opens the Company page")
 	# Hover previews another tab, then restores.
@@ -165,7 +165,7 @@ func _verify() -> void:
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/board_left.tscn"), "expedition board")
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/Trades").get_child_count() == 8, "six trades, dungeons and guarding")
 	view._select_trade("dungeon")
-	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text == "Dungeons", "dungeons heading")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text == "Crypts", "crypts heading")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Open").get_child_count() == Dungeons.DUNGEONS.size(), "a card per open dungeon")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Locked").get_child_count() == Dungeons.PLANNED.size(), "planned dungeons shown locked")
 	view._select_trade("fishing")
@@ -212,7 +212,7 @@ func _verify() -> void:
 	check(live_map.place("mossward_copse", 0.0, 0)["pos"].distance_to(Vector2(112, 208)) < 1.0, "crew sets out from town")
 	check(live_map.place("mossward_copse", 0.5, 0)["pose"] == "work", "crew works mid-trip")
 	check(live_map.place("mossward_copse", 0.95, 0)["pose"] == "carry", "crew carries the haul home")
-	check(live_map.describe.call(m0).contains("Mossward Copse"), "crew tooltip names the site")
+	check(live_map.describe.call(m0).contains("Cinderwood"), "crew tooltip names the site")
 	view.game.complete_due(int(Time.get_unix_time_from_system()) + 10000)
 	check(int(view.game.resources.get("timber", 0)) > 0, "timber delivered")
 	check(int(view.game.reports[0].get("value", 0)) > 0, "report records haul value")
@@ -251,7 +251,7 @@ func _verify() -> void:
 	var hv: HallView = view._hall()
 	hv.link_target = "chat"
 	hv.link_item("timber")
-	check(hv.composer.text.find("[Birch Timber]") >= 0 and hv.composer_links.size() == 1, "shift+click links an item into the message")
+	check(hv.composer.text.find("[Ashwood]") >= 0 and hv.composer_links.size() == 1, "shift+click links an item into the message")
 	# The chat filter: only timber posts, then only people buying it.
 	hall._post({"t": t0, "from": "Wren", "kind": "hawker", "side": "wts", "good": "timber", "qty": 20, "price": 6})
 	hall._post({"t": t0, "from": "Dunny", "kind": "bargain", "side": "wts", "good": "iron", "qty": 10, "price": 9})
@@ -492,8 +492,8 @@ func _verify() -> void:
 	view._open_lookup("perch")
 	var lookup: Control = view._lookup_card()
 	check(lookup.visible, "lookup card opens")
-	check((lookup.get_node("Card/Margin/Body/From") as Label).text.contains("Millbrook Pond"), "perch comes from Millbrook Pond")
-	check((lookup.get_node("Card/Margin/Body/Uses") as Label).text.contains("Grilled Perch"), "perch is used for grilled perch")
+	check((lookup.get_node("Card/Margin/Body/From") as Label).text.contains("The Cinder Pool"), "perch comes from the Cinder Pool")
+	check((lookup.get_node("Card/Margin/Body/Uses") as Label).text.contains("Grilled Ash Perch"), "perch is used for grilled perch")
 	(lookup.get_node("Card/Margin/Body/Actions/Trade") as Button).pressed.emit()
 	check(not lookup.visible and view.page == "market" and view.selected_market_item == "perch", "Trade opens it in the Market")
 	await create_timer(0.6).timeout  # let the page turn finish
@@ -528,7 +528,7 @@ func _verify() -> void:
 	check(view.game.charter_block().begins_with("Needs Known"), "charter II waits on reputation")
 	check((view.left_leaf.get_child(0).get_node("Margin/Content/Slots/Expand") as Button).disabled, "sign button waits too")
 	view.game.reputation = 500
-	check(view.game.build_upgrade("charter_3").begins_with("Charters are built in order"), "charters go in order")
+	check(view.game.build_upgrade("charter_3").begins_with("Charters are signed in order"), "charters go in order")
 	check(view.game.expand_operations().contains("signed") and view.game.expedition_slots == 3, "charter II opens a third slot")
 	# The Auction House: browse and buy, post a listing, see it under Yours.
 	view.game.reset_company()

@@ -53,7 +53,7 @@ texture = ExtResource("1_relic")
 [node name="Title" type="Label" parent="Card/Margin/Body/Head"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Calder Keep  ·  Floor 1"
+text = "The Fallen Keep  ·  Floor 1"
 size_flags_horizontal = 3
 
 [node name="Open" type="Button" parent="Card/Margin/Body/Head"]

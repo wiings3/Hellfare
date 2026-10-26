@@ -688,7 +688,7 @@ func show_card(ref: String) -> void:
 		for stat in ["mining", "logging", "guard", "protection"]:
 			if int(item.get(stat, 0)) > 0:
 				bonus.append("+%d %s" % [int(item[stat]), stat])
-		(card.get_node(b + "Desc") as Label).text = ", ".join(bonus) if not bonus.is_empty() else "Company gear."
+		(card.get_node(b + "Desc") as Label).text = ", ".join(bonus) if not bonus.is_empty() else "Guild gear."
 		(card.get_node(r + "MerchantBuys") as Label).text = ui._money(maxi(1, int(floor(float(item.get("cost", 0)) * 0.65))))
 		(card.get_node(r + "MerchantSells") as Label).text = ui._money(int(item.get("cost", 0)))
 		var owned: int = 0

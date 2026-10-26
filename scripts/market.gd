@@ -35,12 +35,12 @@ const DEPTH := {
 ## Demand events: one good, a price swing and a line of news. Picked per 12-hour period.
 const EVENTS := [
 	{"good": "iron", "factor": 1.40, "news": "The garrison is re-arming and buying iron."},
-	{"good": "timber", "factor": 1.35, "news": "A fire in the lower town: builders want timber."},
-	{"good": "timber", "factor": 0.75, "news": "Log rafts arrived from upriver. Timber is cheap."},
+	{"good": "timber", "factor": 1.35, "news": "A fire in the lower town: builders want ashwood."},
+	{"good": "timber", "factor": 0.75, "news": "A crew came up with a full haul. Ashwood is cheap."},
 	{"good": "copper", "factor": 1.30, "news": "The mint is short of copper."},
-	{"good": "herbs", "factor": 1.50, "news": "A fever in the slums: healers pay for moonleaf."},
+	{"good": "herbs", "factor": 1.50, "news": "A fever in the slums: healers pay for ashleaf."},
 	{"good": "silver", "factor": 0.80, "news": "A silver caravan flooded the market."},
-	{"good": "crystal", "factor": 1.35, "news": "The enchanters' guild is buying crystal."},
+	{"good": "crystal", "factor": 1.35, "news": "The enchanters' guild is buying soulglass."},
 	{"good": "copper", "factor": 0.80, "news": "Too much copper in the warehouses this week."},
 ]
 const EVENT_CHANCE := 0.45

@@ -30,7 +30,7 @@ theme_override_constants/separation = 6
 
 [node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
-text = "Mossward Region"
+text = "The Gatelands"
 
 [node name="Map" type="Control" parent="Margin/Content"]
 layout_mode = 2
@@ -122,7 +122,7 @@ mouse_filter = 2
 [node name="mossward_copse" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Mossward Copse"
+text = "Cinderwood"
 layout_mode = 0
 offset_left = 14.0
 offset_top = 190.0
@@ -132,7 +132,7 @@ offset_bottom = 203.0
 [node name="old_oakwood" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Old Oakwood"
+text = "Weepingwood"
 layout_mode = 0
 offset_left = 8.0
 offset_top = 24.0
@@ -142,7 +142,7 @@ offset_bottom = 37.0
 [node name="harlow" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Harlow Mines"
+text = "The Gatepit"
 layout_mode = 0
 offset_left = 174.0
 offset_top = 98.0
@@ -152,27 +152,27 @@ offset_bottom = 111.0
 [node name="town" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Mossward"
+text = "Last Lantern"
 layout_mode = 0
-offset_left = 104.0
+offset_left = 94.0
 offset_top = 222.0
-offset_right = 144.0
+offset_right = 154.0
 offset_bottom = 235.0
 
 [node name="deepdelve" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Deepdelve"
+text = "Sulphur Deeps"
 layout_mode = 0
-offset_left = 196.0
+offset_left = 166.0
 offset_top = 28.0
-offset_right = 248.0
+offset_right = 236.0
 offset_bottom = 41.0
 
 [node name="foraging" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Fenmire"
+text = "Bloodfen"
 layout_mode = 0
 offset_left = 196.0
 offset_top = 230.0
@@ -182,21 +182,21 @@ offset_bottom = 243.0
 [node name="fishing" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Millbrook"
+text = "Cinder Pool"
 layout_mode = 0
-offset_left = 166.0
+offset_left = 160.0
 offset_top = 212.0
-offset_right = 214.0
+offset_right = 218.0
 offset_bottom = 225.0
 
 [node name="hunting" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Greyfang Hills"
+text = "Houndfang Hills"
 layout_mode = 0
 offset_left = 4.0
 offset_top = 100.0
-offset_right = 74.0
+offset_right = 80.0
 offset_bottom = 113.0
 
 [node name="farming" type="Button" parent="Margin/Content/Map/Sites"]

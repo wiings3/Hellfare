@@ -46,38 +46,38 @@ const RESOURCE_KIND := {
 	"direbear_haunch": "food", "crab_boil": "food", "abyssal_feast": "food"
 }
 const RESOURCE_NAMES := {
-	"timber": "Birch Timber", "oak": "Oak Timber", "coal": "Coal", "iron": "Iron Ore",
-	"copper": "Copper Ore", "silver": "Silver", "amber": "Amber", "garnet": "Garnet",
-	"crystal": "Azure Crystal", "pearl": "Pearl", "voidpearl": "Voidpearl", "berries": "Hedgeberries",
-	"herbs": "Moonleaf", "mushrooms": "Fen Morels", "bloodcap": "Bloodcap", "sunpetal": "Sunpetal",
-	"nightshade": "Nightshade", "frostbloom": "Frostbloom", "perch": "Perch", "trout": "Silver Trout",
-	"eel": "River Eel", "pike": "Glass Pike", "cod": "Greywater Cod", "crab": "Rock Crab",
-	"abyssal_eel": "Abyssal Eel", "game_meat": "Game Meat", "boar_meat": "Boar Meat", "venison": "Venison",
-	"bear_meat": "Direbear Meat", "rabbit_hide": "Rabbit Hide", "wolf_pelt": "Wolf Pelt", "elk_hide": "Elk Hide",
-	"direbear_pelt": "Direbear Pelt", "bone": "Bone", "feathers": "Feathers", "fang": "Wolf Fang",
-	"antler": "Elk Antler", "spider_silk": "Spider Silk", "wheat": "Wheat", "cabbage": "Cabbage",
+	"timber": "Ashwood", "oak": "Weepwood", "coal": "Brimstone", "iron": "Iron Ore",
+	"copper": "Copper Ore", "silver": "Silver", "amber": "Cinder Amber", "garnet": "Bloodgarnet",
+	"crystal": "Soulglass", "pearl": "Tear Pearl", "voidpearl": "Voidpearl", "berries": "Cinderberries",
+	"herbs": "Ashleaf", "mushrooms": "Gravecaps", "bloodcap": "Bloodcap", "sunpetal": "Emberbloom",
+	"nightshade": "Nightshade", "frostbloom": "Lament Lily", "perch": "Ash Perch", "trout": "Styx Trout",
+	"eel": "Bone Eel", "pike": "Glass Pike", "cod": "Weeping Cod", "crab": "Shore Crab",
+	"abyssal_eel": "Abyssal Eel", "game_meat": "Gaunt Meat", "boar_meat": "Hellboar Meat", "venison": "Gorehorn Meat",
+	"bear_meat": "Pitbear Meat", "rabbit_hide": "Ashhare Hide", "wolf_pelt": "Hound Pelt", "elk_hide": "Gorehorn Hide",
+	"direbear_pelt": "Pitbear Pelt", "bone": "Bone", "feathers": "Carrion Feathers", "fang": "Hound Fang",
+	"antler": "Gorehorn Horn", "spider_silk": "Spider Silk", "wheat": "Wheat", "cabbage": "Cabbage",
 	"flax": "Flax", "potato": "Potatoes", "barley": "Barley", "honey": "Honey",
-	"emberpepper": "Emberpepper", "relic": "Ancient Relic", "sovereign": "Sovereign Orb", "flour": "Flour",
+	"emberpepper": "Emberpepper", "relic": "Saint's Relic", "sovereign": "Ashen Crown Shard", "flour": "Flour",
 	"bone_meal": "Bone Meal", "fish_oil": "Fish Oil", "linen": "Linen", "steel_ingot": "Steel Ingot",
 	"silversteel_ingot": "Silversteel Ingot", "healing_draught": "Healing Draught", "ironskin_tonic": "Ironskin Tonic", "swiftfoot_draught": "Swiftfoot Draught",
 	"greater_draught": "Greater Draught", "nightshade_venom": "Nightshade Venom", "fortunes_brew": "Fortune's Brew", "elixir_of_fury": "Elixir of Fury",
-	"brown_bread": "Brown Bread", "grilled_perch": "Grilled Perch", "rabbit_stew": "Rabbit Stew", "berry_tart": "Hedgeberry Tart",
-	"hunters_jerky": "Hunter's Jerky", "honey_cakes": "Honey Cakes", "woodsmans_porridge": "Woodsman's Porridge", "miners_pasty": "Miner's Pasty",
-	"barley_ale": "Barley Ale", "boar_roast": "Boar Roast", "eel_pie": "Eel Pie", "smoked_trout": "Smoked Trout",
-	"morel_soup": "Morel Soup", "harvest_loaf": "Harvest Loaf", "pike_chowder": "Pike Chowder", "venison_steak": "Peppered Venison",
-	"sunpetal_tea": "Sunpetal Tea", "ember_chili": "Emberpepper Chili", "cod_supper": "Cod Supper", "frostbloom_sorbet": "Frostbloom Sorbet",
-	"direbear_haunch": "Direbear Haunch", "crab_boil": "Greywater Crab Boil", "abyssal_feast": "The Abyssal Feast"
+	"brown_bread": "Brown Bread", "grilled_perch": "Grilled Ash Perch", "rabbit_stew": "Ashhare Stew", "berry_tart": "Cinderberry Tart",
+	"hunters_jerky": "Hunter's Jerky", "honey_cakes": "Honey Cakes", "woodsmans_porridge": "Ashcutter's Porridge", "miners_pasty": "Miner's Pasty",
+	"barley_ale": "Barley Ale", "boar_roast": "Hellboar Roast", "eel_pie": "Bone Eel Pie", "smoked_trout": "Smoked Styx Trout",
+	"morel_soup": "Gravecap Soup", "harvest_loaf": "Harvest Loaf", "pike_chowder": "Pike Chowder", "venison_steak": "Peppered Gorehorn",
+	"sunpetal_tea": "Emberbloom Tea", "ember_chili": "Emberpepper Chili", "cod_supper": "Cod Supper", "frostbloom_sorbet": "Lament Lily Sorbet",
+	"direbear_haunch": "Pitbear Haunch", "crab_boil": "Shore Crab Boil", "abyssal_feast": "The Abyssal Feast"
 }
 const RESOURCE_DESC := {
 	"timber": "Tier-1 handles, rods and bows; firewood for cooking.",
 	"oak": "Tier-2 handles, rods, bows and shields.",
 	"coal": "Fuel for smelting steel.",
-	"iron": "Tier-1 metal and the base of steel. Harlow gives a little; Deepdelve is the main seam.",
+	"iron": "Tier-1 metal and the base of steel. The Gatepit gives a little; the Sulphur Deeps are the main seam.",
 	"copper": "Fittings, sickles, hooks, flasks and lanterns.",
 	"silver": "Silversteel, rings and fine fittings.",
-	"amber": "Old sap turned to stone. Charms.",
+	"amber": "Sap that hardened in the fires. Charms.",
 	"garnet": "Blood-red stones for rings of striking.",
-	"crystal": "Amulets and crystal lanterns.",
+	"crystal": "Glass that remembers a face. Amulets and lanterns.",
 	"pearl": "Pendants and fortune brews.",
 	"voidpearl": "Black pearls from the deep. Amulets and lanterns.",
 	"berries": "Tarts, porridge and quick draughts.",
@@ -88,8 +88,8 @@ const RESOURCE_DESC := {
 	"nightshade": "Blade venom.",
 	"frostbloom": "Sorbets and brews.",
 	"perch": "Grilled, or pressed into fish oil.",
-	"trout": "Smoked trout.",
-	"eel": "Eel pie.",
+	"trout": "Smoked over weepwood.",
+	"eel": "Pies, for the brave.",
 	"pike": "Chowder.",
 	"cod": "Cod suppers.",
 	"crab": "Crab boils.",
@@ -97,7 +97,7 @@ const RESOURCE_DESC := {
 	"game_meat": "Stews and jerky.",
 	"boar_meat": "Roasts, pasties and chili.",
 	"venison": "Steaks.",
-	"bear_meat": "The Direbear Haunch.",
+	"bear_meat": "The Pitbear Haunch.",
 	"rabbit_hide": "Tier-1 light armour, satchels and grips.",
 	"wolf_pelt": "Tier-2 light armour, packs and grips.",
 	"elk_hide": "Tier-3 light armour and frame packs.",
@@ -114,15 +114,15 @@ const RESOURCE_DESC := {
 	"barley": "Ale and porridge.",
 	"honey": "Cakes, ale, tea and sorbet.",
 	"emberpepper": "Fiery peppers. Chili, steaks and elixirs.",
-	"relic": "Carved idols. Collectors pay well; crafters make idols of them.",
-	"sovereign": "The rarest prize. Kept for a future mythic tier.",
+	"relic": "What is left of saints who went down and stayed. Collectors pay well; crafters make idols of them.",
+	"sovereign": "A shard of the Ashen King's crown. Kept for a future mythic tier.",
 	"flour": "Bread, pies and cakes.",
 	"bone_meal": "Spread on the fields: +15% harvest on the next farming trip.",
 	"fish_oil": "Lantern oil and blade venom.",
 	"linen": "Cloth for tier-1 armour, satchels, line and bowstrings.",
 	"steel_ingot": "Smelted iron. Tier-2 metal and the base of silversteel.",
 	"silversteel_ingot": "Tier-3 metal.",
-	"healing_draught": "Drunk when hurt, in the field or mid-dungeon.",
+	"healing_draught": "Drunk when hurt, in the field or mid-crypt.",
 	"ironskin_tonic": "Drunk at the start of the next trip.",
 	"swiftfoot_draught": "Drunk at the start of the next trip.",
 	"greater_draught": "Drunk when hurt; heals fully.",
@@ -231,11 +231,11 @@ func load_game() -> void:
 		return
 	var data: Variant = JSON.parse_string(file.get_as_text())
 	if typeof(data) != TYPE_DICTIONARY:
-		last_notice = "Save file unreadable. Started a new company."
+		last_notice = "Save file unreadable. Started a new guild."
 		return
 	var state: Dictionary = data
 	if int(state.get("version", 0)) != 1:
-		last_notice = "Save version not recognized. Started a new company."
+		last_notice = "Save version not recognized. Started a new guild."
 		return
 	gold = int(state.get("gold", 350))
 	reputation = int(state.get("reputation", 0))
@@ -279,14 +279,14 @@ func load_game() -> void:
 	for listing in hall.legacy_listings:
 		resources[str(listing["good"])] = int(resources.get(str(listing["good"]), 0)) + int(listing["left"])
 	hall.legacy_listings.clear()
-	last_notice = "Company records restored."
+	last_notice = "Guild records restored."
 
 func save_game() -> void:
 	if not persist:
 		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
-		last_notice = "Unable to save company data."
+		last_notice = "Unable to save guild records."
 		return
 	fallen.prune(GameClock.now())
 	auction.prune(GameClock.now())
@@ -376,9 +376,9 @@ func hire(id: String) -> String:
 	if candidate.is_empty():
 		return "Recruit not found."
 	if gold < int(candidate["hire"]):
-		return "Not enough gold to hire this mercenary."
+		return "Not enough gold to hire this Hellfarer."
 	if int(candidate.get("min_tier", 0)) > rep_tier():
-		return "%s won't join a company of your reputation." % str(candidate["name"])
+		return "%s won't join a guild of your reputation." % str(candidate["name"])
 	var merc: Dictionary = candidate.duplicate(true)
 	merc["gear"] = 0
 	merc["equipment"] = Gear.empty_equipment()
@@ -401,7 +401,7 @@ func hire(id: String) -> String:
 	save_game()
 	if bought:
 		return "%s's contract is yours, bought from %s." % [str(merc["name"]), str(merc.get("from", "another guild"))]
-	return "%s has joined your company." % str(merc["name"])
+	return "%s has joined the guild." % str(merc["name"])
 
 ## What an NPC guild pays for a mercenary's contract today: half their shown value.
 func contract_offer(merc: Dictionary) -> int:
@@ -416,9 +416,9 @@ func settling_left(merc: Dictionary) -> int:
 func sell_contract(id: String) -> String:
 	var merc := merc_by_id(id)
 	if merc.is_empty():
-		return "Mercenary not found."
+		return "Hellfarer not found."
 	if not is_available(merc):
-		return "%s is in the field." % str(merc["name"])
+		return "%s is out." % str(merc["name"])
 	if settling_left(merc) > 0:
 		return "%s is still settling in and can't be sold yet." % str(merc["name"])
 	var offer: int = contract_offer(merc)
@@ -455,7 +455,7 @@ func terms(merc: Dictionary) -> Dictionary:
 func switch_contract(id: String) -> String:
 	var merc := merc_by_id(id)
 	if merc.is_empty():
-		return "Mercenary not found."
+		return "Hellfarer not found."
 	if not is_available(merc):
 		return "Contracts cannot change mid-expedition."
 	var idx: int = CONTRACTS.find(str(merc.get("contract", "Balanced")))
@@ -495,12 +495,12 @@ func _pay(cost: Dictionary) -> void:
 func improve_gear(id: String) -> String:
 	var merc := merc_by_id(id)
 	if merc.is_empty():
-		return "Mercenary not found."
+		return "Hellfarer not found."
 	if not is_available(merc):
-		return "Cannot refit a mercenary currently in the field."
+		return "Cannot refit a Hellfarer who is below."
 	var level: int = int(merc.get("gear", 0))
 	if level >= 4:
-		return "This mercenary has the finest equipment available."
+		return "This Hellfarer has the finest equipment available."
 	var cost := gear_cost(level)
 	if not _can_afford(cost):
 		return "Upgrade needs: " + cost_text(cost)
@@ -589,9 +589,9 @@ func upkeep(now: int = -1) -> int:
 func treat(id: String) -> String:
 	var merc := merc_by_id(id)
 	if merc.is_empty():
-		return "Mercenary not found."
+		return "Hellfarer not found."
 	if not is_available(merc):
-		return "Mercenary is still in the field."
+		return "That Hellfarer is still below."
 	if int(merc.get("health", 100)) >= 100:
 		return "No treatment required."
 	var cost: int = treat_cost(merc)
@@ -670,16 +670,16 @@ func dispatch(region_id: String, ids: Array[String], tactic: String) -> String:
 	if region.is_empty():
 		return "Unknown expedition."
 	if reputation < int(region["rep"]):
-		return "This region requires %d company reputation." % int(region["rep"])
+		return "This region requires %d reputation." % int(region["rep"])
 	if missions.size() >= expedition_slots:
 		return "All expedition slots are occupied."
 	if ids.is_empty() or ids.size() > 3:
-		return "Choose one to three available mercenaries."
+		return "Choose one to three available Hellfarers."
 	var seen: Dictionary = {}
 	for id in ids:
 		var merc := merc_by_id(id)
 		if merc.is_empty() or not is_available(merc) or seen.has(id):
-			return "Crew selection includes an unavailable mercenary."
+			return "The crew includes an unavailable Hellfarer."
 		if int(merc.get("health", 100)) < 25:
 			return "%s needs medical treatment before traveling." % str(merc["name"])
 		seen[id] = true
@@ -769,7 +769,7 @@ func can_accept_guild_work() -> bool:
 
 func start_guild_work(worker_id: String = "") -> String:
 	if not can_accept_guild_work():
-		return "Guild relief contracts are reserved for companies below 120 G cash and 250 G total net worth."
+		return "Warden work is only for guilds below 120 G cash and 250 G total net worth."
 	if missions.size() >= expedition_slots:
 		return "All operation slots are occupied."
 	var worker: Dictionary = {}
@@ -808,7 +808,7 @@ func _finish_guild_work(mission: Dictionary) -> void:
 	# Debt repayment only touches funds above the existing 120 G safety reserve.
 	_apply_relief_payment()
 	reports.push_front({
-		"region": "Guild Work Order", "won": true, "loot": {},
+		"region": "Warden Work", "won": true, "loot": {},
 		"cash": payout, "commission": 0, "cost": 0, "gross": payout,
 		"time": int(mission["finish"]), "tactic": "Safe Work",
 		"crew": mission.get("ids", []), "events": [
@@ -894,7 +894,7 @@ func trade(item: String, buy: bool, quantity: int) -> String:
 		return "Invalid trade."
 	if buy:
 		if item == "relic" or item == "sovereign":
-			return "Ancient Relics and Sovereign Orbs cannot be bought from NPC merchants."
+			return "Saint's Relics and Ashen Crown Shards cannot be bought from merchants."
 		if not merchants_sell(item):
 			return "Merchants don't stock %s. Cook or brew it, or buy from other players." % str(RESOURCE_NAMES[item])
 		var cost: int = buy_price(item, quantity) * quantity
@@ -1092,7 +1092,7 @@ func buy_equipment(key: String) -> String:
 	if definition.is_empty():
 		return "That equipment does not exist."
 	if bool(definition.get("found_only", false)):
-		return "That piece can't be bought. It's only found on the fallen."
+		return "That piece can't be bought. It's only found on the dead below."
 	if not V05.SHOP.has(key):
 		return "The quartermaster doesn't stock that. It has to be crafted."
 	var cost: int = int(definition["cost"])
@@ -1121,7 +1121,7 @@ func sell_equipment(uid: String) -> String:
 func equip_item(merc_id: String, uid: String) -> String:
 	var merc: Dictionary = merc_by_id(merc_id)
 	if merc.is_empty() or not is_available(merc):
-		return "Select an available mercenary."
+		return "Select an available Hellfarer."
 	var index: int = -1
 	for i in range(equipment_inventory.size()):
 		if str(equipment_inventory[i].get("uid", "")) == uid:
@@ -1153,7 +1153,7 @@ func equip_item(merc_id: String, uid: String) -> String:
 func equip_supply(merc_id: String, key: String) -> String:
 	var merc: Dictionary = merc_by_id(merc_id)
 	if merc.is_empty() or not is_available(merc):
-		return "Select an available mercenary."
+		return "Select an available Hellfarer."
 	if not Gear.consumable(key) or int(resources.get(key, 0)) <= 0:
 		return "None in the warehouse."
 	Gear.ensure(merc)
@@ -1224,7 +1224,7 @@ func blueprint_shop() -> Array:
 func buy_blueprint(key: String) -> String:
 	var d: Dictionary = Catalog.item(key)
 	if d.is_empty() or not (d.get("blueprint", []) as Array).has("quartermaster"):
-		return "The quartermaster doesn't have that blueprint. Better ones are found in dungeons."
+		return "The quartermaster doesn't have that blueprint. Better ones are found in the crypts."
 	if blueprints.has(key):
 		return "You already have that blueprint."
 	var price: int = int(d.get("blueprint_price", 40))
@@ -1300,7 +1300,7 @@ func build_upgrade(id: String) -> String:
 	var charter: bool = id.begins_with("charter_")
 	if charter:
 		if id != next_charter():
-			return "Charters are built in order; the next is %s." % str(all.get(next_charter(), {}).get("name", "none"))
+			return "Charters are signed in order; the next is %s." % str(all.get(next_charter(), {}).get("name", "none"))
 		if reputation < int(all[id].get("rep", 0)):
 			return charter_block()
 	var cost: Dictionary = all[id]["cost"]
@@ -1322,7 +1322,7 @@ func build_upgrade(id: String) -> String:
 		expedition_slots += 1
 	save_game()
 	if charter:
-		return "%s signed: %d crews can be in the field at once." % [str(all[id]["name"]), expedition_slots]
+		return "%s signed: %d crews can be out at once." % [str(all[id]["name"]), expedition_slots]
 	var bought: int = spend - int(all[id].get("gold", 0))
 	return "Built the %s%s." % [str(all[id]["name"]), (" (%d G of materials bought)" % bought) if bought > 0 else ""]
 
@@ -1362,7 +1362,7 @@ func repair(uid: String) -> String:
 	if item.is_empty():
 		return "That piece isn't here."
 	if not owner.is_empty() and not is_available(owner):
-		return "%s is in the field." % str(owner["name"])
+		return "%s is out." % str(owner["name"])
 	var cost: Dictionary = repair_cost(item)
 	if cost.is_empty():
 		return "%s doesn't need repairs." % Gear.full_name(item)
@@ -1553,7 +1553,7 @@ func _settle_finds(mission: Dictionary, site_id: String, dead_ids: Array, events
 		var from: String = str(find.get("from", ""))
 		if dead_ids.has(str(find.get("finder", ""))):
 			fallen.drop(site_id, key, "lost on the road", t)
-			events.append("A %s found among the fallen never made it home. It lies where its carrier fell." % str(definition["name"]))
+			events.append("A %s found on the dead never made it up. It lies where its carrier fell." % str(definition["name"]))
 			continue
 		var item: Dictionary = make_item(key)
 		item["found_from"] = from
@@ -1563,7 +1563,7 @@ func _settle_finds(mission: Dictionary, site_id: String, dead_ids: Array, events
 		equipment_inventory.append(item)
 		found_names.append(Gear.full_name(item))
 		value += resale_value(item)
-		events.append("Found among the fallen: %s%s." % [str(definition["name"]), (", once carried by " + from) if from != "" else ""])
+		events.append("Found on the dead below: %s%s." % [str(definition["name"]), (", once carried by " + from) if from != "" else ""])
 	return value
 
 ## A mercenary died at a site: some of their gear may stay there for others to find.

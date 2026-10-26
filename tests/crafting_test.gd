@@ -28,7 +28,7 @@ func _initialize() -> void:
 	var gold0: int = g.gold
 	check(g.buy_blueprint("iron_war_axe").begins_with("Bought"), "buy a blueprint")
 	check(g.gold == gold0 - int(Catalog.item("iron_war_axe")["blueprint_price"]) and g.knows("iron_war_axe"), "paid, and known")
-	check(g.buy_blueprint("silversteel_pick").contains("dungeons"), "can't buy tier-3 blueprints")
+	check(g.buy_blueprint("silversteel_pick").contains("crypts"), "can't buy tier-3 blueprints")
 
 	# Recipes use the warehouse.
 	check(g.craft("steel_ingot").begins_with("Not enough"), "missing materials refused")
