@@ -1034,7 +1034,12 @@ func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool
 		if n > 0:
 			carry[good] = int(carry.get(good, 0)) + n
 	if o.has("gear"):
-		var table: Dictionary = FallenGear.NPC_LOOT.get(str(m["dungeon"]), {})
+		var table: Dictionary = {}
+		var all: Dictionary = FallenGear.NPC_LOOT.get(str(m["dungeon"]), {})
+		for k in all:
+			var gd: Dictionary = Catalog.item(str(k))
+			if int(gd.get("tier", 1)) <= int(o["gear"]) and not bool(gd.get("found_only", false)):
+				table[k] = all[k]
 		var total: float = 0.0
 		for k in table:
 			total += float(table[k])

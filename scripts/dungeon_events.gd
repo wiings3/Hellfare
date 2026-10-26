@@ -16,7 +16,7 @@ class_name DungeonEvents
 
 ## Events come thick and fast (a dozen a floor), so each one's coin and wounds are scaled
 ## here to keep a whole run in balance (tuned with tools/econ_sim.gd).
-const COIN_SCALE := 0.5
+const COIN_SCALE := 0.4
 const HURT_SCALE := 0.6
 
 const GAP := [15, 25]
