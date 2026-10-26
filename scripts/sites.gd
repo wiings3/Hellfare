@@ -264,7 +264,7 @@ const BOARD := [
 	{"trade": "fishing", "name": "Fishing", "ready": true},
 	{"trade": "hunting", "name": "Hunting", "ready": true},
 	{"trade": "farming", "name": "Farming", "ready": true},
-	{"trade": "dungeon", "name": "Dungeon delving", "ready": false},
+	{"trade": "dungeon", "name": "Dungeons", "ready": true},
 ]
 
 ## Sites renamed or merged since, mapped to the site that replaced them (old saves).

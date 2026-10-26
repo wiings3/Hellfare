@@ -95,6 +95,7 @@ const PAGE_TITLES := {
 	"harlow": "Harlow Mines",
 	"expeditions": "Expeditions",
 	"site": "Expedition",
+	"dungeon": "Dungeon",
 	"roster": "Mercenaries",
 	"workshop": "Workshop",
 	"guildwork": "Guild Work",
@@ -134,6 +135,8 @@ func _refresh() -> void:
 		title_label.text = str(PAGE_TITLES["expeditions"])
 	if page == "site":
 		title_label.text = str(TradeSites.by_id(selected_site).get("name", "Expedition"))
+	if page == "dungeon":
+		title_label.text = str(Dungeons.by_id(selected_dungeon).get("name", "Dungeon"))
 	if page != "workshop":
 		workshop_focus = ""  # The lookup card's narrowing lasts only while you're in the Workshop.
 	match page:
@@ -141,6 +144,7 @@ func _refresh() -> void:
 		"harlow": _draw_site()  # Old links to the retired Harlow page open its planner.
 		"expeditions": _draw_board()
 		"site": _draw_site()
+		"dungeon": _draw_dungeon()
 		"roster": _draw_people()
 		"workshop": _draw_workshop_chapter()
 		"guildwork": _draw_guild_jobs()
@@ -204,6 +208,7 @@ func _mission_name(mission: Dictionary) -> String:
 	match region:
 		"harlow": return "Harlow Mines"
 		"site": return str(TradeSites.by_id(str(mission.get("site", ""))).get("name", "Expedition"))
+		"dungeon": return str(Dungeons.by_id(str(mission.get("dungeon", ""))).get("name", "Dungeon"))
 		"guild_work": return "Guild work"
 	return str(game.region_by_id(region).get("name", "Contract"))
 
@@ -232,11 +237,14 @@ func _plural(count: int, word: String) -> String:
 func _bind_expedition_row(row: Control, mission: Dictionary) -> void:
 	(row.get_node("Row/Info/Top/Name") as Label).text = _mission_name(mission)
 	var detail: String = _crew_names(mission.get("ids", []))
-	if mission.has("tactic"):
+	if str(mission.get("region", "")) == "dungeon":
+		var stage: String = str(mission.get("stage", ""))
+		detail += "  ·  " + ("waiting for orders" if stage == "await" else ("walking out" if stage == "out" else "floor %d" % (int(mission.get("floor_i", 0)) + 1)))
+	elif mission.has("tactic"):
 		detail += "  ·  " + str(mission["tactic"])
 	(row.get_node("Row/Info/Crew") as Label).text = detail
 	var trade: String = str(mission.get("trade", "mining" if str(mission.get("region", "")) == "harlow" else ""))
-	(row.get_node("Row/IconSlot/Icon") as TextureRect).texture = ICON_GUILD if str(mission.get("region", "")) == "guild_work" else TRADE_ICONS.get(trade, ICON_FIELD)
+	(row.get_node("Row/IconSlot/Icon") as TextureRect).texture = ICON_GUILD if str(mission.get("region", "")) == "guild_work" else TRADE_ICONS.get("dungeon" if str(mission.get("region", "")) == "dungeon" else trade, ICON_FIELD)
 	var bar := row.get_node("Row/Info/Bar") as ProgressBar
 	var time_label := row.get_node("Row/Info/Top/Time") as Label
 	var started: int = int(mission.get("started", _now()))
@@ -439,6 +447,12 @@ func _needs() -> Array:
 	if game.crew.is_empty():
 		out.append({"icon": ROLE_ICONS["Woodcutter"], "title": "Hire your first mercenary",
 			"details": "A woodcutter at Mossward Copse pays from the first trip", "action": "Recruit", "call": _open_recruitment})
+	# Crews waiting at a dungeon's stairs for orders.
+	for m in game.dungeon_checkins():
+		var dname: String = str(Dungeons.by_id(str(m["dungeon"])).get("name", "The dungeon"))
+		out.append({"icon": TRADE_ICONS.get("dungeon"), "title": "%s: crew waiting for orders" % dname,
+			"details": "Floor %d cleared  ·  carrying %s  ·  orders in %s" % [int(m["floor_i"]) + 1, _money(game.dungeon_carry_value(m.get("carry", {}))), _duration(maxi(0, int(m["await_until"]) - _now()))],
+			"action": "Decide", "call": _open_dungeon.bind(str(m["dungeon"]))})
 	# Crews just back.
 	var now: int = _now()
 	for i in range(mini(2, game.reports.size())):
@@ -616,6 +630,11 @@ func _sources_text(key: String) -> String:
 		for r in ["rare", "rare2"]:
 			if str((site.get(r, {}) as Dictionary).get("good", "")) == key:
 				parts.append("%s (rare)" % str(site["name"]))
+	for id in Dungeons.DUNGEONS:
+		var dg: Dictionary = Dungeons.DUNGEONS[id]
+		for fl in dg["floors"]:
+			if (fl.get("loot", {}) as Dictionary).has(key) or str((fl.get("rare", {}) as Dictionary).get("good", "")) == key:
+				parts.append("%s, %s" % [str(dg["name"]), str(fl["name"])])
 	var d: Dictionary = Catalog.item(key)
 	if d.get("recipe") is Dictionary and not (d["recipe"] as Dictionary).is_empty():
 		parts.append("crafted from " + _cost_line(d["recipe"]))
@@ -2013,6 +2032,16 @@ func _draw_board() -> void:
 		var trade: String = str(entry["trade"])
 		if not bool(entry["ready"]):
 			continue
+		if trade == "dungeon":
+			var delving: int = game.missions.filter(func(m): return str(m.get("region", "")) == "dungeon").size()
+			var waiting: int = game.dungeon_checkins().size()
+			var fit: int = game.crew.filter(func(m): return Gear.kit_rating(m) >= 8).size()
+			var dcard := _list_card(trades, TRADE_ICONS.get("dungeon"), str(entry["name"]), "%s with kit 8+" % _plural(fit, "fighter") if fit > 0 else "Needs fighters with kit 8",
+				"Waiting" if waiting > 0 else ("%d in" % delving if delving > 0 else ""), "%d of %d open" % [Dungeons.DUNGEONS.size(), Dungeons.DUNGEONS.size() + Dungeons.PLANNED.size()],
+				selected_trade == trade, _select_trade.bind(trade))
+			if delving > 0:
+				(dcard.get_node("Body/Side/Caption") as Label).theme_type_variation = &"LabelAccent" if waiting > 0 else &"LabelGood"
+			continue
 		var best: Dictionary = _best_in(trade)
 		var merc: Dictionary = best["merc"]
 		var sites: Array = TradeSites.for_trade(trade)
@@ -2037,6 +2066,9 @@ func _draw_board() -> void:
 	guard_card.mouse_default_cursor_shape = Control.CURSOR_ARROW
 	guard_card.tooltip_text = "Guards have no sites of their own: add one to any crew."
 	# Right: the chosen trade's sites. Open ones as cards, locked ones as a line each.
+	if selected_trade == "dungeon":
+		_draw_dungeon_list(right)
+		return
 	right.get_node(c + "Header").text = str(TradeSkills.NAMES.get(selected_trade, selected_trade))
 	var open_list := right.get_node(c + "Open") as VBoxContainer
 	var locked_list := right.get_node(c + "Locked") as VBoxContainer
@@ -2091,6 +2123,40 @@ func _draw_board() -> void:
 		else:
 			value.text = ""
 	(right.get_node(c + "LockedCaption") as Control).visible = locked_list.get_child_count() > 0
+
+## The board's right page for dungeons: the open ones as cards, the planned ones locked.
+func _draw_dungeon_list(right: Control) -> void:
+	var c := "Margin/Content/"
+	right.get_node(c + "Header").text = "Dungeons"
+	var open_list := right.get_node(c + "Open") as VBoxContainer
+	var locked_list := right.get_node(c + "Locked") as VBoxContainer
+	for id in Dungeons.DUNGEONS:
+		var d: Dictionary = Dungeons.DUNGEONS[id]
+		var card := ROW_SITE.instantiate() as Button
+		open_list.add_child(card)
+		card.pressed.connect(_open_dungeon.bind(str(id)))
+		card.tooltip_text = str(d.get("tagline", ""))
+		var floors: Array = d["floors"]
+		(card.get_node("Body/Top/Info/Name") as Label).text = str(d["name"])
+		(card.get_node("Body/Top/Info/Details") as Label).text = "Tier %d  ·  %d floors, the last a boss  ·  kit %d+" % [int(d["tier"]), floors.size(), int(d["min_kit"])]
+		(card.get_node("Body/Facts") as Label).text = "%s  ·  supplies %s" % [", ".join(floors.map(func(f): return str(f["foe"]))), _money(int(d["supplies"]))]
+		var value := card.get_node("Body/Top/Value") as Label
+		var run: Dictionary = _run_in(str(id))
+		if not run.is_empty():
+			value.text = "Waiting" if str(run.get("stage", "")) == "await" else "Crew in"
+			value.theme_type_variation = &"LabelAccent"
+		else:
+			value.text = ""
+	for d in Dungeons.PLANNED:
+		var row := ROW_LOCKED.instantiate() as Button
+		locked_list.add_child(row)
+		(row.get_node("Body/Name") as Label).text = str(d["name"])
+		(row.get_node("Body/Need") as Label).text = "Kit %d  ·  soon" % int(d["min_kit"])
+		row.tooltip_text = "%s opens in a later update: deeper floors, tier-%d gear and %s." % [str(d["name"]), 2 if int(d["min_kit"]) < 30 else 3, str(d.get("note", ""))]
+		row.disabled = true
+	(right.get_node(c + "LockedCaption") as Label).text = "Coming later"
+	(right.get_node(c + "LockedCaption") as Control).visible = true
+	(right.get_node(c + "Hint") as Label).text = "Fights floor by floor. Only what gets out counts."
 
 func _select_trade(trade: String) -> void:
 	selected_trade = trade
@@ -2357,3 +2423,395 @@ func _dispatch_site() -> void:
 		selected_crew.clear()
 		harlow_view.selected.clear()
 	_action(result)
+
+# --- Dungeons -------------------------------------------------------------------------
+
+const DUNGEON_LEFT := preload("res://scenes/journal/pages/dungeon_left.tscn")
+const DUNGEON_RIGHT := preload("res://scenes/journal/pages/dungeon_right.tscn")
+const RUN_LEFT := preload("res://scenes/journal/pages/run_left.tscn")
+const RUN_RIGHT := preload("res://scenes/journal/pages/run_right.tscn")
+const SIGN_ALERT := preload("res://assets/ui/kit/sign_alert.png")
+const SIGN_EMPTY := preload("res://assets/ui/kit/sign_empty.png")
+const SIGN_COIN := preload("res://assets/ui/kit/sign_coin.png")
+
+## The run under way in a dungeon, if any (one waiting for orders first).
+func _run_in(dungeon_id: String) -> Dictionary:
+	var found: Dictionary = {}
+	for m in game.missions:
+		if str(m.get("region", "")) == "dungeon" and str(m.get("dungeon", "")) == dungeon_id:
+			if str(m.get("stage", "")) == "await":
+				return m
+			if found.is_empty():
+				found = m
+	return found
+
+func _open_dungeon(id: String) -> void:
+	if selected_dungeon != id or page != "dungeon":
+		selected_crew.clear()
+	selected_dungeon = id
+	dungeon_planning = false
+	if page == "dungeon":
+		_refresh()
+	else:
+		_turn_to("dungeon")
+
+## True while the player plans another crew for a dungeon that already has one inside.
+var dungeon_planning: bool = false
+
+func _draw_dungeon() -> void:
+	var d: Dictionary = Dungeons.by_id(selected_dungeon)
+	if d.is_empty():
+		selected_dungeon = "calder_keep"
+		d = Dungeons.by_id(selected_dungeon)
+	selected_trade = "dungeon"
+	var run: Dictionary = _run_in(selected_dungeon)
+	if not run.is_empty() and not dungeon_planning:
+		_draw_run(d, run)
+	else:
+		_draw_dungeon_planner(d)
+
+func _fighter_line(f: Dictionary) -> String:
+	if bool(f["porter"]):
+		return "porter  ·  armour %d" % int(f["armour"])
+	var bits: Array[String] = ["%d dmg" % int(round(float(f["damage"])))]
+	if absf(float(f["speed"]) - 1.0) > 0.05:
+		bits.append("%.1fx speed" % float(f["speed"]))
+	elif float(f["crit"]) >= 0.01:
+		bits.append("%d%% crit" % int(round(float(f["crit"]) * 100.0)))
+	bits.append("armour %d" % int(f["armour"]))
+	return "  ·  ".join(bits)
+
+func _draw_dungeon_planner(d: Dictionary) -> void:
+	var left := _mount_page(DUNGEON_LEFT, left_leaf)
+	var right := _mount_page(DUNGEON_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var id: String = str(d["id"])
+	var min_kit: int = int(d["min_kit"])
+	var most: int = int(d.get("crew", 3))
+	var ids: Array[String] = _selected_available()
+	# Left: who can go.
+	for pair in [["Fighters", "fighters"], ["Porters", "porters"], ["All", "all"]]:
+		var tab := left.get_node(c + "Filter/" + str(pair[0])) as Button
+		tab.set_pressed_no_signal(dungeon_filter == str(pair[1]))
+		tab.pressed.connect(_set_dungeon_filter.bind(str(pair[1])))
+	(left.get_node(c + "Caption") as Label).text = "Up to %d. Each needs kit %d. Porters carry more out but die easily." % [most, min_kit]
+	(left.get_node(c + "Footer/Back") as Button).pressed.connect(_back_to_dungeons)
+	var free: Array = game.available_guild_workers()
+	var shown: Array = []
+	for merc in free:
+		var fights: bool = Gear.job(merc) == "combat"
+		var keep: bool = ids.has(str(merc["id"]))
+		match dungeon_filter:
+			"fighters": keep = keep or fights
+			"porters": keep = keep or not fights
+			_: keep = true
+		if keep:
+			shown.append(merc)
+	shown.sort_custom(func(a, b):
+		var aa: bool = ids.has(str(a["id"]))
+		var bb: bool = ids.has(str(b["id"]))
+		if aa != bb:
+			return aa
+		return Gear.kit_rating(a) * 100 + TradeSkills.level_of(a, "combat") > Gear.kit_rating(b) * 100 + TradeSkills.level_of(b, "combat"))
+	var list := left.get_node(c + "Roster/Items") as VBoxContainer
+	for merc in shown:
+		var mid: String = str(merc["id"])
+		var assigned: bool = ids.has(mid)
+		var health: int = int(merc.get("health", 100))
+		var f: Dictionary = Dungeons.fighter(merc)
+		var kit: int = Gear.kit_rating(merc)
+		var card := ROW_ROSTER_CARD.instantiate() as Button
+		list.add_child(card)
+		card.toggle_mode = true
+		card.button_pressed = assigned
+		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(Mercs.role_of(merc), ROLE_ICONS["Guard"])
+		(card.get_node("Body/Info/Name") as Label).text = str(merc.get("name", "?"))
+		var weapon: String = str(Catalog.item(str(Gear.in_slot(merc, "main_hand").get("key", ""))).get("name", "no weapon"))
+		(card.get_node("Body/Info/Details") as Label).text = "Combat %d  ·  kit %d  ·  %s" % [TradeSkills.level_of(merc, "combat"), kit, "%d dmg" % int(round(float(f["damage"]))) if not bool(f["porter"]) else "porter"]
+		card.tooltip_text = "%s\n%s: %s\nTraits: %s" % [Mercs.title(merc), weapon if not bool(f["porter"]) else "No weapon, comes as a porter", _fighter_line(f), Mercs.trait_names(merc)]
+		(card.get_node("Body/Health/HealthText") as Label).text = "%d%%" % health
+		var hp := card.get_node("Body/Health/HealthBar") as ProgressBar
+		hp.value = health
+		hp.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
+		var tag := card.get_node("Body/Tag") as Label
+		var why: String = game.dungeon_fit(id, merc)
+		if assigned:
+			tag.text = "In crew"
+		elif why != "":
+			tag.text = why
+			card.disabled = true
+			if why.begins_with("Kit"):
+				card.tooltip_text += "\nNeeds better gear: kit %d of %d. Outfit them in Mercenaries." % [kit, min_kit]
+		elif ids.size() >= most:
+			tag.text = "Crew full"
+			card.disabled = true
+		else:
+			tag.text = "+ Add"
+		card.pressed.connect(_toggle_crew.bind(not assigned, mid))
+	var no_crew := left.get_node(c + "NoCrew") as Control
+	no_crew.visible = list.get_child_count() == 0
+	if not free.is_empty() and no_crew.visible:
+		no_crew.text = "Nobody free with a weapon. Try Everyone, or arm someone in Mercenaries." if dungeon_filter == "fighters" else "Nobody free fits. Try Everyone."
+	# Right: the keep, its floors and the orders.
+	(right.get_node(c + "Site/Art") as TextureRect).texture = load(str(d.get("art", ""))) as Texture2D
+	(right.get_node(c + "Site") as Control).tooltip_text = str(d.get("tagline", ""))
+	(right.get_node(c + "Site/Badge/Text") as Label).text = "Tier %d  ·  kit %d+" % [int(d["tier"]), min_kit]
+	var plan: Dictionary = game.dungeon_forecast(id, ids, dungeon_depth, dungeon_turn_back)
+	var floors: Array = d["floors"]
+	for i in range(3):
+		var box := right.get_node(c + "Floors/F%d" % i) as Control
+		box.visible = i < floors.size()
+		if i >= floors.size():
+			continue
+		var fl: Dictionary = floors[i]
+		var boss: bool = bool(fl.get("boss", false))
+		(box.get_node("Body/When") as Label).text = "Floor %d  ·  %s" % [i + 1, "boss" if boss else "~%dm" % int(Dungeons.FLOOR_TIME / 60)]
+		(box.get_node("Body/Name") as Label).text = str(fl["name"])
+		(box.get_node("Body/Foe") as Label).text = "%s%s" % ["%d " % int(fl["count"]) if int(fl["count"]) > 1 else "", str(fl["foe"]).to_lower() if int(fl["count"]) > 1 else ("one, armoured" if boss else str(fl["foe"]))]
+		var loot: Array[String] = ["%d-%d coin" % [int(fl["coin"][0]), int(fl["coin"][1])]]
+		for good in fl.get("loot", {}):
+			loot.append(_resource_name(str(good)).to_lower())
+		box.tooltip_text = "%s: %s\nHealth %d, hits for %d, armour %d.\nCarries %s.%s" % [str(fl["name"]), str(fl["foe"]), int(fl["hp"]), int(fl["damage"]), int(fl["armour"]), ", ".join(loot),
+			"\nA chance at a tier-3 blueprint and an ancient relic." if boss else ""]
+		var odds := box.get_node("Body/Odds") as Label
+		if ids.is_empty():
+			odds.text = "-"
+			odds.theme_type_variation = &"LabelMuted"
+		else:
+			var p: float = float(plan["odds"][i]) if i < (plan["odds"] as Array).size() else 0.0
+			odds.text = "%d%%" % int(round(p * 100.0))
+			odds.theme_type_variation = &"LabelGood" if p >= 0.85 else (&"" if p >= 0.5 else &"LabelAccent")
+		box.modulate = Color(1, 1, 1, 1.0 if i < dungeon_depth else 0.55)
+	var names: Array[String] = []
+	for mid in ids:
+		names.append(str(game.merc_by_id(mid).get("name", "?")))
+	var crew_label := right.get_node(c + "Crew") as Label
+	if names.is_empty():
+		crew_label.text = "No fighters chosen yet. Pick up to %d on the left." % most
+		crew_label.theme_type_variation = &"LabelMuted"
+	else:
+		crew_label.text = "Crew %d of %d: %s" % [names.size(), most, ", ".join(names)]
+		crew_label.theme_type_variation = &"LabelGood"
+	for i in range(3):
+		var btn := right.get_node(c + "Depth/D%d" % (i + 1)) as Button
+		btn.visible = i < floors.size()
+		btn.set_pressed_no_signal(dungeon_depth == i + 1)
+		btn.pressed.connect(_set_dungeon_depth.bind(i + 1))
+	for pair in [["Half", "half"], ["Death", "death"], ["Never", "never"]]:
+		var btn := right.get_node(c + "Back/" + str(pair[0])) as Button
+		btn.set_pressed_no_signal(dungeon_turn_back == str(pair[1]))
+		btn.pressed.connect(_set_dungeon_turn_back.bind(str(pair[1])))
+	var empty: bool = ids.is_empty()
+	right.get_node(c + "Forecast/Haul").value = "~" + _money(int(plan["haul"])) if not empty else "-"
+	var death_tile := right.get_node(c + "Forecast/Death")
+	death_tile.value = "%d%%" % int(round(float(plan["death"]) * 100.0)) if not empty else "-"
+	death_tile.tone = "accent" if not empty and float(plan["death"]) >= 0.1 else "normal"
+	right.get_node(c + "Forecast/Time").value = "~%dm" % int(round(float(plan["duration"]) / 60.0))
+	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages and supplies cost %s." % _money(int(plan["cost"]))
+	var enter := right.get_node(c + "Enter") as Button
+	var reason := right.get_node(c + "Reason") as Label
+	var why: String = ""
+	if game.missions.size() >= game.expedition_slots:
+		why = "All expedition slots are busy. Wait for a crew to return."
+	elif empty:
+		why = "Choose fighters from the list on the left."
+	elif str(plan["blocked"]) != "":
+		why = str(plan["blocked"])
+	elif game.gold < int(plan["cost"]):
+		why = "Not enough gold: wages and supplies cost %s." % _money(int(plan["cost"]))
+	enter.text = "Enter %s  ·  %s" % [str(d["name"]), _money(int(plan["cost"]) if not empty else int(d["supplies"]))]
+	enter.disabled = why != ""
+	enter.pressed.connect(_enter_dungeon)
+	reason.text = why
+	reason.visible = why != ""
+
+func _set_dungeon_filter(filter: String) -> void:
+	dungeon_filter = filter
+	_refresh()
+
+func _set_dungeon_depth(depth: int) -> void:
+	dungeon_depth = depth
+	_refresh()
+
+func _set_dungeon_turn_back(order: String) -> void:
+	dungeon_turn_back = order
+	_refresh()
+
+func _back_to_dungeons() -> void:
+	selected_trade = "dungeon"
+	_turn_to("expeditions")
+
+func _enter_dungeon() -> void:
+	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back)
+	if result.begins_with("The crew went"):
+		selected_crew.clear()
+		harlow_view.selected.clear()
+		dungeon_planning = false
+	_action(result)
+
+func _dungeon_answer(mission_id: String, push: bool) -> void:
+	_action(game.dungeon_choose(mission_id, push))
+
+func _plan_another() -> void:
+	dungeon_planning = true
+	selected_crew.clear()
+	_refresh()
+
+## Goods as item slots (coin first), each opening its lookup card.
+func _carry_slots(row: HBoxContainer, goods: Dictionary, faded: bool = false) -> void:
+	var keys: Array = goods.keys()
+	keys.sort_custom(func(a, b): return str(a) == "coin" or (str(b) != "coin" and str(a) < str(b)))
+	for good in keys:
+		if int(goods[good]) <= 0:
+			continue
+		var slot := ITEM_SLOT.instantiate()
+		row.add_child(slot)
+		slot.icon = SIGN_COIN if str(good) == "coin" else _item_icon(str(good))
+		slot.count = int(goods[good])
+		slot.tooltip_text = "%d coin" % int(goods[good]) if str(good) == "coin" else "%d %s" % [int(goods[good]), _resource_name(str(good))]
+		if faded:
+			slot.modulate = Color(1, 1, 1, 0.5)
+		if str(good) != "coin":
+			_lookup_on(slot, str(good))
+
+func logs_so_far(m: Dictionary) -> Array:
+	return (m.get("log", []) as Array).filter(func(e): return str(e["result"]) == "cleared")
+
+func _draw_run(d: Dictionary, m: Dictionary) -> void:
+	var left := _mount_page(RUN_LEFT, left_leaf)
+	var right := _mount_page(RUN_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	var floors: Array = d["floors"]
+	var stage: String = str(m.get("stage", "floor"))
+	var dead: Array = m.get("dead", [])
+	# Left: the crew's health and what they carry.
+	var crew_box := left.get_node(c + "Crew") as VBoxContainer
+	for id in m.get("ids", []):
+		var merc: Dictionary = game.merc_by_id(str(id))
+		if merc.is_empty():
+			continue
+		var card := ROW_ROSTER_CARD.instantiate() as Button
+		crew_box.add_child(card)
+		card.mouse_default_cursor_shape = Control.CURSOR_ARROW
+		card.focus_mode = Control.FOCUS_NONE
+		var f: Dictionary = Dungeons.fighter(merc)
+		var top: float = maxf(1.0, float(f.get("max_hp", 100.0)))
+		var hp_now: float = float((m.get("hp", {}) as Dictionary).get(str(id), top))
+		var pct: int = int(round(clampf(hp_now / top, 0.0, 1.0) * 100.0))
+		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(Mercs.role_of(merc), ROLE_ICONS["Guard"])
+		(card.get_node("Body/Info/Name") as Label).text = str(merc.get("name", "?"))
+		(card.get_node("Body/Info/Details") as Label).text = "Fallen" if dead.has(str(id)) else ("porter  ·  armour %d" % int(f["armour"]) if bool(f["porter"]) else "%d dmg  ·  armour %d" % [int(round(float(f["damage"]))), int(f["armour"])])
+		card.tooltip_text = _fighter_line(f)
+		(card.get_node("Body/Health/HealthText") as Label).text = "%d%%" % pct
+		var bar := card.get_node("Body/Health/HealthBar") as ProgressBar
+		bar.value = pct
+		bar.theme_type_variation = &"GreenBar" if pct >= 50 else (&"GoldBar" if pct > 0 else &"")
+		(card.get_node("Body/Tag") as Label).text = "Dead" if dead.has(str(id)) else ("Potion used" if (m.get("drank", []) as Array).has(str(id)) else "")
+		if dead.has(str(id)):
+			card.modulate = Color(1, 1, 1, 0.55)
+	var carry: Dictionary = m.get("carry", {})
+	var worth: int = game.dungeon_carry_value(carry)
+	(left.get_node(c + "CarryCaption") as Label).text = "Carrying  ·  worth ~%s if it gets out" % _money(worth) if worth > 0 else "Carrying"
+	_carry_slots(left.get_node(c + "Carry") as HBoxContainer, carry)
+	(left.get_node(c + "NoCarry") as Control).visible = carry.is_empty()
+	var finds: Array[String] = []
+	for find in m.get("finds", []):
+		finds.append(str(game.item_definition(str(find.get("key", ""))).get("name", "something")))
+	var found := left.get_node(c + "Found") as Label
+	found.text = "Found among the fallen: %s. It's yours if its carrier gets out." % ", ".join(finds) if not finds.is_empty() else ""
+	found.visible = not finds.is_empty() and not logs_so_far(m).is_empty()
+	var dropped: Dictionary = m.get("dropped", {})
+	(left.get_node(c + "DroppedCaption") as Label).text = "Left in %s" % str(d["name"])
+	(left.get_node(c + "DroppedCaption") as Control).visible = not dropped.is_empty()
+	_carry_slots(left.get_node(c + "Dropped") as HBoxContainer, dropped, true)
+	var walk := left.get_node(c + "Walk") as Label
+	(left.get_node(c + "Footer/Back") as Button).pressed.connect(_back_to_dungeons)
+	# Right: the floors so far, and the check-in.
+	var logs: Array = m.get("log", [])
+	var odds: Array = []
+	if stage != "out":
+		var fighters: Array = game._run_crew(m)
+		odds = Dungeons.forecast(fighters, d, floors.size(), "never", func(g): return 1, 80)["odds"] if not fighters.is_empty() else []
+	for i in range(3):
+		var row := right.get_node(c + "Track/F%d" % i) as Control
+		row.visible = i < floors.size()
+		if i >= floors.size():
+			continue
+		var fl: Dictionary = floors[i]
+		var dot := row.get_node("Dot") as TextureRect
+		var note := row.get_node("Text/Note") as Label
+		(row.get_node("Text/Name") as Label).text = "Floor %d  ·  %s" % [i + 1, str(fl["name"])]
+		var entry: Dictionary = {}
+		for e in logs:
+			if int(e["floor"]) == i:
+				entry = e
+		if not entry.is_empty():
+			var ok: bool = str(entry["result"]) == "cleared"
+			dot.texture = SIGN_CHECK if ok else SIGN_CROSS
+			note.text = " ".join(entry.get("lines", []))
+			note.theme_type_variation = &"LabelCaption" if ok else &"LabelAccent"
+		elif i == int(m.get("floor_i", 0)) and stage == "floor":
+			dot.texture = SIGN_ALERT
+			var end: int = int(m["floor_end"])
+			var update := func() -> void:
+				note.text = "Fighting %s now  ·  %s left." % [str(fl["foe"]).to_lower(), _duration(maxi(0, end - _now()))]
+			update.call()
+			live_updaters.append(update)
+		else:
+			dot.texture = SIGN_EMPTY
+			note.text = "Ahead." if stage != "out" else "Not reached."
+			if stage != "out" and i < odds.size():
+				note.text = "Ahead. Chance to win from here: %d%%." % int(round(float(odds[i]) * 100.0))
+			row.modulate = Color(1, 1, 1, 0.7)
+	var prompt := right.get_node(c + "Prompt") as Control
+	if stage == "await":
+		prompt.visible = true
+		var i: int = int(m["floor_i"])
+		var hurt: Array[String] = []
+		for f in game._run_crew(m):
+			if float(f["hp"]) < 50.0:
+				hurt.append("%s is down to %d%%" % [str(f["name"]), int(f["hp"])])
+		var title := prompt.get_node("Body/Title") as Label
+		title.text = "Floor %d cleared.%s" % [i + 1, (" " + ", ".join(hurt) + ".") if not hurt.is_empty() else " Everyone is standing."]
+		var floors_n: int = floors.size()
+		var orders_go: bool = Dungeons.keep_going(game._run_crew(m), i + 1, int(m["depth"]), str(m["turn_back"]), not dead.is_empty(), floors_n)
+		var next_name: String = str(floors[i + 1]["name"])
+		(prompt.get_node("Body/Text") as Label).text = "Your orders say %s. Push on to %s, or take %s out?" % [
+			"go on" if orders_go else "head out", next_name, _money(worth)]
+		var push := prompt.get_node("Body/Buttons/Push") as Button
+		var out := prompt.get_node("Body/Buttons/Out") as Button
+		push.text = "Push on" + ("  (orders)" if orders_go else "")
+		out.text = "Take it out" + ("" if orders_go else "  (orders)")
+		push.pressed.connect(_dungeon_answer.bind(str(m["id"]), true))
+		out.pressed.connect(_dungeon_answer.bind(str(m["id"]), false))
+		var timer := prompt.get_node("Body/Timer") as Label
+		var until: int = int(m["await_until"])
+		var tick := func() -> void:
+			timer.text = "No answer in %s and the crew follows its orders." % _duration(maxi(0, until - _now()))
+		tick.call()
+		live_updaters.append(tick)
+		walk.text = "Walking out from here takes about %s." % _duration((i + 1) * Dungeons.WALK_TIME)
+	elif stage == "out":
+		var fin: int = int(m["finish"])
+		var tick := func() -> void:
+			walk.text = "Walking out  ·  back in %s." % _duration(maxi(0, fin - _now()))
+		tick.call()
+		live_updaters.append(tick)
+	else:
+		var fin2: int = int(m["finish"])
+		var tick := func() -> void:
+			walk.text = "Orders: as deep as %s, turn back %s. Back in about %s." % ["the boss" if int(m["depth"]) >= floors.size() else "floor %d" % int(m["depth"]),
+				str(Dungeons.TURN_BACK.get(str(m["turn_back"]), "")).to_lower().replace("anyone below half", "when anyone is below half").replace("someone dies", "if someone dies").replace("never", "never"), _duration(maxi(0, fin2 - _now()))]
+		tick.call()
+		live_updaters.append(tick)
+	var note_label := right.get_node(c + "Note") as Label
+	if game.missions.size() < game.expedition_slots:
+		note_label.text = "Away from the game? The crew follows its orders. A free slot can send another crew."
+	var plan_btn := Button.new()
+	plan_btn.text = "Plan another crew  >"
+	plan_btn.theme_type_variation = &"TextButton"
+	plan_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	plan_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	plan_btn.visible = game.missions.size() < game.expedition_slots
+	plan_btn.pressed.connect(_plan_another)
+	right.get_node(c).add_child(plan_btn)

@@ -1,6 +1,6 @@
 # Money Mercs
 
-**Version 0.22 — The book, reorganised**
+**Version 0.23 — Calder Keep, the first dungeon**
 
 Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy management game. Its first interactive vertical slice is **Harlow Mines**.
 
@@ -14,6 +14,41 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 4. Open **Mercenaries → The Armory** to buy tools and armor, select a worker, and equip their loadout. Then open **Harlow Mines** and send the scout (about 60 seconds).
 5. Read the current rotation's findings, select miners/guards, choose standing orders, then fund the expedition.
 6. Gathered ore and discovered equipment enter company inventory. Dead workers permanently lose their personal gear; surviving workers may be injured. The **Chronicle** shows encounter events and financial results.
+
+## V0.23 – Calder Keep, the first dungeon
+
+Expeditions → **Dungeons** opens Calder Keep (tier 1, kit 8 to enter, 30 G supplies plus
+wages, up to three mercenaries). It is fought floor by floor, about ten minutes a floor:
+
+| Floor | Foes | Carries |
+|---|---|---|
+| 1 · The Cellars | 5 giant rats | 18–34 coin, bone |
+| 2 · Webbed Halls | 3 cave spiders | 36–64 coin, spider silk, bone |
+| 3 · The Bone Knight | the boss, armoured | 130–210 coin, bone; 8% an ancient relic, 20% a tier-3 blueprint |
+
+- **Fights** come from what the crew carries and wears: weapon damage, attack speed, crit and
+  armour piercing against the monsters; armour, dodge, parry and block against their blows. A
+  healing draught is drunk when someone is badly hurt; Lucky saves one death in three. Anyone
+  without a weapon comes as a **porter**: doesn't fight, carries half again as much out, and
+  takes heavier blows. The crew binds wounds (+10 health) on the stairs between floors.
+- **Standing orders** set how deep to go (floor 1, floor 2 or the boss) and when to turn back
+  (anyone below half, someone dies, never). "Below half" also backs the crew out of a fight
+  before anyone falls. The planner shows each floor's odds for the chosen crew, the chance
+  someone dies under these orders, the expected haul and the time.
+- **Check-ins.** After each cleared floor the crew waits two minutes at the stairs: push on or
+  take it out. A toast and a Today entry say so. With no answer the crew follows its orders,
+  so a run finishes on its own while the game is closed.
+- **Harsher death.** A death makes the survivors drop half of everything they carry; a wiped
+  crew loses everything. The dead lose their share, and each piece they wore has a 70% chance
+  to stay in the keep for others to find (otherwise it is ruined). Only what gets out counts.
+- The report (Ledger → Reports) leads with the floor-by-floor account, then what was left
+  behind and who fell. Survivors earn Combat XP per floor (the boss counts three times) and
+  their gear takes a dungeon run's wear.
+
+For a tier-1 trio (steel sword and chainmail, a dagger, a shortbow) the default orders (floor 2,
+below half) clear two floors almost every time for about 100 G with almost no deaths; going
+all the way (turn back: never) beats the boss about 87% of the time, but someone dies in about half of those runs overall.
+A veteran trio clears it safely. The Sunken Abbey and Wyrm's Hollow show as coming later.
 
 ## V0.22 – The book, reorganised
 

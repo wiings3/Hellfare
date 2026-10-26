@@ -275,9 +275,24 @@ func _loot_text(items: Dictionary) -> String:
 		results.append("%d %s" % [int(items[key]), str(MoneyMercsState.RESOURCE_NAMES.get(key,key))])
 	return ", ".join(results) if not results.is_empty() else "No resources returned."
 
+## What the dungeon runs look like, to notice a floor resolving or a crew reaching the stairs.
+func _delving_state() -> String:
+	var parts: Array[String] = []
+	for m in game.missions:
+		if str(m.get("region", "")) == "dungeon":
+			parts.append("%s:%s:%d" % [str(m["id"]), str(m.get("stage", "")), int(m.get("floor_i", 0))])
+	return ",".join(parts)
+
 func _on_clock() -> void:
 	var changed: bool = game.harlow_sync()
+	var before: String = _delving_state()
+	var waiting: int = game.dungeon_checkins().size()
 	var returned: int = game.complete_due()
+	if _delving_state() != before:
+		changed = true
+		if game.dungeon_checkins().size() > waiting:
+			var m: Dictionary = game.dungeon_checkins().back()
+			_notify("%s: floor %d cleared. Your crew is waiting for orders." % [str(Dungeons.by_id(str(m["dungeon"])).get("name", "The dungeon")), int(m["floor_i"]) + 1])
 	if returned > 0:
 		_refresh()
 		_notify("%d field team(s) returned. See The Chronicle for full findings." % returned)

@@ -1,0 +1,101 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/info_box.tscn" id="2_info_box"]
+
+[sub_resource type="ButtonGroup" id="filter"]
+
+[node name="DungeonLeft" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "Choose Fighters"
+
+[node name="Filter" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Fighters" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Fighters"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "Mercenaries holding a weapon. They fight on every floor."
+
+[node name="Porters" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Porters"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "No weapon: they don't fight, carry half again as much out, and die easily."
+
+[node name="All" type="Button" parent="Margin/Content/Filter"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Everyone"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("filter")
+custom_minimum_size = Vector2(0, 18)
+tooltip_text = "Everyone free, best kit first."
+
+[node name="Caption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Up to 3. Each needs kit 8."
+autowrap_mode = 3
+
+[node name="Roster" type="ScrollContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 80)
+horizontal_scroll_mode = 0
+size_flags_vertical = 3
+
+[node name="Items" type="VBoxContainer" parent="Margin/Content/Roster"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 3
+
+[node name="NoCrew" parent="Margin/Content" instance=ExtResource("2_info_box")]
+layout_mode = 2
+visible = false
+text = "Nobody is free. Hire fighters in Mercenaries."
+icon_kind = "plus"
+
+[node name="Footer" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+
+[node name="Back" type="Button" parent="Margin/Content/Footer"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TextButton"
+text = "<  All dungeons"

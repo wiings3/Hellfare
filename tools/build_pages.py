@@ -642,6 +642,102 @@ def site_pages():
     s.save(P + "site_right.tscn")
 
 
+def dungeon_pages():
+    """A dungeon: the planner (fighters left; floors, orders and forecast right) and the run
+    (the crew's health and haul left; the floor track and the check-in right)."""
+    s = page("DungeonLeft")
+    grp = s.sub("filter", "ButtonGroup", {})
+    header(s, C + "/Header", "Choose Fighters")
+    s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 4})
+    for name, text, tip in [("Fighters", "Fighters", "Mercenaries holding a weapon. They fight on every floor."),
+                            ("Porters", "Porters", "No weapon: they don't fight, carry half again as much out, and die easily."),
+                            ("All", "Everyone", "Everyone free, best kit first.")]:
+        button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
+                                                               "custom_minimum_size": (0, 18), "tooltip_text": tip})
+    label(s, C + "/Caption", "Up to 3. Each needs kit 8.", "LabelCaption", {"autowrap_mode": 3})
+    scroll(s, C + "/Roster", 80)
+    s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "Nobody is free. Hire fighters in Mercenaries.", "icon_kind": "plus"})
+    s.node(C + "/Footer", "HBoxContainer")
+    button(s, C + "/Footer/Back", "<  All dungeons", "TextButton")
+    s.save(P + "dungeon_left.tscn")
+
+    s = page("DungeonRight")
+    depth = s.sub("depth", "ButtonGroup", {})
+    back = s.sub("back", "ButtonGroup", {})
+    s.node(C + "/Site", "PanelContainer", {"custom_minimum_size": (0, 66), "theme_type_variation": Raw('&"SlotPanel"')})
+    s.node(C + "/Site/Art", "TextureRect", {"mouse_filter": 2, "expand_mode": 1, "stretch_mode": 6})
+    s.node(C + "/Site/Badge", "PanelContainer", {"size_flags_horizontal": 8, "size_flags_vertical": 8, "theme_type_variation": Raw('&"GoldPanel"')})
+    label(s, C + "/Site/Badge/Text", "Tier 1  ·  kit 8+")
+    label(s, C + "/FloorsCaption", "Floors  ·  your crew's chance to clear", "LabelCaption")
+    s.node(C + "/Floors", "HBoxContainer", {"theme_override_constants/separation": 3})
+    for i in range(3):
+        f = C + "/Floors/F%d" % i
+        s.node(f, "PanelContainer", {"size_flags_horizontal": 3, "theme_type_variation": Raw('&"InsetPanel"')})
+        s.node(f + "/Body", "VBoxContainer", {"theme_override_constants/separation": -3})
+        label(s, f + "/Body/When", "Floor %d" % (i + 1), "LabelCaption")
+        label(s, f + "/Body/Name", "Floor", None, {"text_overrun_behavior": 3})
+        label(s, f + "/Body/Foe", "Foes", "LabelCaption", {"text_overrun_behavior": 3})
+        label(s, f + "/Body/Odds", "-", "LabelGood")
+    label(s, C + "/Crew", "No fighters chosen yet.", "LabelMuted", {"autowrap_mode": 3})
+    s.node(C + "/Depth", "HBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/Depth/Caption", "As deep as", "LabelCaption", {"custom_minimum_size": (52, 0)})
+    for i, (name, text) in enumerate([("D1", "Floor 1"), ("D2", "Floor 2"), ("D3", "The boss")]):
+        button(s, C + "/Depth/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": depth,
+                                                              "tooltip_text": "Standing orders: come out after this floor, unless you push on at a check-in."})
+    s.node(C + "/Back", "HBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/Back/Caption", "Turn back", "LabelCaption", {"custom_minimum_size": (52, 0)})
+    for name, text, tip in [("Half", "Below half", "Come out when anyone is below half health, and back out of a fight before anyone falls."),
+                            ("Death", "Someone dies", "Keep going until someone dies."),
+                            ("Never", "Never", "Go all the way to the planned depth, whatever happens.")]:
+        button(s, C + "/Back/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": back, "tooltip_text": tip})
+    s.node(C + "/Forecast", "HBoxContainer", {"theme_override_constants/separation": 4})
+    tile(s, C + "/Forecast/Haul", "Haul out", extra={"tooltip_text": "Average coin and goods carried out under these orders, after the crew's share."})
+    tile(s, C + "/Forecast/Death", "Someone dies", extra={"tooltip_text": "Chance at least one of the crew dies under these orders."})
+    tile(s, C + "/Forecast/Time", "Back in", extra={"tooltip_text": "Time down and back under these orders, check-ins included."})
+    label(s, C + "/Rule", "A death makes the crew drop half of what it carries. A wiped crew loses everything.", "LabelCaption", {"autowrap_mode": 3})
+    spacer(s, C + "/Spacer")
+    button(s, C + "/Enter", "Enter", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Deaths and lost gear are permanent."})
+    label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.save(P + "dungeon_right.tscn")
+
+    s = page("RunLeft")
+    header(s, C + "/Header", "The Crew")
+    s.node(C + "/Crew", "VBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/CarryCaption", "Carrying", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Carry", "HBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/NoCarry", "Nothing yet.", "LabelMuted")
+    label(s, C + "/Found", "", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/DroppedCaption", "Left in the keep", "LabelCaption")
+    s.node(C + "/Dropped", "HBoxContainer", {"theme_override_constants/separation": 3})
+    spacer(s, C + "/Spacer")
+    label(s, C + "/Walk", "", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.node(C + "/Footer", "HBoxContainer")
+    button(s, C + "/Footer/Back", "<  All dungeons", "TextButton")
+    s.save(P + "run_left.tscn")
+
+    s = page("RunRight")
+    header(s, C + "/Header", "The Run")
+    s.node(C + "/Track", "VBoxContainer", {"theme_override_constants/separation": 4})
+    for i in range(3):
+        f = C + "/Track/F%d" % i
+        s.node(f, "HBoxContainer", {"theme_override_constants/separation": 6})
+        s.node(f + "/Dot", "TextureRect", {"custom_minimum_size": (16, 16), "size_flags_vertical": 0, "mouse_filter": 2, "stretch_mode": 3})
+        s.node(f + "/Text", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": -3})
+        label(s, f + "/Text/Name", "Floor %d" % (i + 1))
+        label(s, f + "/Text/Note", "Ahead.", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Prompt", "PanelContainer", {"visible": False, "theme_type_variation": Raw('&"GoldPanel"')})
+    s.node(C + "/Prompt/Body", "VBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/Prompt/Body/Title", "Floor cleared.", None, {"autowrap_mode": 3})
+    label(s, C + "/Prompt/Body/Text", "", "LabelCaption", {"autowrap_mode": 3})
+    s.node(C + "/Prompt/Body/Buttons", "HBoxContainer", {"theme_override_constants/separation": 4})
+    button(s, C + "/Prompt/Body/Buttons/Push", "Push on", "PaperButton", {"size_flags_horizontal": 3})
+    button(s, C + "/Prompt/Body/Buttons/Out", "Take it out", None, {"size_flags_horizontal": 3})
+    label(s, C + "/Prompt/Body/Timer", "", "LabelCaption", {"horizontal_alignment": 1})
+    spacer(s, C + "/Spacer")
+    label(s, C + "/Note", "Away from the game? The crew follows its orders and you read the report later.", "LabelMuted", {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.save(P + "run_right.tscn")
+
+
 def exchange_tabs():
     s = Scene("ExchangeTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})
@@ -985,4 +1081,5 @@ if __name__ == "__main__":
     site_card()
     locked_row()
     site_pages()
+    dungeon_pages()
     print("pages written")

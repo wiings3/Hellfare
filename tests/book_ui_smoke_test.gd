@@ -163,7 +163,11 @@ func _verify() -> void:
 	# Logging: the board lists the copse; the site planner forecasts a profit for a woodcutter.
 	view._nav_to("expeditions")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/board_left.tscn"), "expedition board")
-	check(view.left_leaf.get_child(0).get_node("Margin/Content/Trades").get_child_count() == 7, "six trades and guarding")
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Trades").get_child_count() == 8, "six trades, dungeons and guarding")
+	view._select_trade("dungeon")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text == "Dungeons", "dungeons heading")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Open").get_child_count() == Dungeons.DUNGEONS.size(), "a card per open dungeon")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Locked").get_child_count() == Dungeons.PLANNED.size(), "planned dungeons shown locked")
 	view._select_trade("fishing")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text == "Fishing", "trade heading")
 	var site_rows: int = view.right_leaf.get_child(0).get_node("Margin/Content/Open").get_child_count() + view.right_leaf.get_child(0).get_node("Margin/Content/Locked").get_child_count()
@@ -482,6 +486,44 @@ func _verify() -> void:
 	view.game.reputation = 500
 	check(view.game.build_upgrade("charter_3").begins_with("Charters are built in order"), "charters go in order")
 	check(view.game.expand_operations().contains("signed") and view.game.expedition_slots == 3, "charter II opens a third slot")
+	# Calder Keep: the planner gates on kit, enters, and the run waits at the stairs for orders.
 	view.game.reset_company()
+	view.game.gold = 5000
+	var fighter: Dictionary = view.game.recruitment_board()[0]
+	view._hire(str(fighter["id"]))
+	var fm: Dictionary = view.game.merc_by_id(str(fighter["id"]))
+	view._open_dungeon("calder_keep")
+	check(view.page == "dungeon" and view.left_leaf.get_child(0).scene_file_path.ends_with("/dungeon_left.tscn"), "dungeon planner opens")
+	view._set_dungeon_filter("all")
+	var dcard := view.left_leaf.get_child(0).get_node("Margin/Content/Roster/Items").get_child(0) as Button
+	check(dcard.disabled and (dcard.get_node("Body/Tag") as Label).text.begins_with("Kit"), "unarmed recruit is turned away on kit")
+	for k in ["steel_sword", "chainmail", "iron_helm", "leather_boots"]:
+		fm["equipment"][Gear.slot_of(k)] = view.game.make_item(k, "common")
+	view._refresh()
+	view._toggle_crew(true, str(fighter["id"]))
+	var enter := view.right_leaf.get_child(0).get_node("Margin/Content/Enter") as Button
+	check(not enter.disabled, "an armed crew can enter (%s)" % (view.right_leaf.get_child(0).get_node("Margin/Content/Reason") as Label).text)
+	check((view.right_leaf.get_child(0).get_node("Margin/Content/Floors/F0/Body/Odds") as Label).text.ends_with("%"), "floor odds shown")
+	enter.pressed.emit()
+	check(view.game.missions.size() == 1 and str(view.game.missions[0]["region"]) == "dungeon", "crew entered the keep")
+	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/run_left.tscn"), "the run spread shows the crew inside")
+	var run: Dictionary = view.game.missions[0]
+	view.game.complete_due(int(run["floor_end"]) + 1)
+	view._refresh()
+	if str(run["stage"]) == "await":
+		var prompt := view.right_leaf.get_child(0).get_node("Margin/Content/Prompt") as Control
+		check(prompt.visible, "check-in prompt shows")
+		check(view._needs().any(func(n): return str(n["title"]).contains("waiting")), "Today lists the check-in")
+		(prompt.get_node("Body/Buttons/Out") as Button).pressed.emit()
+		check(str(run["stage"]) == "out", "taking it out sends the crew home")
+	view.game.complete_due(int(run["finish"]) + 1)
+	check(view.game.missions.is_empty() and str(view.game.reports[0].get("dungeon", "")) == "calder_keep", "run reported")
+	view._refresh()
+	await create_timer(0.8).timeout
+	view.game.reset_company()
+	if failures > 0:
+		push_error("%d BookUI checks failed." % failures)
+		quit(1)
+		return
 	print("BookUI page navigation, equipment desk, merchant selection, and page-turn assets passed.")
 	quit(0)

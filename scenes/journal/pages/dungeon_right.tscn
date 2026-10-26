@@ -1,0 +1,285 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="1_stat_tile"]
+
+[sub_resource type="ButtonGroup" id="depth"]
+
+[sub_resource type="ButtonGroup" id="back"]
+
+[node name="DungeonRight" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Site" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 66)
+theme_type_variation = &"SlotPanel"
+
+[node name="Art" type="TextureRect" parent="Margin/Content/Site"]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Badge" type="PanelContainer" parent="Margin/Content/Site"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_type_variation = &"GoldPanel"
+
+[node name="Text" type="Label" parent="Margin/Content/Site/Badge"]
+layout_mode = 2
+text = "Tier 1  ·  kit 8+"
+
+[node name="FloorsCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Floors  ·  your crew's chance to clear"
+
+[node name="Floors" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="F0" type="PanelContainer" parent="Margin/Content/Floors"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Floors/F0"]
+layout_mode = 2
+theme_override_constants/separation = -3
+
+[node name="When" type="Label" parent="Margin/Content/Floors/F0/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Floor 1"
+
+[node name="Name" type="Label" parent="Margin/Content/Floors/F0/Body"]
+layout_mode = 2
+text = "Floor"
+text_overrun_behavior = 3
+
+[node name="Foe" type="Label" parent="Margin/Content/Floors/F0/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Foes"
+text_overrun_behavior = 3
+
+[node name="Odds" type="Label" parent="Margin/Content/Floors/F0/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelGood"
+text = "-"
+
+[node name="F1" type="PanelContainer" parent="Margin/Content/Floors"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Floors/F1"]
+layout_mode = 2
+theme_override_constants/separation = -3
+
+[node name="When" type="Label" parent="Margin/Content/Floors/F1/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Floor 2"
+
+[node name="Name" type="Label" parent="Margin/Content/Floors/F1/Body"]
+layout_mode = 2
+text = "Floor"
+text_overrun_behavior = 3
+
+[node name="Foe" type="Label" parent="Margin/Content/Floors/F1/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Foes"
+text_overrun_behavior = 3
+
+[node name="Odds" type="Label" parent="Margin/Content/Floors/F1/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelGood"
+text = "-"
+
+[node name="F2" type="PanelContainer" parent="Margin/Content/Floors"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"InsetPanel"
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Floors/F2"]
+layout_mode = 2
+theme_override_constants/separation = -3
+
+[node name="When" type="Label" parent="Margin/Content/Floors/F2/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Floor 3"
+
+[node name="Name" type="Label" parent="Margin/Content/Floors/F2/Body"]
+layout_mode = 2
+text = "Floor"
+text_overrun_behavior = 3
+
+[node name="Foe" type="Label" parent="Margin/Content/Floors/F2/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Foes"
+text_overrun_behavior = 3
+
+[node name="Odds" type="Label" parent="Margin/Content/Floors/F2/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelGood"
+text = "-"
+
+[node name="Crew" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "No fighters chosen yet."
+autowrap_mode = 3
+
+[node name="Depth" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Depth"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "As deep as"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="D1" type="Button" parent="Margin/Content/Depth"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Floor 1"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("depth")
+tooltip_text = "Standing orders: come out after this floor, unless you push on at a check-in."
+
+[node name="D2" type="Button" parent="Margin/Content/Depth"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Floor 2"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("depth")
+tooltip_text = "Standing orders: come out after this floor, unless you push on at a check-in."
+
+[node name="D3" type="Button" parent="Margin/Content/Depth"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "The boss"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("depth")
+tooltip_text = "Standing orders: come out after this floor, unless you push on at a check-in."
+
+[node name="Back" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Back"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Turn back"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="Half" type="Button" parent="Margin/Content/Back"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Below half"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("back")
+tooltip_text = "Come out when anyone is below half health, and back out of a fight before anyone falls."
+
+[node name="Death" type="Button" parent="Margin/Content/Back"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Someone dies"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("back")
+tooltip_text = "Keep going until someone dies."
+
+[node name="Never" type="Button" parent="Margin/Content/Back"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Never"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("back")
+tooltip_text = "Go all the way to the planned depth, whatever happens."
+
+[node name="Forecast" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Haul" parent="Margin/Content/Forecast" instance=ExtResource("1_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Haul out"
+value = "0"
+tooltip_text = "Average coin and goods carried out under these orders, after the crew's share."
+
+[node name="Death" parent="Margin/Content/Forecast" instance=ExtResource("1_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Someone dies"
+value = "0"
+tooltip_text = "Chance at least one of the crew dies under these orders."
+
+[node name="Time" parent="Margin/Content/Forecast" instance=ExtResource("1_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Back in"
+value = "0"
+tooltip_text = "Time down and back under these orders, check-ins included."
+
+[node name="Rule" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "A death makes the crew drop half of what it carries. A wiped crew loses everything."
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Enter" type="Button" parent="Margin/Content"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Enter"
+custom_minimum_size = Vector2(0, 26)
+tooltip_text = "Deaths and lost gear are permanent."
+
+[node name="Reason" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 3

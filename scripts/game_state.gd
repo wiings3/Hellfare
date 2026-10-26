@@ -1120,6 +1120,23 @@ func _dungeon_finish(m: Dictionary) -> void:
 		value += int(loot[good]) * sell_price(str(good), int(loot[good]))
 	_earn_reputation(value, survivors.is_empty())
 	_apply_relief_payment()
+	# The floor-by-floor account leads the field notes.
+	var notes: Array[String] = []
+	for e in m.get("log", []):
+		notes.append("Floor %d, %s. %s" % [int(e["floor"]) + 1, str(e["name"]), " ".join(e.get("lines", []))])
+	if int(m.get("overrode", -1)) >= 0:
+		notes.append("You overrode the standing orders at floor %d." % int(m["overrode"]))
+	var dropped: Dictionary = m.get("dropped", {})
+	if not dropped.is_empty():
+		var left: Array[String] = []
+		for good in dropped:
+			left.append("%d %s" % [int(dropped[good]), "coin" if good == "coin" else str(RESOURCE_NAMES.get(good, good)).to_lower()])
+		notes.append("Left in %s: %s." % [str(d["name"]), ", ".join(left)])
+	for f in fallen_notes:
+		if str(f["note"]) != "":
+			notes.append("%s fell. %s." % [str(f["name"]), str(f["note"])])
+	notes.append_array(events)
+	events = notes
 	var outcome: String = "wiped" if survivors.is_empty() else ("loss" if not casualties.is_empty() else ("cleared" if boss_down else "out"))
 	reports.push_front({
 		"region": str(d["name"]), "dungeon": str(m["dungeon"]), "trade": "combat", "won": outcome == "cleared" or (outcome == "out" and cleared > 0),

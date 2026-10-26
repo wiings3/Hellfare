@@ -47,6 +47,11 @@ var selected_market_item: String = "copper"
 ## The trade open on the Expeditions index, and the planner's crew filter ("trade", "guards", "all").
 var selected_trade: String = "logging"
 var crew_filter: String = "trade"
+## The dungeon open in its planner, the planner's filter and the standing orders being drawn up.
+var selected_dungeon: String = "calder_keep"
+var dungeon_filter: String = "fighters"
+var dungeon_depth: int = 2
+var dungeon_turn_back: String = "half"
 ## Mercenaries: the roster filter and the dossier view; the Workshop chapter's tab.
 var roster_filter: String = "all"
 var recruit_filter: String = "all"
@@ -132,7 +137,7 @@ func _show_tab_art(index: int) -> void:
 
 func _active_tab_index() -> int:
 	# These secondary pages belong to the Expeditions chapter.
-	if page in ["harlow", "site", "contracts", "guildwork"]:
+	if page in ["harlow", "site", "contracts", "guildwork", "dungeon"]:
 		return 1
 	if page in ["hall", "market"]:
 		return 4

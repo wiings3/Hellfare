@@ -1,0 +1,166 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/section_header.tscn" id="1_section_header"]
+
+[node name="RunRight" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 285.0
+offset_bottom = 371.0
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
+layout_mode = 2
+text = "The Run"
+
+[node name="Track" type="VBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="F0" type="HBoxContainer" parent="Margin/Content/Track"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Dot" type="TextureRect" parent="Margin/Content/Track/F0"]
+layout_mode = 2
+custom_minimum_size = Vector2(16, 16)
+size_flags_vertical = 0
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Text" type="VBoxContainer" parent="Margin/Content/Track/F0"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = -3
+
+[node name="Name" type="Label" parent="Margin/Content/Track/F0/Text"]
+layout_mode = 2
+text = "Floor 1"
+
+[node name="Note" type="Label" parent="Margin/Content/Track/F0/Text"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Ahead."
+autowrap_mode = 3
+
+[node name="F1" type="HBoxContainer" parent="Margin/Content/Track"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Dot" type="TextureRect" parent="Margin/Content/Track/F1"]
+layout_mode = 2
+custom_minimum_size = Vector2(16, 16)
+size_flags_vertical = 0
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Text" type="VBoxContainer" parent="Margin/Content/Track/F1"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = -3
+
+[node name="Name" type="Label" parent="Margin/Content/Track/F1/Text"]
+layout_mode = 2
+text = "Floor 2"
+
+[node name="Note" type="Label" parent="Margin/Content/Track/F1/Text"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Ahead."
+autowrap_mode = 3
+
+[node name="F2" type="HBoxContainer" parent="Margin/Content/Track"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Dot" type="TextureRect" parent="Margin/Content/Track/F2"]
+layout_mode = 2
+custom_minimum_size = Vector2(16, 16)
+size_flags_vertical = 0
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="Text" type="VBoxContainer" parent="Margin/Content/Track/F2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = -3
+
+[node name="Name" type="Label" parent="Margin/Content/Track/F2/Text"]
+layout_mode = 2
+text = "Floor 3"
+
+[node name="Note" type="Label" parent="Margin/Content/Track/F2/Text"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Ahead."
+autowrap_mode = 3
+
+[node name="Prompt" type="PanelContainer" parent="Margin/Content"]
+layout_mode = 2
+visible = false
+theme_type_variation = &"GoldPanel"
+
+[node name="Body" type="VBoxContainer" parent="Margin/Content/Prompt"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Title" type="Label" parent="Margin/Content/Prompt/Body"]
+layout_mode = 2
+text = "Floor cleared."
+autowrap_mode = 3
+
+[node name="Text" type="Label" parent="Margin/Content/Prompt/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/Content/Prompt/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Push" type="Button" parent="Margin/Content/Prompt/Body/Buttons"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"PaperButton"
+text = "Push on"
+size_flags_horizontal = 3
+
+[node name="Out" type="Button" parent="Margin/Content/Prompt/Body/Buttons"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Take it out"
+size_flags_horizontal = 3
+
+[node name="Timer" type="Label" parent="Margin/Content/Prompt/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Margin/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Note" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "Away from the game? The crew follows its orders and you read the report later."
+horizontal_alignment = 1
+autowrap_mode = 3
