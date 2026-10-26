@@ -1,0 +1,93 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/kit/pointer.png" id="1_pointer"]
+[ext_resource type="Texture2D" path="res://assets/ui/art/crest.png" id="2_crest"]
+
+[node name="TutorialCard" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Pointer" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 24.0
+offset_bottom = 22.0
+mouse_filter = 2
+texture = ExtResource("1_pointer")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Card" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -262.0
+offset_top = -150.0
+offset_right = -16.0
+offset_bottom = -14.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_type_variation = &"InsetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Card"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="Body" type="VBoxContainer" parent="Card/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Head" type="HBoxContainer" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Icon" type="TextureRect" parent="Card/Margin/Body/Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(13, 14)
+size_flags_vertical = 4
+mouse_filter = 2
+stretch_mode = 5
+texture = ExtResource("2_crest")
+expand_mode = 1
+
+[node name="Step" type="Label" parent="Card/Margin/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Step 1 of 4"
+size_flags_horizontal = 3
+
+[node name="Skip" type="Button" parent="Card/Margin/Body/Head"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TextButton"
+text = "Skip tutorial"
+tooltip_text = "Hide the tutorial for this guild."
+
+[node name="Title" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = "Welcome to Last Lantern"
+autowrap_mode = 3
+
+[node name="Text" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+text = ""
+custom_minimum_size = Vector2(230, 0)
+autowrap_mode = 3
+
+[node name="Next" type="Button" parent="Card/Margin/Body"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Show me"
+custom_minimum_size = Vector2(0, 22)

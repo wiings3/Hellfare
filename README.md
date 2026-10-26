@@ -1,6 +1,6 @@
 # Hellfare
 
-**Version 0.29 — Sound**
+**Version 0.30 — First-launch tutorial**
 
 A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
 Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
@@ -16,6 +16,24 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.30 – First-launch tutorial
+
+A new guild gets a short tutorial: a card in the bottom right of the book walks through the first
+loop, and a gold pointer bobs beside the bookmark to open.
+
+1. Welcome: what the guild does (Show me).
+2. Hire a Hellfarer: Mercenaries → Recruit, a woodcutter.
+3. Send them down: Expeditions → Logging → Cinderwood.
+4. Wait for them to come back up (five minutes; crews work while the game is closed).
+5. Sell the haul in the Market, or keep it (Keep it for now).
+6. What to try next: more hands, the Workshop, a Warden's charter, the Fallen Keep.
+
+Steps move on by themselves when the player has done them (someone who hires before reading skips
+ahead), Skip tutorial ends it, and the card steps aside while a crypt event needs the player.
+Progress is saved with the guild; guilds from before this version that already have people or
+reports never see it. Steps are data in `scripts/tutorial.gd`; the card is
+`scenes/journal/widgets/tutorial_card.tscn`.
 
 ## V0.29 – Sound
 

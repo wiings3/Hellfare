@@ -910,6 +910,30 @@ def event_card():
     s.save("scenes/journal/widgets/event_card.tscn")
 
 
+def tutorial_card():
+    """The first-launch tutorial: a card bottom right, and a gold pointer for the bookmark to open."""
+    s = Scene("TutorialCard", "Control", {"visible": False, "layout_mode": 3, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2})
+    s.node("Pointer", "TextureRect", {"layout_mode": 0, "offset_right": 24.0, "offset_bottom": 22.0, "mouse_filter": 2,
+        "texture": Res("res://assets/ui/kit/pointer.png"), "expand_mode": 1, "stretch_mode": 0})
+    s.node("Card", "PanelContainer", {"layout_mode": 1, "anchors_preset": 3, "anchor_left": 1.0, "anchor_top": 1.0, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "offset_left": -262.0, "offset_top": -150.0, "offset_right": -16.0, "offset_bottom": -14.0, "grow_horizontal": 0, "grow_vertical": 0,
+        "theme_type_variation": Raw('&"InsetPanel"')})
+    s.node("Card/Margin", "MarginContainer", {"theme_override_constants/margin_left": 8, "theme_override_constants/margin_top": 6,
+        "theme_override_constants/margin_right": 8, "theme_override_constants/margin_bottom": 6})
+    B = "Card/Margin/Body"
+    s.node(B, "VBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(B + "/Head", "HBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(B + "/Head/Icon", "TextureRect", {"custom_minimum_size": (13, 14), "size_flags_vertical": 4, "mouse_filter": 2, "stretch_mode": 5,
+        "texture": Res("res://assets/ui/art/crest.png"), "expand_mode": 1})
+    label(s, B + "/Head/Step", "Step 1 of 4", "LabelCaption", {"size_flags_horizontal": 3})
+    button(s, B + "/Head/Skip", "Skip tutorial", "TextButton", {"tooltip_text": "Hide the tutorial for this guild."})
+    label(s, B + "/Title", "Welcome to Last Lantern", "LabelAccent", {"autowrap_mode": 3})
+    label(s, B + "/Text", "", None, {"custom_minimum_size": (230, 0), "autowrap_mode": 3})
+    button(s, B + "/Next", "Show me", None, {"custom_minimum_size": (0, 22)})
+    s.save("scenes/journal/widgets/tutorial_card.tscn")
+
+
 def exchange_tabs():
     s = Scene("ExchangeTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})

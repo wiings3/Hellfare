@@ -127,6 +127,7 @@ func _refresh() -> void:
 	_restore_tab_art()
 	title_label.text = str(PAGE_TITLES.get(page, "The Guild"))
 	_set_ambience()
+	_update_tutorial.call_deferred()
 	if page == "harlow":
 		page = "site"
 		selected_site = "harlow"
@@ -173,6 +174,7 @@ func _update_header() -> void:
 func _live_tick() -> void:
 	_update_header()
 	_update_event_card()
+	_update_tutorial()
 	_hall_clock()
 	if _now() - market_sampled_at >= 60:
 		market_sampled_at = _now()
@@ -3476,6 +3478,77 @@ func _run_mark(m: Dictionary) -> Dictionary:
 	for good in m.get("carry", {}):
 		carry += int(m["carry"][good]) * (1 if good == "coin" else 5)
 	return {"hp": hp, "dead": (m.get("dead", []) as Array).size(), "carry": carry, "gear": (m.get("event_gear", []) as Array).size()}
+
+# --- The first-launch tutorial --------------------------------------------------------------
+var _tutorial_shown: String = ""
+var _pointer_tween: Tween
+
+func _tutorial_card() -> Control:
+	return stage.get_node_or_null("TutorialCard") as Control if is_instance_valid(stage) else null
+
+## Show the tutorial's current step, move it on when the player has done it, and point at the
+## bookmark to open (hidden once they're on that page, or while a crypt event needs them).
+func _update_tutorial() -> void:
+	var card := _tutorial_card()
+	if card == null:
+		return
+	if Tutorial.advance(game):
+		game.save_game()
+	var step: Dictionary = Tutorial.current(game)
+	var event := _event_card()
+	if step.is_empty() or (event != null and event.visible):
+		card.visible = false
+		return
+	card.visible = true
+	var b := "Card/Margin/Body/"
+	var id: String = str(step["id"])
+	if id != _tutorial_shown:
+		_tutorial_shown = id
+		(card.get_node(b + "Head/Step") as Label).text = Tutorial.numbered(id) if Tutorial.numbered(id) != "" else "Guild notes"
+		(card.get_node(b + "Title") as Label).text = str(step["title"])
+		(card.get_node(b + "Text") as Label).text = str(step["text"])
+		var next := card.get_node(b + "Next") as Button
+		next.visible = step.has("button")
+		next.text = str(step.get("button", ""))
+		_reconnect(next, func() -> void:
+			Tutorial.press(game)
+			game.save_game()
+			_update_tutorial())
+		var skip := card.get_node(b + "Head/Skip") as Button
+		skip.visible = id != "next"
+		_reconnect(skip, func() -> void:
+			Tutorial.skip(game)
+			game.save_game()
+			_update_tutorial())
+		_fit_tutorial_card.call_deferred(card)
+	# The pointer: beside the bookmark to open, unless that page is already open.
+	var pointer := card.get_node("Pointer") as Control
+	var target: String = str(step.get("point", ""))
+	var on_it: bool = page == target or (target == "expeditions" and page in ["site", "dungeon"]) or (target == "market" and page in ["auction", "hall"])
+	pointer.visible = target != "" and not on_it and Tutorial.BOOKMARKS.has(target)
+	if pointer.visible:
+		var label := stage.get_node_or_null("ChapterLabels/Label%d" % int(Tutorial.BOOKMARKS[target])) as Label
+		if label != null:
+			var text_w: float = label.get_theme_font("font").get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x
+			var at := Vector2(label.position.x + label.get_parent().position.x + label.size.x - text_w - pointer.size.x - 6.0,
+				label.position.y + label.get_parent().position.y + (label.size.y - pointer.size.y) / 2.0)
+			if pointer.get_meta("at", Vector2.ZERO) != at:
+				pointer.set_meta("at", at)
+				pointer.position = at
+				if _pointer_tween:
+					_pointer_tween.kill()
+				_pointer_tween = create_tween().set_loops()
+				_pointer_tween.tween_property(pointer, "position:x", at.x + 4.0, 0.45).set_trans(Tween.TRANS_SINE)
+				_pointer_tween.tween_property(pointer, "position:x", at.x, 0.45).set_trans(Tween.TRANS_SINE)
+
+## Fit the tutorial card to its text (after the text has wrapped, hence deferred).
+func _fit_tutorial_card(card: Control) -> void:
+	if not is_instance_valid(card):
+		return
+	var panel := card.get_node("Card") as Control
+	panel.offset_top = panel.offset_bottom - 40.0
+	panel.reset_size()
+	panel.offset_top = panel.offset_bottom - panel.get_combined_minimum_size().y
 
 ## The card grows upward from the bottom-right corner to fit what's on it.
 func _fit_event_card(card: Control) -> void:

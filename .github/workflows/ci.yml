@@ -65,6 +65,13 @@ jobs:
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/dungeons.log; then exit 1; fi
           grep -F 'Dungeon checks passed.' /tmp/dungeons.log
 
+      - name: Tutorial (first-launch steps, card, pointer)
+        run: |
+          set -o pipefail
+          timeout 60s godot --headless --path . --script res://tests/tutorial_test.gd 2>&1 | tee /tmp/tutorial.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/tutorial.log; then exit 1; fi
+          grep -F 'Tutorial checks passed.' /tmp/tutorial.log
+
       - name: Sound (name table, files, groups, clicks, ambience)
         run: |
           set -o pipefail

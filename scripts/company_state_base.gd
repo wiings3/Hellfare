@@ -197,6 +197,9 @@ var next_item_id: int = 1
 var relief_debt: int = 0
 var relief_count: int = 0
 var retired_ids: Array[String] = []
+## The first-launch tutorial: {"step": id from Tutorial.STEPS or "done", ...}. A guild loaded from
+## before the tutorial existed that already has people or reports counts as done.
+var tutorial: Dictionary = {"step": "welcome"}
 var harlow: Dictionary = {}
 var gold: int = 350
 var reputation: int = 0
@@ -261,6 +264,10 @@ func load_game() -> void:
 	relief_count = maxi(0, int(state.get("relief_count", 0)))
 	for value in state.get("retired_ids", []):
 		retired_ids.append(str(value))
+	if state.get("tutorial") is Dictionary:
+		tutorial = state["tutorial"]
+	else:
+		tutorial = {"step": "done" if not crew.is_empty() or not reports.is_empty() else "welcome"}
 	for item in state.get("equipment_inventory", []):
 		if typeof(item) == TYPE_DICTIONARY and Gear.exists(str(item.get("key", ""))):
 			Gear.ensure_item(item)
@@ -298,7 +305,7 @@ func save_game() -> void:
 		"resources": resources, "crew": crew, "missions": missions, "reports": reports,
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt, "blueprints": blueprints, "upgrades": upgrades,
-		"relief_count": relief_count, "retired_ids": retired_ids,
+		"relief_count": relief_count, "retired_ids": retired_ids, "tutorial": tutorial,
 		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict(), "auction": auction.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
@@ -1494,6 +1501,7 @@ func reset_company() -> void:
 	relief_debt = 0
 	relief_count = 0
 	retired_ids.clear()
+	tutorial = {"step": "welcome"}
 	market.reset()
 	hall.reset()
 	fallen = FallenGear.new()
