@@ -47,7 +47,7 @@ theme_type_variation = &"GoldPanel"
 
 [node name="Text" type="Label" parent="Margin/Content/Site/Badge"]
 layout_mode = 2
-text = "Tier 1  ·  kit 8+"
+text = "Tier 1  ·  gear score 8+"
 
 [node name="FloorsCaption" type="Label" parent="Margin/Content"]
 layout_mode = 2

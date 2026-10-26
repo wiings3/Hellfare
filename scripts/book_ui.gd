@@ -964,7 +964,7 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 		repair.pressed.connect(_repair.bind(str(picked["uid"])))
 	var bonus := right.get_node(g + "Foot/Bonus") as Label
 	var job: String = Gear.job(owner)
-	var bits: Array[String] = ["Kit %d" % Gear.kit_rating(owner), "Armour %d" % int(Gear.armour(owner))]
+	var bits: Array[String] = ["Gear score %d" % Gear.kit_rating(owner), "Armour %d" % int(Gear.armour(owner))]
 	if job != "" and job != "combat":
 		bits.append("%s +%d" % [TradeSkills.NAMES[job], int(Gear.tool_power(owner, job))])
 	elif job == "combat":
@@ -1009,7 +1009,7 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 			(card.get_node("Row/Info/Name") as Label).text = Gear.full_name(item)
 			var wear: String = ("  ·  %d/%d" % [Gear.durability(item), Gear.max_durability(item)]) if Gear.max_durability(item) > 0 else ""
 			(card.get_node("Row/Info/Details") as Label).text = Gear.summary(key) + wear
-			card.tooltip_text = Gear.describe(item)
+			card.tooltip_text = Gear.describe(item) + ("\nGear score +%d" % int(Catalog.item(key).get("kit", 0)) if int(Catalog.item(key).get("kit", 0)) > 0 else "")
 			_lookup_on(card.get_node("Row/IconSlot") as Control, key)
 			var equip := card.get_node("Row/Primary") as Button
 			equip.text = "Equip"
@@ -2036,7 +2036,7 @@ func _draw_board() -> void:
 			var delving: int = game.missions.filter(func(m): return str(m.get("region", "")) == "dungeon").size()
 			var waiting: int = game.dungeon_checkins().size()
 			var fit: int = game.crew.filter(func(m): return Gear.kit_rating(m) >= 8).size()
-			var dcard := _list_card(trades, TRADE_ICONS.get("dungeon"), str(entry["name"]), "%s with kit 8+" % _plural(fit, "fighter") if fit > 0 else "Needs fighters with kit 8",
+			var dcard := _list_card(trades, TRADE_ICONS.get("dungeon"), str(entry["name"]), "%s with gear score 8+" % _plural(fit, "fighter") if fit > 0 else "Needs fighters with gear score 8",
 				"Waiting" if waiting > 0 else ("%d in" % delving if delving > 0 else ""), "%d of %d open" % [Dungeons.DUNGEONS.size(), Dungeons.DUNGEONS.size() + Dungeons.PLANNED.size()],
 				selected_trade == trade, _select_trade.bind(trade))
 			if delving > 0:
@@ -2138,7 +2138,7 @@ func _draw_dungeon_list(right: Control) -> void:
 		card.tooltip_text = str(d.get("tagline", ""))
 		var floors: Array = d["floors"]
 		(card.get_node("Body/Top/Info/Name") as Label).text = str(d["name"])
-		(card.get_node("Body/Top/Info/Details") as Label).text = "Tier %d  ·  %d floors, the last a boss  ·  kit %d+" % [int(d["tier"]), floors.size(), int(d["min_kit"])]
+		(card.get_node("Body/Top/Info/Details") as Label).text = "Tier %d  ·  %d floors, the last a boss  ·  gear score %d+" % [int(d["tier"]), floors.size(), int(d["min_kit"])]
 		(card.get_node("Body/Facts") as Label).text = "%s  ·  supplies %s" % [", ".join(floors.map(func(f): return str(f["foe"]))), _money(int(d["supplies"]))]
 		var value := card.get_node("Body/Top/Value") as Label
 		var run: Dictionary = _run_in(str(id))
@@ -2151,7 +2151,7 @@ func _draw_dungeon_list(right: Control) -> void:
 		var row := ROW_LOCKED.instantiate() as Button
 		locked_list.add_child(row)
 		(row.get_node("Body/Name") as Label).text = str(d["name"])
-		(row.get_node("Body/Need") as Label).text = "Kit %d  ·  soon" % int(d["min_kit"])
+		(row.get_node("Body/Need") as Label).text = "Gear score %d  ·  soon" % int(d["min_kit"])
 		row.tooltip_text = "%s opens in a later update: deeper floors, tier-%d gear and %s." % [str(d["name"]), 2 if int(d["min_kit"]) < 30 else 3, str(d.get("note", ""))]
 		row.disabled = true
 	(right.get_node(c + "LockedCaption") as Label).text = "Coming later"
@@ -2494,7 +2494,7 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		var tab := left.get_node(c + "Filter/" + str(pair[0])) as Button
 		tab.set_pressed_no_signal(dungeon_filter == str(pair[1]))
 		tab.pressed.connect(_set_dungeon_filter.bind(str(pair[1])))
-	(left.get_node(c + "Caption") as Label).text = "Up to %d. Each needs kit %d. Porters carry more out but die easily." % [most, min_kit]
+	(left.get_node(c + "Caption") as Label).text = "Up to %d. Each needs gear score %d. Porters carry more out but die easily." % [most, min_kit]
 	(left.get_node(c + "Footer/Back") as Button).pressed.connect(_back_to_dungeons)
 	var free: Array = game.available_guild_workers()
 	var shown: Array = []
@@ -2527,7 +2527,7 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(Mercs.role_of(merc), ROLE_ICONS["Guard"])
 		(card.get_node("Body/Info/Name") as Label).text = str(merc.get("name", "?"))
 		var weapon: String = str(Catalog.item(str(Gear.in_slot(merc, "main_hand").get("key", ""))).get("name", "no weapon"))
-		(card.get_node("Body/Info/Details") as Label).text = "Combat %d  ·  kit %d  ·  %s" % [TradeSkills.level_of(merc, "combat"), kit, "%d dmg" % int(round(float(f["damage"]))) if not bool(f["porter"]) else "porter"]
+		(card.get_node("Body/Info/Details") as Label).text = "Combat %d  ·  gear %d  ·  %s" % [TradeSkills.level_of(merc, "combat"), kit, "%d dmg" % int(round(float(f["damage"]))) if not bool(f["porter"]) else "porter"]
 		card.tooltip_text = "%s\n%s: %s\nTraits: %s" % [Mercs.title(merc), weapon if not bool(f["porter"]) else "No weapon, comes as a porter", _fighter_line(f), Mercs.trait_names(merc)]
 		(card.get_node("Body/Health/HealthText") as Label).text = "%d%%" % health
 		var hp := card.get_node("Body/Health/HealthBar") as ProgressBar
@@ -2540,8 +2540,8 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		elif why != "":
 			tag.text = why
 			card.disabled = true
-			if why.begins_with("Kit"):
-				card.tooltip_text += "\nNeeds better gear: kit %d of %d. Outfit them in Mercenaries." % [kit, min_kit]
+			if why.begins_with("Gear score"):
+				card.tooltip_text += "\nNeeds better gear: gear score %d of %d. Outfit them in Mercenaries → Gear." % [kit, min_kit]
 		elif ids.size() >= most:
 			tag.text = "Crew full"
 			card.disabled = true
@@ -2555,7 +2555,7 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	# Right: the keep, its floors and the orders.
 	(right.get_node(c + "Site/Art") as TextureRect).texture = load(str(d.get("art", ""))) as Texture2D
 	(right.get_node(c + "Site") as Control).tooltip_text = str(d.get("tagline", ""))
-	(right.get_node(c + "Site/Badge/Text") as Label).text = "Tier %d  ·  kit %d+" % [int(d["tier"]), min_kit]
+	(right.get_node(c + "Site/Badge/Text") as Label).text = "Tier %d  ·  gear score %d+" % [int(d["tier"]), min_kit]
 	var plan: Dictionary = game.dungeon_forecast(id, ids, dungeon_depth, dungeon_turn_back)
 	var floors: Array = d["floors"]
 	for i in range(3):

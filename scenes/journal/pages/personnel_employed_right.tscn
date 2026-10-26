@@ -135,9 +135,9 @@ tooltip_text = "Their cut of the coin an expedition brings back."
 [node name="Kit" parent="Margin/Content/Overview/Stats" instance=ExtResource("1_stat_tile")]
 layout_mode = 2
 size_flags_horizontal = 3
-caption = "Kit"
+caption = "Gear score"
 value = "0"
-tooltip_text = "Kit rating: what dungeons look at before letting a mercenary in. Tier × slot weight of everything worn."
+tooltip_text = "Gear score: how well equipped they are for a fight, and what dungeons check at the door. Each worn piece adds its tier times the slot's weight (main hand 4, body 3, off hand 2, head, hands and feet 1; two-handers 6). Worn-out pieces count half."
 
 [node name="Health" type="HBoxContainer" parent="Margin/Content/Overview"]
 layout_mode = 2

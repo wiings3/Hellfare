@@ -757,7 +757,7 @@ func dungeon_fit(dungeon_id: String, merc: Dictionary) -> String:
 	if int(merc.get("health", 100)) < DUNGEON_MIN_HEALTH:
 		return "Too hurt"
 	if Gear.kit_rating(merc) < int(d.get("min_kit", 0)):
-		return "Kit %d of %d" % [Gear.kit_rating(merc), int(d.get("min_kit", 0))]
+		return "Gear score %d of %d" % [Gear.kit_rating(merc), int(d.get("min_kit", 0))]
 	return ""
 
 ## What the planner shows: per-floor odds, death chance, haul, cost and time under the orders.

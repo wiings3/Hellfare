@@ -66,12 +66,12 @@ size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("filter")
 custom_minimum_size = Vector2(0, 18)
-tooltip_text = "Everyone free, best kit first."
+tooltip_text = "Everyone free, best gear first."
 
 [node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Up to 3. Each needs kit 8."
+text = "Up to 3. Each needs gear score 8."
 autowrap_mode = 3
 
 [node name="Roster" type="ScrollContainer" parent="Margin/Content"]

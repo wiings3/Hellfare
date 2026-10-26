@@ -55,7 +55,7 @@ func _initialize() -> void:
 	var green: Dictionary = g.merc_by_id(ids[2])
 	var bow: Dictionary = green["equipment"]["main_hand"]
 	green["equipment"]["main_hand"] = {}
-	check(g.dungeon_fit("calder_keep", green).begins_with("Kit"), "low kit is turned away")
+	check(g.dungeon_fit("calder_keep", green).begins_with("Gear score"), "low gear score is turned away")
 	check(not g.dungeon_dispatch("calder_keep", ids, 2, "half").begins_with("The crew went"), "dispatch refuses low kit")
 	green["equipment"]["main_hand"] = bow
 	check(g.dungeon_fit("calder_keep", green) == "", "kit 8 gets in (%d)" % Gear.kit_rating(green))

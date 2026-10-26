@@ -131,7 +131,7 @@ def personnel_roster():
     tile(s, O + "/Stats/Skill", "Value", extra={"tooltip_text": "Rough market value of their contract: skills, traits and the gear they wear."})
     tile(s, O + "/Stats/Wage", "Wage", extra={"tooltip_text": "Paid up front for each expedition."})
     tile(s, O + "/Stats/Share", "Share", extra={"tooltip_text": "Their cut of the coin an expedition brings back."})
-    tile(s, O + "/Stats/Kit", "Kit", extra={"tooltip_text": "Kit rating: what dungeons look at before letting a mercenary in. Tier × slot weight of everything worn."})
+    tile(s, O + "/Stats/Kit", "Gear score", extra={"tooltip_text": "Gear score: how well equipped they are for a fight, and what dungeons check at the door. Each worn piece adds its tier times the slot's weight (main hand 4, body 3, off hand 2, head, hands and feet 1; two-handers 6). Worn-out pieces count half."})
     s.node(O + "/Health", "HBoxContainer", {"theme_override_constants/separation": 6})
     label(s, O + "/Health/Caption", "Health", "LabelCaption")
     s.node(O + "/Health/Bar", "ProgressBar", {"custom_minimum_size": (0, 6), "size_flags_horizontal": 3, "size_flags_vertical": 4, "mouse_filter": 2, "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0, "show_percentage": False})
@@ -651,10 +651,10 @@ def dungeon_pages():
     s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 4})
     for name, text, tip in [("Fighters", "Fighters", "Mercenaries holding a weapon. They fight on every floor."),
                             ("Porters", "Porters", "No weapon: they don't fight, carry half again as much out, and die easily."),
-                            ("All", "Everyone", "Everyone free, best kit first.")]:
+                            ("All", "Everyone", "Everyone free, best gear first.")]:
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 18), "tooltip_text": tip})
-    label(s, C + "/Caption", "Up to 3. Each needs kit 8.", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/Caption", "Up to 3. Each needs gear score 8.", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Roster", 80)
     s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "Nobody is free. Hire fighters in Mercenaries.", "icon_kind": "plus"})
     s.node(C + "/Footer", "HBoxContainer")
@@ -667,7 +667,7 @@ def dungeon_pages():
     s.node(C + "/Site", "PanelContainer", {"custom_minimum_size": (0, 66), "theme_type_variation": Raw('&"SlotPanel"')})
     s.node(C + "/Site/Art", "TextureRect", {"mouse_filter": 2, "expand_mode": 1, "stretch_mode": 6})
     s.node(C + "/Site/Badge", "PanelContainer", {"size_flags_horizontal": 8, "size_flags_vertical": 8, "theme_type_variation": Raw('&"GoldPanel"')})
-    label(s, C + "/Site/Badge/Text", "Tier 1  ·  kit 8+")
+    label(s, C + "/Site/Badge/Text", "Tier 1  ·  gear score 8+")
     label(s, C + "/FloorsCaption", "Floors  ·  your crew's chance to clear", "LabelCaption")
     s.node(C + "/Floors", "HBoxContainer", {"theme_override_constants/separation": 3})
     for i in range(3):

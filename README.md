@@ -17,7 +17,7 @@ Money Mercs is a Godot 4.5.1 fantasy mercenary-company and gold-economy manageme
 
 ## V0.23 – Calder Keep, the first dungeon
 
-Expeditions → **Dungeons** opens Calder Keep (tier 1, kit 8 to enter, 30 G supplies plus
+Expeditions → **Dungeons** opens Calder Keep (tier 1, gear score 8 to enter, 30 G supplies plus
 wages, up to three mercenaries). It is fought floor by floor, about ten minutes a floor:
 
 | Floor | Foes | Carries |
@@ -49,6 +49,12 @@ For a tier-1 trio (steel sword and chainmail, a dagger, a shortbow) the default 
 below half) clear two floors almost every time for about 100 G with almost no deaths; going
 all the way (turn back: never) beats the boss about 87% of the time, but someone dies in about half of those runs overall.
 A veteran trio clears it safely. The Sunken Abbey and Wyrm's Hollow show as coming later.
+
+**Gear score** replaces "kit" everywhere it's shown: how well equipped a mercenary is for a
+fight, and what a dungeon checks at the door. Each worn piece adds its tier times its slot's
+weight (main hand 4, body 3, off hand 2, head, hands and feet 1; two-handers 6), worn-out
+pieces count half. It shows on the dossier, in the Gear view's footer and on each piece's
+tooltip in the Gear view.
 
 ## V0.22 – The book, reorganised
 

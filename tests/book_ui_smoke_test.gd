@@ -496,7 +496,7 @@ func _verify() -> void:
 	check(view.page == "dungeon" and view.left_leaf.get_child(0).scene_file_path.ends_with("/dungeon_left.tscn"), "dungeon planner opens")
 	view._set_dungeon_filter("all")
 	var dcard := view.left_leaf.get_child(0).get_node("Margin/Content/Roster/Items").get_child(0) as Button
-	check(dcard.disabled and (dcard.get_node("Body/Tag") as Label).text.begins_with("Kit"), "unarmed recruit is turned away on kit")
+	check(dcard.disabled and (dcard.get_node("Body/Tag") as Label).text.begins_with("Gear score"), "unarmed recruit is turned away on gear score")
 	for k in ["steel_sword", "chainmail", "iron_helm", "leather_boots"]:
 		fm["equipment"][Gear.slot_of(k)] = view.game.make_item(k, "common")
 	view._refresh()
