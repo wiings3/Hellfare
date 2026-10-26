@@ -313,7 +313,7 @@
    "group": "timber",
    "value": 150,
    "sources": [
-    "palewood",
+	"palewood",
     "wyrms_hollow"
    ],
    "note": "Pale, light and hard; tier-5 gear.",
@@ -325,7 +325,7 @@
    "group": "sap",
    "value": 24,
    "sources": [
-    "thornwald",
+	"thornwald",
     "blackroot_weald"
    ],
    "note": "Varnish for tier-3+ bows and shields.",
@@ -348,7 +348,7 @@
    "group": "ore",
    "value": 20,
    "sources": [
-    "harlow",
+	"harlow",
     "deepdelve"
    ],
    "note": "Fittings, sickles, hooks, flasks and lanterns.",
@@ -360,7 +360,7 @@
    "group": "ore",
    "value": 8,
    "sources": [
-    "harlow",
+	"harlow",
     "cinder_shaft"
    ],
    "note": "Fuel for smelting steel.",
@@ -372,8 +372,8 @@
    "group": "ore",
    "value": 17,
    "sources": [
-    "harlow",
-    "deepdelve",
+	"harlow",
+	"deepdelve",
     "cinder_shaft"
    ],
    "note": "Tier-1 metal and the base of steel. Harlow gives a little; Deepdelve is the main seam.",
@@ -385,7 +385,7 @@
    "group": "ore",
    "value": 28,
    "sources": [
-    "deepdelve",
+	"deepdelve",
     "gloamhold"
    ],
    "note": "Silversteel, rings and fine fittings.",
@@ -408,7 +408,7 @@
    "group": "gem",
    "value": 75,
    "sources": [
-    "deepdelve",
+	"deepdelve",
     "gloamhold"
    ],
    "note": "Amulets and crystal lanterns.",
@@ -420,7 +420,7 @@
    "group": "gem",
    "value": 110,
    "sources": [
-    "cinder_shaft",
+	"cinder_shaft",
     "gloamhold"
    ],
    "note": "Stones that never cool. Rings of fury.",
@@ -432,7 +432,7 @@
    "group": "metal",
    "value": 120,
    "sources": [
-    "gloamhold",
+	"gloamhold",
     "sunken_abbey"
    ],
    "note": "Dark deep-metal; tier-4 gear.",
@@ -466,8 +466,8 @@
    "group": "herb",
    "value": 5,
    "sources": [
-    "old_oakwood",
-    "mossward_meadows",
+	"old_oakwood",
+	"mossward_meadows",
     "fenmire"
    ],
    "note": "Healing draughts.",
@@ -490,7 +490,7 @@
    "group": "herb",
    "value": 18,
    "sources": [
-    "fenmire",
+	"fenmire",
     "frostvale"
    ],
    "note": "Greater healing and tonics.",
@@ -590,7 +590,7 @@
    "group": "gem",
    "value": 90,
    "sources": [
-    "glasswater",
+	"glasswater",
     "greywater_coast"
    ],
    "note": "Pendants and fortune brews.",
@@ -679,8 +679,8 @@
    "group": "hunt",
    "value": 2,
    "sources": [
-    "hollow_fields",
-    "greyfang_hills",
+	"hollow_fields",
+	"greyfang_hills",
     "calder_keep"
    ],
    "note": "Charms, bone meal and tonics.",
@@ -703,7 +703,7 @@
    "group": "hide",
    "value": 22,
    "sources": [
-    "greyfang_hills",
+	"greyfang_hills",
     "old_oakwood"
    ],
    "note": "Tier-2 light armour, packs and grips.",
@@ -858,7 +858,7 @@
    "group": "fibre",
    "value": 26,
    "sources": [
-    "calder_keep",
+	"calder_keep",
     "deepdelve"
    ],
    "note": "Tier 2-3 bowstrings, fishing line and linings.",
@@ -881,8 +881,8 @@
    "group": "treasure",
    "value": 550,
    "sources": [
-    "old_oakwood",
-    "calder_keep",
+	"old_oakwood",
+	"calder_keep",
     "sunken_abbey"
    ],
    "note": "Carved idols. Collectors pay well; crafters make idols of them.",
@@ -908,8 +908,8 @@
    "slot": "none",
    "tier": 2,
    "recipe": {
-    "iron": 2,
-    "coal": 1
+	"iron": 2,
+	"coal": 1
    },
    "blueprint": [
     "crafting"
@@ -924,9 +924,9 @@
    "slot": "none",
    "tier": 3,
    "recipe": {
-    "steel_ingot": 1,
-    "silver": 1,
-    "coal": 1
+	"steel_ingot": 1,
+	"silver": 1,
+	"coal": 1
    },
    "blueprint": [
     "crafting"
@@ -941,7 +941,7 @@
    "slot": "none",
    "tier": 1,
    "recipe": {
-    "flax": 3
+	"flax": 3
    },
    "blueprint": [
     "crafting"
@@ -956,7 +956,7 @@
    "slot": "none",
    "tier": 1,
    "recipe": {
-    "wheat": 2
+	"wheat": 2
    },
    "blueprint": [
     "crafting"
@@ -971,7 +971,7 @@
    "slot": "none",
    "tier": 1,
    "recipe": {
-    "perch": 2
+	"perch": 2
    },
    "blueprint": [
     "crafting"
@@ -986,7 +986,7 @@
    "slot": "none",
    "tier": 1,
    "recipe": {
-    "bone": 3
+	"bone": 3
    },
    "blueprint": [
     "crafting"
@@ -1001,24 +1001,24 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 6,
-    "attack_speed": 1.45,
-    "crit_chance": 0.12,
-    "crit_damage": 1.8
+	"damage": 6,
+	"attack_speed": 1.45,
+	"crit_chance": 0.12,
+	"crit_damage": 1.8
    },
    "rolls": [
-    "crit_chance",
-    "crit_damage",
-    "attack_speed",
-    "bleed",
+	"crit_chance",
+	"crit_damage",
+	"attack_speed",
+	"bleed",
     "sturdy"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 1,
-    "timber": 1,
-    "rabbit_hide": 1
+	"iron": 1,
+	"timber": 1,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1034,24 +1034,24 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 10,
-    "attack_speed": 1.0,
-    "crit_chance": 0.06,
-    "crit_damage": 1.6,
-    "parry": 0.05
+	"damage": 10,
+	"attack_speed": 1.0,
+	"crit_chance": 0.06,
+	"crit_damage": 1.6,
+	"parry": 0.05
    },
    "rolls": [
-    "damage",
-    "crit_chance",
-    "parry",
-    "attack_speed",
+	"damage",
+	"crit_chance",
+	"parry",
+	"attack_speed",
     "sturdy"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 1,
-    "timber": 1
+	"iron": 1,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1068,24 +1068,24 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 11,
-    "attack_speed": 0.88,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "armour_pen": 0.15
+	"damage": 11,
+	"attack_speed": 0.88,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"armour_pen": 0.15
    },
    "rolls": [
-    "damage",
-    "armour_pen",
-    "bleed",
-    "crit_damage",
+	"damage",
+	"armour_pen",
+	"bleed",
+	"crit_damage",
     "sturdy"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 2,
-    "timber": 2
+	"iron": 2,
+	"timber": 2
    },
    "blueprint": [
     "quartermaster"
@@ -1101,25 +1101,25 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 11,
-    "attack_speed": 0.86,
-    "crit_chance": 0.04,
-    "crit_damage": 1.5,
-    "armour_pen": 0.2,
-    "stun": 0.08
+	"damage": 11,
+	"attack_speed": 0.86,
+	"crit_chance": 0.04,
+	"crit_damage": 1.5,
+	"armour_pen": 0.2,
+	"stun": 0.08
    },
    "rolls": [
-    "damage",
-    "stun",
-    "armour_pen",
-    "health",
+	"damage",
+	"stun",
+	"armour_pen",
+	"health",
     "sturdy"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 3,
-    "timber": 1
+	"iron": 3,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1135,25 +1135,25 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 10,
-    "attack_speed": 0.98,
-    "crit_chance": 0.05,
-    "crit_damage": 1.6,
-    "first_strike": 0.15,
-    "hunt": 1
+	"damage": 10,
+	"attack_speed": 0.98,
+	"crit_chance": 0.05,
+	"crit_damage": 1.6,
+	"first_strike": 0.15,
+	"hunt": 1
    },
    "rolls": [
-    "first_strike",
-    "damage",
-    "parry",
-    "yield",
+	"first_strike",
+	"damage",
+	"parry",
+	"yield",
     "sturdy"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 1,
-    "timber": 3
+	"iron": 1,
+	"timber": 3
    },
    "blueprint": [
     "quartermaster"
@@ -1169,24 +1169,24 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 16,
-    "attack_speed": 0.7,
-    "crit_chance": 0.06,
-    "crit_damage": 1.7
+	"damage": 16,
+	"attack_speed": 0.7,
+	"crit_chance": 0.06,
+	"crit_damage": 1.7
    },
    "rolls": [
-    "damage",
-    "crit_damage",
-    "armour_pen",
-    "stun",
+	"damage",
+	"crit_damage",
+	"armour_pen",
+	"stun",
     "sturdy"
    ],
    "durability": 30,
    "kit": 6,
    "recipe": {
-    "iron": 4,
-    "timber": 1,
-    "rabbit_hide": 1
+	"iron": 4,
+	"timber": 1,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1203,26 +1203,26 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 13,
-    "attack_speed": 0.9,
-    "crit_chance": 0.07,
-    "crit_damage": 1.6,
-    "first_strike": 0.3,
-    "hunt": 2
+	"damage": 13,
+	"attack_speed": 0.9,
+	"crit_chance": 0.07,
+	"crit_damage": 1.6,
+	"first_strike": 0.3,
+	"hunt": 2
    },
    "rolls": [
-    "first_strike",
-    "crit_chance",
-    "damage",
-    "yield",
+	"first_strike",
+	"crit_chance",
+	"damage",
+	"yield",
     "sturdy"
    ],
    "durability": 30,
    "kit": 6,
    "recipe": {
-    "timber": 3,
-    "linen": 1,
-    "feathers": 1
+	"timber": 3,
+	"linen": 1,
+	"feathers": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1239,27 +1239,27 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "damage": 20,
-    "attack_speed": 0.6,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "first_strike": 0.2,
-    "armour_pen": 0.25,
-    "hunt": 1
+	"damage": 20,
+	"attack_speed": 0.6,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"first_strike": 0.2,
+	"armour_pen": 0.25,
+	"hunt": 1
    },
    "rolls": [
-    "armour_pen",
-    "damage",
-    "crit_damage",
-    "yield",
+	"armour_pen",
+	"damage",
+	"crit_damage",
+	"yield",
     "sturdy"
    ],
    "durability": 30,
    "kit": 6,
    "recipe": {
-    "timber": 2,
-    "iron": 1,
-    "linen": 1
+	"timber": 2,
+	"iron": 1,
+	"linen": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1276,22 +1276,22 @@
    "slot": "off_hand",
    "tier": 1,
    "stats": {
-    "armour": 8,
-    "block": 0.0,
-    "parry": 0.08
+	"armour": 8,
+	"block": 0.0,
+	"parry": 0.08
    },
    "rolls": [
-    "parry",
-    "dodge",
-    "attack_speed",
-    "health",
+	"parry",
+	"dodge",
+	"attack_speed",
+	"health",
     "sturdy"
    ],
    "durability": 30,
    "kit": 2,
    "recipe": {
-    "iron": 1,
-    "rabbit_hide": 1
+	"iron": 1,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1307,22 +1307,22 @@
    "slot": "off_hand",
    "tier": 1,
    "stats": {
-    "armour": 12,
-    "block": 0.12
+	"armour": 12,
+	"block": 0.12
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 30,
    "kit": 2,
    "recipe": {
-    "timber": 2,
-    "iron": 1,
-    "rabbit_hide": 1
+	"timber": 2,
+	"iron": 1,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1338,22 +1338,22 @@
    "slot": "off_hand",
    "tier": 1,
    "stats": {
-    "armour": 18,
-    "block": 0.22,
-    "attack_speed": -0.06
+	"armour": 18,
+	"block": 0.22,
+	"attack_speed": -0.06
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 30,
    "kit": 2,
    "recipe": {
-    "timber": 3,
-    "iron": 2
+	"timber": 3,
+	"iron": 2
    },
    "blueprint": [
     "quartermaster"
@@ -1369,22 +1369,22 @@
    "slot": "head",
    "tier": 1,
    "stats": {
-    "armour": 3,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 3,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "rabbit_hide": 1,
-    "linen": 1
+	"rabbit_hide": 1,
+	"linen": 1
    },
    "blueprint": [
     "starter"
@@ -1400,22 +1400,22 @@
    "slot": "body",
    "tier": 1,
    "stats": {
-    "armour": 7,
-    "dodge": 0.036,
-    "attack_speed": 0.023
+	"armour": 7,
+	"dodge": 0.036,
+	"attack_speed": 0.023
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 30,
    "kit": 3,
    "recipe": {
-    "rabbit_hide": 2,
-    "linen": 1
+	"rabbit_hide": 2,
+	"linen": 1
    },
    "blueprint": [
     "starter"
@@ -1432,22 +1432,22 @@
    "slot": "hands",
    "tier": 1,
    "stats": {
-    "armour": 2,
-    "dodge": 0.012,
-    "attack_speed": 0.007
+	"armour": 2,
+	"dodge": 0.012,
+	"attack_speed": 0.007
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "rabbit_hide": 1,
-    "linen": 1
+	"rabbit_hide": 1,
+	"linen": 1
    },
    "blueprint": [
     "starter"
@@ -1463,22 +1463,22 @@
    "slot": "feet",
    "tier": 1,
    "stats": {
-    "armour": 3,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 3,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "rabbit_hide": 1,
-    "linen": 1
+	"rabbit_hide": 1,
+	"linen": 1
    },
    "blueprint": [
     "starter"
@@ -1494,21 +1494,21 @@
    "slot": "head",
    "tier": 1,
    "stats": {
-    "armour": 5,
-    "injury_resist": 0.02
+	"armour": 5,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "iron": 1,
-    "rabbit_hide": 1
+	"iron": 1,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1525,21 +1525,21 @@
    "slot": "body",
    "tier": 1,
    "stats": {
-    "armour": 11,
-    "injury_resist": 0.045
+	"armour": 11,
+	"injury_resist": 0.045
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 30,
    "kit": 3,
    "recipe": {
-    "iron": 3,
-    "rabbit_hide": 1
+	"iron": 3,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1556,21 +1556,21 @@
    "slot": "hands",
    "tier": 1,
    "stats": {
-    "armour": 4,
-    "injury_resist": 0.015
+	"armour": 4,
+	"injury_resist": 0.015
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "iron": 1,
-    "rabbit_hide": 1
+	"iron": 1,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1587,21 +1587,21 @@
    "slot": "feet",
    "tier": 1,
    "stats": {
-    "armour": 5,
-    "injury_resist": 0.02
+	"armour": 5,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "iron": 1,
-    "rabbit_hide": 1
+	"iron": 1,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1618,22 +1618,22 @@
    "slot": "head",
    "tier": 1,
    "stats": {
-    "armour": 7,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 7,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "iron": 2,
-    "rabbit_hide": 1
+	"iron": 2,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1650,22 +1650,22 @@
    "slot": "body",
    "tier": 1,
    "stats": {
-    "armour": 16,
-    "block": 0.027,
-    "attack_speed": -0.036
+	"armour": 16,
+	"block": 0.027,
+	"attack_speed": -0.036
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 30,
    "kit": 3,
    "recipe": {
-    "iron": 4,
-    "rabbit_hide": 1
+	"iron": 4,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1682,22 +1682,22 @@
    "slot": "hands",
    "tier": 1,
    "stats": {
-    "armour": 5,
-    "block": 0.009,
-    "attack_speed": -0.012
+	"armour": 5,
+	"block": 0.009,
+	"attack_speed": -0.012
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "iron": 2,
-    "rabbit_hide": 1
+	"iron": 2,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1714,22 +1714,22 @@
    "slot": "feet",
    "tier": 1,
    "stats": {
-    "armour": 7,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 7,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 30,
    "kit": 1,
    "recipe": {
-    "iron": 2,
-    "rabbit_hide": 1
+	"iron": 2,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1746,20 +1746,20 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "logging": 1
+	"logging": 1
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 1,
-    "timber": 1
+	"iron": 1,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1777,20 +1777,20 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "mining": 1
+	"mining": 1
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 1,
-    "timber": 1
+	"iron": 1,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1808,20 +1808,20 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "foraging": 1
+	"foraging": 1
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "copper": 1,
-    "timber": 1
+	"copper": 1,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1838,20 +1838,20 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "fishing": 1
+	"fishing": 1
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "timber": 4,
-    "linen": 1
+	"timber": 4,
+	"linen": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1868,20 +1868,20 @@
    "slot": "main_hand",
    "tier": 1,
    "stats": {
-    "farming": 1
+	"farming": 1
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 30,
    "kit": 4,
    "recipe": {
-    "iron": 1,
-    "timber": 2
+	"iron": 1,
+	"timber": 2
    },
    "blueprint": [
     "quartermaster"
@@ -1898,24 +1898,24 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 10,
-    "attack_speed": 1.45,
-    "crit_chance": 0.12,
-    "crit_damage": 1.8
+	"damage": 10,
+	"attack_speed": 1.45,
+	"crit_chance": 0.12,
+	"crit_damage": 1.8
    },
    "rolls": [
-    "crit_chance",
-    "crit_damage",
-    "attack_speed",
-    "bleed",
+	"crit_chance",
+	"crit_damage",
+	"attack_speed",
+	"bleed",
     "sturdy"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "steel_ingot": 1,
-    "oak": 1,
-    "wolf_pelt": 1
+	"steel_ingot": 1,
+	"oak": 1,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1931,25 +1931,25 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 16,
-    "attack_speed": 1.0,
-    "crit_chance": 0.06,
-    "crit_damage": 1.6,
-    "parry": 0.05
+	"damage": 16,
+	"attack_speed": 1.0,
+	"crit_chance": 0.06,
+	"crit_damage": 1.6,
+	"parry": 0.05
    },
    "rolls": [
-    "damage",
-    "crit_chance",
-    "parry",
-    "attack_speed",
+	"damage",
+	"crit_chance",
+	"parry",
+	"attack_speed",
     "sturdy"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "steel_ingot": 1,
-    "copper": 1,
-    "oak": 1
+	"steel_ingot": 1,
+	"copper": 1,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -1966,24 +1966,24 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 18,
-    "attack_speed": 0.88,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "armour_pen": 0.15
+	"damage": 18,
+	"attack_speed": 0.88,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"armour_pen": 0.15
    },
    "rolls": [
-    "damage",
-    "armour_pen",
-    "bleed",
-    "crit_damage",
+	"damage",
+	"armour_pen",
+	"bleed",
+	"crit_damage",
     "sturdy"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "steel_ingot": 2,
-    "oak": 2
+	"steel_ingot": 2,
+	"oak": 2
    },
    "blueprint": [
     "quartermaster"
@@ -1999,25 +1999,25 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 18,
-    "attack_speed": 0.86,
-    "crit_chance": 0.04,
-    "crit_damage": 1.5,
-    "armour_pen": 0.2,
-    "stun": 0.08
+	"damage": 18,
+	"attack_speed": 0.86,
+	"crit_chance": 0.04,
+	"crit_damage": 1.5,
+	"armour_pen": 0.2,
+	"stun": 0.08
    },
    "rolls": [
-    "damage",
-    "stun",
-    "armour_pen",
-    "health",
+	"damage",
+	"stun",
+	"armour_pen",
+	"health",
     "sturdy"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "steel_ingot": 3,
-    "oak": 1
+	"steel_ingot": 3,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2033,25 +2033,25 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 16,
-    "attack_speed": 0.98,
-    "crit_chance": 0.05,
-    "crit_damage": 1.6,
-    "first_strike": 0.15,
-    "hunt": 1
+	"damage": 16,
+	"attack_speed": 0.98,
+	"crit_chance": 0.05,
+	"crit_damage": 1.6,
+	"first_strike": 0.15,
+	"hunt": 1
    },
    "rolls": [
-    "first_strike",
-    "damage",
-    "parry",
-    "yield",
+	"first_strike",
+	"damage",
+	"parry",
+	"yield",
     "sturdy"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "steel_ingot": 1,
-    "oak": 3
+	"steel_ingot": 1,
+	"oak": 3
    },
    "blueprint": [
     "quartermaster"
@@ -2067,24 +2067,24 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 26,
-    "attack_speed": 0.7,
-    "crit_chance": 0.06,
-    "crit_damage": 1.7
+	"damage": 26,
+	"attack_speed": 0.7,
+	"crit_chance": 0.06,
+	"crit_damage": 1.7
    },
    "rolls": [
-    "damage",
-    "crit_damage",
-    "armour_pen",
-    "stun",
+	"damage",
+	"crit_damage",
+	"armour_pen",
+	"stun",
     "sturdy"
    ],
    "durability": 40,
    "kit": 12,
    "recipe": {
-    "steel_ingot": 4,
-    "oak": 1,
-    "wolf_pelt": 1
+	"steel_ingot": 4,
+	"oak": 1,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2101,26 +2101,26 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 21,
-    "attack_speed": 0.9,
-    "crit_chance": 0.07,
-    "crit_damage": 1.6,
-    "first_strike": 0.3,
-    "hunt": 2
+	"damage": 21,
+	"attack_speed": 0.9,
+	"crit_chance": 0.07,
+	"crit_damage": 1.6,
+	"first_strike": 0.3,
+	"hunt": 2
    },
    "rolls": [
-    "first_strike",
-    "crit_chance",
-    "damage",
-    "yield",
+	"first_strike",
+	"crit_chance",
+	"damage",
+	"yield",
     "sturdy"
    ],
    "durability": 40,
    "kit": 12,
    "recipe": {
-    "oak": 3,
-    "spider_silk": 1,
-    "feathers": 1
+	"oak": 3,
+	"spider_silk": 1,
+	"feathers": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2137,27 +2137,27 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "damage": 32,
-    "attack_speed": 0.6,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "first_strike": 0.2,
-    "armour_pen": 0.25,
-    "hunt": 1
+	"damage": 32,
+	"attack_speed": 0.6,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"first_strike": 0.2,
+	"armour_pen": 0.25,
+	"hunt": 1
    },
    "rolls": [
-    "armour_pen",
-    "damage",
-    "crit_damage",
-    "yield",
+	"armour_pen",
+	"damage",
+	"crit_damage",
+	"yield",
     "sturdy"
    ],
    "durability": 40,
    "kit": 12,
    "recipe": {
-    "oak": 2,
-    "steel_ingot": 1,
-    "spider_silk": 1
+	"oak": 2,
+	"steel_ingot": 1,
+	"spider_silk": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2174,22 +2174,22 @@
    "slot": "off_hand",
    "tier": 2,
    "stats": {
-    "armour": 12,
-    "block": 0.0,
-    "parry": 0.08
+	"armour": 12,
+	"block": 0.0,
+	"parry": 0.08
    },
    "rolls": [
-    "parry",
-    "dodge",
-    "attack_speed",
-    "health",
+	"parry",
+	"dodge",
+	"attack_speed",
+	"health",
     "sturdy"
    ],
    "durability": 40,
    "kit": 4,
    "recipe": {
-    "steel_ingot": 1,
-    "wolf_pelt": 1
+	"steel_ingot": 1,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2205,22 +2205,22 @@
    "slot": "off_hand",
    "tier": 2,
    "stats": {
-    "armour": 19,
-    "block": 0.12
+	"armour": 19,
+	"block": 0.12
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 40,
    "kit": 4,
    "recipe": {
-    "oak": 2,
-    "steel_ingot": 1,
-    "wolf_pelt": 1
+	"oak": 2,
+	"steel_ingot": 1,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2236,22 +2236,22 @@
    "slot": "off_hand",
    "tier": 2,
    "stats": {
-    "armour": 29,
-    "block": 0.22,
-    "attack_speed": -0.06
+	"armour": 29,
+	"block": 0.22,
+	"attack_speed": -0.06
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 40,
    "kit": 4,
    "recipe": {
-    "oak": 3,
-    "steel_ingot": 2
+	"oak": 3,
+	"steel_ingot": 2
    },
    "blueprint": [
     "quartermaster"
@@ -2267,22 +2267,22 @@
    "slot": "head",
    "tier": 2,
    "stats": {
-    "armour": 5,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 5,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "wolf_pelt": 1,
-    "spider_silk": 1
+	"wolf_pelt": 1,
+	"spider_silk": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2299,22 +2299,22 @@
    "slot": "body",
    "tier": 2,
    "stats": {
-    "armour": 11,
-    "dodge": 0.036,
-    "attack_speed": 0.023
+	"armour": 11,
+	"dodge": 0.036,
+	"attack_speed": 0.023
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 40,
    "kit": 6,
    "recipe": {
-    "wolf_pelt": 3,
-    "spider_silk": 1
+	"wolf_pelt": 3,
+	"spider_silk": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2331,22 +2331,22 @@
    "slot": "hands",
    "tier": 2,
    "stats": {
-    "armour": 4,
-    "dodge": 0.012,
-    "attack_speed": 0.007
+	"armour": 4,
+	"dodge": 0.012,
+	"attack_speed": 0.007
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "wolf_pelt": 1,
-    "spider_silk": 1
+	"wolf_pelt": 1,
+	"spider_silk": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2363,22 +2363,22 @@
    "slot": "feet",
    "tier": 2,
    "stats": {
-    "armour": 5,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 5,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "wolf_pelt": 1,
-    "spider_silk": 1
+	"wolf_pelt": 1,
+	"spider_silk": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2395,21 +2395,21 @@
    "slot": "head",
    "tier": 2,
    "stats": {
-    "armour": 8,
-    "injury_resist": 0.02
+	"armour": 8,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "steel_ingot": 1,
-    "wolf_pelt": 1
+	"steel_ingot": 1,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2426,21 +2426,21 @@
    "slot": "body",
    "tier": 2,
    "stats": {
-    "armour": 17,
-    "injury_resist": 0.045
+	"armour": 17,
+	"injury_resist": 0.045
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 40,
    "kit": 6,
    "recipe": {
-    "iron": 4,
-    "copper": 2
+	"iron": 4,
+	"copper": 2
    },
    "blueprint": [
     "quartermaster"
@@ -2458,21 +2458,21 @@
    "slot": "hands",
    "tier": 2,
    "stats": {
-    "armour": 6,
-    "injury_resist": 0.015
+	"armour": 6,
+	"injury_resist": 0.015
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "steel_ingot": 1,
-    "wolf_pelt": 1
+	"steel_ingot": 1,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2489,21 +2489,21 @@
    "slot": "feet",
    "tier": 2,
    "stats": {
-    "armour": 8,
-    "injury_resist": 0.02
+	"armour": 8,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "steel_ingot": 1,
-    "wolf_pelt": 1
+	"steel_ingot": 1,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2520,22 +2520,22 @@
    "slot": "head",
    "tier": 2,
    "stats": {
-    "armour": 11,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 11,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "steel_ingot": 2,
-    "wolf_pelt": 1
+	"steel_ingot": 2,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2552,22 +2552,22 @@
    "slot": "body",
    "tier": 2,
    "stats": {
-    "armour": 25,
-    "block": 0.027,
-    "attack_speed": -0.036
+	"armour": 25,
+	"block": 0.027,
+	"attack_speed": -0.036
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 40,
    "kit": 6,
    "recipe": {
-    "steel_ingot": 4,
-    "wolf_pelt": 1
+	"steel_ingot": 4,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2584,22 +2584,22 @@
    "slot": "hands",
    "tier": 2,
    "stats": {
-    "armour": 8,
-    "block": 0.009,
-    "attack_speed": -0.012
+	"armour": 8,
+	"block": 0.009,
+	"attack_speed": -0.012
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "steel_ingot": 2,
-    "wolf_pelt": 1
+	"steel_ingot": 2,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2616,22 +2616,22 @@
    "slot": "feet",
    "tier": 2,
    "stats": {
-    "armour": 11,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 11,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 40,
    "kit": 2,
    "recipe": {
-    "steel_ingot": 2,
-    "wolf_pelt": 1
+	"steel_ingot": 2,
+	"wolf_pelt": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2648,20 +2648,20 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "logging": 2
+	"logging": 2
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "iron": 3,
-    "oak": 2
+	"iron": 3,
+	"oak": 2
    },
    "blueprint": [
     "quartermaster"
@@ -2679,21 +2679,21 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "mining": 2
+	"mining": 2
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "iron": 3,
-    "copper": 1,
-    "oak": 1
+	"iron": 3,
+	"copper": 1,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2711,20 +2711,20 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "foraging": 2
+	"foraging": 2
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "steel_ingot": 1,
-    "oak": 1
+	"steel_ingot": 1,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2741,20 +2741,20 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "fishing": 2
+	"fishing": 2
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "oak": 4,
-    "spider_silk": 1
+	"oak": 4,
+	"spider_silk": 1
    },
    "blueprint": [
     "quartermaster"
@@ -2771,20 +2771,20 @@
    "slot": "main_hand",
    "tier": 2,
    "stats": {
-    "farming": 2
+	"farming": 2
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 40,
    "kit": 8,
    "recipe": {
-    "steel_ingot": 1,
-    "oak": 2
+	"steel_ingot": 1,
+	"oak": 2
    },
    "blueprint": [
     "quartermaster"
@@ -2801,24 +2801,24 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 15,
-    "attack_speed": 1.45,
-    "crit_chance": 0.12,
-    "crit_damage": 1.8
+	"damage": 15,
+	"attack_speed": 1.45,
+	"crit_chance": 0.12,
+	"crit_damage": 1.8
    },
    "rolls": [
-    "crit_chance",
-    "crit_damage",
-    "attack_speed",
-    "bleed",
+	"crit_chance",
+	"crit_damage",
+	"attack_speed",
+	"bleed",
     "sturdy"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 1,
-    "yew": 1,
-    "elk_hide": 1
+	"silversteel_ingot": 1,
+	"yew": 1,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -2833,25 +2833,25 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 24,
-    "attack_speed": 1.0,
-    "crit_chance": 0.06,
-    "crit_damage": 1.6,
-    "parry": 0.05
+	"damage": 24,
+	"attack_speed": 1.0,
+	"crit_chance": 0.06,
+	"crit_damage": 1.6,
+	"parry": 0.05
    },
    "rolls": [
-    "damage",
-    "crit_chance",
-    "parry",
-    "attack_speed",
+	"damage",
+	"crit_chance",
+	"parry",
+	"attack_speed",
     "sturdy"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 2,
-    "yew": 1,
-    "elk_hide": 1
+	"silversteel_ingot": 2,
+	"yew": 1,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -2866,24 +2866,24 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 27,
-    "attack_speed": 0.88,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "armour_pen": 0.15
+	"damage": 27,
+	"attack_speed": 0.88,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"armour_pen": 0.15
    },
    "rolls": [
-    "damage",
-    "armour_pen",
-    "bleed",
-    "crit_damage",
+	"damage",
+	"armour_pen",
+	"bleed",
+	"crit_damage",
     "sturdy"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 2,
-    "yew": 2
+	"silversteel_ingot": 2,
+	"yew": 2
    },
    "blueprint": [
     "calder_keep"
@@ -2898,25 +2898,25 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 27,
-    "attack_speed": 0.86,
-    "crit_chance": 0.04,
-    "crit_damage": 1.5,
-    "armour_pen": 0.2,
-    "stun": 0.08
+	"damage": 27,
+	"attack_speed": 0.86,
+	"crit_chance": 0.04,
+	"crit_damage": 1.5,
+	"armour_pen": 0.2,
+	"stun": 0.08
    },
    "rolls": [
-    "damage",
-    "stun",
-    "armour_pen",
-    "health",
+	"damage",
+	"stun",
+	"armour_pen",
+	"health",
     "sturdy"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 3,
-    "yew": 1
+	"silversteel_ingot": 3,
+	"yew": 1
    },
    "blueprint": [
     "calder_keep"
@@ -2931,25 +2931,25 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 24,
-    "attack_speed": 0.98,
-    "crit_chance": 0.05,
-    "crit_damage": 1.6,
-    "first_strike": 0.15,
-    "hunt": 1
+	"damage": 24,
+	"attack_speed": 0.98,
+	"crit_chance": 0.05,
+	"crit_damage": 1.6,
+	"first_strike": 0.15,
+	"hunt": 1
    },
    "rolls": [
-    "first_strike",
-    "damage",
-    "parry",
-    "yield",
+	"first_strike",
+	"damage",
+	"parry",
+	"yield",
     "sturdy"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 1,
-    "yew": 3
+	"silversteel_ingot": 1,
+	"yew": 3
    },
    "blueprint": [
     "calder_keep"
@@ -2964,24 +2964,24 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 40,
-    "attack_speed": 0.7,
-    "crit_chance": 0.06,
-    "crit_damage": 1.7
+	"damage": 40,
+	"attack_speed": 0.7,
+	"crit_chance": 0.06,
+	"crit_damage": 1.7
    },
    "rolls": [
-    "damage",
-    "crit_damage",
-    "armour_pen",
-    "stun",
+	"damage",
+	"crit_damage",
+	"armour_pen",
+	"stun",
     "sturdy"
    ],
    "durability": 50,
    "kit": 18,
    "recipe": {
-    "silversteel_ingot": 4,
-    "yew": 1,
-    "elk_hide": 1
+	"silversteel_ingot": 4,
+	"yew": 1,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -2997,27 +2997,27 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 31,
-    "attack_speed": 0.9,
-    "crit_chance": 0.07,
-    "crit_damage": 1.6,
-    "first_strike": 0.3,
-    "hunt": 2
+	"damage": 31,
+	"attack_speed": 0.9,
+	"crit_chance": 0.07,
+	"crit_damage": 1.6,
+	"first_strike": 0.3,
+	"hunt": 2
    },
    "rolls": [
-    "first_strike",
-    "crit_chance",
-    "damage",
-    "yield",
+	"first_strike",
+	"crit_chance",
+	"damage",
+	"yield",
     "sturdy"
    ],
    "durability": 50,
    "kit": 18,
    "recipe": {
-    "yew": 3,
-    "spider_silk": 1,
-    "feathers": 1,
-    "resin": 1
+	"yew": 3,
+	"spider_silk": 1,
+	"feathers": 1,
+	"resin": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3033,28 +3033,28 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "damage": 48,
-    "attack_speed": 0.6,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "first_strike": 0.2,
-    "armour_pen": 0.25,
-    "hunt": 1
+	"damage": 48,
+	"attack_speed": 0.6,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"first_strike": 0.2,
+	"armour_pen": 0.25,
+	"hunt": 1
    },
    "rolls": [
-    "armour_pen",
-    "damage",
-    "crit_damage",
-    "yield",
+	"armour_pen",
+	"damage",
+	"crit_damage",
+	"yield",
     "sturdy"
    ],
    "durability": 50,
    "kit": 18,
    "recipe": {
-    "yew": 2,
-    "silversteel_ingot": 1,
-    "spider_silk": 1,
-    "resin": 1
+	"yew": 2,
+	"silversteel_ingot": 1,
+	"spider_silk": 1,
+	"resin": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3070,22 +3070,22 @@
    "slot": "off_hand",
    "tier": 3,
    "stats": {
-    "armour": 18,
-    "block": 0.0,
-    "parry": 0.08
+	"armour": 18,
+	"block": 0.0,
+	"parry": 0.08
    },
    "rolls": [
-    "parry",
-    "dodge",
-    "attack_speed",
-    "health",
+	"parry",
+	"dodge",
+	"attack_speed",
+	"health",
     "sturdy"
    ],
    "durability": 50,
    "kit": 6,
    "recipe": {
-    "silversteel_ingot": 1,
-    "elk_hide": 1
+	"silversteel_ingot": 1,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3100,23 +3100,23 @@
    "slot": "off_hand",
    "tier": 3,
    "stats": {
-    "armour": 29,
-    "block": 0.12
+	"armour": 29,
+	"block": 0.12
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 50,
    "kit": 6,
    "recipe": {
-    "yew": 2,
-    "silversteel_ingot": 1,
-    "elk_hide": 1,
-    "resin": 1
+	"yew": 2,
+	"silversteel_ingot": 1,
+	"elk_hide": 1,
+	"resin": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3131,23 +3131,23 @@
    "slot": "off_hand",
    "tier": 3,
    "stats": {
-    "armour": 43,
-    "block": 0.22,
-    "attack_speed": -0.06
+	"armour": 43,
+	"block": 0.22,
+	"attack_speed": -0.06
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 50,
    "kit": 6,
    "recipe": {
-    "yew": 3,
-    "silversteel_ingot": 2,
-    "resin": 1
+	"yew": 3,
+	"silversteel_ingot": 2,
+	"resin": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3162,22 +3162,22 @@
    "slot": "head",
    "tier": 3,
    "stats": {
-    "armour": 7,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 7,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "elk_hide": 1,
-    "spider_silk": 1
+	"elk_hide": 1,
+	"spider_silk": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3193,22 +3193,22 @@
    "slot": "body",
    "tier": 3,
    "stats": {
-    "armour": 16,
-    "dodge": 0.036,
-    "attack_speed": 0.023
+	"armour": 16,
+	"dodge": 0.036,
+	"attack_speed": 0.023
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 50,
    "kit": 9,
    "recipe": {
-    "elk_hide": 3,
-    "spider_silk": 1
+	"elk_hide": 3,
+	"spider_silk": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3224,22 +3224,22 @@
    "slot": "hands",
    "tier": 3,
    "stats": {
-    "armour": 5,
-    "dodge": 0.012,
-    "attack_speed": 0.007
+	"armour": 5,
+	"dodge": 0.012,
+	"attack_speed": 0.007
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "elk_hide": 1,
-    "spider_silk": 1
+	"elk_hide": 1,
+	"spider_silk": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3255,22 +3255,22 @@
    "slot": "feet",
    "tier": 3,
    "stats": {
-    "armour": 7,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 7,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "elk_hide": 1,
-    "spider_silk": 1
+	"elk_hide": 1,
+	"spider_silk": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3286,21 +3286,21 @@
    "slot": "head",
    "tier": 3,
    "stats": {
-    "armour": 12,
-    "injury_resist": 0.02
+	"armour": 12,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "silversteel_ingot": 1,
-    "elk_hide": 1
+	"silversteel_ingot": 1,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3316,21 +3316,21 @@
    "slot": "body",
    "tier": 3,
    "stats": {
-    "armour": 26,
-    "injury_resist": 0.045
+	"armour": 26,
+	"injury_resist": 0.045
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 50,
    "kit": 9,
    "recipe": {
-    "silversteel_ingot": 3,
-    "elk_hide": 1
+	"silversteel_ingot": 3,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3346,21 +3346,21 @@
    "slot": "hands",
    "tier": 3,
    "stats": {
-    "armour": 9,
-    "injury_resist": 0.015
+	"armour": 9,
+	"injury_resist": 0.015
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "silversteel_ingot": 1,
-    "elk_hide": 1
+	"silversteel_ingot": 1,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3376,21 +3376,21 @@
    "slot": "feet",
    "tier": 3,
    "stats": {
-    "armour": 12,
-    "injury_resist": 0.02
+	"armour": 12,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "silversteel_ingot": 1,
-    "elk_hide": 1
+	"silversteel_ingot": 1,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3406,22 +3406,22 @@
    "slot": "head",
    "tier": 3,
    "stats": {
-    "armour": 17,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 17,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "silversteel_ingot": 2,
-    "elk_hide": 1
+	"silversteel_ingot": 2,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3437,22 +3437,22 @@
    "slot": "body",
    "tier": 3,
    "stats": {
-    "armour": 37,
-    "block": 0.027,
-    "attack_speed": -0.036
+	"armour": 37,
+	"block": 0.027,
+	"attack_speed": -0.036
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 50,
    "kit": 9,
    "recipe": {
-    "silversteel_ingot": 4,
-    "elk_hide": 1
+	"silversteel_ingot": 4,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3468,22 +3468,22 @@
    "slot": "hands",
    "tier": 3,
    "stats": {
-    "armour": 12,
-    "block": 0.009,
-    "attack_speed": -0.012
+	"armour": 12,
+	"block": 0.009,
+	"attack_speed": -0.012
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "silversteel_ingot": 2,
-    "elk_hide": 1
+	"silversteel_ingot": 2,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3499,22 +3499,22 @@
    "slot": "feet",
    "tier": 3,
    "stats": {
-    "armour": 17,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 17,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 50,
    "kit": 3,
    "recipe": {
-    "silversteel_ingot": 2,
-    "elk_hide": 1
+	"silversteel_ingot": 2,
+	"elk_hide": 1
    },
    "blueprint": [
     "calder_keep"
@@ -3530,23 +3530,23 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "logging": 3
+	"logging": 3
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 1,
-    "yew": 2
+	"silversteel_ingot": 1,
+	"yew": 2
    },
    "blueprint": [
-    "thornwald",
+	"thornwald",
     "calder_keep"
    ],
    "found_only": false,
@@ -3560,23 +3560,23 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "mining": 3
+	"mining": 3
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 2,
-    "yew": 1
+	"silversteel_ingot": 2,
+	"yew": 1
    },
    "blueprint": [
-    "cinder_shaft",
+	"cinder_shaft",
     "calder_keep"
    ],
    "found_only": false,
@@ -3590,23 +3590,23 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "foraging": 3
+	"foraging": 3
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 1,
-    "yew": 1
+	"silversteel_ingot": 1,
+	"yew": 1
    },
    "blueprint": [
-    "sunreach",
+	"sunreach",
     "calder_keep"
    ],
    "found_only": false,
@@ -3620,23 +3620,23 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "fishing": 3
+	"fishing": 3
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "yew": 4,
-    "spider_silk": 1
+	"yew": 4,
+	"spider_silk": 1
    },
    "blueprint": [
-    "glasswater",
+	"glasswater",
     "calder_keep"
    ],
    "found_only": false,
@@ -3650,23 +3650,23 @@
    "slot": "main_hand",
    "tier": 3,
    "stats": {
-    "farming": 3
+	"farming": 3
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 50,
    "kit": 12,
    "recipe": {
-    "silversteel_ingot": 1,
-    "yew": 2
+	"silversteel_ingot": 1,
+	"yew": 2
    },
    "blueprint": [
-    "glasshouse",
+	"glasshouse",
     "calder_keep"
    ],
    "found_only": false,
@@ -3680,24 +3680,24 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 21,
-    "attack_speed": 1.45,
-    "crit_chance": 0.12,
-    "crit_damage": 1.8
+	"damage": 21,
+	"attack_speed": 1.45,
+	"crit_chance": 0.12,
+	"crit_damage": 1.8
    },
    "rolls": [
-    "crit_chance",
-    "crit_damage",
-    "attack_speed",
-    "bleed",
+	"crit_chance",
+	"crit_damage",
+	"attack_speed",
+	"bleed",
     "sturdy"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 1,
-    "ironwood": 1,
-    "direbear_pelt": 1
+	"gloomiron": 1,
+	"ironwood": 1,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -3712,25 +3712,25 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 34,
-    "attack_speed": 1.0,
-    "crit_chance": 0.06,
-    "crit_damage": 1.6,
-    "parry": 0.05
+	"damage": 34,
+	"attack_speed": 1.0,
+	"crit_chance": 0.06,
+	"crit_damage": 1.6,
+	"parry": 0.05
    },
    "rolls": [
-    "damage",
-    "crit_chance",
-    "parry",
-    "attack_speed",
+	"damage",
+	"crit_chance",
+	"parry",
+	"attack_speed",
     "sturdy"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 2,
-    "ironwood": 1,
-    "direbear_pelt": 1
+	"gloomiron": 2,
+	"ironwood": 1,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -3745,24 +3745,24 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 38,
-    "attack_speed": 0.88,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "armour_pen": 0.15
+	"damage": 38,
+	"attack_speed": 0.88,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"armour_pen": 0.15
    },
    "rolls": [
-    "damage",
-    "armour_pen",
-    "bleed",
-    "crit_damage",
+	"damage",
+	"armour_pen",
+	"bleed",
+	"crit_damage",
     "sturdy"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 2,
-    "ironwood": 2
+	"gloomiron": 2,
+	"ironwood": 2
    },
    "blueprint": [
     "sunken_abbey"
@@ -3777,25 +3777,25 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 38,
-    "attack_speed": 0.86,
-    "crit_chance": 0.04,
-    "crit_damage": 1.5,
-    "armour_pen": 0.2,
-    "stun": 0.08
+	"damage": 38,
+	"attack_speed": 0.86,
+	"crit_chance": 0.04,
+	"crit_damage": 1.5,
+	"armour_pen": 0.2,
+	"stun": 0.08
    },
    "rolls": [
-    "damage",
-    "stun",
-    "armour_pen",
-    "health",
+	"damage",
+	"stun",
+	"armour_pen",
+	"health",
     "sturdy"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 3,
-    "ironwood": 1
+	"gloomiron": 3,
+	"ironwood": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -3810,25 +3810,25 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 33,
-    "attack_speed": 0.98,
-    "crit_chance": 0.05,
-    "crit_damage": 1.6,
-    "first_strike": 0.15,
-    "hunt": 1
+	"damage": 33,
+	"attack_speed": 0.98,
+	"crit_chance": 0.05,
+	"crit_damage": 1.6,
+	"first_strike": 0.15,
+	"hunt": 1
    },
    "rolls": [
-    "first_strike",
-    "damage",
-    "parry",
-    "yield",
+	"first_strike",
+	"damage",
+	"parry",
+	"yield",
     "sturdy"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 1,
-    "ironwood": 3
+	"gloomiron": 1,
+	"ironwood": 3
    },
    "blueprint": [
     "sunken_abbey"
@@ -3843,24 +3843,24 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 56,
-    "attack_speed": 0.7,
-    "crit_chance": 0.06,
-    "crit_damage": 1.7
+	"damage": 56,
+	"attack_speed": 0.7,
+	"crit_chance": 0.06,
+	"crit_damage": 1.7
    },
    "rolls": [
-    "damage",
-    "crit_damage",
-    "armour_pen",
-    "stun",
+	"damage",
+	"crit_damage",
+	"armour_pen",
+	"stun",
     "sturdy"
    ],
    "durability": 60,
    "kit": 24,
    "recipe": {
-    "gloomiron": 4,
-    "ironwood": 1,
-    "direbear_pelt": 1
+	"gloomiron": 4,
+	"ironwood": 1,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -3876,26 +3876,26 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 44,
-    "attack_speed": 0.9,
-    "crit_chance": 0.07,
-    "crit_damage": 1.6,
-    "first_strike": 0.3,
-    "hunt": 2
+	"damage": 44,
+	"attack_speed": 0.9,
+	"crit_chance": 0.07,
+	"crit_damage": 1.6,
+	"first_strike": 0.3,
+	"hunt": 2
    },
    "rolls": [
-    "first_strike",
-    "crit_chance",
-    "damage",
-    "yield",
+	"first_strike",
+	"crit_chance",
+	"damage",
+	"yield",
     "sturdy"
    ],
    "durability": 60,
    "kit": 24,
    "recipe": {
-    "ironwood": 3,
-    "shadowsilk": 1,
-    "resin": 1
+	"ironwood": 3,
+	"shadowsilk": 1,
+	"resin": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -3911,28 +3911,28 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 68,
-    "attack_speed": 0.6,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "first_strike": 0.2,
-    "armour_pen": 0.25,
-    "hunt": 1
+	"damage": 68,
+	"attack_speed": 0.6,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"first_strike": 0.2,
+	"armour_pen": 0.25,
+	"hunt": 1
    },
    "rolls": [
-    "armour_pen",
-    "damage",
-    "crit_damage",
-    "yield",
+	"armour_pen",
+	"damage",
+	"crit_damage",
+	"yield",
     "sturdy"
    ],
    "durability": 60,
    "kit": 24,
    "recipe": {
-    "ironwood": 2,
-    "gloomiron": 1,
-    "shadowsilk": 1,
-    "resin": 1
+	"ironwood": 2,
+	"gloomiron": 1,
+	"shadowsilk": 1,
+	"resin": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -3948,22 +3948,22 @@
    "slot": "off_hand",
    "tier": 4,
    "stats": {
-    "armour": 26,
-    "block": 0.0,
-    "parry": 0.08
+	"armour": 26,
+	"block": 0.0,
+	"parry": 0.08
    },
    "rolls": [
-    "parry",
-    "dodge",
-    "attack_speed",
-    "health",
+	"parry",
+	"dodge",
+	"attack_speed",
+	"health",
     "sturdy"
    ],
    "durability": 60,
    "kit": 8,
    "recipe": {
-    "gloomiron": 1,
-    "direbear_pelt": 1
+	"gloomiron": 1,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -3978,23 +3978,23 @@
    "slot": "off_hand",
    "tier": 4,
    "stats": {
-    "armour": 41,
-    "block": 0.12
+	"armour": 41,
+	"block": 0.12
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 60,
    "kit": 8,
    "recipe": {
-    "ironwood": 2,
-    "gloomiron": 1,
-    "direbear_pelt": 1,
-    "resin": 1
+	"ironwood": 2,
+	"gloomiron": 1,
+	"direbear_pelt": 1,
+	"resin": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4009,23 +4009,23 @@
    "slot": "off_hand",
    "tier": 4,
    "stats": {
-    "armour": 61,
-    "block": 0.22,
-    "attack_speed": -0.06
+	"armour": 61,
+	"block": 0.22,
+	"attack_speed": -0.06
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 60,
    "kit": 8,
    "recipe": {
-    "ironwood": 3,
-    "gloomiron": 2,
-    "resin": 1
+	"ironwood": 3,
+	"gloomiron": 2,
+	"resin": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4040,22 +4040,22 @@
    "slot": "head",
    "tier": 4,
    "stats": {
-    "armour": 10,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 10,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "direbear_pelt": 1,
-    "shadowsilk": 1
+	"direbear_pelt": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4071,22 +4071,22 @@
    "slot": "body",
    "tier": 4,
    "stats": {
-    "armour": 23,
-    "dodge": 0.036,
-    "attack_speed": 0.023
+	"armour": 23,
+	"dodge": 0.036,
+	"attack_speed": 0.023
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 60,
    "kit": 12,
    "recipe": {
-    "direbear_pelt": 3,
-    "shadowsilk": 1
+	"direbear_pelt": 3,
+	"shadowsilk": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4102,22 +4102,22 @@
    "slot": "hands",
    "tier": 4,
    "stats": {
-    "armour": 8,
-    "dodge": 0.012,
-    "attack_speed": 0.007
+	"armour": 8,
+	"dodge": 0.012,
+	"attack_speed": 0.007
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "direbear_pelt": 1,
-    "shadowsilk": 1
+	"direbear_pelt": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4133,22 +4133,22 @@
    "slot": "feet",
    "tier": 4,
    "stats": {
-    "armour": 10,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 10,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "direbear_pelt": 1,
-    "shadowsilk": 1
+	"direbear_pelt": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4164,21 +4164,21 @@
    "slot": "head",
    "tier": 4,
    "stats": {
-    "armour": 16,
-    "injury_resist": 0.02
+	"armour": 16,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "gloomiron": 1,
-    "direbear_pelt": 1
+	"gloomiron": 1,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4194,21 +4194,21 @@
    "slot": "body",
    "tier": 4,
    "stats": {
-    "armour": 37,
-    "injury_resist": 0.045
+	"armour": 37,
+	"injury_resist": 0.045
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 60,
    "kit": 12,
    "recipe": {
-    "gloomiron": 3,
-    "direbear_pelt": 1
+	"gloomiron": 3,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4224,21 +4224,21 @@
    "slot": "hands",
    "tier": 4,
    "stats": {
-    "armour": 12,
-    "injury_resist": 0.015
+	"armour": 12,
+	"injury_resist": 0.015
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "gloomiron": 1,
-    "direbear_pelt": 1
+	"gloomiron": 1,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4254,21 +4254,21 @@
    "slot": "feet",
    "tier": 4,
    "stats": {
-    "armour": 16,
-    "injury_resist": 0.02
+	"armour": 16,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "gloomiron": 1,
-    "direbear_pelt": 1
+	"gloomiron": 1,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4284,22 +4284,22 @@
    "slot": "head",
    "tier": 4,
    "stats": {
-    "armour": 23,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 23,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "gloomiron": 2,
-    "direbear_pelt": 1
+	"gloomiron": 2,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4315,22 +4315,22 @@
    "slot": "body",
    "tier": 4,
    "stats": {
-    "armour": 53,
-    "block": 0.027,
-    "attack_speed": -0.036
+	"armour": 53,
+	"block": 0.027,
+	"attack_speed": -0.036
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 60,
    "kit": 12,
    "recipe": {
-    "gloomiron": 4,
-    "direbear_pelt": 1
+	"gloomiron": 4,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4346,22 +4346,22 @@
    "slot": "hands",
    "tier": 4,
    "stats": {
-    "armour": 18,
-    "block": 0.009,
-    "attack_speed": -0.012
+	"armour": 18,
+	"block": 0.009,
+	"attack_speed": -0.012
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "gloomiron": 2,
-    "direbear_pelt": 1
+	"gloomiron": 2,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4377,22 +4377,22 @@
    "slot": "feet",
    "tier": 4,
    "stats": {
-    "armour": 23,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 23,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 60,
    "kit": 4,
    "recipe": {
-    "gloomiron": 2,
-    "direbear_pelt": 1
+	"gloomiron": 2,
+	"direbear_pelt": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -4408,23 +4408,23 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "logging": 4
+	"logging": 4
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 1,
-    "ironwood": 2
+	"gloomiron": 1,
+	"ironwood": 2
    },
    "blueprint": [
-    "blackroot_weald",
+	"blackroot_weald",
     "sunken_abbey"
    ],
    "found_only": false,
@@ -4438,23 +4438,23 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "mining": 4
+	"mining": 4
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 2,
-    "ironwood": 1
+	"gloomiron": 2,
+	"ironwood": 1
    },
    "blueprint": [
-    "gloamhold",
+	"gloamhold",
     "sunken_abbey"
    ],
    "found_only": false,
@@ -4468,23 +4468,23 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "foraging": 4
+	"foraging": 4
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "gloomiron": 1,
-    "ironwood": 1
+	"gloomiron": 1,
+	"ironwood": 1
    },
    "blueprint": [
-    "frostvale",
+	"frostvale",
     "sunken_abbey"
    ],
    "found_only": false,
@@ -4498,23 +4498,23 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "fishing": 4
+	"fishing": 4
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 60,
    "kit": 16,
    "recipe": {
-    "ironwood": 4,
-    "shadowsilk": 1
+	"ironwood": 4,
+	"shadowsilk": 1
    },
    "blueprint": [
-    "greywater_coast",
+	"greywater_coast",
     "sunken_abbey"
    ],
    "found_only": false,
@@ -4528,24 +4528,24 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 30,
-    "attack_speed": 1.45,
-    "crit_chance": 0.12,
-    "crit_damage": 1.8
+	"damage": 30,
+	"attack_speed": 1.45,
+	"crit_chance": 0.12,
+	"crit_damage": 1.8
    },
    "rolls": [
-    "crit_chance",
-    "crit_damage",
-    "attack_speed",
-    "bleed",
+	"crit_chance",
+	"crit_damage",
+	"attack_speed",
+	"bleed",
     "sturdy"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "wyrmbone": 1,
-    "ghostwood": 1,
-    "wyrmscale": 1
+	"wyrmbone": 1,
+	"ghostwood": 1,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4560,25 +4560,25 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 48,
-    "attack_speed": 1.0,
-    "crit_chance": 0.06,
-    "crit_damage": 1.6,
-    "parry": 0.05
+	"damage": 48,
+	"attack_speed": 1.0,
+	"crit_chance": 0.06,
+	"crit_damage": 1.6,
+	"parry": 0.05
    },
    "rolls": [
-    "damage",
-    "crit_chance",
-    "parry",
-    "attack_speed",
+	"damage",
+	"crit_chance",
+	"parry",
+	"attack_speed",
     "sturdy"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "wyrmbone": 2,
-    "ghostwood": 1,
-    "wyrmscale": 1
+	"wyrmbone": 2,
+	"ghostwood": 1,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4593,24 +4593,24 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 54,
-    "attack_speed": 0.88,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "armour_pen": 0.15
+	"damage": 54,
+	"attack_speed": 0.88,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"armour_pen": 0.15
    },
    "rolls": [
-    "damage",
-    "armour_pen",
-    "bleed",
-    "crit_damage",
+	"damage",
+	"armour_pen",
+	"bleed",
+	"crit_damage",
     "sturdy"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "wyrmbone": 2,
-    "ghostwood": 2
+	"wyrmbone": 2,
+	"ghostwood": 2
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4625,25 +4625,25 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 54,
-    "attack_speed": 0.86,
-    "crit_chance": 0.04,
-    "crit_damage": 1.5,
-    "armour_pen": 0.2,
-    "stun": 0.08
+	"damage": 54,
+	"attack_speed": 0.86,
+	"crit_chance": 0.04,
+	"crit_damage": 1.5,
+	"armour_pen": 0.2,
+	"stun": 0.08
    },
    "rolls": [
-    "damage",
-    "stun",
-    "armour_pen",
-    "health",
+	"damage",
+	"stun",
+	"armour_pen",
+	"health",
     "sturdy"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "wyrmbone": 3,
-    "ghostwood": 1
+	"wyrmbone": 3,
+	"ghostwood": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4658,25 +4658,25 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 47,
-    "attack_speed": 0.98,
-    "crit_chance": 0.05,
-    "crit_damage": 1.6,
-    "first_strike": 0.15,
-    "hunt": 1
+	"damage": 47,
+	"attack_speed": 0.98,
+	"crit_chance": 0.05,
+	"crit_damage": 1.6,
+	"first_strike": 0.15,
+	"hunt": 1
    },
    "rolls": [
-    "first_strike",
-    "damage",
-    "parry",
-    "yield",
+	"first_strike",
+	"damage",
+	"parry",
+	"yield",
     "sturdy"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "wyrmbone": 1,
-    "ghostwood": 3
+	"wyrmbone": 1,
+	"ghostwood": 3
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4691,24 +4691,24 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 79,
-    "attack_speed": 0.7,
-    "crit_chance": 0.06,
-    "crit_damage": 1.7
+	"damage": 79,
+	"attack_speed": 0.7,
+	"crit_chance": 0.06,
+	"crit_damage": 1.7
    },
    "rolls": [
-    "damage",
-    "crit_damage",
-    "armour_pen",
-    "stun",
+	"damage",
+	"crit_damage",
+	"armour_pen",
+	"stun",
     "sturdy"
    ],
    "durability": 80,
    "kit": 30,
    "recipe": {
-    "wyrmbone": 4,
-    "ghostwood": 1,
-    "wyrmscale": 1
+	"wyrmbone": 4,
+	"ghostwood": 1,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4724,26 +4724,26 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 62,
-    "attack_speed": 0.9,
-    "crit_chance": 0.07,
-    "crit_damage": 1.6,
-    "first_strike": 0.3,
-    "hunt": 2
+	"damage": 62,
+	"attack_speed": 0.9,
+	"crit_chance": 0.07,
+	"crit_damage": 1.6,
+	"first_strike": 0.3,
+	"hunt": 2
    },
    "rolls": [
-    "first_strike",
-    "crit_chance",
-    "damage",
-    "yield",
+	"first_strike",
+	"crit_chance",
+	"damage",
+	"yield",
     "sturdy"
    ],
    "durability": 80,
    "kit": 30,
    "recipe": {
-    "ghostwood": 3,
-    "shadowsilk": 1,
-    "resin": 1
+	"ghostwood": 3,
+	"shadowsilk": 1,
+	"resin": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4759,28 +4759,28 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "damage": 96,
-    "attack_speed": 0.6,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "first_strike": 0.2,
-    "armour_pen": 0.25,
-    "hunt": 1
+	"damage": 96,
+	"attack_speed": 0.6,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"first_strike": 0.2,
+	"armour_pen": 0.25,
+	"hunt": 1
    },
    "rolls": [
-    "armour_pen",
-    "damage",
-    "crit_damage",
-    "yield",
+	"armour_pen",
+	"damage",
+	"crit_damage",
+	"yield",
     "sturdy"
    ],
    "durability": 80,
    "kit": 30,
    "recipe": {
-    "ghostwood": 2,
-    "wyrmbone": 1,
-    "shadowsilk": 1,
-    "resin": 1
+	"ghostwood": 2,
+	"wyrmbone": 1,
+	"shadowsilk": 1,
+	"resin": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4796,22 +4796,22 @@
    "slot": "off_hand",
    "tier": 5,
    "stats": {
-    "armour": 36,
-    "block": 0.0,
-    "parry": 0.08
+	"armour": 36,
+	"block": 0.0,
+	"parry": 0.08
    },
    "rolls": [
-    "parry",
-    "dodge",
-    "attack_speed",
-    "health",
+	"parry",
+	"dodge",
+	"attack_speed",
+	"health",
     "sturdy"
    ],
    "durability": 80,
    "kit": 10,
    "recipe": {
-    "wyrmbone": 1,
-    "wyrmscale": 1
+	"wyrmbone": 1,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4826,23 +4826,23 @@
    "slot": "off_hand",
    "tier": 5,
    "stats": {
-    "armour": 58,
-    "block": 0.12
+	"armour": 58,
+	"block": 0.12
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 80,
    "kit": 10,
    "recipe": {
-    "ghostwood": 2,
-    "wyrmbone": 1,
-    "wyrmscale": 1,
-    "resin": 1
+	"ghostwood": 2,
+	"wyrmbone": 1,
+	"wyrmscale": 1,
+	"resin": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4857,23 +4857,23 @@
    "slot": "off_hand",
    "tier": 5,
    "stats": {
-    "armour": 86,
-    "block": 0.22,
-    "attack_speed": -0.06
+	"armour": 86,
+	"block": 0.22,
+	"attack_speed": -0.06
    },
    "rolls": [
-    "block",
-    "armour",
-    "health",
-    "injury_resist",
+	"block",
+	"armour",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 80,
    "kit": 10,
    "recipe": {
-    "ghostwood": 3,
-    "wyrmbone": 2,
-    "resin": 1
+	"ghostwood": 3,
+	"wyrmbone": 2,
+	"resin": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4888,22 +4888,22 @@
    "slot": "head",
    "tier": 5,
    "stats": {
-    "armour": 14,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 14,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmscale": 1,
-    "shadowsilk": 1
+	"wyrmscale": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4919,22 +4919,22 @@
    "slot": "body",
    "tier": 5,
    "stats": {
-    "armour": 32,
-    "dodge": 0.036,
-    "attack_speed": 0.023
+	"armour": 32,
+	"dodge": 0.036,
+	"attack_speed": 0.023
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 80,
    "kit": 15,
    "recipe": {
-    "wyrmscale": 3,
-    "shadowsilk": 1
+	"wyrmscale": 3,
+	"shadowsilk": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4950,22 +4950,22 @@
    "slot": "hands",
    "tier": 5,
    "stats": {
-    "armour": 11,
-    "dodge": 0.012,
-    "attack_speed": 0.007
+	"armour": 11,
+	"dodge": 0.012,
+	"attack_speed": 0.007
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmscale": 1,
-    "shadowsilk": 1
+	"wyrmscale": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -4981,22 +4981,22 @@
    "slot": "feet",
    "tier": 5,
    "stats": {
-    "armour": 14,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 14,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "rolls": [
-    "dodge",
-    "attack_speed",
-    "crit_chance",
-    "health",
+	"dodge",
+	"attack_speed",
+	"crit_chance",
+	"health",
     "speed"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmscale": 1,
-    "shadowsilk": 1
+	"wyrmscale": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5012,21 +5012,21 @@
    "slot": "head",
    "tier": 5,
    "stats": {
-    "armour": 23,
-    "injury_resist": 0.02
+	"armour": 23,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmbone": 1,
-    "wyrmscale": 1
+	"wyrmbone": 1,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5042,21 +5042,21 @@
    "slot": "body",
    "tier": 5,
    "stats": {
-    "armour": 52,
-    "injury_resist": 0.045
+	"armour": 52,
+	"injury_resist": 0.045
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 80,
    "kit": 15,
    "recipe": {
-    "wyrmbone": 3,
-    "wyrmscale": 1
+	"wyrmbone": 3,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5072,21 +5072,21 @@
    "slot": "hands",
    "tier": 5,
    "stats": {
-    "armour": 17,
-    "injury_resist": 0.015
+	"armour": 17,
+	"injury_resist": 0.015
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmbone": 1,
-    "wyrmscale": 1
+	"wyrmbone": 1,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5102,21 +5102,21 @@
    "slot": "feet",
    "tier": 5,
    "stats": {
-    "armour": 23,
-    "injury_resist": 0.02
+	"armour": 23,
+	"injury_resist": 0.02
    },
    "rolls": [
-    "armour",
-    "health",
-    "injury_resist",
-    "dodge",
+	"armour",
+	"health",
+	"injury_resist",
+	"dodge",
     "carry"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmbone": 1,
-    "wyrmscale": 1
+	"wyrmbone": 1,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5132,22 +5132,22 @@
    "slot": "head",
    "tier": 5,
    "stats": {
-    "armour": 33,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 33,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmbone": 2,
-    "wyrmscale": 1
+	"wyrmbone": 2,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5163,22 +5163,22 @@
    "slot": "body",
    "tier": 5,
    "stats": {
-    "armour": 75,
-    "block": 0.027,
-    "attack_speed": -0.036
+	"armour": 75,
+	"block": 0.027,
+	"attack_speed": -0.036
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 80,
    "kit": 15,
    "recipe": {
-    "wyrmbone": 4,
-    "wyrmscale": 1
+	"wyrmbone": 4,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5194,22 +5194,22 @@
    "slot": "hands",
    "tier": 5,
    "stats": {
-    "armour": 25,
-    "block": 0.009,
-    "attack_speed": -0.012
+	"armour": 25,
+	"block": 0.009,
+	"attack_speed": -0.012
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmbone": 2,
-    "wyrmscale": 1
+	"wyrmbone": 2,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5225,22 +5225,22 @@
    "slot": "feet",
    "tier": 5,
    "stats": {
-    "armour": 33,
-    "block": 0.012,
-    "attack_speed": -0.016
+	"armour": 33,
+	"block": 0.012,
+	"attack_speed": -0.016
    },
    "rolls": [
-    "armour",
-    "block",
-    "health",
-    "injury_resist",
+	"armour",
+	"block",
+	"health",
+	"injury_resist",
     "sturdy"
    ],
    "durability": 80,
    "kit": 5,
    "recipe": {
-    "wyrmbone": 2,
-    "wyrmscale": 1
+	"wyrmbone": 2,
+	"wyrmscale": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5256,23 +5256,23 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "logging": 6
+	"logging": 6
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "wyrmbone": 1,
-    "ghostwood": 2
+	"wyrmbone": 1,
+	"ghostwood": 2
    },
    "blueprint": [
-    "palewood",
+	"palewood",
     "wyrms_hollow"
    ],
    "found_only": false,
@@ -5286,20 +5286,20 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "mining": 6
+	"mining": 6
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "wyrmbone": 2,
-    "ghostwood": 1
+	"wyrmbone": 2,
+	"ghostwood": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5315,23 +5315,23 @@
    "slot": "main_hand",
    "tier": 5,
    "stats": {
-    "fishing": 6
+	"fishing": 6
    },
    "rolls": [
-    "yield",
-    "rare_find",
-    "speed",
-    "sturdy",
+	"yield",
+	"rare_find",
+	"speed",
+	"sturdy",
     "xp"
    ],
    "durability": 80,
    "kit": 20,
    "recipe": {
-    "ghostwood": 4,
-    "shadowsilk": 1
+	"ghostwood": 4,
+	"shadowsilk": 1
    },
    "blueprint": [
-    "drowned_deep",
+	"drowned_deep",
     "wyrms_hollow"
    ],
    "found_only": false,
@@ -5345,18 +5345,18 @@
    "slot": "off_hand",
    "tier": 1,
    "stats": {
-    "rare_find": 3
+	"rare_find": 3
    },
    "rolls": [
-    "rare_find",
-    "xp",
+	"rare_find",
+	"xp",
     "sturdy"
    ],
    "durability": 30,
    "kit": 0,
    "recipe": {
-    "copper": 2,
-    "fish_oil": 1
+	"copper": 2,
+	"fish_oil": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5373,19 +5373,19 @@
    "slot": "off_hand",
    "tier": 3,
    "stats": {
-    "rare_find": 6
+	"rare_find": 6
    },
    "rolls": [
-    "rare_find",
-    "xp",
+	"rare_find",
+	"xp",
     "sturdy"
    ],
    "durability": 50,
    "kit": 0,
    "recipe": {
-    "silver": 1,
-    "crystal": 1,
-    "fish_oil": 1
+	"silver": 1,
+	"crystal": 1,
+	"fish_oil": 1
    },
    "blueprint": [
     "cinder_shaft"
@@ -5401,18 +5401,18 @@
    "slot": "off_hand",
    "tier": 5,
    "stats": {
-    "rare_find": 10
+	"rare_find": 10
    },
    "rolls": [
-    "rare_find",
-    "xp",
+	"rare_find",
+	"xp",
     "sturdy"
    ],
    "durability": 80,
    "kit": 0,
    "recipe": {
-    "silversteel_ingot": 1,
-    "voidpearl": 1
+	"silversteel_ingot": 1,
+	"voidpearl": 1
    },
    "blueprint": [
     "wyrms_hollow"
@@ -5428,22 +5428,22 @@
    "slot": "trinket",
    "tier": 1,
    "stats": {
-    "xp": 5
+	"xp": 5
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "amber": 1,
-    "copper": 1
+	"amber": 1,
+	"copper": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5459,22 +5459,22 @@
    "slot": "trinket",
    "tier": 1,
    "stats": {
-    "injury_resist": 5
+	"injury_resist": 5
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "bone": 3,
-    "linen": 1
+	"bone": 3,
+	"linen": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5490,22 +5490,22 @@
    "slot": "trinket",
    "tier": 2,
    "stats": {
-    "crit_chance": 3
+	"crit_chance": 3
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "fang": 3,
-    "linen": 1
+	"fang": 3,
+	"linen": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5521,22 +5521,22 @@
    "slot": "trinket",
    "tier": 2,
    "stats": {
-    "crit_damage": 15
+	"crit_damage": 15
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "garnet": 1,
-    "silver": 1
+	"garnet": 1,
+	"silver": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5552,22 +5552,22 @@
    "slot": "trinket",
    "tier": 3,
    "stats": {
-    "rare_find": 5
+	"rare_find": 5
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "pearl": 1,
-    "silver": 1
+	"pearl": 1,
+	"silver": 1
    },
    "blueprint": [
     "glasswater"
@@ -5582,22 +5582,22 @@
    "slot": "trinket",
    "tier": 3,
    "stats": {
-    "yield": 12
+	"yield": 12
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "antler": 2,
-    "elk_hide": 1
+	"antler": 2,
+	"elk_hide": 1
    },
    "blueprint": [
     "elkmoor"
@@ -5612,22 +5612,22 @@
    "slot": "trinket",
    "tier": 3,
    "stats": {
-    "rare_find": 8
+	"rare_find": 8
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "crystal": 1,
-    "silver": 2
+	"crystal": 1,
+	"silver": 2
    },
    "blueprint": [
     "calder_keep"
@@ -5642,22 +5642,22 @@
    "slot": "trinket",
    "tier": 4,
    "stats": {
-    "damage": 8
+	"damage": 8
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "emberstone": 1,
-    "silversteel_ingot": 1
+	"emberstone": 1,
+	"silversteel_ingot": 1
    },
    "blueprint": [
     "gloamhold"
@@ -5672,22 +5672,22 @@
    "slot": "trinket",
    "tier": 4,
    "stats": {
-    "xp": 15
+	"xp": 15
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "relic": 1,
-    "ironwood": 1
+	"relic": 1,
+	"ironwood": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -5702,23 +5702,23 @@
    "slot": "trinket",
    "tier": 5,
    "stats": {
-    "rare_find": 15
+	"rare_find": 15
    },
    "rolls": [
-    "xp",
-    "rare_find",
-    "crit_chance",
-    "crit_damage",
-    "health",
-    "injury_resist",
+	"xp",
+	"rare_find",
+	"crit_chance",
+	"crit_damage",
+	"health",
+	"injury_resist",
     "yield"
    ],
    "durability": null,
    "kit": 0,
    "recipe": {
-    "voidpearl": 1,
-    "silversteel_ingot": 1,
-    "shadowsilk": 1
+	"voidpearl": 1,
+	"silversteel_ingot": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "drowned_deep"
@@ -5733,18 +5733,18 @@
    "slot": "back",
    "tier": 1,
    "stats": {
-    "carry": 10
+	"carry": 10
    },
    "rolls": [
-    "carry",
-    "speed",
+	"carry",
+	"speed",
     "sturdy"
    ],
    "durability": 30,
    "kit": 0,
    "recipe": {
-    "linen": 2,
-    "rabbit_hide": 1
+	"linen": 2,
+	"rabbit_hide": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5761,19 +5761,19 @@
    "slot": "back",
    "tier": 2,
    "stats": {
-    "carry": 15
+	"carry": 15
    },
    "rolls": [
-    "carry",
-    "speed",
+	"carry",
+	"speed",
     "sturdy"
    ],
    "durability": 40,
    "kit": 0,
    "recipe": {
-    "wolf_pelt": 2,
-    "linen": 1,
-    "copper": 1
+	"wolf_pelt": 2,
+	"linen": 1,
+	"copper": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5790,18 +5790,18 @@
    "slot": "back",
    "tier": 3,
    "stats": {
-    "carry": 20
+	"carry": 20
    },
    "rolls": [
-    "carry",
-    "speed",
+	"carry",
+	"speed",
     "sturdy"
    ],
    "durability": 50,
    "kit": 0,
    "recipe": {
-    "yew": 2,
-    "elk_hide": 2
+	"yew": 2,
+	"elk_hide": 2
    },
    "blueprint": [
     "thornwald"
@@ -5817,19 +5817,19 @@
    "slot": "back",
    "tier": 4,
    "stats": {
-    "carry": 25
+	"carry": 25
    },
    "rolls": [
-    "carry",
-    "speed",
+	"carry",
+	"speed",
     "sturdy"
    ],
    "durability": 60,
    "kit": 0,
    "recipe": {
-    "ironwood": 2,
-    "direbear_pelt": 1,
-    "shadowsilk": 1
+	"ironwood": 2,
+	"direbear_pelt": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "blackroot_weald"
@@ -5845,19 +5845,19 @@
    "slot": "back",
    "tier": 5,
    "stats": {
-    "carry": 30
+	"carry": 30
    },
    "rolls": [
-    "carry",
-    "speed",
+	"carry",
+	"speed",
     "sturdy"
    ],
    "durability": 80,
    "kit": 0,
    "recipe": {
-    "ghostwood": 2,
-    "wyrmscale": 1,
-    "shadowsilk": 1
+	"ghostwood": 2,
+	"wyrmscale": 1,
+	"shadowsilk": 1
    },
    "blueprint": [
     "palewood"
@@ -5873,11 +5873,11 @@
    "slot": "food",
    "tier": 1,
    "buffs": {
-    "yield": 5
+	"yield": 5
    },
    "recipe": {
-    "perch": 2,
-    "timber": 1
+	"perch": 2,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5893,12 +5893,12 @@
    "slot": "food",
    "tier": 1,
    "buffs": {
-    "injury": -10
+	"injury": -10
    },
    "recipe": {
-    "game_meat": 1,
-    "cabbage": 1,
-    "timber": 1
+	"game_meat": 1,
+	"cabbage": 1,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5914,11 +5914,11 @@
    "slot": "food",
    "tier": 1,
    "buffs": {
-    "xp": 8
+	"xp": 8
    },
    "recipe": {
-    "flour": 1,
-    "timber": 1
+	"flour": 1,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5934,11 +5934,11 @@
    "slot": "food",
    "tier": 1,
    "buffs": {
-    "duration": -5
+	"duration": -5
    },
    "recipe": {
-    "berries": 2,
-    "flour": 1
+	"berries": 2,
+	"flour": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5954,11 +5954,11 @@
    "slot": "food",
    "tier": 1,
    "buffs": {
-    "yield_hunting": 12
+	"yield_hunting": 12
    },
    "recipe": {
-    "game_meat": 2,
-    "timber": 1
+	"game_meat": 2,
+	"timber": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5974,11 +5974,11 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "yield_fishing": 12
+	"yield_fishing": 12
    },
    "recipe": {
-    "trout": 2,
-    "oak": 1
+	"trout": 2,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -5994,12 +5994,12 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "damage": 8
+	"damage": 8
    },
    "recipe": {
-    "boar_meat": 1,
-    "potato": 1,
-    "oak": 1
+	"boar_meat": 1,
+	"potato": 1,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6015,12 +6015,12 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "rare_find": 10
+	"rare_find": 10
    },
    "recipe": {
-    "eel": 1,
-    "flour": 1,
-    "oak": 1
+	"eel": 1,
+	"flour": 1,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6036,11 +6036,11 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "attack_speed": 6
+	"attack_speed": 6
    },
    "recipe": {
-    "honey": 1,
-    "flour": 1
+	"honey": 1,
+	"flour": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6056,12 +6056,12 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "xp": 15,
-    "injury": 5
+	"xp": 15,
+	"injury": 5
    },
    "recipe": {
-    "barley": 2,
-    "honey": 1
+	"barley": 2,
+	"honey": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6077,12 +6077,12 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "yield_mining": 12
+	"yield_mining": 12
    },
    "recipe": {
-    "boar_meat": 1,
-    "potato": 1,
-    "flour": 1
+	"boar_meat": 1,
+	"potato": 1,
+	"flour": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6098,12 +6098,12 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "yield_logging": 12
+	"yield_logging": 12
    },
    "recipe": {
-    "barley": 1,
-    "honey": 1,
-    "berries": 1
+	"barley": 1,
+	"honey": 1,
+	"berries": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6119,12 +6119,12 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "yield_foraging": 12
+	"yield_foraging": 12
    },
    "recipe": {
-    "mushrooms": 2,
-    "cabbage": 1,
-    "oak": 1
+	"mushrooms": 2,
+	"cabbage": 1,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6140,12 +6140,12 @@
    "slot": "food",
    "tier": 2,
    "buffs": {
-    "yield_farming": 12
+	"yield_farming": 12
    },
    "recipe": {
-    "flour": 2,
-    "honey": 1,
-    "oak": 1
+	"flour": 2,
+	"honey": 1,
+	"oak": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6161,12 +6161,12 @@
    "slot": "food",
    "tier": 3,
    "buffs": {
-    "damage": 12
+	"damage": 12
    },
    "recipe": {
-    "venison": 1,
-    "emberpepper": 1,
-    "oak": 1
+	"venison": 1,
+	"emberpepper": 1,
+	"oak": 1
    },
    "blueprint": [
     "elkmoor"
@@ -6181,12 +6181,12 @@
    "slot": "food",
    "tier": 3,
    "buffs": {
-    "injury": -20
+	"injury": -20
    },
    "recipe": {
-    "pike": 1,
-    "potato": 1,
-    "cabbage": 1
+	"pike": 1,
+	"potato": 1,
+	"cabbage": 1
    },
    "blueprint": [
     "glasswater"
@@ -6201,11 +6201,11 @@
    "slot": "food",
    "tier": 3,
    "buffs": {
-    "xp": 20
+	"xp": 20
    },
    "recipe": {
-    "sunpetal": 2,
-    "honey": 1
+	"sunpetal": 2,
+	"honey": 1
    },
    "blueprint": [
     "sunreach"
@@ -6220,12 +6220,12 @@
    "slot": "food",
    "tier": 3,
    "buffs": {
-    "crit_chance": 5
+	"crit_chance": 5
    },
    "recipe": {
-    "emberpepper": 2,
-    "boar_meat": 1,
-    "oak": 1
+	"emberpepper": 2,
+	"boar_meat": 1,
+	"oak": 1
    },
    "blueprint": [
     "glasshouse"
@@ -6240,12 +6240,12 @@
    "slot": "food",
    "tier": 4,
    "buffs": {
-    "yield": 12
+	"yield": 12
    },
    "recipe": {
-    "crab": 2,
-    "potato": 1,
-    "yew": 1
+	"crab": 2,
+	"potato": 1,
+	"yew": 1
    },
    "blueprint": [
     "greywater_coast"
@@ -6260,12 +6260,12 @@
    "slot": "food",
    "tier": 4,
    "buffs": {
-    "duration": -10
+	"duration": -10
    },
    "recipe": {
-    "cod": 1,
-    "potato": 1,
-    "flour": 1
+	"cod": 1,
+	"potato": 1,
+	"flour": 1
    },
    "blueprint": [
     "greywater_coast"
@@ -6280,12 +6280,12 @@
    "slot": "food",
    "tier": 4,
    "buffs": {
-    "health": 20
+	"health": 20
    },
    "recipe": {
-    "bear_meat": 1,
-    "emberpepper": 1,
-    "yew": 1
+	"bear_meat": 1,
+	"emberpepper": 1,
+	"yew": 1
    },
    "blueprint": [
     "bleakridge"
@@ -6300,12 +6300,12 @@
    "slot": "food",
    "tier": 4,
    "buffs": {
-    "crit_damage": 20
+	"crit_damage": 20
    },
    "recipe": {
-    "frostbloom": 1,
-    "honey": 1,
-    "berries": 1
+	"frostbloom": 1,
+	"honey": 1,
+	"berries": 1
    },
    "blueprint": [
     "frostvale"
@@ -6320,14 +6320,14 @@
    "slot": "food",
    "tier": 5,
    "buffs": {
-    "rare_find": 20,
-    "find_fallen": 15
+	"rare_find": 20,
+	"find_fallen": 15
    },
    "recipe": {
-    "abyssal_eel": 1,
-    "emberpepper": 1,
-    "flour": 1,
-    "ironwood": 1
+	"abyssal_eel": 1,
+	"emberpepper": 1,
+	"flour": 1,
+	"ironwood": 1
    },
    "blueprint": [
     "drowned_deep"
@@ -6342,11 +6342,11 @@
    "slot": "potion",
    "tier": 1,
    "buffs": {
-    "heal": 40
+	"heal": 40
    },
    "recipe": {
-    "herbs": 3,
-    "copper": 1
+	"herbs": 3,
+	"copper": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6362,12 +6362,12 @@
    "slot": "potion",
    "tier": 2,
    "buffs": {
-    "duration": -10
+	"duration": -10
    },
    "recipe": {
-    "berries": 2,
-    "honey": 1,
-    "mushrooms": 1
+	"berries": 2,
+	"honey": 1,
+	"mushrooms": 1
    },
    "blueprint": [
     "quartermaster"
@@ -6383,12 +6383,12 @@
    "slot": "potion",
    "tier": 2,
    "buffs": {
-    "armour": 10
+	"armour": 10
    },
    "recipe": {
-    "bloodcap": 1,
-    "mushrooms": 1,
-    "bone": 2
+	"bloodcap": 1,
+	"mushrooms": 1,
+	"bone": 2
    },
    "blueprint": [
     "quartermaster"
@@ -6404,12 +6404,12 @@
    "slot": "potion",
    "tier": 3,
    "buffs": {
-    "heal": 100
+	"heal": 100
    },
    "recipe": {
-    "bloodcap": 2,
-    "herbs": 2,
-    "silver": 1
+	"bloodcap": 2,
+	"herbs": 2,
+	"silver": 1
    },
    "blueprint": [
     "calder_keep"
@@ -6424,11 +6424,11 @@
    "slot": "potion",
    "tier": 3,
    "buffs": {
-    "poison": 12
+	"poison": 12
    },
    "recipe": {
-    "nightshade": 2,
-    "fish_oil": 1
+	"nightshade": 2,
+	"fish_oil": 1
    },
    "blueprint": [
     "sunreach"
@@ -6443,12 +6443,12 @@
    "slot": "potion",
    "tier": 4,
    "buffs": {
-    "rare_find": 15
+	"rare_find": 15
    },
    "recipe": {
-    "frostbloom": 1,
-    "pearl": 1,
-    "sunpetal": 1
+	"frostbloom": 1,
+	"pearl": 1,
+	"sunpetal": 1
    },
    "blueprint": [
     "frostvale"
@@ -6463,12 +6463,12 @@
    "slot": "potion",
    "tier": 4,
    "buffs": {
-    "crit_damage": 25
+	"crit_damage": 25
    },
    "recipe": {
-    "emberpepper": 2,
-    "bloodcap": 1,
-    "emberstone": 1
+	"emberpepper": 2,
+	"bloodcap": 1,
+	"emberstone": 1
    },
    "blueprint": [
     "sunken_abbey"
@@ -6483,11 +6483,11 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "mining": 5
+	"mining": 5
    },
    "fixed_rolls": {
-    "yield": 12,
-    "rare_find": 5
+	"yield": 12,
+	"rare_find": 5
    },
    "durability": 100,
    "kit": 18,
@@ -6505,11 +6505,11 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "logging": 5
+	"logging": 5
    },
    "fixed_rolls": {
-    "yield": 12,
-    "speed": 6
+	"yield": 12,
+	"speed": 6
    },
    "durability": 100,
    "kit": 18,
@@ -6527,15 +6527,15 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 41,
-    "attack_speed": 1.0,
-    "crit_chance": 0.06,
-    "crit_damage": 1.6,
-    "parry": 0.05
+	"damage": 41,
+	"attack_speed": 1.0,
+	"crit_chance": 0.06,
+	"crit_damage": 1.6,
+	"parry": 0.05
    },
    "fixed_rolls": {
-    "damage": 10,
-    "parry": 6
+	"damage": 10,
+	"parry": 6
    },
    "durability": 100,
    "kit": 18,
@@ -6552,13 +6552,13 @@
    "slot": "body",
    "tier": 4,
    "stats": {
-    "armour": 64,
-    "block": 0.027,
-    "attack_speed": -0.036
+	"armour": 64,
+	"block": 0.027,
+	"attack_speed": -0.036
    },
    "fixed_rolls": {
-    "armour": 8,
-    "health": 15
+	"armour": 8,
+	"health": 15
    },
    "durability": 100,
    "kit": 14,
@@ -6576,14 +6576,14 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 25,
-    "attack_speed": 1.45,
-    "crit_chance": 0.12,
-    "crit_damage": 1.8
+	"damage": 25,
+	"attack_speed": 1.45,
+	"crit_chance": 0.12,
+	"crit_damage": 1.8
    },
    "fixed_rolls": {
-    "crit_chance": 6,
-    "bleed": 8
+	"crit_chance": 6,
+	"bleed": 8
    },
    "durability": 100,
    "kit": 18,
@@ -6599,16 +6599,16 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 46,
-    "attack_speed": 0.86,
-    "crit_chance": 0.04,
-    "crit_damage": 1.5,
-    "armour_pen": 0.2,
-    "stun": 0.08
+	"damage": 46,
+	"attack_speed": 0.86,
+	"crit_chance": 0.04,
+	"crit_damage": 1.5,
+	"armour_pen": 0.2,
+	"stun": 0.08
    },
    "fixed_rolls": {
-    "stun": 7,
-    "health": 15
+	"stun": 7,
+	"health": 15
    },
    "durability": 100,
    "kit": 18,
@@ -6624,16 +6624,16 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 40,
-    "attack_speed": 0.98,
-    "crit_chance": 0.05,
-    "crit_damage": 1.6,
-    "first_strike": 0.15,
-    "hunt": 1
+	"damage": 40,
+	"attack_speed": 0.98,
+	"crit_chance": 0.05,
+	"crit_damage": 1.6,
+	"first_strike": 0.15,
+	"hunt": 1
    },
    "fixed_rolls": {
-    "first_strike": 15,
-    "yield": 12
+	"first_strike": 15,
+	"yield": 12
    },
    "durability": 100,
    "kit": 18,
@@ -6649,16 +6649,16 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 53,
-    "attack_speed": 0.9,
-    "crit_chance": 0.07,
-    "crit_damage": 1.6,
-    "first_strike": 0.3,
-    "hunt": 2
+	"damage": 53,
+	"attack_speed": 0.9,
+	"crit_chance": 0.07,
+	"crit_damage": 1.6,
+	"first_strike": 0.3,
+	"hunt": 2
    },
    "fixed_rolls": {
-    "first_strike": 15,
-    "crit_chance": 5
+	"first_strike": 15,
+	"crit_chance": 5
    },
    "durability": 100,
    "kit": 27,
@@ -6675,17 +6675,17 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "damage": 82,
-    "attack_speed": 0.6,
-    "crit_chance": 0.05,
-    "crit_damage": 1.7,
-    "first_strike": 0.2,
-    "armour_pen": 0.25,
-    "hunt": 1
+	"damage": 82,
+	"attack_speed": 0.6,
+	"crit_chance": 0.05,
+	"crit_damage": 1.7,
+	"first_strike": 0.2,
+	"armour_pen": 0.25,
+	"hunt": 1
    },
    "fixed_rolls": {
-    "armour_pen": 12,
-    "crit_damage": 25
+	"armour_pen": 12,
+	"crit_damage": 25
    },
    "durability": 100,
    "kit": 27,
@@ -6702,11 +6702,11 @@
    "slot": "main_hand",
    "tier": 4,
    "stats": {
-    "fishing": 5
+	"fishing": 5
    },
    "fixed_rolls": {
-    "yield": 12,
-    "rare_find": 6
+	"yield": 12,
+	"rare_find": 6
    },
    "durability": 100,
    "kit": 18,
@@ -6723,13 +6723,13 @@
    "slot": "head",
    "tier": 4,
    "stats": {
-    "armour": 12,
-    "dodge": 0.016,
-    "attack_speed": 0.01
+	"armour": 12,
+	"dodge": 0.016,
+	"attack_speed": 0.01
    },
    "fixed_rolls": {
-    "dodge": 5,
-    "crit_chance": 4
+	"dodge": 5,
+	"crit_chance": 4
    },
    "durability": 100,
    "kit": 4,
@@ -6986,8 +6986,8 @@
   "charter_1": {
    "name": "Expedition Charter I",
    "cost": {
-    "timber": 40,
-    "iron": 20
+	"timber": 40,
+	"iron": 20
    },
    "effect": "A second crew in the field",
    "unlocks": [],
@@ -6997,8 +6997,8 @@
   "charter_2": {
    "name": "Expedition Charter II",
    "cost": {
-    "oak": 40,
-    "steel_ingot": 10
+	"oak": 40,
+	"steel_ingot": 10
    },
    "effect": "A third crew in the field",
    "unlocks": [],
@@ -7008,8 +7008,8 @@
   "charter_3": {
    "name": "Expedition Charter III",
    "cost": {
-    "oak": 60,
-    "silversteel_ingot": 10
+	"oak": 60,
+	"silversteel_ingot": 10
    },
    "effect": "A fourth crew in the field",
    "unlocks": [],
@@ -7019,9 +7019,9 @@
   "charter_4": {
    "name": "Expedition Charter IV",
    "cost": {
-    "oak": 80,
-    "silversteel_ingot": 25,
-    "crystal": 10
+	"oak": 80,
+	"silversteel_ingot": 25,
+	"crystal": 10
    },
    "effect": "A fifth crew in the field",
    "unlocks": [],
@@ -7031,8 +7031,8 @@
   "field_plots": {
    "name": "Field Plots",
    "cost": {
-    "timber": 30,
-    "iron": 6
+	"timber": 30,
+	"iron": 6
    },
    "effect": "Opens the Tilled Acres (barley, potatoes)",
    "unlocks": [
@@ -7042,8 +7042,8 @@
   "apiary": {
    "name": "Apiary",
    "cost": {
-    "timber": 20,
-    "linen": 4
+	"timber": 20,
+	"linen": 4
    },
    "effect": "Opens the Beehives (honey)",
    "unlocks": [
@@ -7053,9 +7053,9 @@
   "glasshouse_build": {
    "name": "Glasshouse",
    "cost": {
-    "oak": 30,
-    "crystal": 2,
-    "iron": 8
+	"oak": 30,
+	"crystal": 2,
+	"iron": 8
    },
    "effect": "Opens the Glasshouse (emberpepper)",
    "unlocks": [
