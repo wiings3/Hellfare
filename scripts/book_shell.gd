@@ -105,6 +105,7 @@ func _build_shell() -> void:
 		push_warning("PauseMenu is missing from journal_shell.tscn; Escape will not open the menu.")
 	else:
 		pause_menu.quit_requested.connect(_save_and_quit)
+		pause_menu.replay_tutorial_requested.connect(func() -> void: call("_replay_tutorial"))
 	tab_overlay = stage.get_node("PinnedBookTabs") as TextureRect
 	tab_icons_layer = stage.get_node("ChapterIcons") as Control
 	header_gold = money_label

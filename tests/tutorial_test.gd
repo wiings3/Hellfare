@@ -53,6 +53,25 @@ func _run() -> void:
 	check(str(h.tutorial["step"]) == "send", "hiring before reading skips ahead (%s)" % str(h.tutorial["step"]))
 	Tutorial.skip(h)
 	check(not Tutorial.active(h) and bool(h.tutorial.get("skipped", false)), "Skip ends the tutorial")
+	# Replay on a running guild (g has people, reports, a sale): a tour, nothing reset.
+	var crew_before: int = g.crew.size()
+	var gold_before: int = g.gold
+	Tutorial.replay(g)
+	check(str(g.tutorial["step"]) == "welcome" and Tutorial.replaying(g), "replay starts at the welcome")
+	check(not Tutorial.advance(g), "replay doesn't skip ahead on what the guild already has")
+	Tutorial.press(g)
+	check(str(g.tutorial["step"]) == "hire" and not Tutorial.advance(g), "replay waits on hiring even with people on the books")
+	Tutorial.press(g)
+	check(str(g.tutorial["step"]) == "send", "Next moves the tour on without hiring")
+	g.gold += 500
+	g.site_dispatch("mossward_copse", ids, "Balanced")
+	Tutorial.advance(g)
+	check(str(g.tutorial["step"]) == "wait", "a new crew sent moves the tour on")
+	g.complete_due(now + 7200)
+	Tutorial.advance(g)
+	check(str(g.tutorial["step"]) == "sell", "a new report moves the tour on")
+	check(g.crew.size() == crew_before and g.gold >= gold_before, "the tour changed nothing in the guild by itself")
+	Tutorial.skip(g)
 	# In the book: the card shows the step and the pointer points at the bookmark.
 	var ui: Control = load("res://scenes/journal/widgets/main.tscn").instantiate()
 	root.add_child(ui)
@@ -79,6 +98,16 @@ func _run() -> void:
 	(card.get_node(body + "Head/Skip") as Button).pressed.emit()
 	await process_frame
 	check(not card.visible, "Skip hides the card")
+	# Settings > Replay tutorial brings it back as a tour, with Next on every step.
+	var pm = ui.find_child("PauseMenu", true, false)
+	(pm.get_node("Cover/Plate/Margin/Content/Settings/ReplayTutorial") as Button).pressed.emit()
+	await create_timer(0.4).timeout
+	ui._update_tutorial()
+	check(card.visible and Tutorial.replaying(ui.game), "Replay tutorial starts the tour")
+	(card.get_node(body + "Next") as Button).pressed.emit()
+	await process_frame
+	check((card.get_node(body + "Next") as Button).visible and (card.get_node(body + "Next") as Button).text == "Next  >", "a tour step has Next")
+	check((card.get_node(body + "Head/Skip") as Button).text == "End tour", "the tour can be ended")
 	await create_timer(0.6).timeout  # let the page turn finish
 	ui.queue_free()
 	await create_timer(0.1).timeout

@@ -3650,6 +3650,15 @@ func _run_mark(m: Dictionary) -> Dictionary:
 var _tutorial_shown: String = ""
 var _pointer_tween: Tween
 
+## Settings > Replay tutorial: a guided tour of the first steps on the guild as it is.
+func _replay_tutorial() -> void:
+	Tutorial.replay(game)
+	game.save_game()
+	_tutorial_shown = ""
+	if page != "hq":
+		_turn_to("hq")
+	_update_tutorial()
+
 func _tutorial_card() -> Control:
 	return stage.get_node_or_null("TutorialCard") as Control if is_instance_valid(stage) else null
 
@@ -3675,14 +3684,15 @@ func _update_tutorial() -> void:
 		(card.get_node(b + "Title") as Label).text = str(step["title"])
 		(card.get_node(b + "Text") as Label).text = str(step["text"])
 		var next := card.get_node(b + "Next") as Button
-		next.visible = step.has("button")
-		next.text = str(step.get("button", ""))
+		next.visible = step.has("button") or Tutorial.replaying(game)
+		next.text = str(step.get("button", "Next  >"))
 		_reconnect(next, func() -> void:
 			Tutorial.press(game)
 			game.save_game()
 			_update_tutorial())
 		var skip := card.get_node(b + "Head/Skip") as Button
 		skip.visible = id != "next"
+		skip.text = "End tour" if Tutorial.replaying(game) else "Skip tutorial"
 		_reconnect(skip, func() -> void:
 			Tutorial.skip(game)
 			game.save_game()

@@ -67,15 +67,42 @@ static func press(state) -> void:
 static func skip(state) -> void:
 	state.tutorial = {"step": "done", "skipped": true}
 
+## Replay from Settings, on a guild that's already running: a guided tour. Each step waits for
+## something new (a new hire, a new crew sent, a new report, a sale) or for its Next button,
+## so nothing has to be undone and nothing in the guild changes.
+static func replay(state) -> void:
+	state.tutorial = _baseline(state, "welcome", true)
+
+static func replaying(state) -> bool:
+	return bool(state.tutorial.get("replay", false))
+
+## What the guild looks like as a step begins, to tell later what the player did.
+static func _baseline(state, step: String, is_replay: bool) -> Dictionary:
+	return {"step": step, "timber": int(state.resources.get("timber", 0)), "gold": state.gold, "replay": is_replay,
+		"crew": state.crew.size(), "mission_id": int(state.next_mission_id),
+		"reports": state.reports.size(),
+		"report_t": int(state.reports[0].get("time", 0)) if not state.reports.is_empty() else 0}
+
 static func _go_next(state) -> void:
 	var i: int = step_index(str(state.tutorial.get("step", "done")))
 	if i < 0 or i + 1 >= STEPS.size():
 		state.tutorial = {"step": "done"}
 		return
-	var next_id: String = str(STEPS[i + 1]["id"])
-	state.tutorial = {"step": next_id, "timber": int(state.resources.get("timber", 0)), "gold": state.gold}
+	state.tutorial = _baseline(state, str(STEPS[i + 1]["id"]), replaying(state))
 
 static func _done(state, id: String) -> bool:
+	if replaying(state):
+		var t: Dictionary = state.tutorial
+		match id:
+			"hire":
+				return state.crew.size() > int(t.get("crew", 0))
+			"send":
+				return int(state.next_mission_id) > int(t.get("mission_id", 0))
+			"wait":
+				return state.reports.size() > int(t.get("reports", 0)) or (not state.reports.is_empty() and int(state.reports[0].get("time", 0)) > int(t.get("report_t", 0)))
+			"sell":
+				return int(state.resources.get("timber", 0)) < int(t.get("timber", 0)) and state.gold > int(t.get("gold", 0))
+		return false
 	match id:
 		"welcome":
 			return not state.crew.is_empty()

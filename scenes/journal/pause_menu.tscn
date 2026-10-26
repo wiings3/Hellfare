@@ -133,6 +133,13 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "On"
 
+[node name="ReplayTutorial" type="Button" parent="Cover/Plate/Margin/Content/Settings"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "A guided tour of the first steps, on your guild as it is. Nothing is reset."
+text = "Replay tutorial"
+
 [node name="SoundButton" type="Button" parent="Cover/Plate/Margin/Content/Settings"]
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2

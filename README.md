@@ -51,6 +51,10 @@ Progress is saved with the guild; guilds from before this version that already h
 reports never see it. Steps are data in `scripts/tutorial.gd`; the card is
 `scenes/journal/widgets/tutorial_card.tscn`.
 
+**Settings → Replay tutorial** runs it again on any guild as a guided tour, without resetting
+anything: each step waits for something new (a new hire, a new crew sent, a new report, a sale) or
+its Next button, and End tour stops it.
+
 ## V0.29 – Sound
 
 The game has sound: 41 sounds (61 files) from the Hellfare sound list, wired to the moments that

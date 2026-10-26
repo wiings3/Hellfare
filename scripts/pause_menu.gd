@@ -5,6 +5,7 @@ extends Control
 ## animation mirrored onto the back cover (tools/bake_close.py).
 
 signal quit_requested
+signal replay_tutorial_requested
 
 const FRAMES := "res://assets/ui/book/close/"
 const FRAME_COUNT := 6
@@ -39,6 +40,7 @@ var _hidden: Dictionary = {}
 @onready var vsync_toggle: Button = $Cover/Plate/Margin/Content/Settings/VSync/Toggle
 @onready var animation_toggle: Button = $Cover/Plate/Margin/Content/Settings/Animations/Toggle
 @onready var sound_button: Button = $Cover/Plate/Margin/Content/Settings/SoundButton
+@onready var replay_button: Button = $Cover/Plate/Margin/Content/Settings/ReplayTutorial
 @onready var sound_view: Control = $Cover/Plate/Margin/Content/Sound
 @onready var sound_back: Button = $Cover/Plate/Margin/Content/Sound/Back
 @onready var away_toggle: Button = $Cover/Plate/Margin/Content/Sound/Away/Toggle
@@ -58,6 +60,9 @@ func _ready() -> void:
 	vsync_toggle.toggled.connect(_set_vsync)
 	animation_toggle.toggled.connect(_set_animations)
 	sound_button.pressed.connect(_show_sound.bind(true))
+	replay_button.pressed.connect(func() -> void:
+		resume()
+		replay_tutorial_requested.emit())
 	sound_back.pressed.connect(_show_sound.bind(false))
 	away_toggle.toggled.connect(_set_alerts_away)
 	for group in GameSettings.VOLUME_DEFAULTS:
