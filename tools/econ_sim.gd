@@ -19,6 +19,11 @@ extends SceneTree
 ##                  fallen when it's an upgrade
 ##   evening        "everything" for two hours a day; Full Day trips sent out before logging off
 ##   idle           checks in for a minute three times a day; Overnight logging
+##   logging_ah     woodcutters, sell through the Auction House (into NPC buy orders, then a
+##                  listing at the cheapest price), merchants when the listings are full
+##   delver         guards in Calder Keep: buy a sword and armour to reach gear score 8, pick the
+##                  depth with the best forecast after a death penalty, sell loot to merchants
+##   delver_ah      the same, selling loot at the Auction House
 ##   forager, angler, hunter, farmer
 ##                  one of the newer trades only, every site it can reach, merchants only;
 ##                  the farmer builds the farm buildings once it can spare three times their cost
@@ -30,7 +35,8 @@ const STEP := 10
 const SAMPLE := 900
 const MILESTONES := [1000, 10000, 100000, 1000000, 10000000]
 const CHECKPOINTS := [10, 100, 1000, 3000, 12000]
-const ALL := ["minimal", "logging", "logging_hall", "miner", "everything", "hall_trader", "contracts", "casual", "evening", "idle", "forager", "angler", "hunter", "farmer"]
+const ALL := ["minimal", "logging", "logging_hall", "miner", "everything", "hall_trader", "contracts", "casual", "evening", "idle", "forager", "angler", "hunter", "farmer",
+	"logging_ah", "delver", "delver_ah"]
 ## The newer trades' strategies: trade, job name and the shop tool.
 const NEW_TRADES := {"forager": ["foraging", "Forager", "copper_sickle"], "angler": ["fishing", "Angler", "birch_rod"],
 	"hunter": ["hunting", "Hunter", "birch_shortbow"], "farmer": ["farming", "Farmhand", "iron_hoe"]}
@@ -90,6 +96,7 @@ var counters: Dictionary = {}
 var dispatched: Dictionary = {}
 var sample_every: int = SAMPLE
 var next_checkpoint: int = 0
+var ah_seen_t: int = 0
 
 func run(name: String, seed_value: int) -> Dictionary:
 	strategy = name
@@ -108,8 +115,9 @@ func run(name: String, seed_value: int) -> Dictionary:
 		"merchant_sales": 0, "merchant_units": 0, "hall_sales": 0, "hall_units": 0, "hall_buys": 0,
 		"hall_trades": 0, "tax_paid": 0, "slots": [], "levels": [], "treat_spend": 0, "repair_spend": 0, "repairs": 0, "wages": 0,
 		"active_s": 0, "checkpoints": {}, "no_recruit": 0, "finds": 0, "find_value": 0, "rare_finds": 0,
-		"slot_busy_s": 0, "slot_s": 0, "costs": 0,
+		"slot_busy_s": 0, "slot_s": 0, "costs": 0, "ah_sales": 0, "ah_units": 0, "ah_fees": 0, "runs": {}, "boss_kills": 0,
 	}
+	ah_seen_t = 0
 	next_checkpoint = 0
 	sample_every = maxi(SAMPLE, int(hours * 3600.0 / 4000.0))
 	var end: int = t0 + int(hours * 3600.0)
@@ -201,7 +209,8 @@ func _checkpoint(h: int) -> void:
 		"merchant_sales": int(rec["merchant_sales"]), "hall_sales": int(rec["hall_sales"]), "hall_buys": int(rec["hall_buys"]),
 		"tax_paid": int(rec["tax_paid"]), "hire_spend": int(rec["hire_spend"]), "gear_spend": int(rec["gear_spend"]),
 		"treat_spend": int(rec["treat_spend"]), "repair_spend": int(rec["repair_spend"]), "repairs": int(rec["repairs"]), "finds": int(rec["finds"]), "find_value": int(rec["find_value"]),
-		"rare_finds": int(rec["rare_finds"]), "guild_jobs": int(rec.get("guild_jobs", 0)), "no_recruit": int(rec["no_recruit"]),
+		"rare_finds": int(rec["rare_finds"]), "ah_sales": int(rec["ah_sales"]), "ah_units": int(rec["ah_units"]), "ah_fees": int(rec["ah_fees"]),
+		"runs": (rec["runs"] as Dictionary).duplicate(), "boss_kills": int(rec["boss_kills"]), "guild_jobs": int(rec.get("guild_jobs", 0)), "no_recruit": int(rec["no_recruit"]),
 		"active_h": snappedf(float(rec["active_s"]) / 3600.0, 0.1),
 		"utilization": snappedf(float(rec["slot_busy_s"]) / maxf(1.0, float(rec["slot_s"])), 0.001),
 		"relief": g.relief_count, "reputation": g.reputation, "board": g.recruitment_board().size(),
@@ -212,6 +221,7 @@ func _trade() -> String:
 		return str(NEW_TRADES[strategy][0])
 	match strategy:
 		"contracts", "miner": return "mining"
+		"delver", "delver_ah": return "combat"
 	return "logging"
 
 func _add(key: String, amount: float) -> void:
@@ -227,7 +237,7 @@ func _settle() -> void:
 	if done > 0:
 		for i in range(mini(done, g.reports.size())):
 			var r: Dictionary = g.reports[i]
-			var key: String = str(r.get("site", r.get("region", "?")))
+			var key: String = str(r.get("site", r.get("dungeon", r.get("region", "?"))))
 			var net: float
 			if r.has("value"):
 				net = float(r["value"]) - float(r.get("cost", 0))
@@ -246,6 +256,22 @@ func _settle() -> void:
 					rec["rare_finds"] = int(rec.get("rare_finds", 0)) + 1
 					if not rec.has("first_rare_h"):
 						rec["first_rare_h"] = snappedf(_elapsed_h(), 0.01)
+	for e in g.auction.log:
+		if int(e["t"]) <= ah_seen_t:
+			break
+		if str(e["kind"]) == "sold":
+			rec["ah_sales"] = int(rec["ah_sales"]) + int(e["gold"])
+			rec["ah_units"] = int(rec["ah_units"]) + int(e["qty"])
+	if not g.auction.log.is_empty():
+		ah_seen_t = maxi(ah_seen_t, int(g.auction.log[0]["t"]))
+	if done > 0:
+		for i in range(mini(done, g.reports.size())):
+			var r: Dictionary = g.reports[i]
+			if r.has("dungeon"):
+				var k: String = "%d floors" % int(r.get("floors_cleared", 0))
+				rec["runs"][k] = int(rec["runs"].get(k, 0)) + 1
+				if str(r.get("outcome", "")) == "cleared":
+					rec["boss_kills"] = int(rec["boss_kills"]) + 1
 	if strategy in ["logging_hall", "hall_trader", "everything", "evening", "miner"] or g.hall.session != null:
 		var events: Array = g.hall_tick(t)
 		for e in events:
@@ -270,6 +296,8 @@ func _policy() -> void:
 		"idle": _logging(false)
 		"evening": _logging(true) if _leaving() else _everything()
 		"forager", "angler", "hunter", "farmer": _new_trade()
+		"logging_ah": _logging_ah()
+		"delver", "delver_ah": _delve()
 	if strategy != "minimal":
 		_expand()
 	_guild_fallback()
@@ -445,7 +473,7 @@ func _long_orders() -> Array:
 
 # One trade at its generic sites: each free slot goes to the site and orders with the best
 # forecast profit per hour, as the planner shows it.
-func _work(trade: String, role: String, sites: Array, tools: Array, use_hall: bool, slots_for_trade: int = -1) -> void:
+func _work(trade: String, role: String, sites: Array, tools: Array, use_hall: bool, slots_for_trade: int = -1, keep_goods: bool = false) -> void:
 	var slots: int = g.expedition_slots if slots_for_trade < 0 else slots_for_trade
 	_hire(role, 3 * slots)
 	_outfit(role, tools)
@@ -485,6 +513,8 @@ func _work(trade: String, role: String, sites: Array, tools: Array, use_hall: bo
 				break
 		if best_site == "" or not g.site_dispatch(best_site, best_crew, best_orders).begins_with("The crew set out"):
 			break
+	if keep_goods:
+		return
 	if use_hall:
 		_hall_seller(["timber", "herbs", "copper", "iron", "silver", "crystal"])
 	else:
@@ -763,3 +793,114 @@ func _hall_trader() -> void:
 	# Sell: into bids at or above fair value, and post what we hold; keep stock up to 8 hours.
 	_hall_seller(MoneyMercsState.RESOURCE_ORDER, 8 * 3600)
 
+
+# --- Auction House and Calder Keep -----------------------------------------------------
+
+func _logging_ah() -> void:
+	_sell_at_auction()
+	_work("logging", "Woodcutter", ["mossward_copse", "old_oakwood"], ["hand_axe", "felling_axe"], false, -1, true)
+
+## Sell what's held through the Auction House: into NPC buy orders paying at least 85% of fair
+## value, then one listing per good at the cheapest price (never under 90% of fair). Goods
+## arriving while a listing is up wait for it; with every listing slot taken, merchants.
+func _sell_at_auction() -> void:
+	# Short of cash, a player sells to the merchants: gold now beats a better price later.
+	if g.gold < 2000:
+		_sell_to_merchants()
+		return
+	for good in MoneyMercsState.RESOURCE_ORDER:
+		var n: int = int(g.resources.get(good, 0))
+		if n <= 0:
+			continue
+		var fair: float = g.ah_fair(str(good), t)
+		for o in g.ah_orders_for(str(good)):
+			if float(o["price"]) >= fair * 0.85 and int(g.resources.get(good, 0)) > 0:
+				var gold0: int = g.gold
+				g.ah_fill(str(o["uid"]))
+				rec["ah_sales"] = int(rec["ah_sales"]) + (g.gold - gold0)
+		n = int(g.resources.get(good, 0))
+		if n <= 0:
+			continue
+		if g.auction.listings.any(func(l): return str(l["ref"]) == str(good)):
+			# A listing is up: what arrives meanwhile goes to the merchants.
+			var each0: int = g.sell_price(str(good), n)
+			g.trade(str(good), false, n)
+			rec["merchant_sales"] = int(rec["merchant_sales"]) + each0 * n
+			rec["merchant_units"] = int(rec["merchant_units"]) + n
+			continue
+		var low: int = AuctionHouse.cheapest(g.ah_listings_for(str(good)))
+		var price: int = maxi(int(ceil(fair * 0.9)), low if low > 0 else int(round(fair)))
+		# List what sells in about twelve hours at that price; merchants take the rest now.
+		var rate: float = AuctionHouse.sell_rate(str(good), float(price), fair, float(low))
+		var list_n: int = mini(n, maxi(1, int(rate * 12.0)))
+		var gold0: int = g.gold
+		if g.ah_post(str(good), list_n, price, "1d").begins_with("Listed"):
+			rec["ah_fees"] = int(rec["ah_fees"]) + (gold0 - g.gold)
+		n = int(g.resources.get(good, 0))
+		if n > 0:
+			var each: int = g.sell_price(str(good), n)
+			g.trade(str(good), false, n)
+			rec["merchant_sales"] = int(rec["merchant_sales"]) + each * n
+			rec["merchant_units"] = int(rec["merchant_units"]) + n
+
+## Guards in Calder Keep. Each guard is brought to gear score 8 (chainmail on the starter
+## sword), then steel; crews of up to three go in on "below half" orders at the depth with the
+## best forecast after counting each expected death at 450 G (hire, gear and levels).
+func _delve() -> void:
+	var guards: int = g.crew.filter(func(m): return Mercs.role_of(m) == "Guard").size()
+	var keep_slots: int = 1 if g.expedition_slots >= 2 and (guards > 0 or g.gold >= 1200) else 0
+	_work("logging", "Woodcutter", ["mossward_copse", "old_oakwood"], ["hand_axe", "felling_axe"], false, g.expedition_slots - keep_slots, true)
+	if keep_slots == 0:
+		if strategy == "delver_ah":
+			_sell_at_auction()
+		else:
+			_sell_to_merchants()
+		return
+	_hire("Guard", 3)
+	for merc in g.crew:
+		if Mercs.role_of(merc) != "Guard" or not g.is_available(merc):
+			continue
+		for key in ["chainmail", "steel_sword"]:
+			var slot: String = Gear.slot_of(key)
+			var worn: Dictionary = Gear.in_slot(merc, slot)
+			if not worn.is_empty() and Gear.value(worn) >= int(Catalog.item(key)["value"]):
+				continue
+			var cost: int = int(Catalog.item(key)["value"])
+			var need: bool = Gear.kit_rating(merc) < 8
+			if g.gold >= cost + (60 if need else cost * 2 + 200):
+				g.buy_equipment(key)
+				rec["gear_spend"] = int(rec["gear_spend"]) + cost
+				g.equip_item(str(merc["id"]), str(g.equipment_inventory.back()["uid"]))
+			break
+	if strategy == "delver_ah":
+		_sell_at_auction()
+	else:
+		_sell_to_merchants()
+	while g.missions.size() < g.expedition_slots and g.missions.filter(func(m): return str(m.get("region", "")) == "dungeon").size() < keep_slots:
+		var ready: Array[String] = []
+		for merc in g.crew:
+			if Mercs.role_of(merc) == "Guard" and g.dungeon_fit("calder_keep", merc) == "" and int(merc.get("health", 100)) >= 70:
+				ready.append(str(merc["id"]))
+		if ready.is_empty():
+			break
+		if ready.size() < 3:
+			break
+		var crew: Array[String] = []
+		for id in ready.slice(0, 3):
+			crew.append(id)
+		var best_depth: int = 0
+		var best_rate: float = -1000000.0
+		for depth in [1, 2, 3]:
+			var plan: Dictionary = g.dungeon_forecast("calder_keep", crew, depth, "half")
+			if g.gold < int(plan["cost"]):
+				continue
+			var rate: float = (float(plan["haul"]) - float(plan["cost"]) - float(plan["death"]) * 450.0) / float(plan["duration"])
+			if rate > best_rate:
+				best_rate = rate
+				best_depth = depth
+		if best_rate <= 0.0:
+			break
+		if best_depth == 0 or not g.dungeon_dispatch("calder_keep", crew, best_depth, "half").begins_with("The crew went"):
+			break
+		var dk: String = "depth %d" % best_depth
+		rec["trips"][dk] = int(rec["trips"].get(dk, 0)) + 1
