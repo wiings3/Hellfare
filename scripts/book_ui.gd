@@ -322,6 +322,18 @@ func _draw_region_map() -> void:
 		if target == "":
 			target = str(TradeSites.for_trade(trade)[0]["id"])
 		region.pressed.connect(_open_site.bind(target))
+	# Crypts on the map open their planner.
+	for crypt in Dungeons.DUNGEONS:
+		if not left.has_node(sites + str(crypt)):
+			continue
+		var d: Dictionary = Dungeons.DUNGEONS[crypt]
+		var keep := left.get_node(sites + str(crypt)) as Button
+		var below: int = 0
+		for mission in game.missions:
+			if RegionMap.road_for(mission) == str(crypt):
+				below += 1
+		keep.tooltip_text = "%s\n%s" % [str(d["name"]), "A crew is inside." if below > 0 else "A crypt: fighters with gear score %d+." % int(d["min_kit"])]
+		keep.pressed.connect(_open_dungeon.bind(str(crypt)))
 	_bind_fallen(left)
 	var town := left.get_node(sites + "town") as Button
 	town.tooltip_text = "Last Lantern, home of the guild.\n%d resting above." % game.free_crew()
@@ -2156,7 +2168,7 @@ func _draw_dungeon_list(right: Control) -> void:
 		card.tooltip_text = str(d.get("tagline", ""))
 		var floors: Array = d["floors"]
 		(card.get_node("Body/Top/Info/Name") as Label).text = str(d["name"])
-		(card.get_node("Body/Top/Info/Details") as Label).text = "Tier %d  ·  %d floors, the last a boss  ·  gear score %d+" % [int(d["tier"]), floors.size(), int(d["min_kit"])]
+		(card.get_node("Body/Top/Info/Details") as Label).text = "Layer %d  ·  %d floors, the last a boss  ·  gear score %d+" % [int(d.get("layer", d["tier"])), floors.size(), int(d["min_kit"])]
 		(card.get_node("Body/Facts") as Label).text = "%s  ·  supplies %s" % [", ".join(floors.map(func(f): return str(f["foe"]))), _money(int(d["supplies"]))]
 		var value := card.get_node("Body/Top/Value") as Label
 		var run: Dictionary = _run_in(str(id))
@@ -2199,7 +2211,9 @@ func _bind_site_info(right: Control, site: Dictionary) -> void:
 	var trade: String = str(site["trade"])
 	(right.get_node(c + "Site/Art") as TextureRect).texture = load(str(site.get("art", ""))) as Texture2D
 	(right.get_node(c + "Site") as Control).tooltip_text = str(site.get("tagline", ""))
-	(right.get_node(c + "Site/Badge/Text") as Label).text = "%s %d+" % [TradeSkills.NAMES.get(trade, trade), int(site["level"])]
+	var skill_need: String = "%s %d+" % [TradeSkills.NAMES.get(trade, trade), int(site["level"])]
+	# Farms are above; every other site sits in the layer of hell that matches its tier.
+	(right.get_node(c + "Site/Badge/Text") as Label).text = skill_need if trade == "farming" else "Layer %d  ·  %s" % [int(site.get("tier", 1)), skill_need]
 	var slots := right.get_node(c + "Intel/Yields") as HBoxContainer
 	var goods: Dictionary = (site.get("yields", {}) as Dictionary).duplicate()
 	goods.merge(site.get("side", {}))
@@ -2573,7 +2587,7 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	# Right: the keep, its floors and the orders.
 	(right.get_node(c + "Site/Art") as TextureRect).texture = load(str(d.get("art", ""))) as Texture2D
 	(right.get_node(c + "Site") as Control).tooltip_text = str(d.get("tagline", ""))
-	(right.get_node(c + "Site/Badge/Text") as Label).text = "Tier %d  ·  gear score %d+" % [int(d["tier"]), min_kit]
+	(right.get_node(c + "Site/Badge/Text") as Label).text = "Layer %d  ·  gear score %d+" % [int(d.get("layer", d["tier"])), min_kit]
 	var plan: Dictionary = game.dungeon_forecast(id, ids, dungeon_depth, dungeon_turn_back)
 	var floors: Array = d["floors"]
 	for i in range(3):

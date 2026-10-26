@@ -538,12 +538,15 @@ SITES = {
     "home_fields": home_fields, "tilled_acres": tilled_acres, "beehives": beehives, "glasshouse": glasshouse,
 }
 
+FARMS = {"home_fields", "tilled_acres", "beehives", "glasshouse"}
+
 if __name__ == "__main__":
     import sys
+    # Hellfare: only the farms (above ground) keep this ink style; tools/paint_hell_sites.py
+    # paints every site and crypt below.
     for key, fn in SITES.items():
-        fn().save("assets/ui/art/site_%s.png" % key)
-    for name, fn in DUNGEONS.items():
-        fn().save("assets/ui/art/%s.png" % name)
+        if key in FARMS:
+            fn().save("assets/ui/art/site_%s.png" % key)
     if len(sys.argv) > 1:
         sheet = Image.new("RGBA", (3 * 256, ((len(SITES) + 2) // 3) * 136), (232, 220, 196, 255))
         for i, key in enumerate(SITES):

@@ -30,7 +30,7 @@ theme_override_constants/separation = 6
 
 [node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
-text = "The Gatelands"
+text = "The Descent"
 
 [node name="Map" type="Control" parent="Margin/Content"]
 layout_mode = 2
@@ -51,66 +51,131 @@ stretch_mode = 0
 visible = false
 
 [node name="mossward_copse" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(112, 208, 111.0, 207.5, 109.0, 206.5, 106.0, 205.0, 102.0, 203.0, 98.0, 200.9, 94.0, 198.6, 90.0, 196.2, 86.0, 193.8, 82.0, 191.3, 78.0, 188.9, 74.0, 186.6, 70.0, 184.4, 67.0, 182.7, 65.0, 181.6, 64, 181)
-width = 1.0
-
-[node name="old_oakwood" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(117, 197, 116.2, 195.2, 114.6, 191.6, 112.1, 186.1, 108.9, 178.9, 105.8, 171.2, 102.9, 163.1, 100.2, 154.5, 97.8, 145.5, 94.9, 136.8, 91.6, 128.2, 88.0, 120.0, 84.0, 112.0, 80.2, 105.0, 76.8, 99.0, 73.5, 94.0, 70.5, 90.0, 68.2, 87.0, 66.8, 85.0, 66, 84)
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 112.0, 82.2, 110.0, 82.3, 108.0, 82.5, 106.0, 82.7, 104.0, 82.9, 102.0, 83.0, 100.0, 83.2, 98.0, 83.4, 96.0, 83.5, 94.0, 83.7, 92.0, 83.9, 90.0, 84.1, 88.0, 84.2, 86.0, 84.4, 84.0, 84.6, 82.0, 84.7, 80.0, 84.9, 78.0, 85.1, 76.0, 85.3, 74.0, 85.4, 72.0, 85.6, 70.0, 85.8, 68.0, 85.9, 66.0, 86.1, 64.0, 86.3, 62.0, 86.5, 60.0, 86.6, 58.0, 86.8, 56.0, 87.0, 54.0, 87.1, 52.0, 87.3, 50.0, 87.5, 48.0, 87.7, 46.0, 87.8, 44, 88)
 width = 1.0
 
 [node name="harlow" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(137, 199, 137.8, 197.7, 139.4, 195.1, 141.9, 191.1, 145.1, 185.9, 148.4, 180.3, 151.6, 174.4, 154.9, 168.2, 158.1, 161.8, 161.8, 155.1, 165.8, 148.4, 170.1, 141.5, 174.9, 134.5, 179.4, 127.9, 183.6, 121.6, 187.6, 115.8, 191.4, 110.2, 194.7, 105.5, 197.6, 101.5, 200.0, 98.2, 202.0, 95.8, 203.5, 93.9, 204.5, 92.6, 205, 92)
-width = 1.0
-
-[node name="deepdelve" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(137, 199, 137.8, 197.7, 139.4, 195.1, 141.9, 191.1, 145.1, 185.9, 148.4, 180.3, 151.6, 174.4, 154.9, 168.2, 158.1, 161.8, 161.8, 155.1, 165.8, 148.4, 170.1, 141.5, 174.9, 134.5, 179.4, 127.9, 183.6, 121.6, 187.6, 115.8, 191.4, 110.2, 194.7, 105.5, 197.6, 101.5, 200.0, 98.2, 202.0, 95.8, 203.9, 93.2, 205.6, 90.8, 207.2, 88.2, 208.8, 85.8, 210.3, 83.2, 211.9, 80.6, 213.6, 77.9, 215.4, 75.1, 217.2, 72.4, 219.1, 69.8, 221.0, 67.2, 223.0, 64.8, 224.5, 62.9, 225.5, 61.6, 226, 61)
-width = 1.0
-
-[node name="foraging" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(140, 214, 141.9, 215.1, 145.6, 217.4, 151.2, 220.8, 158.8, 225.2, 166.2, 229.6, 173.8, 233.7, 181.2, 237.6, 188.8, 241.4, 195.8, 244.7, 202.2, 247.6, 208.2, 250.0, 213.8, 252.0, 217.9, 253.5, 220.6, 254.5, 222, 255)
-width = 1.0
-
-[node name="fishing" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(138, 210, 140.0, 211.5, 144.0, 214.5, 147.5, 217.5, 150.5, 220.5, 152, 222)
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 116.0, 82.2, 118.0, 82.3, 120.0, 82.5, 122.0, 82.7, 124.0, 82.8, 126.0, 83.0, 128.0, 83.2, 130.0, 83.3, 132.0, 83.5, 134.0, 83.7, 136.0, 83.8, 138.0, 84.0, 140.0, 84.2, 142.0, 84.3, 144.0, 84.5, 146.0, 84.7, 148.0, 84.8, 150.0, 85.0, 152.0, 85.2, 154.0, 85.3, 156.0, 85.5, 158.0, 85.7, 160.0, 85.8, 162.0, 86.0, 164.0, 86.2, 166.0, 86.3, 168.0, 86.5, 170.0, 86.7, 172.0, 86.8, 174.0, 87.0, 176.0, 87.2, 178.0, 87.3, 180.0, 87.5, 182.0, 87.7, 184.0, 87.8, 186.0, 88.0, 188.0, 88.2, 190.0, 88.3, 192.0, 88.5, 194.0, 88.7, 196.0, 88.8, 198.0, 89.0, 200.0, 89.2, 202.0, 89.3, 204.0, 89.5, 206.0, 89.7, 208.0, 89.8, 210, 90)
 width = 1.0
 
 [node name="hunting" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(108, 200, 106.8, 199.1, 104.2, 197.4, 100.5, 194.8, 95.5, 191.2, 90.6, 187.0, 85.9, 182.0, 81.2, 176.2, 76.8, 169.8, 72.2, 163.6, 67.8, 157.9, 63.2, 152.5, 58.8, 147.5, 54.5, 143.0, 50.5, 139.0, 46.8, 135.5, 43.2, 132.5, 40.6, 130.2, 38.9, 128.8, 38, 128)
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 115.8, 83.0, 117.5, 84.0, 119.2, 85.0, 121.0, 86.0, 122.8, 87.0, 124.5, 88.0, 126.2, 89.0, 128.0, 90.0, 129.8, 91.0, 131.5, 92.0, 133.2, 93.0, 135.0, 94.0, 136.8, 95.0, 138.5, 96.0, 140.2, 97.0, 142.0, 98.0, 140.3, 99.1, 138.5, 100.1, 136.8, 101.2, 135.1, 102.3, 133.3, 103.3, 131.6, 104.4, 129.9, 105.5, 128.1, 106.5, 126.4, 107.6, 124.7, 108.7, 122.9, 109.7, 121.2, 110.8, 119.5, 111.9, 117.7, 112.9, 116.0, 114.0, 114.0, 114.2, 112.0, 114.3, 110.0, 114.5, 108.0, 114.6, 106.0, 114.8, 104.0, 114.9, 102.0, 115.1, 100.0, 115.2, 98.0, 115.4, 96.0, 115.5, 94.0, 115.7, 92.0, 115.8, 90.0, 116.0, 88.0, 116.2, 86.0, 116.3, 84.0, 116.5, 82.0, 116.6, 80.0, 116.8, 78.0, 116.9, 76.0, 117.1, 74.0, 117.2, 72.0, 117.4, 70.0, 117.5, 68.0, 117.7, 66.0, 117.8, 64.0, 118.0, 62.0, 118.2, 60.0, 118.3, 58.0, 118.5, 56.0, 118.6, 54.0, 118.8, 52.0, 118.9, 50.0, 119.1, 48.0, 119.2, 46.0, 119.4, 44.0, 119.5, 42.0, 119.7, 40.0, 119.8, 38, 120)
+width = 1.0
+
+[node name="fishing" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 115.8, 83.0, 117.5, 84.0, 119.2, 85.0, 121.0, 86.0, 122.8, 87.0, 124.5, 88.0, 126.2, 89.0, 128.0, 90.0, 129.8, 91.0, 131.5, 92.0, 133.2, 93.0, 135.0, 94.0, 136.8, 95.0, 138.5, 96.0, 140.2, 97.0, 142.0, 98.0, 143.9, 98.6, 145.9, 99.2, 147.8, 99.8, 149.8, 100.4, 151.7, 101.0, 153.6, 101.6, 155.6, 102.2, 157.5, 102.8, 159.5, 103.5, 161.4, 104.1, 163.3, 104.7, 165.3, 105.3, 167.2, 105.9, 169.2, 106.5, 171.1, 107.1, 173.0, 107.7, 175.0, 108.3, 176.9, 108.9, 178.8, 109.5, 180.8, 110.1, 182.7, 110.7, 184.7, 111.3, 186.6, 111.9, 188.5, 112.5, 190.5, 113.2, 192.4, 113.8, 194.4, 114.4, 196.3, 115.0, 198.2, 115.6, 200.2, 116.2, 202.1, 116.8, 204.1, 117.4, 206, 118)
+width = 1.0
+
+[node name="foraging" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 115.8, 83.0, 117.5, 84.0, 119.2, 85.0, 121.0, 86.0, 122.8, 87.0, 124.5, 88.0, 126.2, 89.0, 128.0, 90.0, 129.8, 91.0, 131.5, 92.0, 133.2, 93.0, 135.0, 94.0, 136.8, 95.0, 138.5, 96.0, 140.2, 97.0, 142.0, 98.0, 140.3, 99.1, 138.5, 100.1, 136.8, 101.2, 135.1, 102.3, 133.3, 103.3, 131.6, 104.4, 129.9, 105.5, 128.1, 106.5, 126.4, 107.6, 124.7, 108.7, 122.9, 109.7, 121.2, 110.8, 119.5, 111.9, 117.7, 112.9, 116.0, 114.0, 114.1, 114.9, 112.3, 115.7, 110.4, 116.6, 108.6, 117.4, 106.7, 118.3, 104.9, 119.1, 103.0, 120.0, 101.1, 120.9, 99.3, 121.7, 97.4, 122.6, 95.6, 123.4, 93.7, 124.3, 91.9, 125.1, 90, 126)
+width = 1.0
+
+[node name="calder_keep" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 115.8, 83.0, 117.5, 84.0, 119.2, 85.0, 121.0, 86.0, 122.8, 87.0, 124.5, 88.0, 126.2, 89.0, 128.0, 90.0, 129.8, 91.0, 131.5, 92.0, 133.2, 93.0, 135.0, 94.0, 136.8, 95.0, 138.5, 96.0, 140.2, 97.0, 142.0, 98.0, 140.3, 99.1, 138.5, 100.1, 136.8, 101.2, 135.1, 102.3, 133.3, 103.3, 131.6, 104.4, 129.9, 105.5, 128.1, 106.5, 126.4, 107.6, 124.7, 108.7, 122.9, 109.7, 121.2, 110.8, 119.5, 111.9, 117.7, 112.9, 116.0, 114.0, 118.0, 114.6, 120.0, 115.2, 122.0, 115.8, 124.0, 116.4, 126.0, 116.9, 128.0, 117.5, 130.0, 118.1, 132.0, 118.7, 134.0, 119.3, 136.0, 119.9, 138.0, 120.5, 140.0, 121.1, 142.0, 121.6, 144.0, 122.2, 146.0, 122.8, 148.0, 123.4, 150, 124)
+width = 1.0
+
+[node name="old_oakwood" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 115.8, 83.0, 117.5, 84.0, 119.2, 85.0, 121.0, 86.0, 122.8, 87.0, 124.5, 88.0, 126.2, 89.0, 128.0, 90.0, 129.8, 91.0, 131.5, 92.0, 133.2, 93.0, 135.0, 94.0, 136.8, 95.0, 138.5, 96.0, 140.2, 97.0, 142.0, 98.0, 140.3, 99.1, 138.5, 100.1, 136.8, 101.2, 135.1, 102.3, 133.3, 103.3, 131.6, 104.4, 129.9, 105.5, 128.1, 106.5, 126.4, 107.6, 124.7, 108.7, 122.9, 109.7, 121.2, 110.8, 119.5, 111.9, 117.7, 112.9, 116.0, 114.0, 117.7, 115.1, 119.4, 116.3, 121.1, 117.4, 122.9, 118.6, 124.6, 119.7, 126.3, 120.9, 128.0, 122.0, 129.7, 123.1, 131.4, 124.3, 133.1, 125.4, 134.9, 126.6, 136.6, 127.7, 138.3, 128.9, 140.0, 130.0, 138.8, 131.6, 137.6, 133.2, 136.4, 134.8, 135.2, 136.4, 134.0, 138.0, 132.8, 139.6, 131.6, 141.2, 130.4, 142.8, 129.2, 144.4, 128.0, 146.0, 128.0, 148.0, 128.0, 150.0, 128.0, 152.0, 126.4, 153.2, 124.8, 154.4, 123.2, 155.6, 121.6, 156.8, 120.0, 158.0, 118.4, 159.2, 116.8, 160.4, 115.2, 161.6, 113.6, 162.8, 112.0, 164.0, 110.1, 164.5, 108.1, 165.0, 106.2, 165.5, 104.2, 166.0, 102.3, 166.5, 100.4, 167.0, 98.4, 167.5, 96.5, 168.0, 94.6, 168.5, 92.6, 169.0, 90.7, 169.5, 88.8, 170.0, 86.8, 170.5, 84.9, 171.0, 82.9, 171.5, 81.0, 172.0, 79.1, 172.5, 77.1, 173.0, 75.2, 173.5, 73.2, 174.0, 71.3, 174.5, 69.4, 175.0, 67.4, 175.5, 65.5, 176.0, 63.6, 176.5, 61.6, 177.0, 59.7, 177.5, 57.8, 178.0, 55.8, 178.5, 53.9, 179.0, 51.9, 179.5, 50, 180)
+width = 1.0
+
+[node name="deepdelve" type="Line2D" parent="Margin/Content/Map/Roads"]
+points = PackedVector2Array(128.0, 54.0, 128.0, 56.0, 128.0, 58.0, 128.0, 60.0, 128.0, 62.0, 128.0, 64.0, 128.0, 66.0, 128.0, 68.0, 128.0, 70.0, 128.0, 72.0, 126.2, 73.2, 124.5, 74.5, 122.8, 75.8, 121.0, 77.0, 119.2, 78.2, 117.5, 79.5, 115.8, 80.8, 114.0, 82.0, 115.8, 83.0, 117.5, 84.0, 119.2, 85.0, 121.0, 86.0, 122.8, 87.0, 124.5, 88.0, 126.2, 89.0, 128.0, 90.0, 129.8, 91.0, 131.5, 92.0, 133.2, 93.0, 135.0, 94.0, 136.8, 95.0, 138.5, 96.0, 140.2, 97.0, 142.0, 98.0, 140.3, 99.1, 138.5, 100.1, 136.8, 101.2, 135.1, 102.3, 133.3, 103.3, 131.6, 104.4, 129.9, 105.5, 128.1, 106.5, 126.4, 107.6, 124.7, 108.7, 122.9, 109.7, 121.2, 110.8, 119.5, 111.9, 117.7, 112.9, 116.0, 114.0, 117.7, 115.1, 119.4, 116.3, 121.1, 117.4, 122.9, 118.6, 124.6, 119.7, 126.3, 120.9, 128.0, 122.0, 129.7, 123.1, 131.4, 124.3, 133.1, 125.4, 134.9, 126.6, 136.6, 127.7, 138.3, 128.9, 140.0, 130.0, 138.8, 131.6, 137.6, 133.2, 136.4, 134.8, 135.2, 136.4, 134.0, 138.0, 132.8, 139.6, 131.6, 141.2, 130.4, 142.8, 129.2, 144.4, 128.0, 146.0, 128.0, 148.0, 128.0, 150.0, 128.0, 152.0, 126.4, 153.2, 124.8, 154.4, 123.2, 155.6, 121.6, 156.8, 120.0, 158.0, 118.4, 159.2, 116.8, 160.4, 115.2, 161.6, 113.6, 162.8, 112.0, 164.0, 114.0, 164.3, 116.0, 164.7, 118.0, 165.0, 120.0, 165.4, 122.0, 165.7, 124.0, 166.0, 126.0, 166.4, 128.0, 166.7, 130.0, 167.1, 132.0, 167.4, 134.0, 167.7, 136.0, 168.1, 138.0, 168.4, 140.0, 168.8, 142.0, 169.1, 144.0, 169.4, 146.0, 169.8, 148.0, 170.1, 150.0, 170.5, 152.0, 170.8, 154.0, 171.1, 156.0, 171.5, 158.0, 171.8, 160.0, 172.2, 162.0, 172.5, 164.0, 172.9, 166.0, 173.2, 168.0, 173.5, 170.0, 173.9, 172.0, 174.2, 174.0, 174.6, 176.0, 174.9, 178.0, 175.2, 180.0, 175.6, 182.0, 175.9, 184.0, 176.3, 186.0, 176.6, 188.0, 176.9, 190.0, 177.3, 192.0, 177.6, 194.0, 178.0, 196.0, 178.3, 198.0, 178.6, 200.0, 179.0, 202.0, 179.3, 204.0, 179.7, 206, 180)
 width = 1.0
 
 [node name="farming" type="Line2D" parent="Margin/Content/Map/Roads"]
-points = PackedVector2Array(112, 214, 110.0, 216.0, 106.0, 220.0, 102.5, 224.0, 99.5, 228.0, 98, 230)
+points = PackedVector2Array(128.0, 54.0, 126.0, 54.1, 124.0, 54.2, 122.0, 54.3, 120.0, 54.4, 118.0, 54.5, 116.0, 54.6, 114.0, 54.7, 112.0, 54.8, 110.0, 54.9, 108.0, 55.0, 106.0, 55.0, 104.0, 54.9, 102.0, 54.9, 100.0, 54.9, 98.0, 54.9, 96.0, 54.8, 94.0, 54.8, 92.0, 54.8, 90.0, 54.7, 88.0, 54.7, 86.0, 54.7, 84.0, 54.6, 82.0, 54.6, 80.0, 54.6, 78.0, 54.6, 76.0, 54.5, 74.0, 54.5, 72.0, 54.5, 70.0, 54.4, 68.0, 54.4, 66.0, 54.4, 64.0, 54.4, 62.0, 54.3, 60.0, 54.3, 58.0, 54.3, 56.0, 54.2, 54.0, 54.2, 52.0, 54.2, 50.0, 54.1, 48.0, 54.1, 46.0, 54.1, 44.0, 54.1, 42.0, 54.0, 40, 54)
 width = 1.0
 
 [node name="Chimneys" type="Node2D" parent="Margin/Content/Map"]
 
 [node name="Chimney1" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
-position = Vector2(115.0, 191.0)
+position = Vector2(102.0, 42.0)
 gizmo_extents = 3.0
 
 [node name="Chimney2" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
-position = Vector2(136.0, 196.0)
+position = Vector2(110.0, 38.0)
 gizmo_extents = 3.0
 
 [node name="Chimney3" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
-position = Vector2(129.0, 201.0)
+position = Vector2(119.0, 43.0)
 gizmo_extents = 3.0
 
 [node name="Chimney4" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
-position = Vector2(108.0, 200.0)
+position = Vector2(149.0, 40.0)
 gizmo_extents = 3.0
 
-[node name="Ruins" type="Label" parent="Margin/Content/Map"]
+[node name="Chimney5" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
+position = Vector2(157.0, 43.0)
+gizmo_extents = 3.0
+
+[node name="Chimney6" type="Marker2D" parent="Margin/Content/Map/Chimneys"]
+position = Vector2(166.0, 39.0)
+gizmo_extents = 3.0
+
+[node name="Layer1" type="Label" parent="Margin/Content/Map"]
 theme_type_variation = &"MapLabel"
-text = "Unsurveyed"
+text = "1 · Ashen Verge"
 layout_mode = 0
-offset_left = 112.0
-offset_top = 18.0
-offset_right = 164.0
-offset_bottom = 30.0
+offset_left = 136.0
+offset_top = 66.0
+offset_right = 198.0
+offset_bottom = 78.0
 horizontal_alignment = 1
 mouse_filter = 1
-tooltip_text = "Not yet surveyed. New work sites will open here."
+tooltip_text = "The Ashen Verge: just past the Maw. Ash falls like snow."
+theme_override_colors/font_color = Color(0.478, 0.345, 0.29, 1)
+
+[node name="Layer2" type="Label" parent="Margin/Content/Map"]
+theme_type_variation = &"MapLabel"
+text = "2 · Weeping Fens"
+layout_mode = 0
+offset_left = 136.0
+offset_top = 148.0
+offset_right = 202.0
+offset_bottom = 160.0
+horizontal_alignment = 1
+mouse_filter = 1
+tooltip_text = "The Weeping Fens: black water and trees that weep red sap."
+theme_override_colors/font_color = Color(0.478, 0.345, 0.29, 1)
+
+[node name="Layer3" type="Label" parent="Margin/Content/Map"]
+theme_type_variation = &"MapLabel"
+text = "3 · Brimstone Reach"
+layout_mode = 0
+offset_left = 88.0
+offset_top = 207.0
+offset_right = 170.0
+offset_bottom = 219.0
+horizontal_alignment = 1
+mouse_filter = 1
+tooltip_text = "The Brimstone Reach: not yet surveyed. Burning slopes and glass lakes."
+theme_override_colors/font_color = Color(0.478, 0.345, 0.29, 1)
+
+[node name="Layer4" type="Label" parent="Margin/Content/Map"]
+theme_type_variation = &"MapLabel"
+text = "4 · Frozen Lament"
+layout_mode = 0
+offset_left = 92.0
+offset_top = 230.0
+offset_right = 166.0
+offset_bottom = 242.0
+horizontal_alignment = 1
+mouse_filter = 1
+tooltip_text = "The Frozen Lament: not yet surveyed. Ice that holds the screaming."
+theme_override_colors/font_color = Color(0.478, 0.345, 0.29, 1)
+
+[node name="Layer5" type="Label" parent="Margin/Content/Map"]
+theme_type_variation = &"MapLabel"
+text = "5 · The Abyss"
+layout_mode = 0
+offset_left = 64.0
+offset_top = 262.0
+offset_right = 118.0
+offset_bottom = 274.0
+horizontal_alignment = 1
+mouse_filter = 1
+tooltip_text = "The Abyss: not yet surveyed. The Throne Below is at the bottom."
+theme_override_colors/font_color = Color(0.478, 0.345, 0.29, 1)
 
 [node name="Sites" type="Control" parent="Margin/Content/Map"]
 layout_mode = 1
@@ -124,90 +189,100 @@ mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "Cinderwood"
 layout_mode = 0
-offset_left = 14.0
-offset_top = 190.0
-offset_right = 90.0
-offset_bottom = 203.0
+offset_left = 16.0
+offset_top = 88.0
+offset_right = 72.0
+offset_bottom = 101.0
 
 [node name="old_oakwood" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "Weepingwood"
 layout_mode = 0
-offset_left = 8.0
-offset_top = 24.0
-offset_right = 112.0
-offset_bottom = 37.0
+offset_left = 22.0
+offset_top = 178.0
+offset_right = 82.0
+offset_bottom = 191.0
 
 [node name="harlow" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "The Gatepit"
+text = "Gatepit"
 layout_mode = 0
-offset_left = 174.0
-offset_top = 98.0
-offset_right = 240.0
-offset_bottom = 111.0
+offset_left = 194.0
+offset_top = 93.0
+offset_right = 244.0
+offset_bottom = 106.0
 
 [node name="town" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "Last Lantern"
 layout_mode = 0
-offset_left = 94.0
-offset_top = 222.0
-offset_right = 154.0
-offset_bottom = 235.0
+offset_left = 98.0
+offset_top = 10.0
+offset_right = 158.0
+offset_bottom = 23.0
 
 [node name="deepdelve" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "Sulphur Deeps"
 layout_mode = 0
-offset_left = 166.0
-offset_top = 28.0
-offset_right = 236.0
-offset_bottom = 41.0
+offset_left = 150.0
+offset_top = 183.0
+offset_right = 220.0
+offset_bottom = 196.0
 
 [node name="foraging" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Bloodfen"
+text = "Ashmeadow"
 layout_mode = 0
-offset_left = 196.0
-offset_top = 230.0
-offset_right = 246.0
-offset_bottom = 243.0
+offset_left = 72.0
+offset_top = 131.0
+offset_right = 120.0
+offset_bottom = 144.0
 
 [node name="fishing" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "Cinder Pool"
 layout_mode = 0
-offset_left = 160.0
-offset_top = 212.0
-offset_right = 218.0
-offset_bottom = 225.0
+offset_left = 190.0
+offset_top = 123.0
+offset_right = 246.0
+offset_bottom = 136.0
 
 [node name="hunting" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
-text = "Houndfang Hills"
+text = "Hollow Fields"
 layout_mode = 0
-offset_left = 4.0
-offset_top = 100.0
-offset_right = 80.0
-offset_bottom = 113.0
+offset_left = 8.0
+offset_top = 125.0
+offset_right = 70.0
+offset_bottom = 138.0
 
 [node name="farming" type="Button" parent="Margin/Content/Map/Sites"]
 mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "Home Fields"
 layout_mode = 0
-offset_left = 36.0
-offset_top = 258.0
-offset_right = 92.0
-offset_bottom = 271.0
+offset_left = 14.0
+offset_top = 32.0
+offset_right = 70.0
+offset_bottom = 45.0
+
+[node name="calder_keep" type="Button" parent="Margin/Content/Map/Sites"]
+mouse_default_cursor_shape = 2
+theme_type_variation = &"MapButton"
+text = "Fallen Keep"
+layout_mode = 0
+offset_left = 146.0
+offset_top = 127.0
+offset_right = 192.0
+offset_bottom = 140.0
 
 [node name="Fallen" type="Control" parent="Margin/Content/Map"]
 layout_mode = 1
@@ -221,10 +296,10 @@ mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "0"
 layout_mode = 0
-offset_left = 40.0
-offset_top = 203.0
-offset_right = 62.0
-offset_bottom = 215.0
+offset_left = 70.0
+offset_top = 74.0
+offset_right = 92.0
+offset_bottom = 86.0
 icon = ExtResource("4_grave")
 
 [node name="old_oakwood" type="Button" parent="Margin/Content/Map/Fallen"]
@@ -232,10 +307,10 @@ mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "0"
 layout_mode = 0
-offset_left = 30.0
-offset_top = 37.0
-offset_right = 52.0
-offset_bottom = 49.0
+offset_left = 78.0
+offset_top = 164.0
+offset_right = 100.0
+offset_bottom = 176.0
 icon = ExtResource("4_grave")
 
 [node name="harlow" type="Button" parent="Margin/Content/Map/Fallen"]
@@ -243,10 +318,10 @@ mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "0"
 layout_mode = 0
-offset_left = 192.0
-offset_top = 111.0
-offset_right = 214.0
-offset_bottom = 123.0
+offset_left = 174.0
+offset_top = 78.0
+offset_right = 196.0
+offset_bottom = 90.0
 icon = ExtResource("4_grave")
 
 [node name="deepdelve" type="Button" parent="Margin/Content/Map/Fallen"]
@@ -254,10 +329,10 @@ mouse_default_cursor_shape = 2
 theme_type_variation = &"MapButton"
 text = "0"
 layout_mode = 0
-offset_left = 172.0
-offset_top = 30.0
-offset_right = 194.0
-offset_bottom = 42.0
+offset_left = 230.0
+offset_top = 160.0
+offset_right = 252.0
+offset_bottom = 172.0
 icon = ExtResource("4_grave")
 
 [node name="Crews" type="Control" parent="Margin/Content/Map"]

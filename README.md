@@ -1,6 +1,6 @@
 # Money Mercs (becoming Hellfare)
 
-**Version 0.25 — Hellfare: names and writing**
+**Version 0.26 — Hellfare: art**
 
 A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
 Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
@@ -17,6 +17,22 @@ last, after the art.
 4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.26 – Hellfare: art
+
+- **Banners.** Every site and crypt below has a new banner in the hell palette, each layer with
+  its own sky: ash and ember for the Ashen Verge, blood-dark for the Weeping Fens, fire for the
+  Brimstone Reach, cold blue for the Frozen Lament, near-black for the Abyss. They fill the
+  planner's frame now. Painted by `tools/paint_hell_sites.py`; the farms keep their ink art
+  (`tools/paint_trade_sites.py`). Site badges name the layer ("Layer 2 · Hunting 8+").
+- **The descent map.** The Company page's map is a cross-section: Last Lantern and Home Fields
+  on the surface, the Maw, and five layers narrowing down to the throne. Crews walk down through
+  the Maw to their site and carry the haul back up; crypt crews walk to the Fallen Keep, which is
+  clickable. Painted by `tools/paint_descent_map.py`, which also writes the roads.
+- **Goods icons.** The 30 goods that come up from hell are tinted to match their new names
+  (ashwood grey, brimstone yellow, bloodgarnet red, soulglass violet...). `tools/tint_hell_goods.py`
+  keeps the untinted icons in `tools/icon_sources/` and always tints from them. Crops, food,
+  potions, gear and tools are made above and keep their colours.
 
 ## V0.25 – Hellfare: names and writing
 

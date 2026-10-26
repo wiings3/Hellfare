@@ -611,7 +611,7 @@ def site_pages():
     s = page("SiteRight")
     grp = s.sub("orders", "ButtonGroup", {})
     s.node(C + "/Site", "PanelContainer", {"custom_minimum_size": (0, 100), "theme_type_variation": Raw('&"SlotPanel"')})
-    s.node(C + "/Site/Art", "TextureRect", {"mouse_filter": 2, "expand_mode": 1, "stretch_mode": 5})
+    s.node(C + "/Site/Art", "TextureRect", {"mouse_filter": 2, "expand_mode": 1, "stretch_mode": 6})
     s.node(C + "/Site/Badge", "PanelContainer", {"size_flags_horizontal": 8, "size_flags_vertical": 8, "theme_type_variation": Raw('&"GoldPanel"')})
     label(s, C + "/Site/Badge/Text", "Logging 1+")
     s.node(C + "/Intel", "HBoxContainer", {"theme_override_constants/separation": 4})
@@ -1198,7 +1198,7 @@ def company_map():
     import json
     roads = json.load(open("tools/map_roads.json"))
     s = page("CompanyMapLeft")
-    header(s, C + "/Header", "The Gatelands")
+    header(s, C + "/Header", "The Descent")
     M = C + "/Map"
     s.node(M, "Control", {"custom_minimum_size": (257, 280), "size_flags_horizontal": 4, "mouse_filter": 2,
         "script": Res("res://scripts/ui/region_map.gd")})
@@ -1214,24 +1214,31 @@ def company_map():
     s.node(M + "/Chimneys", "Node2D", {})
     for i, (x, y) in enumerate(chimneys):
         s.node(M + "/Chimneys/Chimney%d" % (i + 1), "Marker2D", {"position": (float(x), float(y)), "gizmo_extents": 3.0})
-    # Unsurveyed lands.
-    for name, text, x, y, w in [("Ruins", "Unsurveyed", 112, 18, 52)]:
+    # The layers of hell with no open sites yet: names only, with a tooltip.
+    for name, text, x, y, w, tip in [
+            ("Layer1", "1 · Ashen Verge", 136, 66, 62, "The Ashen Verge: just past the Maw. Ash falls like snow."),
+            ("Layer2", "2 · Weeping Fens", 136, 148, 66, "The Weeping Fens: black water and trees that weep red sap."),
+            ("Layer3", "3 · Brimstone Reach", 88, 207, 82, "The Brimstone Reach: not yet surveyed. Burning slopes and glass lakes."),
+            ("Layer4", "4 · Frozen Lament", 92, 230, 74, "The Frozen Lament: not yet surveyed. Ice that holds the screaming."),
+            ("Layer5", "5 · The Abyss", 64, 262, 54, "The Abyss: not yet surveyed. The Throne Below is at the bottom.")]:
         label(s, M + "/" + name, text, "MapLabel", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 12), "horizontal_alignment": 1, "mouse_filter": 1,
-            "tooltip_text": "Not yet surveyed. New work sites will open here."})
-    # Site names: click one to plan an expedition there.
+            "tooltip_text": tip, "theme_override_colors/font_color": Raw("Color(0.478, 0.345, 0.29, 1)")})
+    # Site names: click one to plan an expedition there. Keep in step with SPOTS in tools/paint_descent_map.py.
     s.node(M + "/Sites", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
-    for site, text, x, y, w in [("mossward_copse", "Cinderwood", 14, 190, 76), ("old_oakwood", "Weepingwood", 8, 24, 104),
-                                ("harlow", "The Gatepit", 174, 98, 66), ("town", "Last Lantern", 94, 222, 60),
-                                ("deepdelve", "Sulphur Deeps", 166, 28, 70),
+    for site, text, x, y, w in [("mossward_copse", "Cinderwood", 16, 88, 56), ("old_oakwood", "Weepingwood", 22, 178, 60),
+                                ("harlow", "Gatepit", 194, 93, 50), ("town", "Last Lantern", 98, 10, 60),
+                                ("deepdelve", "Sulphur Deeps", 150, 183, 70),
                                 # The newer trades: one label per region, shared by its sites.
-                                ("foraging", "Bloodfen", 196, 230, 50), ("fishing", "Cinder Pool", 160, 212, 58),
-                                ("hunting", "Houndfang Hills", 4, 100, 76), ("farming", "Home Fields", 36, 258, 56)]:
+                                ("foraging", "Ashmeadow", 72, 131, 48), ("fishing", "Cinder Pool", 190, 123, 56),
+                                ("hunting", "Hollow Fields", 8, 125, 62), ("farming", "Home Fields", 14, 32, 56),
+                                # The crypts.
+                                ("calder_keep", "Fallen Keep", 146, 127, 46)]:
         button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + w), "offset_bottom": float(y + 13)})
-    # Grave markers: gear of the fallen this company could find at each site.
+    # Grave markers: what the dead left below at each site, that this guild could find.
     s.node(M + "/Fallen", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
-    for site, x, y in [("mossward_copse", 40, 203), ("old_oakwood", 30, 37), ("harlow", 192, 111), ("deepdelve", 172, 30)]:
+    for site, x, y in [("mossward_copse", 70, 74), ("old_oakwood", 78, 164), ("harlow", 174, 78), ("deepdelve", 230, 160)]:
         button(s, M + "/Fallen/" + site, "0", "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
             "offset_right": float(x + 22), "offset_bottom": float(y + 12), "icon": Res("res://assets/ui/art/crew/grave.png")})
     # Crew figures are added here while expeditions run.

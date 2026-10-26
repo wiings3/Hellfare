@@ -28,7 +28,7 @@ const RETREAT_AT := {"half": 15.0, "death": 0.0, "never": 0.0}
 
 const DUNGEONS := {
 	"calder_keep": {
-		"id": "calder_keep", "name": "The Fallen Keep", "tier": 1, "min_kit": 8, "supplies": 30, "crew": 3,
+		"id": "calder_keep", "name": "The Fallen Keep", "tier": 1, "layer": 1, "min_kit": 8, "supplies": 30, "crew": 3,
 		"tagline": "A keep the Maw swallowed when it opened. Rats in the cellars, spiders in the halls, and something in armour on the top floor, still on guard.",
 		"art": "res://assets/ui/art/dungeon_calder_keep.png",
 		"floors": [

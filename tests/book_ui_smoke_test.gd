@@ -209,7 +209,7 @@ func _verify() -> void:
 	var live_map := view.left_leaf.get_child(0).get_node("Margin/Content/Map") as RegionMap
 	check(live_map._tokens.size() == 1, "the crew appears on the map")
 	var m0: Dictionary = view.game.missions[0]
-	check(live_map.place("mossward_copse", 0.0, 0)["pos"].distance_to(Vector2(112, 208)) < 1.0, "crew sets out from town")
+	check(live_map.place("mossward_copse", 0.0, 0)["pos"].distance_to(RegionMap.TOWN) < 1.0, "crew sets out from town")
 	check(live_map.place("mossward_copse", 0.5, 0)["pose"] == "work", "crew works mid-trip")
 	check(live_map.place("mossward_copse", 0.95, 0)["pose"] == "carry", "crew carries the haul home")
 	check(live_map.describe.call(m0).contains("Cinderwood"), "crew tooltip names the site")

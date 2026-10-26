@@ -28,8 +28,8 @@ const SPACING := 6.0
 ## Most figures drawn for one crew, and for idle mercenaries in town.
 const MAX_PER_CREW := 3
 const MAX_IDLE := 4
-const TOWN := Vector2(124, 207)
-const TOWN_SPREAD := Vector2(17, 6)
+const TOWN := Vector2(128, 54)
+const TOWN_SPREAD := Vector2(26, 1)
 const IDLE_SPEED := 5.0
 
 ## Calls describe.call(mission) for a token's tooltip.
@@ -91,6 +91,7 @@ const OWN_ROADS := ["mossward_copse", "old_oakwood", "harlow", "deepdelve"]
 static func road_for(mission: Dictionary) -> String:
 	match str(mission.get("region", "")):
 		"harlow": return "harlow"
+		"dungeon": return str(mission.get("dungeon", ""))
 		"site":
 			var site: String = str(mission.get("site", ""))
 			return site if OWN_ROADS.has(site) else str(TradeSites.by_id(site).get("trade", ""))

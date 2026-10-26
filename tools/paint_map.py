@@ -344,7 +344,8 @@ for (x, y) in CHIMNEYS:
     put(x, y, INK); put(x, y + 1, INK)
 
 os.makedirs("assets/ui/art/crew", exist_ok=True)
-img.save("assets/ui/art/region_map.png")
+# Hellfare: tools/paint_descent_map.py paints region_map.png and the roads now.
+# img.save("assets/ui/art/region_map.png")
 
 # --- Crew figures (9x11) --------------------------------------------------------------
 def figure(frame, tool=None, carry=False, swing=0):
@@ -408,7 +409,7 @@ for name, f in frames.items():
 
 out = {k: [[round(x, 1), round(y, 1)] for x, y in v] for k, v in roads.items()}
 out["_chimneys"] = [[x, y - 1] for x, y in CHIMNEYS]
-json.dump(out, open("tools/map_roads.json", "w"), indent=1)
+# json.dump(out, open("tools/map_roads.json", "w"), indent=1)
 puff = Image.new("RGBA", (3, 3), NONE)
 for x, y in [(1, 0), (0, 1), (1, 1), (2, 1), (1, 2)]:
     puff.putpixel((x, y), FAINT)
