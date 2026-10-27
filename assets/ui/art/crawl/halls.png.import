@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b2bfem6only41"
-path="res://.godot/imported/crawl_cellars.png-4f49a9ffa0159a93fa1493b0bffa05f1.ctex"
+uid="uid://c52wqjopiegol"
+path="res://.godot/imported/halls.png-07532026e155eaba98e9aedcb32eccba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/art/crawl_cellars.png"
-dest_files=["res://.godot/imported/crawl_cellars.png-4f49a9ffa0159a93fa1493b0bffa05f1.ctex"]
+source_file="res://assets/ui/art/crawl/halls.png"
+dest_files=["res://.godot/imported/halls.png-07532026e155eaba98e9aedcb32eccba.ctex"]
 
 [params]
 

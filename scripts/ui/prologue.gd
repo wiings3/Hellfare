@@ -159,7 +159,7 @@ func _fight() -> void:
 	var party: Array = [ALDREN.duplicate(true), MIRA.duplicate(true)]
 	var st: Dictionary = Crawl.start(party, GATE, 1077, true)
 	st["title"] = "The Brimstone Reach  ·  The Ember Gate"
-	st["backdrop"] = "res://assets/ui/art/crawl_ember_gate.png"
+	st["backdrop"] = "res://assets/ui/art/crawl/ember_gate.png"
 	var tw := create_tween()
 	tw.tween_property(veil, "color:a", 0.0, 0.6)
 	card.visible = false

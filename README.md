@@ -57,6 +57,10 @@ The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DO
   paladin (Aldren) who turns into his dark twin (the First Blade), imps, and a devil at the gate.
   Fighters idle, strike, use their skill, flinch and fall. Only the sprites the game uses are in the
   repository: `python3 tools/import_has.py <pack folder>` writes them.
+- **New crawl backgrounds** from Firepious's *Hellwake* and *Underfire* packs (free; the publisher
+  tags them AI-assisted, so a Steam release needs the AI-content disclosure): a torchlit crypt for
+  the Cellars, root-choked rock for the Webbed Halls, a pillared throne hall for the Bone Knight,
+  and a chained, burning cavern for the Ember Gate. Native 256×144, drawn at a whole multiple.
 
 ## V0.32 – The Descent, repainted
 

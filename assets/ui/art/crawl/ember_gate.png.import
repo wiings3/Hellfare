@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bjgskrr1gtjk4"
-path="res://.godot/imported/crawl_halls.png-41a1bffbe6172c4396456e0287c71391.ctex"
+uid="uid://7i1tbsl5tqdm"
+path="res://.godot/imported/ember_gate.png-7a4fd41e9f1280158a7df34faee0f2b2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/art/crawl_halls.png"
-dest_files=["res://.godot/imported/crawl_halls.png-41a1bffbe6172c4396456e0287c71391.ctex"]
+source_file="res://assets/ui/art/crawl/ember_gate.png"
+dest_files=["res://.godot/imported/ember_gate.png-7a4fd41e9f1280158a7df34faee0f2b2.ctex"]
 
 [params]
 

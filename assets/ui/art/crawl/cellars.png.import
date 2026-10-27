@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://fumf8flvwp0c"
-path="res://.godot/imported/crawl_ember_gate.png-42b074ecdf62d72643bc43d3861dd9e2.ctex"
+uid="uid://b6uubinaxu6bo"
+path="res://.godot/imported/cellars.png-893d75a58e5d2443558c4cee27d39125.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/art/crawl_ember_gate.png"
-dest_files=["res://.godot/imported/crawl_ember_gate.png-42b074ecdf62d72643bc43d3861dd9e2.ctex"]
+source_file="res://assets/ui/art/crawl/cellars.png"
+dest_files=["res://.godot/imported/cellars.png-893d75a58e5d2443558c4cee27d39125.ctex"]
 
 [params]
 

@@ -1669,7 +1669,7 @@ BANNERS = {
     "site_sunreach": ember_slopes, "site_glasswater": lake_of_glass, "site_elkmoor": gorehorn_moor,
     "site_frostvale": laments_edge, "site_greywater_coast": shore_of_tears, "site_bleakridge": bleakridge,
     "site_drowned_deep": drowned_deep,
-    "crawl_cellars": crawl_cellars, "crawl_halls": crawl_halls, "crawl_throne": crawl_throne, "crawl_ember_gate": crawl_ember_gate,
+    # The crawl backdrops are now Firepious art (assets/ui/art/crawl/); these painters are kept for reference.
     "site_home_fields": home_fields, "site_tilled_acres": tilled_acres, "site_beehives": beehives, "site_glasshouse": glasshouse,
 }
 
