@@ -4032,7 +4032,7 @@ func _tutorial_guide(id: String) -> Dictionary:
 					return {"do": "Press Back to the guild.", "tag": "crawl:close"}
 				if str(lr["stage"]) == "led_between":
 					return {"do": "Take what you carry out (or go down, if you're feeling brave).", "tag": "crawl:leave"}
-				return {"do": "Your turn: click a rat, then Strike. Use your skill when it's ready.", "tag": "crawl:strike"}
+				return {"do": "Your turn: click a monster, then Strike. Use your skill when it's ready.", "tag": "crawl:strike"}
 			if game.heroes.is_empty():
 				return {"do": "Take on a hero in Mercenaries, Heroes.", "bookmark": "roster"}
 			var h: Dictionary = game.heroes[0]

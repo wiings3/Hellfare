@@ -971,8 +971,8 @@ def crawl_fighter():
         "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0})
     label(s, "HP", "100 / 100", "DeskCaption", {"horizontal_alignment": 1})
     label(s, "Status", "", "DeskCaption", {"horizontal_alignment": 1, "modulate": Raw("Color(1, 0.75, 0.45, 1)")})
-    s.node("Sprite", "TextureRect", {"custom_minimum_size": (96, 112), "size_flags_horizontal": 4, "mouse_filter": 2,
-        "expand_mode": 1, "stretch_mode": 5})
+    s.node("Sprite", "TextureRect", {"custom_minimum_size": (128, 128), "size_flags_horizontal": 4, "mouse_filter": 2,
+        "expand_mode": 1, "stretch_mode": 5, "script": Res("res://scripts/ui/crawl_sprite.gd", "Script")})
     s.save(R + "crawl_fighter.tscn")
 
 
@@ -1000,10 +1000,10 @@ def crawl_view():
     s.node(B + "/Arena/Floor", "ColorRect", {"layout_mode": 1, "anchors_preset": 12, "anchor_top": 1.0, "anchor_right": 1.0, "anchor_bottom": 1.0,
         "offset_top": -26.0, "grow_horizontal": 2, "grow_vertical": 0, "mouse_filter": 2, "color": Raw("Color(0.05, 0.03, 0.03, 0.55)")})
     s.node(B + "/Arena/Party", "HBoxContainer", {"layout_mode": 1, "anchors_preset": 2, "anchor_top": 1.0, "anchor_bottom": 1.0,
-        "offset_left": 40.0, "offset_top": -230.0, "offset_right": 380.0, "offset_bottom": -12.0, "grow_vertical": 0,
+        "offset_left": 24.0, "offset_top": -270.0, "offset_right": 380.0, "offset_bottom": -12.0, "grow_vertical": 0,
         "theme_override_constants/separation": 6, "alignment": 0})
     s.node(B + "/Arena/Foes", "HBoxContainer", {"layout_mode": 1, "anchors_preset": 3, "anchor_left": 1.0, "anchor_top": 1.0,
-        "anchor_right": 1.0, "anchor_bottom": 1.0, "offset_left": -470.0, "offset_top": -230.0, "offset_right": -24.0, "offset_bottom": -12.0,
+        "anchor_right": 1.0, "anchor_bottom": 1.0, "offset_left": -560.0, "offset_top": -270.0, "offset_right": -16.0, "offset_bottom": -12.0,
         "grow_horizontal": 0, "grow_vertical": 0, "theme_override_constants/separation": 2, "alignment": 2})
     s.node(B + "/Arena/Floaters", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
         "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2})

@@ -24,9 +24,9 @@ const AFTERMATH := "The Lantern Company is gone. Its hall and its people answer 
 const GATE := {
 	"name": "The Ember Gate",
 	"foes": [
-		{"name": "Brimstone fiend", "kind": "fiend", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
-		{"name": "The Gatekeeper", "kind": "fiend", "hp": 300, "damage": 26, "speed": 0.9, "armour": 22, "boss": true},
-		{"name": "Brimstone fiend", "kind": "fiend", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
+		{"name": "Ember cultist", "kind": "cultist", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
+		{"name": "The Gatekeeper", "kind": "gatekeeper", "hp": 300, "damage": 26, "speed": 0.9, "armour": 22, "boss": true},
+		{"name": "Ember cultist", "kind": "cultist", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
 	],
 }
 const ALDREN := {"id": "aldren", "name": "Ser Aldren Vane", "cls": "knight", "sprite": "aldren", "hero": true, "porter": false,

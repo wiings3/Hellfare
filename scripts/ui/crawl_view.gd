@@ -10,12 +10,10 @@ extends Control
 signal closed
 
 const FIGHTER := preload("res://scenes/journal/rows/crawl_fighter.tscn")
-const SPRITES := {
-	"knight": preload("res://assets/ui/crawl/knight.png"), "rogue": preload("res://assets/ui/crawl/rogue.png"),
-	"aldren": preload("res://assets/ui/crawl/aldren.png"), "first_blade": preload("res://assets/ui/crawl/first_blade.png"),
-	"rat": preload("res://assets/ui/crawl/rat.png"), "spider": preload("res://assets/ui/crawl/spider.png"),
-	"bone_knight": preload("res://assets/ui/crawl/bone_knight.png"), "fiend": preload("res://assets/ui/crawl/fiend.png"),
-}
+const CrawlSprite := preload("res://scripts/ui/crawl_sprite.gd")
+## Book pixels per sprite pixel (the book is drawn at twice its size on a 1080p screen, so
+## ordinary fighters show at 4x and the 128-pixel bosses at 3x).
+const SCALE := {64: 2.0, 128: 1.5}
 ## How long each kind of event holds the screen (seconds).
 const BEAT := {"hit": 0.32, "crit": 0.45, "struck": 0.32, "heavy": 0.5, "dodge": 0.26, "parry": 0.26, "kill": 0.35, "death": 0.6,
 	"stun": 0.2, "guard": 0.22, "potion": 0.3, "wind": 0.55, "lucky": 0.4, "stunned": 0.2, "round": 0.0, "end": 0.15}
@@ -108,7 +106,9 @@ func _backdrop(floor: Dictionary, d: Dictionary) -> Texture2D:
 # --- Fighters ------------------------------------------------------------------------
 
 func _build_cards(st: Dictionary) -> void:
+	# Out of the boxes now, not at the end of the frame: the new cards reuse the names H0, F0...
 	for c in party_box.get_children() + foes_box.get_children():
+		c.get_parent().remove_child(c)
 		c.queue_free()
 	var party: Array = st.get("party", [])
 	for i in range(party.size()):
@@ -145,10 +145,16 @@ func _paint_card(card: Control, f: Dictionary, hero: bool) -> void:
 	if hero and int(f.get("cd", 0)) > 0:
 		status.append("Skill in %d" % int(f["cd"]))
 	(card.get_node("Status") as Label).text = "  ".join(status)
-	var key: String = str(f.get("sprite", f.get("cls", "knight") if hero else f.get("kind", "rat")))
+	var key: String = str(f.get("sprite", f.get("cls", "knight") if hero else f.get("kind", "skeleton")))
+	key = str(card.get_meta("skin", key))
+	if not CrawlSprite.has(key):
+		key = "knight" if hero else "skeleton"
 	var sprite := card.get_node("Sprite") as TextureRect
-	sprite.texture = SPRITES.get(key, SPRITES["knight" if hero else "rat"])
-	sprite.flip_h = false
+	var cell: int = CrawlSprite.cell_of(key)
+	sprite.custom_minimum_size = Vector2.ONE * float(cell) * float(SCALE.get(cell, 1.0))
+	sprite.flip_h = not hero
+	sprite.show_fighter(key, hp <= 0.0)
+	card.size_flags_vertical = Control.SIZE_SHRINK_END
 	card.modulate = Color(1, 1, 1, 1) if hp > 0.0 else Color(0.45, 0.4, 0.4, 0.55)
 	card.tooltip_text = _fighter_tip(f, hero)
 
@@ -286,6 +292,8 @@ func _play(events: Array, st: Dictionary) -> void:
 		match kind:
 			"hit", "crit":
 				_lunge(src, 1 if str(e["src"]).begins_with("h") else -1)
+				_animate(src, "skill" if str(e.get("skill", "")) != "" else "attack")
+				_animate(dst, "hurt")
 				_flash(dst)
 				_float(dst, ("CRIT %d" if kind == "crit" else "%d") % int(e["amount"]), Color(1, 0.85, 0.35) if kind == "crit" else Color(1, 1, 1), kind == "crit")
 				Sound.play("crit" if kind == "crit" else "hit")
@@ -293,6 +301,8 @@ func _play(events: Array, st: Dictionary) -> void:
 					_shake()
 			"struck", "heavy":
 				_lunge(src, -1)
+				_animate(src, "skill" if kind == "heavy" else "attack")
+				_animate(dst, "hurt")
 				_flash(dst)
 				_float(dst, "%d" % int(e["amount"]), Color(1, 0.45, 0.35), kind == "heavy")
 				Sound.play("struck" if kind == "struck" else "crit")
@@ -302,6 +312,7 @@ func _play(events: Array, st: Dictionary) -> void:
 					_shake()
 			"dodge", "parry":
 				_lunge(src, -1)
+				_animate(src, "attack")
 				_float(dst, "Dodged" if kind == "dodge" else "Parried", Color(0.7, 0.9, 1.0), false)
 				Sound.play("dodge")
 			"kill":
@@ -348,6 +359,10 @@ func _log(e: Dictionary) -> void:
 	var color: String = {"crit": "#a8361e", "heavy": "#a8361e", "kill": "#6a3a10", "death": "#8a1a1a", "potion": "#2e6a2a",
 		"wind": "#a8361e", "guard": "#2a4a6a", "dodge": "#2a4a6a", "parry": "#2a4a6a", "end": "#3d2824"}.get(kind, "#3d2824")
 	log_text.append_text("[color=%s]%s[/color]\n" % [color, str(e["text"])])
+
+func _animate(card: Control, which: String) -> void:
+	if card:
+		(card.get_node("Sprite") as CrawlSprite).play(which)
 
 func _lunge(card: Control, dir: int) -> void:
 	if card == null:
@@ -471,13 +486,19 @@ func reskin(code: String, sprite_key: String) -> void:
 	var c := _card(code)
 	if c == null:
 		return
-	(c.get_node("Sprite") as TextureRect).texture = SPRITES.get(sprite_key, null)
+	var sprite := c.get_node("Sprite") as CrawlSprite
+	sprite.key = ""
+	c.set_meta("skin", sprite_key)
+	sprite.show_fighter(sprite_key, false)
+	var cell: int = CrawlSprite.cell_of(sprite_key)
+	sprite.custom_minimum_size = Vector2.ONE * float(cell) * float(SCALE.get(cell, 1.0))
 	_flash(c)
 	_shake()
 
 func fell(code: String) -> void:
 	var c := _card(code)
 	if c:
+		(c.get_node("Sprite") as CrawlSprite).show_fighter((c.get_node("Sprite") as CrawlSprite).key, true)
 		var tw := create_tween()
 		tw.tween_property(c, "modulate", Color(0.45, 0.4, 0.4, 0.55), 0.6)
 
