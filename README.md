@@ -39,7 +39,7 @@ The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DO
   on a piece of gear shows in the fight. Lead a run yourself, or let the hero handle it by the
   same rules (you can hand over mid-run). Floors you've cleared stay open: runs can start at the
   deepest known stairs.
-- **The Fallen Keep, retuned** for one hero: four crypt bats in the Cellars, two skeletons in the
+- **The Fallen Keep, retuned** for one hero: four skeletons in the Cellars, two cave spiders in the
   Webbed Halls, the Bone Knight above them. A starter hero clears the Cellars; the Halls want
   tier-1 gear; the Bone Knight wants it made well (`tools/crawl_sim.gd` prints the table).
 - **Shorter trips.** Tier-1 trips take a minute and a half, tier 2 four minutes, deeper sites a
@@ -51,11 +51,12 @@ The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DO
   Cellars while they work, sell the haul, then arm the hero — the pointer walks through learning a
   blueprint from the quartermaster, crafting it and equipping it.
 - The board's Guarding row is now Heroes; the header counts crews out and heroes below separately.
-- **New crawl art** from the Duskwarden pack (bought; its art is AI-generated, per its license):
-  animated knight, rogue, bats, skeletons, the armoured Bone Knight, cultists, and the Fallen
-  Knight as Death's First Blade, with recoloured versions for Aldren, the Ember Gate's cultists and
-  the Gatekeeper. Fighters idle, strike, use their skill, flinch and fall. Only the frames the game
-  uses are in the repository: `python3 tools/import_duskwarden.py <pack folder>` writes them.
+- **New crawl art** from Aleksandr Makarov's *Heroic Asset Series: Creature Pack* (hand-made, credit
+  required: see `CREDITS.md`): an animated swordsman and hooded crossbowman for the Knight and
+  Rogue, skeletons, cave spiders and a death knight for the Fallen Keep, and for the prologue a
+  paladin (Aldren) who turns into his dark twin (the First Blade), imps, and a devil at the gate.
+  Fighters idle, strike, use their skill, flinch and fall. Only the sprites the game uses are in the
+  repository: `python3 tools/import_has.py <pack folder>` writes them.
 
 ## V0.32 – The Descent, repainted
 

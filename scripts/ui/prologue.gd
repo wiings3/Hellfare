@@ -24,15 +24,15 @@ const AFTERMATH := "The Lantern Company is gone. Its hall and its people answer 
 const GATE := {
 	"name": "The Ember Gate",
 	"foes": [
-		{"name": "Ember cultist", "kind": "cultist", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
-		{"name": "The Gatekeeper", "kind": "gatekeeper", "hp": 300, "damage": 26, "speed": 0.9, "armour": 22, "boss": true},
-		{"name": "Ember cultist", "kind": "cultist", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
+		{"name": "Brimstone imp", "kind": "imp", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
+		{"name": "The Gatekeeper", "kind": "devil", "hp": 300, "damage": 26, "speed": 0.9, "armour": 22, "boss": true},
+		{"name": "Brimstone imp", "kind": "imp", "hp": 70, "damage": 16, "speed": 1.0, "armour": 10},
 	],
 }
 const ALDREN := {"id": "aldren", "name": "Ser Aldren Vane", "cls": "knight", "sprite": "aldren", "hero": true, "porter": false,
 	"hp": 260.0, "max_hp": 260.0, "damage": 34.0, "speed": 1.0, "crit": 0.25, "crit_damage": 2.0, "pen": 0.3, "first": 0.0,
 	"armour": 70.0, "dodge": 0.0, "parry": 0.1, "block": 0.25, "lucky": false, "heal": 80, "stun": 0.1}
-const MIRA := {"id": "mira", "name": "Mira Holt", "cls": "rogue", "sprite": "rogue", "hero": true, "porter": false,
+const MIRA := {"id": "mira", "name": "Mira Holt", "cls": "rogue", "sprite": "mira", "hero": true, "porter": false,
 	"hp": 150.0, "max_hp": 150.0, "damage": 20.0, "speed": 1.6, "crit": 0.4, "crit_damage": 2.2, "pen": 0.2, "first": 0.3,
 	"armour": 30.0, "dodge": 0.25, "parry": 0.0, "block": 0.0, "lucky": false, "heal": 60, "stun": 0.0}
 

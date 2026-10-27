@@ -213,7 +213,7 @@ instead of going to a crypt.)
 | 0:00–0:05 | **Prologue:** Aldren in great gear, one led fight in the Brimstone Reach, the betrayal | — |
 | 0:05–0:12 | **Rock bottom.** Empty hall, a few coins. Choose your first hero's class. Hire a woodcutter, send them to Cinderwood (~90 s). Lead the hero into the Fallen Keep's Cellars while they work. The crew comes back; sell the ashwood | Mercenaries, Expeditions, Heroes, Market |
 | 0:12–0:25 | **The rusty sword is the problem.** The cellars drop scrap; a better sword needs a handle (ashwood) and copper (the Gatepit). Hire a miner. Two crews and a hero. Equip the new sword, go back down, watch the crits | Workshop, second worker |
-| 0:25–0:40 | **The second wall.** The Webbed Halls' skeletons hit hard; armour needs hides — the Hollow Fields open. Prices move; sell or keep starts to matter. First crypt choice card. First injury | Hunting, Warehouse |
+| 0:25–0:40 | **The second wall.** The Webbed Halls' spiders hit hard; armour needs hides — the Hollow Fields open. Prices move; sell or keep starts to matter. First crypt choice card. First injury | Hunting, Warehouse |
 | 0:40–0:55 | **The Bone Knight.** Maybe a loss, maybe a narrow win in gear you made. First rare find and blueprint. On the knight: a sign of Aldren's crew in the Drowned Abbey | Auction House, a goal |
 | 0:55–1:00 | **The hook.** Overnight orders suggested; what will be ready tomorrow; the next charter and hero slot in view | Long orders, Ledger |
 

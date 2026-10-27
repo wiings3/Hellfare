@@ -47,7 +47,7 @@ modulate = Color(1, 0.75, 0.45, 1)
 
 [node name="Sprite" type="TextureRect" parent="."]
 layout_mode = 2
-custom_minimum_size = Vector2(128, 128)
+custom_minimum_size = Vector2(96, 96)
 size_flags_horizontal = 4
 mouse_filter = 2
 expand_mode = 1

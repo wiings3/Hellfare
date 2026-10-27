@@ -971,7 +971,7 @@ def crawl_fighter():
         "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0})
     label(s, "HP", "100 / 100", "DeskCaption", {"horizontal_alignment": 1})
     label(s, "Status", "", "DeskCaption", {"horizontal_alignment": 1, "modulate": Raw("Color(1, 0.75, 0.45, 1)")})
-    s.node("Sprite", "TextureRect", {"custom_minimum_size": (128, 128), "size_flags_horizontal": 4, "mouse_filter": 2,
+    s.node("Sprite", "TextureRect", {"custom_minimum_size": (96, 96), "size_flags_horizontal": 4, "mouse_filter": 2,
         "expand_mode": 1, "stretch_mode": 5, "script": Res("res://scripts/ui/crawl_sprite.gd", "Script")})
     s.save(R + "crawl_fighter.tscn")
 

@@ -1,10 +1,10 @@
 extends TextureRect
-## One fighter on the crawl screen, animated from the strips in assets/ui/crawl/dusk/
-## (<key>_<anim>.png, square cells side by side; tools/import_duskwarden.py writes them).
+## One fighter on the crawl screen, animated from the strips in assets/ui/crawl/has/
+## (<key>_<anim>.png, square cells side by side; tools/import_has.py writes them).
 ## Idle loops; attack, skill and hurt play once and fall back to idle; death holds its last frame.
 
-const DIR := "res://assets/ui/crawl/dusk/"
-const FPS := {"idle": 6.0, "attack": 12.0, "skill": 12.0, "hurt": 12.0, "death": 8.0}
+const DIR := "res://assets/ui/crawl/has/"
+const FPS := {"idle": 5.0, "attack": 10.0, "skill": 10.0, "hurt": 10.0, "death": 7.0}
 
 static var _cache: Dictionary = {}
 
@@ -32,10 +32,10 @@ static func frames_for(fighter: String, which: String) -> Array:
 	_cache[id] = out
 	return out
 
-## Cell size in pixels (64 for most fighters, 128 for the big bosses).
+## Cell size in pixels.
 static func cell_of(fighter: String) -> int:
 	var f: Array = frames_for(fighter, "idle")
-	return int((f[0] as AtlasTexture).region.size.y) if not f.is_empty() else 64
+	return int((f[0] as AtlasTexture).region.size.y) if not f.is_empty() else 16
 
 static func has(fighter: String) -> bool:
 	return not frames_for(fighter, "idle").is_empty()

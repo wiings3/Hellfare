@@ -12,8 +12,9 @@ signal closed
 const FIGHTER := preload("res://scenes/journal/rows/crawl_fighter.tscn")
 const CrawlSprite := preload("res://scripts/ui/crawl_sprite.gd")
 ## Book pixels per sprite pixel (the book is drawn at twice its size on a 1080p screen, so
-## ordinary fighters show at 4x and the 128-pixel bosses at 3x).
-const SCALE := {64: 2.0, 128: 1.5}
+## fighters show at 12x and bosses at 16x).
+const SCALE := 6.0
+const BOSS_SCALE := 8.0
 ## How long each kind of event holds the screen (seconds).
 const BEAT := {"hit": 0.32, "crit": 0.45, "struck": 0.32, "heavy": 0.5, "dodge": 0.26, "parry": 0.26, "kill": 0.35, "death": 0.6,
 	"stun": 0.2, "guard": 0.22, "potion": 0.3, "wind": 0.55, "lucky": 0.4, "stunned": 0.2, "round": 0.0, "end": 0.15}
@@ -151,7 +152,7 @@ func _paint_card(card: Control, f: Dictionary, hero: bool) -> void:
 		key = "knight" if hero else "skeleton"
 	var sprite := card.get_node("Sprite") as TextureRect
 	var cell: int = CrawlSprite.cell_of(key)
-	sprite.custom_minimum_size = Vector2.ONE * float(cell) * float(SCALE.get(cell, 1.0))
+	sprite.custom_minimum_size = Vector2.ONE * float(cell) * (BOSS_SCALE if bool(f.get("boss", false)) else SCALE)
 	sprite.flip_h = not hero
 	sprite.show_fighter(key, hp <= 0.0)
 	card.size_flags_vertical = Control.SIZE_SHRINK_END
@@ -490,8 +491,6 @@ func reskin(code: String, sprite_key: String) -> void:
 	sprite.key = ""
 	c.set_meta("skin", sprite_key)
 	sprite.show_fighter(sprite_key, false)
-	var cell: int = CrawlSprite.cell_of(sprite_key)
-	sprite.custom_minimum_size = Vector2.ONE * float(cell) * float(SCALE.get(cell, 1.0))
 	_flash(c)
 	_shake()
 

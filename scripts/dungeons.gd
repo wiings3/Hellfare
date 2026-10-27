@@ -30,14 +30,14 @@ const RETREAT_AT := {"half": 15.0, "death": 0.0, "never": 0.0}
 const DUNGEONS := {
 	"calder_keep": {
 		"id": "calder_keep", "name": "The Fallen Keep", "tier": 1, "layer": 1, "min_kit": 8, "supplies": 10, "crew": 3, "heroes": 1,
-		"tagline": "A keep the Maw swallowed when it opened. Bats in the cellars, the dead walking the halls, and something in armour on the top floor, still on guard.",
+		"tagline": "A keep the Maw swallowed when it opened. The dead in the cellars, spiders in the halls, and something in armour on the top floor, still on guard.",
 		"art": "res://assets/ui/art/dungeon_calder_keep.png",
 		"floors": [
-			{"name": "The Cellars", "foe": "Crypt bats", "one": "Crypt bat", "kind": "bat", "backdrop": "res://assets/ui/art/crawl_cellars.png", "count": 4, "hp": 12, "damage": 5, "speed": 1.0, "armour": 0,
+			{"name": "The Cellars", "foe": "Skeletons", "one": "Skeleton", "kind": "skeleton", "backdrop": "res://assets/ui/art/crawl_cellars.png", "count": 4, "hp": 12, "damage": 5, "speed": 1.0, "armour": 0,
 			 "coin": [22, 41], "loot": {"bone": [1, 3]}},
-			{"name": "Webbed Halls", "foe": "Skeletons", "one": "Skeleton", "kind": "skeleton", "backdrop": "res://assets/ui/art/crawl_halls.png", "count": 2, "hp": 40, "damage": 12, "speed": 1.0, "armour": 6,
+			{"name": "Webbed Halls", "foe": "Cave spiders", "one": "Cave spider", "kind": "spider", "backdrop": "res://assets/ui/art/crawl_halls.png", "count": 2, "hp": 40, "damage": 12, "speed": 1.0, "armour": 6,
 			 "coin": [43, 77], "loot": {"spider_silk": [1, 3], "bone": [0, 2]}},
-			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "armored_undead", "backdrop": "res://assets/ui/art/crawl_throne.png", "count": 1, "hp": 150, "damage": 13, "speed": 0.9, "armour": 12, "boss": true,
+			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "death_knight", "backdrop": "res://assets/ui/art/crawl_throne.png", "count": 1, "hp": 150, "damage": 13, "speed": 0.9, "armour": 12, "boss": true,
 			 "coin": [156, 252], "loot": {"bone": [3, 5]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
 		],
 	},
