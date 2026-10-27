@@ -560,7 +560,7 @@ def board():
     header(s, C + "/Header", "Trades")
     s.node(C + "/Trades", "VBoxContainer", {"theme_override_constants/separation": 4})
     spacer(s, C + "/Spacer")
-    label(s, C + "/Hint", "Guards ride along with any crew: they cut the risk and gather at half pace.", "LabelMuted",
+    label(s, C + "/Hint", "Crews work the sites; heroes fight the crypts. Both can be out at once.", "LabelMuted",
           {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "board_left.tscn")
 

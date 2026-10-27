@@ -3938,6 +3938,12 @@ func _update_tutorial() -> void:
 		var scroller := _scroll_parent(target)
 		if scroller != null:
 			scroller.ensure_control_visible(target)
+			# Under the tutorial card: scroll it up to the middle of the list, if the list can.
+			var panel := stage.get_node("TutorialCard/Card") as Control
+			if panel.get_global_rect().intersects(target.get_global_rect()):
+				var scale_y: float = scroller.get_global_transform().get_scale().y
+				var shift: float = (target.get_global_rect().get_center().y - scroller.get_global_rect().get_center().y) / maxf(0.01, scale_y)
+				scroller.scroll_vertical += int(maxf(0.0, shift))
 		var r: Rect2 = target.get_global_rect()
 		at = Vector2(r.position.x, r.get_center().y)
 	# The arrow sits just left of the target, pointing at it.
