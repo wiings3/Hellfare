@@ -1,0 +1,57 @@
+name: Demo builds
+# Builds Windows, Linux and browser versions of the game from export_presets.cfg.
+# Run it from the Actions tab (Run workflow), or push a tag like v0.33-demo.
+# The builds are attached to the run as downloads. To also upload them to itch.io,
+# add a repository secret BUTLER_API_KEY (itch.io > Settings > API keys) and a repository
+# variable ITCH_GAME set to "your-itch-name/your-game-page" (for example "wiings3/hellfare").
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.5.1
+          use-dotnet: false
+          include-templates: true
+      - name: Import project
+        run: godot --headless --path . --editor --quit || true
+      - name: Export
+        run: |
+          set -e
+          mkdir -p build/windows build/linux build/web
+          godot --headless --path . --export-release "Windows"
+          godot --headless --path . --export-release "Linux"
+          godot --headless --path . --export-release "Web"
+          test -s build/windows/Hellfare.exe
+          test -s build/linux/Hellfare.x86_64
+          test -s build/web/index.wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hellfare-windows
+          path: build/windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hellfare-linux
+          path: build/linux
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hellfare-web
+          path: build/web
+      - name: Upload to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          ITCH_GAME: ${{ vars.ITCH_GAME }}
+        if: env.BUTLER_API_KEY != '' && env.ITCH_GAME != ''
+        run: |
+          set -e
+          curl -sSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler && chmod +x butler/butler
+          VERSION=$(grep -oP 'config/version="\K[^"]+' project.godot)
+          for ch in windows linux web; do
+            ./butler/butler push build/$ch "$ITCH_GAME:$ch" --userversion "$VERSION"
+          done

@@ -19,6 +19,26 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
 
+## Builds and the itch.io demo
+
+`export_presets.cfg` has three presets: **Windows**, **Linux** and **Web** (single-threaded, so
+it runs on itch.io with no special server settings). Export from the editor (Project → Export),
+or from the command line once the 4.5.1 export templates are installed:
+
+    godot --headless --export-release "Web"      # build/web/index.html
+    godot --headless --export-release "Windows"  # build/windows/Hellfare.exe
+    godot --headless --export-release "Linux"    # build/linux/Hellfare.x86_64
+
+The **Demo builds** workflow (`.github/workflows/demo-build.yml`) does the same on GitHub: run it
+from the Actions tab, or push a tag such as `v0.33-demo`, and download the builds from the run.
+With a `BUTLER_API_KEY` secret and an `ITCH_GAME` variable set, it also uploads them to itch.io.
+The page text and upload settings are in `docs/itch_page.md`.
+
+For the demo: the pause menu has **Credits** (the Heroic Asset Series license requires the
+credit in the game), the version (`application/config/version`), and **Send feedback**, which
+opens `hellfare/feedback_url` and shows once that's set. In the browser build **Quit** becomes
+**Save**. On a screen smaller than the 1920 x 1080 window, the window shrinks to fit.
+
 ## V0.33 – Heroes
 
 The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DOCUMENT.md`).

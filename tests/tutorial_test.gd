@@ -238,6 +238,18 @@ func _run() -> void:
 	(pm.get_node("Cover/Plate/Margin/Content/Settings/Guild/Rename") as Button).pressed.emit()
 	await process_frame
 	check(ui.game.guild_name == "Soot Covenant", "Rename in Settings renames the guild")
+	# Credits (the art license asks for them in the game), the version, and Send feedback only
+	# when there is somewhere to send it.
+	var credits := pm.get_node("Cover/Plate/Margin/Content/Credits") as Control
+	(pm.get_node("Cover/Plate/Margin/Content/Main/CreditsButton") as Button).pressed.emit()
+	var credit_text: String = (credits.get_node("Scroll/Text") as Label).text
+	check(credits.visible and "Aleksandr Makarov" in credit_text and "Firepious" in credit_text and "Kenney" in credit_text,
+		"Credits opens and names the artists")
+	(credits.get_node("Back") as Button).pressed.emit()
+	check(not credits.visible and (pm.get_node("Cover/Plate/Margin/Content/Main") as Control).visible, "and Back returns to the menu")
+	check((pm.get_node("Cover/Plate/Margin/Content/Version") as Label).text.begins_with("v0."), "the menu shows the version")
+	check((pm.get_node("Cover/Plate/Margin/Content/Main/Feedback") as Control).visible == (pm.feedback_url() != ""),
+		"Send feedback shows only when the project has an address for it")
 	# Settings > Replay tutorial brings it back as a tour: the prologue first, nothing founded.
 	(pm.get_node("Cover/Plate/Margin/Content/Settings/ReplayTutorial") as Button).pressed.emit()
 	await create_timer(0.4).timeout

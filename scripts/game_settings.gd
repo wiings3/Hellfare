@@ -71,7 +71,26 @@ static func apply() -> void:
 	var mode := DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 	if DisplayServer.window_get_mode() != mode:
 		DisplayServer.window_set_mode(mode)
+	if mode == DisplayServer.WINDOW_MODE_WINDOWED and not OS.has_feature("web"):
+		# After the first frame: resized before then, the window keeps its first layout.
+		var tree := Engine.get_main_loop() as SceneTree
+		if tree and not tree.process_frame.is_connected(fit_window):
+			tree.process_frame.connect(fit_window, CONNECT_ONE_SHOT)
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if vsync else DisplayServer.VSYNC_DISABLED)
+
+## The window opens at 1920x1080 with no frame: on a smaller screen (a laptop), shrink it to
+## nine tenths of the usable area and centre it, so none of it is off screen.
+static func fit_window() -> void:
+	var area := DisplayServer.screen_get_usable_rect(DisplayServer.window_get_current_screen())
+	var size := DisplayServer.window_get_size()
+	if area.size.x <= 0 or (size.x <= area.size.x and size.y <= area.size.y):
+		return
+	var s: float = minf(area.size.x * 0.9 / size.x, area.size.y * 0.9 / size.y)
+	var fit := Vector2i(int(size.x * s), int(size.y * s))
+	# Through the root Window, so the game's layout follows the new size.
+	var root := (Engine.get_main_loop() as SceneTree).root
+	root.size = fit
+	root.position = area.position + (area.size - fit) / 2
 
 ## Push the volumes to the sound groups. Runs headless too (the dummy audio driver takes them).
 static func apply_volumes() -> void:

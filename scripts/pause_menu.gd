@@ -1,10 +1,14 @@
 extends Control
 ## Escape menu. The journal shuts onto its back cover, slides to the middle of the desk,
-## and a bookplate on the cover offers Resume, Settings and Quit.
+## and a bookplate on the cover offers Resume, Settings, Credits, Send feedback and Quit.
+## The version shown under it is application/config/version; Send feedback opens
+## hellfare/feedback_url (project.godot) and hides when that is empty. In a browser build there
+## is nothing to quit to, so Quit becomes Save.
 ## Layout lives in scenes/journal/pause_menu.tscn. The frames are the BookUI close
 ## animation mirrored onto the back cover (tools/bake_close.py).
 
 signal quit_requested
+signal save_requested
 signal replay_tutorial_requested
 signal rename_requested(new_name: String)
 signal new_guild_requested
@@ -51,6 +55,19 @@ var _new_guild_armed: bool = false
 @onready var sound_view: Control = $Cover/Plate/Margin/Content/Sound
 @onready var sound_back: Button = $Cover/Plate/Margin/Content/Sound/Back
 @onready var away_toggle: Button = $Cover/Plate/Margin/Content/Sound/Away/Toggle
+@onready var credits_button: Button = $Cover/Plate/Margin/Content/Main/CreditsButton
+@onready var feedback_button: Button = $Cover/Plate/Margin/Content/Main/Feedback
+@onready var credits_view: Control = $Cover/Plate/Margin/Content/Credits
+@onready var credits_back: Button = $Cover/Plate/Margin/Content/Credits/Back
+@onready var version_label: Label = $Cover/Plate/Margin/Content/Version
+
+## The address Send feedback opens ("" hides the button).
+static func feedback_url() -> String:
+	return str(ProjectSettings.get_setting("hellfare/feedback_url", "")).strip_edges()
+
+## "v0.33 demo", from project.godot.
+static func version_text() -> String:
+	return "v" + str(ProjectSettings.get_setting("application/config/version", "?"))
 
 
 func _ready() -> void:
@@ -62,7 +79,18 @@ func _ready() -> void:
 	resume_button.pressed.connect(resume)
 	settings_button.pressed.connect(_show_settings.bind(true))
 	back_button.pressed.connect(_show_settings.bind(false))
-	quit_button.pressed.connect(func() -> void: quit_requested.emit())
+	if OS.has_feature("web"):
+		quit_button.text = "Save"
+		quit_button.pressed.connect(func() -> void:
+			save_requested.emit()
+			resume())
+	else:
+		quit_button.pressed.connect(func() -> void: quit_requested.emit())
+	credits_button.pressed.connect(_show_credits.bind(true))
+	credits_back.pressed.connect(_show_credits.bind(false))
+	feedback_button.visible = feedback_url() != ""
+	feedback_button.pressed.connect(func() -> void: OS.shell_open(feedback_url()))
+	version_label.text = version_text()
 	fullscreen_toggle.toggled.connect(_set_fullscreen)
 	vsync_toggle.toggled.connect(_set_vsync)
 	animation_toggle.toggled.connect(_set_animations)
@@ -98,6 +126,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif state == State.OPEN:
 		if sound_view.visible:
 			_show_sound(false)
+		elif credits_view.visible:
+			_show_credits(false)
 		elif settings_view.visible:
 			_show_settings(false)
 		else:
@@ -177,6 +207,7 @@ func _show_settings(on: bool) -> void:
 	main_view.visible = not on
 	settings_view.visible = on
 	sound_view.visible = false
+	credits_view.visible = false
 	subtitle.set("text", "Settings" if on else "Paused")
 	hint.text = "Esc to go back" if on else "Esc to resume"
 
@@ -214,6 +245,14 @@ func _set_book_visible(on: bool) -> void:
 		else:
 			_hidden[path] = node.visible
 			node.visible = false
+
+## Who made what. The text is in the scene (Credits/Scroll/Text); CREDITS.md has the long form.
+func _show_credits(on: bool) -> void:
+	credits_view.visible = on
+	main_view.visible = not on
+	subtitle.set("text", "Credits" if on else "Paused")
+	hint.text = "Esc to go back" if on else "Esc to resume"
+	(credits_back if on else credits_button).grab_focus()
 
 ## The Sound page of Settings: a volume per group and the background rule.
 func _show_sound(on: bool) -> void:

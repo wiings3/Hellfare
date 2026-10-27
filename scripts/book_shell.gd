@@ -106,6 +106,9 @@ func _build_shell() -> void:
 		push_warning("PauseMenu is missing from journal_shell.tscn; Escape will not open the menu.")
 	else:
 		pause_menu.quit_requested.connect(_save_and_quit)
+		pause_menu.save_requested.connect(func() -> void:
+			game.save_game()
+			call("notification_text", "Saved. Your guild lives in this browser: clearing its site data clears the guild."))
 		pause_menu.replay_tutorial_requested.connect(func() -> void: call("_replay_tutorial"))
 		pause_menu.rename_requested.connect(func(n: String) -> void: call("_rename_guild", n))
 		pause_menu.new_guild_requested.connect(func() -> void: call("_new_guild"))

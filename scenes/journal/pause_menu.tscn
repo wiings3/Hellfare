@@ -75,6 +75,19 @@ layout_mode = 2
 theme_type_variation = &"PaperButton"
 text = "Settings"
 
+[node name="CreditsButton" type="Button" parent="Cover/Plate/Margin/Content/Main"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+text = "Credits"
+
+[node name="Feedback" type="Button" parent="Cover/Plate/Margin/Content/Main"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Opens the game's page in your browser. Bugs, ideas and complaints all welcome."
+text = "Send feedback"
+
 [node name="Quit" type="Button" parent="Cover/Plate/Margin/Content/Main"]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
@@ -306,8 +319,56 @@ layout_mode = 2
 theme_type_variation = &"PaperButton"
 text = "< Back"
 
+[node name="Credits" type="VBoxContainer" parent="Cover/Plate/Margin/Content"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="Scroll" type="ScrollContainer" parent="Cover/Plate/Margin/Content/Credits"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Text" type="Label" parent="Cover/Plate/Margin/Content/Credits/Scroll"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Hellfare is made by its developer, with Claude.
+
+FIGHTERS AND PORTRAITS
+Heroic Asset Series: Creature Pack, by Aleksandr Makarov (iknowkingrabbit).
+
+CRYPT BACKGROUNDS
+Hellwake and Underfire, by Firepious. The publisher made these with AI assistance.
+
+SOUND
+RPG Audio and Interface Sounds, by Kenney (CC0). The rest is synthesised for the game.
+
+TYPE
+Jersey 10, 15 and 20, by The Soft Type Project (SIL Open Font License).
+
+ENGINE
+Godot Engine (MIT), godotengine.org.
+
+Everything else is drawn for the game."
+autowrap_mode = 3
+
+[node name="Back" type="Button" parent="Cover/Plate/Margin/Content/Credits"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+text = "< Back"
+
 [node name="Hint" type="Label" parent="Cover/Plate/Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
 text = "Esc to resume"
+horizontal_alignment = 1
+
+[node name="Version" type="Label" parent="Cover/Plate/Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelMuted"
+text = "v0.33"
 horizontal_alignment = 1
