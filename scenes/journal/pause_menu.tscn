@@ -151,6 +151,13 @@ layout_mode = 2
 theme_type_variation = &"PaperButton"
 text = "Rename"
 
+[node name="NewGuild" type="Button" parent="Cover/Plate/Margin/Content/Settings"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+tooltip_text = "Start over at the prologue with a new guild. Your current guild is kept as a backup file."
+text = "Start a new guild"
+
 [node name="ReplayTutorial" type="Button" parent="Cover/Plate/Margin/Content/Settings"]
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2

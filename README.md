@@ -72,6 +72,8 @@ The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DO
   then swapped in; the previous save is kept as a `.bak`. If the save can't be read, the backup is
   loaded and the damaged file is kept aside as `.damaged-<time>`, never overwritten. `tests/save_test.gd`
   checks all of it on its own save file.
+- **Start a new guild** (Settings): asks twice, keeps the current save as
+  `money_mercs_save.json.previous-<time>`, then starts over at the prologue.
 
 ### Crews feed the hero (v0.33, after the first playtest)
 

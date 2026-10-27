@@ -7,6 +7,7 @@ extends Control
 signal quit_requested
 signal replay_tutorial_requested
 signal rename_requested(new_name: String)
+signal new_guild_requested
 
 const FRAMES := "res://assets/ui/book/close/"
 const FRAME_COUNT := 6
@@ -42,6 +43,9 @@ var _hidden: Dictionary = {}
 @onready var animation_toggle: Button = $Cover/Plate/Margin/Content/Settings/Animations/Toggle
 @onready var sound_button: Button = $Cover/Plate/Margin/Content/Settings/SoundButton
 @onready var replay_button: Button = $Cover/Plate/Margin/Content/Settings/ReplayTutorial
+@onready var new_guild_button: Button = $Cover/Plate/Margin/Content/Settings/NewGuild
+## "Start a new guild" asks twice: the first press arms it.
+var _new_guild_armed: bool = false
 @onready var guild_box: LineEdit = $Cover/Plate/Margin/Content/Settings/Guild/Name
 @onready var rename_button: Button = $Cover/Plate/Margin/Content/Settings/Guild/Rename
 @onready var sound_view: Control = $Cover/Plate/Margin/Content/Sound
@@ -68,6 +72,7 @@ func _ready() -> void:
 		replay_tutorial_requested.emit())
 	sound_back.pressed.connect(_show_sound.bind(false))
 	rename_button.pressed.connect(func() -> void: rename_requested.emit(guild_box.text))
+	new_guild_button.pressed.connect(_new_guild_pressed)
 	guild_box.text_submitted.connect(func(t: String) -> void: rename_requested.emit(t))
 	away_toggle.toggled.connect(_set_alerts_away)
 	for group in GameSettings.VOLUME_DEFAULTS:
@@ -154,7 +159,21 @@ func resume() -> void:
 	get_tree().paused = false
 	state = State.CLOSED
 
+func _new_guild_pressed() -> void:
+	if not _new_guild_armed:
+		_new_guild_armed = true
+		new_guild_button.text = "Sure? Press again to start over"
+		return
+	_disarm_new_guild()
+	resume()
+	new_guild_requested.emit()
+
+func _disarm_new_guild() -> void:
+	_new_guild_armed = false
+	new_guild_button.text = "Start a new guild"
+
 func _show_settings(on: bool) -> void:
+	_disarm_new_guild()
 	main_view.visible = not on
 	settings_view.visible = on
 	sound_view.visible = false

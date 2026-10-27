@@ -1762,6 +1762,16 @@ func reset_company() -> void:
 	_grant_starting_rations()
 	save_game()
 
+## Before starting over: copy the save to <save>.previous-<time> (returns that file's name,
+## or "" if there was no save to keep).
+func keep_previous_guild() -> String:
+	if not persist or not FileAccess.file_exists(SAVE_PATH):
+		return ""
+	var to: String = "%s.previous-%d" % [SAVE_PATH, int(Time.get_unix_time_from_system())]
+	if DirAccess.copy_absolute(ProjectSettings.globalize_path(SAVE_PATH), ProjectSettings.globalize_path(to)) != OK:
+		return ""
+	return to.get_file()
+
 ## Name (or rename) the guild. Returns what to tell the player.
 func set_guild_name(text: String) -> String:
 	var n: String = " ".join(text.strip_edges().split(" ", false))

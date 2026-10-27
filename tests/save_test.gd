@@ -22,6 +22,8 @@ func _initialize() -> void:
 	g.gold = 2222
 	g.save_game()
 	check(int(MoneyMercsState.read_save(MoneyMercsState.save_bak()).get("gold", 0)) == 1234, "the previous save is kept as a backup")
+	var kept: String = g.keep_previous_guild()
+	check(kept.begins_with("save_test_guild.json.previous-") and FileAccess.file_exists("user://" + kept), "starting over keeps the old guild as a file (%s)" % kept)
 	var again := MoneyMercsState.new()
 	check(again.gold == 2222 and again.guild_name == "The Cinder Oath", "loads what was saved, name and all")
 	# Damage the save: the backup comes back, the damaged file is kept.

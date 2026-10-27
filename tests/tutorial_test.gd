@@ -248,6 +248,16 @@ func _run() -> void:
 	await create_timer(1.2).timeout
 	check(ui._crawl_view().visible, "the prologue fight opens on the crawl screen")
 	await create_timer(0.6).timeout
+	# Settings > Start a new guild asks twice, then everything starts over at the prologue.
+	prologue._skip()
+	await create_timer(0.8).timeout
+	var new_btn := pm.get_node("Cover/Plate/Margin/Content/Settings/NewGuild") as Button
+	new_btn.pressed.emit()
+	check(ui.game.guild_name != "" and new_btn.text.begins_with("Sure"), "the first press only asks")
+	new_btn.pressed.emit()
+	await create_timer(0.5).timeout
+	check(ui.game.guild_name == "" and ui.game.heroes.is_empty() and ui.game.rations_held() == 6, "the second starts a new guild (%s)" % ui.game.guild_name)
+	check(str(ui.game.tutorial.get("step", "")) == "prologue" and prologue.visible, "and opens on the prologue")
 	ui.queue_free()
 	await create_timer(0.1).timeout
 	GameClock.fixed = -1

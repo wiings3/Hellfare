@@ -3868,6 +3868,26 @@ var _tutorial_shown: String = ""
 var _pointer_tween: Tween
 
 ## Settings > Replay tutorial: a guided tour of the first steps on the guild as it is.
+## Settings > Start a new guild: the current one is kept as a backup file, then everything
+## starts over at the prologue.
+func _new_guild() -> void:
+	var kept: String = game.keep_previous_guild()
+	var crawl := _crawl_view()
+	if crawl != null and crawl.visible:
+		crawl.close()
+	game.reset_company()
+	selected_merc = ""
+	selected_candidate = ""
+	selected_crew.clear()
+	_tutorial_shown = ""
+	_sync_guild_name()
+	_action("A new guild begins." + ((" Your old guild is kept as " + kept + ".") if kept != "" else ""))
+	if page != "hq":
+		_turn_to("hq")
+	else:
+		_refresh()
+	_update_tutorial()
+
 func _replay_tutorial() -> void:
 	Tutorial.replay(game)
 	game.save_game()
