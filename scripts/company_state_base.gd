@@ -197,7 +197,7 @@ var relief_count: int = 0
 var retired_ids: Array[String] = []
 ## The first-launch tutorial: {"step": id from Tutorial.STEPS or "done", ...}. A guild loaded from
 ## before the tutorial existed that already has people or reports counts as done.
-var tutorial: Dictionary = {"step": "welcome"}
+var tutorial: Dictionary = {"step": "prologue"}
 var harlow: Dictionary = {}
 var gold: int = 350
 var reputation: int = 0
@@ -273,7 +273,7 @@ func load_game() -> void:
 	if state.get("tutorial") is Dictionary:
 		tutorial = state["tutorial"]
 	else:
-		tutorial = {"step": "done" if not crew.is_empty() or not reports.is_empty() else "welcome"}
+		tutorial = {"step": "done" if not crew.is_empty() or not reports.is_empty() else "prologue"}
 	for item in state.get("equipment_inventory", []):
 		if typeof(item) == TYPE_DICTIONARY and Gear.exists(str(item.get("key", ""))):
 			Gear.ensure_item(item)
@@ -1668,7 +1668,7 @@ func reset_company() -> void:
 	relief_debt = 0
 	relief_count = 0
 	retired_ids.clear()
-	tutorial = {"step": "welcome"}
+	tutorial = {"step": "prologue"}
 	market.reset()
 	hall.reset()
 	fallen = FallenGear.new()

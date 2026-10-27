@@ -26,6 +26,8 @@ var busy: bool = false
 ## Set by the prologue: called instead of the normal end of a run (see prologue.gd).
 var custom_fight: Dictionary = {}
 var on_turn_done: Callable
+## Set by the prologue: a line of advice for the hero whose turn it is (st, hero index) -> text.
+var coach: Callable
 
 @onready var body: Control = $Frame/Margin/Body
 @onready var title: Label = $Frame/Margin/Body/Head/Title
@@ -65,6 +67,7 @@ func open(state, fight: Dictionary = {}) -> void:
 	callout.text = ""
 	target = -1
 	release_btn.visible = custom_fight.is_empty()
+	(get_node("Frame/Margin/Body/Turn/Left/Actions/Retreat") as Control).visible = custom_fight.is_empty()
 	_show()
 
 func _fight() -> Dictionary:
@@ -221,6 +224,10 @@ func _update_turn(st: Dictionary) -> void:
 	var foes: Array = st["foes"]
 	var winding: bool = foes.any(func(f): return bool(f["winding"]) and float(f["hp"]) > 0.0)
 	prompt.text = "%s's turn.%s" % [str(h["name"]), "  Something is winding up a heavy blow: Guard!" if winding else ""]
+	if coach.is_valid():
+		var advice: String = str(coach.call(st, hi))
+		if advice != "":
+			prompt.text = advice
 	_set_hint()
 
 func _set_hint() -> void:
@@ -254,6 +261,7 @@ func _do(action: String) -> void:
 	if not custom_fight.is_empty():
 		if Crawl.done(custom_fight):
 			_refresh_cards(custom_fight)
+			turn_box.visible = false
 			if on_turn_done.is_valid():
 				on_turn_done.call()
 			return
@@ -454,7 +462,24 @@ func _finished() -> void:
 func close() -> void:
 	visible = false
 	custom_fight = {}
+	coach = Callable()
+	on_turn_done = Callable()
 	closed.emit()
+
+## For the prologue: change how a fighter looks (and flash it), or drop one where they stand.
+func reskin(code: String, sprite_key: String) -> void:
+	var c := _card(code)
+	if c == null:
+		return
+	(c.get_node("Sprite") as TextureRect).texture = SPRITES.get(sprite_key, null)
+	_flash(c)
+	_shake()
+
+func fell(code: String) -> void:
+	var c := _card(code)
+	if c:
+		var tw := create_tween()
+		tw.tween_property(c, "modulate", Color(0.45, 0.4, 0.4, 0.55), 0.6)
 
 func _release() -> void:
 	if busy:

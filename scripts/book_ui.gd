@@ -2380,10 +2380,11 @@ func _draw_board() -> void:
 		if trade == "dungeon":
 			var delving: int = game.missions.filter(func(m): return str(m.get("region", "")) == "dungeon").size()
 			var waiting: int = game.dungeon_checkins().size()
-			var fit: int = game.crew.filter(func(m): return Gear.kit_rating(m) >= 8).size()
-			var dcard := _list_card(trades, TRADE_ICONS.get("dungeon"), str(entry["name"]), "%s with gear score 8+" % _plural(fit, "fighter") if fit > 0 else "Needs fighters with gear score 8",
+			var ready_heroes: int = game.free_heroes().size()
+			var dcard := _list_card(trades, TRADE_ICONS.get("dungeon"), str(entry["name"]), ("%s ready" % _plural(ready_heroes, "hero")) if ready_heroes > 0 else ("Heroes below" if not game.heroes.is_empty() else "Needs a hero"),
 				"Waiting" if waiting > 0 else ("%d in" % delving if delving > 0 else ""), "%d of %d open" % [Dungeons.DUNGEONS.size(), Dungeons.DUNGEONS.size() + Dungeons.PLANNED.size()],
 				selected_trade == trade, _select_trade.bind(trade))
+			dcard.set_meta("tut", "trade:dungeon")
 			if delving > 0:
 				(dcard.get_node("Body/Side/Caption") as Label).theme_type_variation = &"LabelAccent" if waiting > 0 else &"LabelGood"
 			continue
@@ -2404,13 +2405,14 @@ func _draw_board() -> void:
 		card.set_meta("tut", "trade:" + trade)
 		if out > 0:
 			(card.get_node("Body/Side/Caption") as Label).theme_type_variation = &"LabelGood"
-	var guard: Dictionary = _best_in("combat")
-	var guard_card := _list_card(trades, TRADE_ICONS["combat"], "Guarding",
-		"Nobody trained yet" if (guard["merc"] as Dictionary).is_empty() else "Best: %s  ·  Combat %d" % [str(guard["merc"].get("name", "")), int(guard["level"])],
-		"", "", false, func() -> void: pass)
-	guard_card.toggle_mode = false
-	guard_card.mouse_default_cursor_shape = Control.CURSOR_ARROW
-	guard_card.tooltip_text = "Guards have no sites of their own: add one to any crew."
+	var lead_hero: Dictionary = game.heroes[0] if not game.heroes.is_empty() else {}
+	var hero_card := _list_card(trades, TRADE_ICONS["combat"], "Heroes",
+		"No hero yet" if lead_hero.is_empty() else "%s  ·  %s %d" % [str(lead_hero["name"]), Heroes.class_name_of(lead_hero), TradeSkills.level_of(lead_hero, "combat")],
+		"", "%d of %d" % [game.heroes.size(), game.hero_slots], false, func() -> void:
+			roster_tab = "heroes"
+			_turn_to("roster"))
+	hero_card.toggle_mode = false
+	hero_card.tooltip_text = "Heroes fight in the crypts and wear the guild's weapons and armour. They don't take expedition slots."
 	# Right: the chosen trade's sites. Open ones as cards, locked ones as a line each.
 	if selected_trade == "dungeon":
 		_draw_dungeon_list(right)
@@ -2482,6 +2484,7 @@ func _draw_dungeon_list(right: Control) -> void:
 		var card := ROW_SITE.instantiate() as Button
 		open_list.add_child(card)
 		card.pressed.connect(_open_dungeon.bind(str(id)))
+		card.set_meta("tut", "crypt:" + str(id))
 		card.tooltip_text = str(d.get("tagline", ""))
 		var floors: Array = d["floors"]
 		(card.get_node("Body/Top/Info/Name") as Label).text = str(d["name"])
@@ -3827,6 +3830,33 @@ func _replay_tutorial() -> void:
 		_turn_to("hq")
 	_update_tutorial()
 
+## The prologue (scripts/ui/prologue.gd), for a new guild or a replayed tour.
+var _prologue_running: bool = false
+
+func _start_prologue() -> void:
+	if _prologue_running:
+		return
+	var view := stage.get_node_or_null("PrologueView") as Control
+	var crawl := _crawl_view()
+	if view == null or crawl == null:
+		return
+	_prologue_running = true
+	if not view.finished.is_connected(_prologue_done):
+		view.finished.connect(_prologue_done)
+	view.play(game, crawl, Tutorial.replaying(game))
+
+func _prologue_done(hero_class: String, hero_name: String) -> void:
+	_prologue_running = false
+	if hero_class != "" and game.heroes.is_empty():
+		_action(game.found_hero(hero_class, hero_name))
+	Tutorial.press(game)
+	game.save_game()
+	_tutorial_shown = ""
+	if page != "hq":
+		_turn_to("hq")
+	else:
+		_refresh()
+
 func _tutorial_card() -> Control:
 	return stage.get_node_or_null("TutorialCard") as Control if is_instance_valid(stage) else null
 
@@ -3840,7 +3870,11 @@ func _update_tutorial() -> void:
 		game.save_game()
 	var step: Dictionary = Tutorial.current(game)
 	var event := _event_card()
-	if step.is_empty() or (event != null and event.visible):
+	if not step.is_empty() and str(step["id"]) == "prologue":
+		card.visible = false
+		_start_prologue()
+		return
+	if step.is_empty() or (event != null and event.visible) or _prologue_running:
 		card.visible = false
 		return
 	card.visible = true
@@ -3911,6 +3945,9 @@ func _update_tutorial() -> void:
 
 ## The control on the open pages carrying a tutorial tag (set where it's drawn), if it's showing.
 func _tut_find(tag: String) -> Control:
+	var crawl := _crawl_view()
+	if crawl != null and crawl.visible:
+		return _tut_search(crawl, tag)
 	for leaf in [left_leaf, right_leaf]:
 		var found := _tut_search(leaf, tag)
 		if found != null:
@@ -3970,10 +4007,35 @@ func _tutorial_guide(id: String) -> Dictionary:
 					return {"do": "Nobody is free to send. Hire a woodcutter first.", "tag": ""}
 				return {"do": "Click your woodcutter to add them to the crew.", "tag": "crew_free"}
 			return {"do": "Press Send them down.", "tag": "fund"}
-		"wait":
-			if page != "hq":
-				return {"do": "Click the Company bookmark to watch them.", "bookmark": "hq"}
-			return {"do": "They're on their way. The bar fills as they work; a bell rings when they're back."}
+		"crypt":
+			var crawl := _crawl_view()
+			if crawl != null and crawl.visible:
+				var lr: Dictionary = game.lead_run()
+				if lr.is_empty():
+					return {"do": "Press Back to the guild.", "tag": "crawl:close"}
+				if str(lr["stage"]) == "led_between":
+					return {"do": "Take what you carry out (or go down, if you're feeling brave).", "tag": "crawl:leave"}
+				return {"do": "Your turn: click a rat, then Strike. Use your skill when it's ready.", "tag": "crawl:strike"}
+			if game.heroes.is_empty():
+				return {"do": "Take on a hero in Mercenaries, Heroes.", "bookmark": "roster"}
+			var h: Dictionary = game.heroes[0]
+			if not game.is_available(h):
+				return {"do": "%s is already below. They'll be back up soon." % str(h["name"]).get_slice(" ", 0)}
+			if int(h.get("health", 100)) < MoneyMercsState.DUNGEON_MIN_HEALTH:
+				return {"do": "%s needs rest. Treat them in Mercenaries, Heroes, or wait a few minutes." % str(h["name"]).get_slice(" ", 0), "bookmark": "roster"}
+			if not page in ["expeditions", "dungeon"]:
+				return {"do": "Click the Expeditions bookmark on the left.", "bookmark": "expeditions"}
+			if page == "expeditions":
+				if selected_trade != "dungeon":
+					return {"do": "Click Crypts in the list on the left page.", "tag": "trade:dungeon"}
+				return {"do": "Click the Fallen Keep.", "tag": "crypt:calder_keep"}
+			if _selected_available().is_empty():
+				return {"do": "Click %s to take them in." % str(h["name"]).get_slice(" ", 0), "tag": "hero_pick"}
+			return {"do": "Press Lead them in.", "tag": "lead"}
+		"gear":
+			if page != "workshop":
+				return {"do": "Click the Workshop bookmark on the left.", "bookmark": "workshop"}
+			return {"do": "Make a weapon, helm, shield or armour piece, then equip it on your hero (Mercenaries, Heroes, Gear)."}
 		"sell":
 			if int(game.resources.get("timber", 0)) <= 0:
 				return {"do": "There's no ashwood left to sell. Press Keep it for now."}

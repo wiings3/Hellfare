@@ -1,0 +1,255 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/prologue.gd" id="1_prologue"]
+[ext_resource type="Texture2D" path="res://assets/ui/crawl/knight.png" id="2_knight"]
+[ext_resource type="Texture2D" path="res://assets/ui/crawl/rogue.png" id="3_rogue"]
+
+[node name="PrologueView" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_prologue")
+
+[node name="Veil" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.01, 0.01, 1)
+
+[node name="Card" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -110.0
+offset_right = 250.0
+offset_bottom = 110.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DeskPanel"
+
+[node name="Margin" type="MarginContainer" parent="Card"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="Body" type="VBoxContainer" parent="Card/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Kicker" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"DeskCaption"
+text = "Prologue"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"DeskTitle"
+text = "The Lantern Company"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+
+[node name="Text" type="Label" parent="Card/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"DeskLabel"
+text = ""
+autowrap_mode = 3
+custom_minimum_size = Vector2(460, 0)
+
+[node name="Buttons" type="HBoxContainer" parent="Card/Margin/Body"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Next" type="Button" parent="Card/Margin/Body/Buttons"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Go down"
+custom_minimum_size = Vector2(160, 26)
+
+[node name="Skip" type="Button" parent="Card/Margin/Body/Buttons"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TextButton"
+text = "Skip the prologue"
+tooltip_text = "Straight to Last Lantern and your new guild."
+
+[node name="Choice" type="VBoxContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -200.0
+offset_right = 300.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Title" type="Label" parent="Choice"]
+layout_mode = 2
+theme_type_variation = &"DeskTitle"
+text = "Who will lead your guild below?"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+
+[node name="Sub" type="Label" parent="Choice"]
+layout_mode = 2
+theme_type_variation = &"DeskLabel"
+text = "Your hero goes into the crypts; your crews work the sites. You can take on more heroes later."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Options" type="HBoxContainer" parent="Choice"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 14
+
+[node name="Knight" type="PanelContainer" parent="Choice/Options"]
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+theme_type_variation = &"InsetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Choice/Options/Knight"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Body" type="VBoxContainer" parent="Choice/Options/Knight/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Sprite" type="TextureRect" parent="Choice/Options/Knight/Margin/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(96, 112)
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+texture = ExtResource("2_knight")
+
+[node name="Name" type="Label" parent="Choice/Options/Knight/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Knight"
+horizontal_alignment = 1
+
+[node name="Blurb" type="Label" parent="Choice/Options/Knight/Margin/Body"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+custom_minimum_size = Vector2(228, 0)
+
+[node name="Skill" type="Label" parent="Choice/Options/Knight/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = ""
+autowrap_mode = 3
+
+[node name="Wants" type="Label" parent="Choice/Options/Knight/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Choose" type="Button" parent="Choice/Options/Knight/Margin/Body"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Choose the knight"
+custom_minimum_size = Vector2(0, 26)
+
+[node name="Rogue" type="PanelContainer" parent="Choice/Options"]
+layout_mode = 2
+custom_minimum_size = Vector2(250, 0)
+theme_type_variation = &"InsetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Choice/Options/Rogue"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Body" type="VBoxContainer" parent="Choice/Options/Rogue/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Sprite" type="TextureRect" parent="Choice/Options/Rogue/Margin/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(96, 112)
+size_flags_horizontal = 4
+expand_mode = 1
+stretch_mode = 5
+texture = ExtResource("3_rogue")
+
+[node name="Name" type="Label" parent="Choice/Options/Rogue/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "Rogue"
+horizontal_alignment = 1
+
+[node name="Blurb" type="Label" parent="Choice/Options/Rogue/Margin/Body"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+custom_minimum_size = Vector2(228, 0)
+
+[node name="Skill" type="Label" parent="Choice/Options/Rogue/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelAccent"
+text = ""
+autowrap_mode = 3
+
+[node name="Wants" type="Label" parent="Choice/Options/Rogue/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = ""
+autowrap_mode = 3
+
+[node name="Choose" type="Button" parent="Choice/Options/Rogue/Margin/Body"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Choose the rogue"
+custom_minimum_size = Vector2(0, 26)
+
+[node name="NameRow" type="HBoxContainer" parent="Choice"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="Caption" type="Label" parent="Choice/NameRow"]
+layout_mode = 2
+theme_type_variation = &"DeskCaption"
+text = "Their name:"
+size_flags_vertical = 4
+
+[node name="Name" type="Label" parent="Choice/NameRow"]
+layout_mode = 2
+theme_type_variation = &"DeskLabel"
+text = "Brannoc Ashby"
+size_flags_vertical = 4
+
+[node name="Another" type="Button" parent="Choice/NameRow"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TextButton"
+text = "Another name"

@@ -37,14 +37,21 @@ const POTION_AT := 0.35
 ## A new fight between `party` (fighter dictionaries, used in place) and a floor's monsters.
 static func start(party: Array, floor: Dictionary, seed_value: int, led: bool = false) -> Dictionary:
 	var foes: Array = []
-	var n: int = int(floor.get("count", 1))
-	var foe_name: String = str(floor.get("foe", "Monster"))
-	var single: String = str(floor.get("one", _singular(foe_name)))
-	for i in range(n):
+	# A floor is one kind of monster (count of them), or a mixed band ("foes": [defs]).
+	var defs: Array = floor.get("foes", [])
+	if defs.is_empty():
+		var n: int = int(floor.get("count", 1))
+		var foe_name: String = str(floor.get("foe", "Monster"))
+		var single: String = str(floor.get("one", _singular(foe_name)))
+		for i in range(n):
+			var one: Dictionary = floor.duplicate()
+			one["name"] = foe_name if n == 1 else "%s %d" % [single, i + 1]
+			defs.append(one)
+	for fd in defs:
 		foes.append({
-			"name": foe_name if n == 1 else "%s %d" % [single, i + 1], "kind": str(floor.get("kind", "")),
-			"hp": float(floor["hp"]), "max_hp": float(floor["hp"]), "damage": float(floor["damage"]),
-			"speed": float(floor["speed"]), "armour": float(floor.get("armour", 0.0)), "boss": bool(floor.get("boss", false)),
+			"name": str(fd.get("name", "Monster")), "kind": str(fd.get("kind", floor.get("kind", ""))),
+			"hp": float(fd["hp"]), "max_hp": float(fd["hp"]), "damage": float(fd["damage"]),
+			"speed": float(fd["speed"]), "armour": float(fd.get("armour", 0.0)), "boss": bool(fd.get("boss", false)),
 			"acc": 0.0, "stun": 0, "acts": 0, "winding": false,
 		})
 	for f in party:

@@ -1042,6 +1042,52 @@ def crawl_view():
     s.save("scenes/journal/widgets/crawl_view.tscn")
 
 
+def prologue_view():
+    """The prologue: story cards over a dark screen, and the choice of the guild's first hero."""
+    s = Scene("PrologueView", "Control", {"visible": False, "layout_mode": 3, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "script": Res("res://scripts/ui/prologue.gd")})
+    s.node("Veil", "ColorRect", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "grow_horizontal": 2,
+        "grow_vertical": 2, "color": Raw("Color(0.02, 0.01, 0.01, 1)")})
+    s.node("Card", "PanelContainer", {"layout_mode": 1, "anchors_preset": 8, "anchor_left": 0.5, "anchor_top": 0.5, "anchor_right": 0.5,
+        "anchor_bottom": 0.5, "offset_left": -250.0, "offset_top": -110.0, "offset_right": 250.0, "offset_bottom": 110.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "theme_type_variation": Raw('&"DeskPanel"')})
+    s.node("Card/Margin", "MarginContainer", {"theme_override_constants/margin_left": 18, "theme_override_constants/margin_top": 14,
+        "theme_override_constants/margin_right": 18, "theme_override_constants/margin_bottom": 14})
+    B = "Card/Margin/Body"
+    s.node(B, "VBoxContainer", {"theme_override_constants/separation": 8})
+    label(s, B + "/Kicker", "Prologue", "DeskCaption", {"horizontal_alignment": 1})
+    label(s, B + "/Title", "The Lantern Company", "DeskTitle", {"horizontal_alignment": 1, "theme_override_font_sizes/font_size": 22})
+    label(s, B + "/Text", "", "DeskLabel", {"autowrap_mode": 3, "custom_minimum_size": (460, 0)})
+    s.node(B + "/Buttons", "HBoxContainer", {"alignment": 1, "theme_override_constants/separation": 8})
+    button(s, B + "/Buttons/Next", "Go down", None, {"custom_minimum_size": (160, 26)})
+    button(s, B + "/Buttons/Skip", "Skip the prologue", "TextButton", {"tooltip_text": "Straight to Last Lantern and your new guild."})
+    s.node("Choice", "VBoxContainer", {"visible": False, "layout_mode": 1, "anchors_preset": 8, "anchor_left": 0.5, "anchor_top": 0.5,
+        "anchor_right": 0.5, "anchor_bottom": 0.5, "offset_left": -300.0, "offset_top": -200.0, "offset_right": 300.0, "offset_bottom": 200.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "theme_override_constants/separation": 10, "alignment": 1})
+    label(s, "Choice/Title", "Who will lead your guild below?", "DeskTitle", {"horizontal_alignment": 1, "theme_override_font_sizes/font_size": 22})
+    label(s, "Choice/Sub", "Your hero goes into the crypts; your crews work the sites. You can take on more heroes later.", "DeskLabel",
+        {"horizontal_alignment": 1, "autowrap_mode": 3})
+    s.node("Choice/Options", "HBoxContainer", {"alignment": 1, "theme_override_constants/separation": 14})
+    for cls in ["Knight", "Rogue"]:
+        o = "Choice/Options/" + cls
+        s.node(o, "PanelContainer", {"custom_minimum_size": (250, 0), "theme_type_variation": Raw('&"InsetPanel"')})
+        s.node(o + "/Margin", "MarginContainer", {"theme_override_constants/margin_left": 10, "theme_override_constants/margin_top": 8,
+            "theme_override_constants/margin_right": 10, "theme_override_constants/margin_bottom": 10})
+        s.node(o + "/Margin/Body", "VBoxContainer", {"theme_override_constants/separation": 5})
+        s.node(o + "/Margin/Body/Sprite", "TextureRect", {"custom_minimum_size": (96, 112), "size_flags_horizontal": 4, "expand_mode": 1,
+            "stretch_mode": 5, "texture": Res("res://assets/ui/crawl/%s.png" % cls.lower())})
+        label(s, o + "/Margin/Body/Name", cls, "LabelTitle", {"horizontal_alignment": 1})
+        label(s, o + "/Margin/Body/Blurb", "", None, {"autowrap_mode": 3, "custom_minimum_size": (228, 0)})
+        label(s, o + "/Margin/Body/Skill", "", "LabelAccent", {"autowrap_mode": 3})
+        label(s, o + "/Margin/Body/Wants", "", "LabelCaption", {"autowrap_mode": 3})
+        button(s, o + "/Margin/Body/Choose", "Choose the " + cls.lower(), None, {"custom_minimum_size": (0, 26)})
+    s.node("Choice/NameRow", "HBoxContainer", {"alignment": 1, "theme_override_constants/separation": 8})
+    label(s, "Choice/NameRow/Caption", "Their name:", "DeskCaption", {"size_flags_vertical": 4})
+    label(s, "Choice/NameRow/Name", "Brannoc Ashby", "DeskLabel", {"size_flags_vertical": 4})
+    button(s, "Choice/NameRow/Another", "Another name", "TextButton")
+    s.save("scenes/journal/widgets/prologue_view.tscn")
+
+
 def exchange_tabs():
     s = Scene("ExchangeTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})

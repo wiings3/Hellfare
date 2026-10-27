@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://by6klxuxek6c1"]
+[gd_scene load_steps=23 format=3 uid="uid://by6klxuxek6c1"]
 
 [ext_resource type="Texture2D" uid="uid://03hskmpl7e6m" path="res://assets/ui/book/tabs/1.png" id="book"]
 [ext_resource type="Texture2D" uid="uid://t61vjtyty58h" path="res://assets/ui/tab_icons/chronicle.png" id="chronicle"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/event_card.tscn" id="eventcard"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/tutorial_card.tscn" id="tutorialcard"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/crawl_view.tscn" id="crawlview"]
+[ext_resource type="PackedScene" path="res://scenes/journal/widgets/prologue_view.tscn" id="prologueview"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/pm_window.tscn" id="pmwindow"]
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/trade_window.tscn" id="tradewindow"]
 [ext_resource type="Texture2D" uid="uid://nrj7sru86b3a" path="res://assets/ui/tab_icons/personnel.png" id="personnel"]
@@ -462,6 +463,11 @@ item_2/id = 1
 layout_mode = 0
 
 [node name="CrawlView" parent="." instance=ExtResource("crawlview")]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+
+[node name="PrologueView" parent="." instance=ExtResource("prologueview")]
 layout_mode = 0
 offset_right = 960.0
 offset_bottom = 540.0
