@@ -15,9 +15,18 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 3. A new guild opens on the prologue, then a tour walks you through your first loop. It can be
    skipped, and replayed from Settings.
 4. Hire workers in **Mercenaries → Recruit** and send them to sites in **Expeditions**. Take your
-   hero into the crypts (**Expeditions → Crypts**) and fight it yourself, or let them handle it.
+   hero into the crypts (the **Crypts** bookmark) and fight it yourself, or let them handle it.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## The Crypts chapter
+
+Crypts have their own bookmark, between Expeditions and Mercenaries. They used to sit at the
+bottom of the Expeditions list, where a new player could miss them. The left page shows your
+heroes (status and health; click one for their gear) and the supplies a run takes: rations, and
+fish oil for the lantern. The right page lists the crypts. Expeditions is now only the six trades.
+The bookmark sheets are baked by `tools/bake_tabs.py` (seven bookmarks, 41 px apart), and the
+lantern icon by `tools/paint_tab_icons.py`.
 
 ## Builds and the itch.io demo
 

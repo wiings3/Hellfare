@@ -89,6 +89,7 @@ const PAGE_TITLES := {
 	"hq": "The Guild",
 	"harlow": "The Gatepit",
 	"expeditions": "Expeditions",
+	"crypts": "The Crypts",
 	"site": "Expedition",
 	"dungeon": "Crypt",
 	"roster": "Mercenaries",
@@ -145,6 +146,7 @@ func _refresh() -> void:
 		"hq": _draw_company()
 		"harlow": _draw_site()  # Old links to the retired Harlow page open its planner.
 		"expeditions": _draw_board()
+		"crypts": _draw_crypts()
 		"site": _draw_site()
 		"dungeon": _draw_dungeon()
 		"roster": _draw_people()
@@ -2395,8 +2397,8 @@ func _draw_board() -> void:
 	var left := _mount_page(BOARD_LEFT, left_leaf)
 	var right := _mount_page(BOARD_RIGHT, right_leaf)
 	var c := "Margin/Content/"
-	if not TradeSites.BOARD.any(func(e): return str(e["trade"]) == selected_trade and bool(e["ready"])):
-		selected_trade = "logging"
+	if selected_trade == "dungeon" or not TradeSites.BOARD.any(func(e): return str(e["trade"]) == selected_trade and bool(e["ready"])):
+		selected_trade = "logging"  # Crypts have their own chapter now.
 	# Left: one row per trade, with the best hand, crews out and sites open.
 	var trades := left.get_node(c + "Trades") as VBoxContainer
 	for entry in TradeSites.BOARD:
@@ -2404,16 +2406,7 @@ func _draw_board() -> void:
 		if not bool(entry["ready"]):
 			continue
 		if trade == "dungeon":
-			var delving: int = game.missions.filter(func(m): return str(m.get("region", "")) == "dungeon").size()
-			var waiting: int = game.dungeon_checkins().size()
-			var ready_heroes: int = game.free_heroes().size()
-			var dcard := _list_card(trades, TRADE_ICONS.get("dungeon"), str(entry["name"]), ("%s ready" % _plural(ready_heroes, "hero")) if ready_heroes > 0 else ("Heroes below" if not game.heroes.is_empty() else "Needs a hero"),
-				"Waiting" if waiting > 0 else ("%d in" % delving if delving > 0 else ""), "%d of %d open" % [Dungeons.DUNGEONS.size(), Dungeons.DUNGEONS.size() + Dungeons.PLANNED.size()],
-				selected_trade == trade, _select_trade.bind(trade))
-			dcard.set_meta("tut", "trade:dungeon")
-			if delving > 0:
-				(dcard.get_node("Body/Side/Caption") as Label).theme_type_variation = &"LabelAccent" if waiting > 0 else &"LabelGood"
-			continue
+			continue  # The Crypts chapter has them.
 		var best: Dictionary = _best_in(trade)
 		var merc: Dictionary = best["merc"]
 		var sites: Array = TradeSites.for_trade(trade)
@@ -2431,18 +2424,8 @@ func _draw_board() -> void:
 		card.set_meta("tut", "trade:" + trade)
 		if out > 0:
 			(card.get_node("Body/Side/Caption") as Label).theme_type_variation = &"LabelGood"
-	var lead_hero: Dictionary = game.heroes[0] if not game.heroes.is_empty() else {}
-	var hero_card := _list_card(trades, TRADE_ICONS["combat"], "Heroes",
-		"No hero yet" if lead_hero.is_empty() else "%s  ·  %s %d" % [str(lead_hero["name"]), Heroes.class_name_of(lead_hero), TradeSkills.level_of(lead_hero, "combat")],
-		"", "%d of %d" % [game.heroes.size(), game.hero_slots], false, func() -> void:
-			roster_tab = "heroes"
-			_turn_to("roster"))
-	hero_card.toggle_mode = false
-	hero_card.tooltip_text = "Heroes fight in the crypts and wear the guild's weapons and armour. They don't take expedition slots."
+	(left.get_node(c + "Hint") as Label).text = "Crews work the sites while your heroes fight the crypts (the Crypts bookmark). Both can be out at once."
 	# Right: the chosen trade's sites. Open ones as cards, locked ones as a line each.
-	if selected_trade == "dungeon":
-		_draw_dungeon_list(right)
-		return
 	right.get_node(c + "Header").text = str(TradeSkills.NAMES.get(selected_trade, selected_trade))
 	var open_list := right.get_node(c + "Open") as VBoxContainer
 	var locked_list := right.get_node(c + "Locked") as VBoxContainer
@@ -2500,6 +2483,46 @@ func _draw_board() -> void:
 		else:
 			value.text = ""
 	(right.get_node(c + "LockedCaption") as Control).visible = locked_list.get_child_count() > 0
+
+## The Crypts chapter. Left: your heroes and what a run takes from the stores (rations, oil).
+## Right: the crypts. The pages are the board's (board_left/right.tscn), relabelled.
+func _draw_crypts() -> void:
+	var left := _mount_page(BOARD_LEFT, left_leaf)
+	var right := _mount_page(BOARD_RIGHT, right_leaf)
+	var c := "Margin/Content/"
+	left.get_node(c + "Header").text = "Your heroes"
+	var list := left.get_node(c + "Trades") as VBoxContainer
+	for hero in game.heroes:
+		var status: Array = _merc_status(hero)
+		if not game.is_available(hero):
+			status = ["In a crypt", &"LabelAccent"]
+		var card := _list_card(list, _face_of(hero), str(hero["name"]),
+			"%s  ·  level %d  ·  %d%% health" % [Heroes.class_name_of(hero), TradeSkills.level_of(hero, "combat"), int(hero.get("health", 100))],
+			"", str(status[0]), false, func() -> void:
+				roster_tab = "heroes"
+				_turn_to("roster"))
+		card.toggle_mode = false
+		card.tooltip_text = "Open %s in Mercenaries, Heroes: gear, health and treatment." % str(hero["name"]).get_slice(" ", 0)
+		(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = status[1]
+	if game.heroes.size() < game.hero_slots or game.heroes.is_empty():
+		var hire := _list_card(list, TRADE_ICONS["combat"], "Take on a hero" if game.heroes.is_empty() else "A hero slot is free",
+			"Heroes are hired in Mercenaries, Heroes.", "", "%d of %d" % [game.heroes.size(), game.hero_slots], false, func() -> void:
+				roster_tab = "heroes"
+				_turn_to("roster"))
+		hire.toggle_mode = false
+	var meals: int = game.rations_held()
+	var oil: int = int(game.resources.get("fish_oil", 0))
+	var supplies := _list_card(list, TRADE_ICONS.get("dungeon"), "Supplies for a run",
+		"%s  ·  %d fish oil for the lantern" % [_plural(meals, "ration"), oil], "", "Cook more" if meals < 2 else "", false, func() -> void:
+			workshop_tab = "craft"
+			_turn_to("workshop"))
+	supplies.toggle_mode = false
+	supplies.set_meta("tut", "crypt_supplies")
+	supplies.tooltip_text = "Each hero eats one ration (a cooked meal) per floor, and can't go down without them. Fish oil is optional: it tops up the lantern mid-fight.\nCook meals and render fish oil (from perch) in the Workshop."
+	if meals < 2:
+		(supplies.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelAccent"
+	(left.get_node(c + "Hint") as Label).text = "Heroes fight the crypts; your crews keep working the sites meanwhile. A hero who dies is gone for good: the guild keeps its gold and stores."
+	_draw_dungeon_list(right)
 
 ## The board's right page for dungeons: the open ones as cards, the planned ones locked.
 func _draw_dungeon_list(right: Control) -> void:
@@ -3068,7 +3091,7 @@ func _set_dungeon_turn_back(order: String) -> void:
 
 func _back_to_dungeons() -> void:
 	selected_trade = "dungeon"
-	_turn_to("expeditions")
+	_turn_to("crypts")
 
 func _enter_dungeon(led: bool = false) -> void:
 	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk, led, dungeon_start)
@@ -4010,6 +4033,7 @@ func _update_tutorial() -> void:
 	else:
 		var scroller := _scroll_parent(target)
 		if scroller != null:
+			var scrolled_from: int = scroller.scroll_vertical
 			scroller.ensure_control_visible(target)
 			# Under the tutorial card: scroll it up to the middle of the list, if the list can.
 			var panel := stage.get_node("TutorialCard/Card") as Control
@@ -4017,6 +4041,9 @@ func _update_tutorial() -> void:
 				var scale_y: float = scroller.get_global_transform().get_scale().y
 				var shift: float = (target.get_global_rect().get_center().y - scroller.get_global_rect().get_center().y) / maxf(0.01, scale_y)
 				scroller.scroll_vertical += int(maxf(0.0, shift))
+			# The list moves its rows at the end of the frame: point again once it has.
+			if scroller.scroll_vertical != scrolled_from and not get_tree().process_frame.is_connected(_update_tutorial):
+				get_tree().process_frame.connect(_update_tutorial, CONNECT_ONE_SHOT)
 		var r: Rect2 = target.get_global_rect()
 		at = Vector2(r.position.x, r.get_center().y)
 	# The arrow sits just left of the target, pointing at it.
@@ -4113,11 +4140,9 @@ func _tutorial_guide(id: String) -> Dictionary:
 				return {"do": "%s is already below. They'll be back up soon." % str(h["name"]).get_slice(" ", 0)}
 			if int(h.get("health", 100)) < MoneyMercsState.DUNGEON_MIN_HEALTH:
 				return {"do": "%s needs rest. Treat them in Mercenaries, Heroes, or wait a few minutes." % str(h["name"]).get_slice(" ", 0), "bookmark": "roster"}
-			if not page in ["expeditions", "dungeon"]:
-				return {"do": "Click the Expeditions bookmark on the left.", "bookmark": "expeditions"}
-			if page == "expeditions":
-				if selected_trade != "dungeon":
-					return {"do": "Click Crypts in the list on the left page.", "tag": "trade:dungeon"}
+			if not page in ["crypts", "dungeon"]:
+				return {"do": "Click the Crypts bookmark on the left.", "bookmark": "crypts"}
+			if page == "crypts":
 				return {"do": "Click the Fallen Keep.", "tag": "crypt:calder_keep"}
 			if _selected_available().is_empty():
 				return {"do": "Click %s to take them in." % str(h["name"]).get_slice(" ", 0), "tag": "hero_pick"}

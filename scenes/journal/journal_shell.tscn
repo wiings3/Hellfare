@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://by6klxuxek6c1"]
+[gd_scene load_steps=24 format=3 uid="uid://by6klxuxek6c1"]
 
 [ext_resource type="Texture2D" uid="uid://03hskmpl7e6m" path="res://assets/ui/book/tabs/1.png" id="book"]
 [ext_resource type="Texture2D" uid="uid://t61vjtyty58h" path="res://assets/ui/tab_icons/chronicle.png" id="chronicle"]
@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/trade_window.tscn" id="tradewindow"]
 [ext_resource type="Texture2D" uid="uid://nrj7sru86b3a" path="res://assets/ui/tab_icons/personnel.png" id="personnel"]
 [ext_resource type="Texture2D" path="res://assets/ui/tab_icons/workshop.png" id="workshop"]
+[ext_resource type="Texture2D" path="res://assets/ui/tab_icons/crypts.png" id="crypts"]
 
 [sub_resource type="AtlasTexture" id="tab_strip"]
 atlas = ExtResource("book")
@@ -186,58 +187,72 @@ anchors_preset = 0
 offset_left = 134.0
 offset_top = 145.0
 offset_right = 158.0
-offset_bottom = 409.0
+offset_bottom = 420.0
 mouse_filter = 2
 
 [node name="TabIcon0" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
-offset_top = 2.0
+offset_top = 3.0
 offset_right = 24.0
-offset_bottom = 26.0
+offset_bottom = 27.0
 mouse_filter = 2
 texture = ExtResource("company")
+
 
 [node name="TabIcon1" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
 offset_left = 1.0
-offset_top = 51.0
+offset_top = 44.0
 offset_right = 25.0
-offset_bottom = 75.0
+offset_bottom = 68.0
 mouse_filter = 2
 texture = ExtResource("expeditions")
+
 
 [node name="TabIcon2" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
 offset_left = 1.0
-offset_top = 100.0
+offset_top = 85.0
 offset_right = 25.0
-offset_bottom = 124.0
+offset_bottom = 109.0
 mouse_filter = 2
-texture = ExtResource("personnel")
+texture = ExtResource("crypts")
 
 [node name="TabIcon3" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
 offset_left = 1.0
-offset_top = 146.0
+offset_top = 126.0
 offset_right = 25.0
-offset_bottom = 170.0
+offset_bottom = 150.0
 mouse_filter = 2
-texture = ExtResource("workshop")
+texture = ExtResource("personnel")
+
 
 [node name="TabIcon4" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
-offset_top = 194.0
-offset_right = 24.0
-offset_bottom = 218.0
+offset_left = 1.0
+offset_top = 167.0
+offset_right = 25.0
+offset_bottom = 191.0
 mouse_filter = 2
-texture = ExtResource("exchange")
+texture = ExtResource("workshop")
+
 
 [node name="TabIcon5" type="TextureRect" parent="ChapterIcons"]
 layout_mode = 0
+offset_top = 208.0
+offset_right = 24.0
+offset_bottom = 232.0
+mouse_filter = 2
+texture = ExtResource("exchange")
+
+
+[node name="TabIcon6" type="TextureRect" parent="ChapterIcons"]
+layout_mode = 0
 offset_left = 1.0
-offset_top = 243.0
+offset_top = 249.0
 offset_right = 25.0
-offset_bottom = 267.0
+offset_bottom = 273.0
 mouse_filter = 2
 texture = ExtResource("chronicle")
 
@@ -246,14 +261,14 @@ anchors_preset = 0
 offset_left = 36.0
 offset_top = 145.0
 offset_right = 128.0
-offset_bottom = 409.0
+offset_bottom = 420.0
 mouse_filter = 2
 
 [node name="Label0" type="Label" parent="ChapterLabels"]
 layout_mode = 0
-offset_top = 4.0
+offset_top = 5.0
 offset_right = 92.0
-offset_bottom = 24.0
+offset_bottom = 25.0
 mouse_filter = 0
 mouse_default_cursor_shape = 2
 theme_type_variation = &"DeskCaption"
@@ -261,11 +276,12 @@ text = "Company"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+
 [node name="Label1" type="Label" parent="ChapterLabels"]
 layout_mode = 0
-offset_top = 53.0
+offset_top = 46.0
 offset_right = 92.0
-offset_bottom = 73.0
+offset_bottom = 66.0
 mouse_filter = 0
 mouse_default_cursor_shape = 2
 theme_type_variation = &"DeskCaption"
@@ -273,11 +289,24 @@ text = "Expeditions"
 horizontal_alignment = 2
 vertical_alignment = 1
 
+
 [node name="Label2" type="Label" parent="ChapterLabels"]
 layout_mode = 0
-offset_top = 102.0
+offset_top = 87.0
 offset_right = 92.0
-offset_bottom = 122.0
+offset_bottom = 107.0
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DeskCaption"
+text = "Crypts"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="Label3" type="Label" parent="ChapterLabels"]
+layout_mode = 0
+offset_top = 128.0
+offset_right = 92.0
+offset_bottom = 148.0
 mouse_filter = 0
 mouse_default_cursor_shape = 2
 theme_type_variation = &"DeskCaption"
@@ -285,11 +314,12 @@ text = "Mercenaries"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="Label3" type="Label" parent="ChapterLabels"]
+
+[node name="Label4" type="Label" parent="ChapterLabels"]
 layout_mode = 0
-offset_top = 148.0
+offset_top = 169.0
 offset_right = 92.0
-offset_bottom = 168.0
+offset_bottom = 189.0
 mouse_filter = 0
 mouse_default_cursor_shape = 2
 theme_type_variation = &"DeskCaption"
@@ -297,11 +327,12 @@ text = "Workshop"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="Label4" type="Label" parent="ChapterLabels"]
+
+[node name="Label5" type="Label" parent="ChapterLabels"]
 layout_mode = 0
-offset_top = 196.0
+offset_top = 210.0
 offset_right = 92.0
-offset_bottom = 216.0
+offset_bottom = 230.0
 mouse_filter = 0
 mouse_default_cursor_shape = 2
 theme_type_variation = &"DeskCaption"
@@ -309,11 +340,12 @@ text = "Market"
 horizontal_alignment = 2
 vertical_alignment = 1
 
-[node name="Label5" type="Label" parent="ChapterLabels"]
+
+[node name="Label6" type="Label" parent="ChapterLabels"]
 layout_mode = 0
-offset_top = 245.0
+offset_top = 251.0
 offset_right = 92.0
-offset_bottom = 265.0
+offset_bottom = 271.0
 mouse_filter = 0
 mouse_default_cursor_shape = 2
 theme_type_variation = &"DeskCaption"
@@ -326,11 +358,12 @@ anchors_preset = 0
 offset_left = 132.0
 offset_top = 144.0
 offset_right = 176.0
-offset_bottom = 418.0
+offset_bottom = 427.0
 mouse_filter = 1
 
 [node name="ChapterTab0" type="Button" parent="ChapterTabHost"]
 layout_mode = 0
+offset_top = 0.0
 offset_right = 44.0
 offset_bottom = 37.0
 tooltip_text = "Company
@@ -343,11 +376,12 @@ theme_override_styles/hover_pressed = SubResource("tab_empty")
 theme_override_styles/disabled = SubResource("tab_empty")
 theme_override_styles/focus = SubResource("tab_empty")
 
+
 [node name="ChapterTab1" type="Button" parent="ChapterTabHost"]
 layout_mode = 0
-offset_top = 48.0
+offset_top = 41.0
 offset_right = 44.0
-offset_bottom = 85.0
+offset_bottom = 78.0
 tooltip_text = "Expeditions
 Trades, sites and crews"
 mouse_default_cursor_shape = 2
@@ -358,13 +392,14 @@ theme_override_styles/hover_pressed = SubResource("tab_empty")
 theme_override_styles/disabled = SubResource("tab_empty")
 theme_override_styles/focus = SubResource("tab_empty")
 
+
 [node name="ChapterTab2" type="Button" parent="ChapterTabHost"]
 layout_mode = 0
-offset_top = 96.0
+offset_top = 82.0
 offset_right = 44.0
-offset_bottom = 133.0
-tooltip_text = "Mercenaries
-Your Hellfarers, their gear, and new recruits"
+offset_bottom = 119.0
+tooltip_text = "Crypts
+Your heroes, and the crypts they fight through"
 mouse_default_cursor_shape = 2
 theme_override_styles/normal = SubResource("tab_empty")
 theme_override_styles/pressed = SubResource("tab_empty")
@@ -375,9 +410,25 @@ theme_override_styles/focus = SubResource("tab_empty")
 
 [node name="ChapterTab3" type="Button" parent="ChapterTabHost"]
 layout_mode = 0
-offset_top = 144.0
+offset_top = 123.0
 offset_right = 44.0
-offset_bottom = 181.0
+offset_bottom = 160.0
+tooltip_text = "Mercenaries
+Your Hellfarers, their gear, and new recruits"
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("tab_empty")
+theme_override_styles/pressed = SubResource("tab_empty")
+theme_override_styles/hover = SubResource("tab_empty")
+theme_override_styles/hover_pressed = SubResource("tab_empty")
+theme_override_styles/disabled = SubResource("tab_empty")
+theme_override_styles/focus = SubResource("tab_empty")
+
+
+[node name="ChapterTab4" type="Button" parent="ChapterTabHost"]
+layout_mode = 0
+offset_top = 164.0
+offset_right = 44.0
+offset_bottom = 201.0
 tooltip_text = "Workshop
 Craft, buy, and the Warehouse: everything the guild owns"
 mouse_default_cursor_shape = 2
@@ -388,11 +439,12 @@ theme_override_styles/hover_pressed = SubResource("tab_empty")
 theme_override_styles/disabled = SubResource("tab_empty")
 theme_override_styles/focus = SubResource("tab_empty")
 
-[node name="ChapterTab4" type="Button" parent="ChapterTabHost"]
+
+[node name="ChapterTab5" type="Button" parent="ChapterTabHost"]
 layout_mode = 0
-offset_top = 192.0
+offset_top = 205.0
 offset_right = 44.0
-offset_bottom = 229.0
+offset_bottom = 242.0
 tooltip_text = "Market
 Merchants, the Auction House and the Tavern"
 mouse_default_cursor_shape = 2
@@ -403,11 +455,12 @@ theme_override_styles/hover_pressed = SubResource("tab_empty")
 theme_override_styles/disabled = SubResource("tab_empty")
 theme_override_styles/focus = SubResource("tab_empty")
 
-[node name="ChapterTab5" type="Button" parent="ChapterTabHost"]
+
+[node name="ChapterTab6" type="Button" parent="ChapterTabHost"]
 layout_mode = 0
-offset_top = 240.0
+offset_top = 246.0
 offset_right = 44.0
-offset_bottom = 277.0
+offset_bottom = 283.0
 tooltip_text = "Ledger
 Accounts and reports"
 mouse_default_cursor_shape = 2

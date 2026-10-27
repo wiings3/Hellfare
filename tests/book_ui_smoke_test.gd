@@ -50,11 +50,11 @@ func _verify() -> void:
 		check(theme.default_font is FontFile, "bundled default font")
 		check(str(theme.default_font.resource_path).ends_with("Jersey10-Regular.ttf"), "Jersey 10 body font")
 	# Tabs.
-	check(view.tab_host.get_child_count() == 6, "six chapter tabs")
-	check(view.tab_book_textures.size() == 7, "seven book sheets")
+	check(view.tab_host.get_child_count() == 7, "seven chapter tabs")
+	check(view.tab_book_textures.size() == 8, "eight book sheets")
 	check(view.tab_overlay.get_index() > view.flip_art.get_index(), "tabs drawn above page flips")
 	check(view.tab_icons_layer.get_index() > view.tab_overlay.get_index(), "icons above tab strip")
-	for i in range(6):
+	for i in range(7):
 		var tab: Button = view.tab_host.get_node("ChapterTab" + str(i))
 		check(tab.text.is_empty(), "tab %d has no text" % i)
 		check(tab.tooltip_text.length() > 5, "tab %d tooltip" % i)
@@ -102,12 +102,16 @@ func _verify() -> void:
 	check(view.book_art.texture.resource_path.ends_with("/6.png"), "hover preview sheet")
 	view._restore_tab_art()
 	check(view.book_art.texture.resource_path.ends_with("/2.png"), "restored sheet")
-	(view.tab_host.get_node("ChapterTab2") as Button).pressed.emit()
+	(view.tab_host.get_node("ChapterTab3") as Button).pressed.emit()
 	check(view.page == "roster", "mercenaries tab navigates")
-	check(view.book_art.texture.resource_path.ends_with("/4.png"), "mercenaries tab art")
+	check(view.book_art.texture.resource_path.ends_with("/5.png"), "mercenaries tab art")
+	(view.tab_host.get_node("ChapterTab2") as Button).pressed.emit()
+	check(view.page == "crypts" and view.book_art.texture.resource_path.ends_with("/4.png"), "the Crypts bookmark opens the crypts")
 	# Every chapter mounts its scenes.
 	var scene_by_chapter := {
 		"expeditions": ["board_left", "board_right"],
+		"crypts": ["board_left", "board_right"],
+		"dungeon": ["dungeon_left", "dungeon_right"],
 		"site": ["site_left", "site_right"],
 		"roster": ["personnel_employed_left", "personnel_employed_right"],
 		"workshop": ["personnel_workshop_left", "personnel_workshop_right"],
@@ -147,7 +151,7 @@ func _verify() -> void:
 	view.craft_filter = "all"
 	view._refresh()
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Blueprints/Items").get_child_count() == view.game.blueprint_shop().size(), "blueprint shelf")
-	check(view._active_tab_index() == 3, "workshop bookmark")
+	check(view._active_tab_index() == 4, "workshop bookmark")
 	view._buy_equipment("hand_axe")
 	view._nav_to("roster")
 	view._set_roster_tab("employed")
@@ -174,11 +178,17 @@ func _verify() -> void:
 	# Logging: the board lists the copse; the site planner forecasts a profit for a woodcutter.
 	view._nav_to("expeditions")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/board_left.tscn"), "expedition board")
-	check(view.left_leaf.get_child(0).get_node("Margin/Content/Trades").get_child_count() == 8, "six trades, dungeons and guarding")
+	check(view.left_leaf.get_child(0).get_node("Margin/Content/Trades").get_child_count() == 6, "six trades (crypts have their own chapter)")
 	view._select_trade("dungeon")
+	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text != "Crypts", "the board no longer lists crypts")
+	view._nav_to("crypts")
+	var crypt_left: Control = view.left_leaf.get_child(0)
+	check(crypt_left.get_node("Margin/Content/Header").text == "Your heroes", "the Crypts chapter lists your heroes")
+	check(crypt_left.get_node("Margin/Content/Trades").get_child_count() >= 2, "and the supplies for a run")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text == "Crypts", "crypts heading")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Open").get_child_count() == Dungeons.DUNGEONS.size(), "a card per open dungeon")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Locked").get_child_count() == Dungeons.PLANNED.size(), "planned dungeons shown locked")
+	view._nav_to("expeditions")
 	view._select_trade("fishing")
 	check(view.right_leaf.get_child(0).get_node("Margin/Content/Header").text == "Fishing", "trade heading")
 	var site_rows: int = view.right_leaf.get_child(0).get_node("Margin/Content/Open").get_child_count() + view.right_leaf.get_child(0).get_node("Margin/Content/Locked").get_child_count()
@@ -244,7 +254,7 @@ func _verify() -> void:
 	hall.rng.seed = 4242
 	view._nav_to("hall")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/hall_left.tscn"), "trade hall page")
-	check(view._active_tab_index() == 4, "trade hall sits under the Market tab")
+	check(view._active_tab_index() == 5, "trade hall sits under the Market tab")
 	var t0: int = int(Time.get_unix_time_from_system())
 	view.game.hall_tick(t0)
 	check(not hall.feed.is_empty(), "NPC traders post in the chat")
@@ -603,7 +613,7 @@ func _verify() -> void:
 	view.game.gold = 3000
 	view.game.resources["timber"] = 100
 	view._nav_to("auction")
-	check(view.page == "auction" and view._active_tab_index() == 4, "auction house sits under the Market tab")
+	check(view.page == "auction" and view._active_tab_index() == 5, "auction house sits under the Market tab")
 	view.auction_tab = "browse"
 	view.ah_item = "timber"
 	view._refresh()

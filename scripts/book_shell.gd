@@ -7,7 +7,7 @@ extends "res://scripts/game_actions.gd"
 const TAB_SHEETS := "res://assets/ui/book/tabs/"
 const FLIP_FRAMES := "res://assets/ui/book/flip/"
 const FLIP_FRAME_COUNT := 9
-const PHYSICAL_TAB_PAGES := ["hq", "expeditions", "roster", "workshop", "market", "finance"]
+const PHYSICAL_TAB_PAGES := ["hq", "expeditions", "crypts", "roster", "workshop", "market", "finance"]
 # The tab strip region of a book sheet, repainted above page-turn frames so the
 # chapter tabs never duck behind the turning parchment.
 const TAB_STRIP_REGION := Rect2(84, 276, 44, 286)
@@ -121,8 +121,8 @@ func _build_shell() -> void:
 	notice = toast_label
 	tab_book_textures.clear()
 	tab_strip_textures.clear()
-	# Sheet 1 has no extended tab; sheets 2..7 extend tab 0..5.
-	for i in range(1, 8):
+	# Sheet 1 has no bookmark raised; sheet n + 2 raises bookmark n (tools/bake_tabs.py).
+	for i in range(1, PHYSICAL_TAB_PAGES.size() + 2):
 		var sheet: Texture2D = load(TAB_SHEETS + str(i) + ".png")
 		tab_book_textures.append(sheet)
 		var strip := AtlasTexture.new()
@@ -164,13 +164,15 @@ func _show_tab_art(index: int) -> void:
 		tab_overlay.texture = tab_strip_textures[frame]
 
 func _active_tab_index() -> int:
-	# These secondary pages belong to the Expeditions chapter.
-	if page in ["harlow", "site", "contracts", "guildwork", "dungeon"]:
-		return 1
+	# Secondary pages light their chapter's bookmark.
+	if page in ["harlow", "site", "contracts", "guildwork"]:
+		return PHYSICAL_TAB_PAGES.find("expeditions")
+	if page == "dungeon":
+		return PHYSICAL_TAB_PAGES.find("crypts")
 	if page in ["hall", "market", "auction"]:
-		return 4
+		return PHYSICAL_TAB_PAGES.find("market")
 	if page == "ledger":
-		return 5
+		return PHYSICAL_TAB_PAGES.find("finance")
 	if page == "standing":
 		return 0
 	return PHYSICAL_TAB_PAGES.find(page)
@@ -221,7 +223,7 @@ func _turn_to(destination: String) -> void:
 	_start_page_flip(direction)
 
 func _tab_index(destination: String) -> int:
-	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "dungeon", "roster", "workshop", "market", "auction", "hall", "finance", "ledger", "warehouse"]
+	var keys: Array = ["hq", "standing", "expeditions", "site", "harlow", "contracts", "guildwork", "crypts", "dungeon", "roster", "workshop", "market", "auction", "hall", "finance", "ledger", "warehouse"]
 	return keys.find(destination)
 
 func _start_page_flip(direction: String) -> void:

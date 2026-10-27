@@ -31,7 +31,7 @@ const STEPS := [
 	 "button": "Done", "point": ""},
 ]
 ## The bookmark each page lives under (index in the book's chapter tabs).
-const BOOKMARKS := {"hq": 0, "expeditions": 1, "roster": 2, "workshop": 3, "market": 4, "ledger": 5}
+const BOOKMARKS := {"hq": 0, "expeditions": 1, "crypts": 2, "roster": 3, "workshop": 4, "market": 5, "ledger": 6}
 
 static func step_index(id: String) -> int:
 	for i in range(STEPS.size()):

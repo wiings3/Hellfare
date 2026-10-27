@@ -136,7 +136,7 @@ func _run() -> void:
 	check(card.visible and (card.get_node(body + "Title") as Label).text == "Hire a woodcutter", "then the tour begins")
 	var pointer := card.get_node("Pointer") as Control
 	var do_text := card.get_node(body + "Do/Text") as Label
-	var label := ui.stage.get_node("ChapterLabels/Label2") as Control
+	var label := ui.stage.get_node("ChapterLabels/Label3") as Control
 	check(pointer.visible and absf(pointer.position.y + pointer.size.y / 2.0 - (label.position.y + label.get_parent().position.y + label.size.y / 2.0)) < 3.0,
 		"the pointer sits beside the Mercenaries bookmark")
 	# It keeps pointing at the next click, through hiring and sending.
@@ -171,12 +171,12 @@ func _run() -> void:
 	check(_points_at(ui, pointer, "fund"), "with a crew picked it points at Send them down (%s)" % do_text.text)
 	ui._dispatch_site()
 	await _settle(ui)
-	# The crypt: Expeditions, Crypts, the Fallen Keep, the hero, Lead them in, the crawl.
+	# The crypt: the Crypts bookmark, the Fallen Keep, the hero, Lead them in, the crawl.
 	check((card.get_node(body + "Title") as Label).text.begins_with("Lead your hero"), "sending moves on to the crypt")
-	ui._turn_to("expeditions")
-	await _settle(ui)
-	check(_points_at(ui, pointer, "trade:dungeon"), "it points at Crypts (%s)" % do_text.text)
-	ui._select_trade("dungeon")
+	var crypt_label := ui.stage.get_node("ChapterLabels/Label2") as Control
+	check(pointer.visible and do_text.text.contains("Crypts bookmark") and absf(pointer.position.y + pointer.size.y / 2.0 - (crypt_label.position.y + crypt_label.get_parent().position.y + crypt_label.size.y / 2.0)) < 3.0,
+		"it points at the Crypts bookmark (%s)" % do_text.text)
+	ui._turn_to("crypts")
 	await _settle(ui)
 	check(_points_at(ui, pointer, "crypt:calder_keep"), "then the Fallen Keep (%s)" % do_text.text)
 	ui._open_dungeon("calder_keep")
