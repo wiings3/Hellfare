@@ -528,7 +528,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 		"units": units, "share": share, "value": int(round(value)), "cost": cost,
 		"profit": int(round(value)) - cost, "injury": injury, "death": death,
 		"injury_seen": injury * (guarded / n if not workers.is_empty() else 1.0), "death_seen": death * (armoured / n if not workers.is_empty() else 1.0),
-		"duration": int(round(float(site.get("duration", 60)) * float(order["duration"]) * (1.0 - saved) * (1.0 + quicker))),
+		"duration": int(round(TradeSites.trip_seconds(site, order) * (1.0 - saved) * (1.0 + quicker))),
 		"xp": int(round(float(site.get("xp", 20)) * float(order["xp"]))),
 	}
 

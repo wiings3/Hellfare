@@ -1,6 +1,6 @@
 # Hellfare
 
-**Version 0.31 — The Warehouse**
+**Version 0.33 — Heroes** (on the `heroes` branch; `main` is v0.32)
 
 A Godot 4.5.1 guild-management and gold-economy game. You run a guild of **Hellfarers** from Last
 Lantern, the last town before the Maw: mercenaries who go down into hell for what only hell has,
@@ -12,10 +12,45 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 
 1. Pull `main` or clone https://github.com/wiings3/Hellfare
 2. Import `project.godot` in Godot **4.5.1**. Run with **F5**.
-3. Open **Mercenaries → Recruit** and hire a woodcutter; new faces turn up every 30 minutes.
-4. Open **Expeditions → Logging → Cinderwood**, choose the crew and orders, and send them down.
+3. A new guild opens on the prologue, then a tour walks you through your first loop. It can be
+   skipped, and replayed from Settings.
+4. Hire workers in **Mercenaries → Recruit** and send them to sites in **Expeditions**. Take your
+   hero into the crypts (**Expeditions → Crypts**) and fight it yourself, or let them handle it.
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
+
+## V0.33 – Heroes
+
+The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DOCUMENT.md`).
+
+- **The prologue.** A new guild opens on the guild you used to have: the Lantern Company, at the
+  Ember Gate in the Brimstone Reach. You lead Ser Aldren Vane and Mira Holt through one fight on
+  the new crawl screen, coached a turn at a time. Then Aldren cuts Mira down, takes the guild,
+  and walks through the gate to become Death's First Blade. Three weeks later, in a rented room in
+  Last Lantern, you choose your first hero: a knight or a rogue, with a name you can reroll.
+- **Heroes replace guards.** Only heroes wear weapons and armour; workers carry tools. Heroes have
+  their own tab under Mercenaries, their own slots (bought like charters: 1,800, 6,000 and
+  15,000 G) and don't take expedition slots, so a crew and a hero can be out together. Knights hold
+  the line (more health, Guard takes most of a blow, Shield Bash stuns); rogues hit fast and hard
+  (crits, dodge, Backstab). Old saves keep their people: guards become workers, and a starter
+  hero joins.
+- **The crawl.** Crypts are fought turn by turn: Strike, the class skill, Guard, Potion, Retreat.
+  Faster fighters act more often, bosses wind up a heavy blow every third action, and every stat
+  on a piece of gear shows in the fight. Lead a run yourself, or let the hero handle it by the
+  same rules (you can hand over mid-run). Floors you've cleared stay open: runs can start at the
+  deepest known stairs.
+- **The Fallen Keep, retuned** for one hero: four rats in the Cellars, two cave spiders in the
+  Webbed Halls, the Bone Knight above them. A starter hero clears the Cellars; the Halls want
+  tier-1 gear; the Bone Knight wants it made well (`tools/crawl_sim.gd` prints the table).
+- **Shorter trips.** Tier-1 trips take a minute and a half, tier 2 four minutes, deeper sites a
+  few more. Per-trip wages, supplies and hauls are unchanged, so playing pays more per hour; the
+  long orders (Overnight, Full Day) still count their trips at the old pace, so a guild left alone
+  earns what it did before, and deeper sites' per-trip risks are cut so the risk per hour of work
+  stays the same. Crypt floors left to the hero take two and a half minutes.
+- **The tutorial follows the new hour:** hire a woodcutter, send them, lead your hero into the
+  Cellars while they work, sell the haul, then arm the hero — the pointer walks through learning a
+  blueprint from the quartermaster, crafting it and equipping it.
+- The board's Guarding row is now Heroes; the header counts crews out and heroes below separately.
 
 ## V0.32 – The Descent, repainted
 

@@ -24,7 +24,7 @@ const STEPS := [
 	 "text": "Everything the guild owns is in the Warehouse (Workshop, third tab). Sell some ashwood to the merchants, or keep it to craft with.",
 	 "button": "Keep it for now", "point": "market"},
 	{"id": "gear", "title": "Arm your hero",
-	 "text": "A rusty blade won't get through the Webbed Halls. Make better gear in the Workshop: iron for blades, helms and shields comes from the Gatepit (hire a miner), hides for armour from the Hollow Fields (a hunter). Make a piece and put it on your hero.",
+	 "text": "A rusty blade won't get through the Webbed Halls. The quartermaster in the Workshop sells blueprints: a helm, a shield, a better blade. Iron comes from the Gatepit (hire a miner), hides from the Hollow Fields (a hunter). Make a piece and put it on your hero.",
 	 "button": "Later", "point": "workshop"},
 	{"id": "next", "title": "Your guild is running",
 	 "text": "Clear the Webbed Halls and their stairs stay open: the Bone Knight waits above them. Long orders keep crews working overnight. More heroes and more crews come with gold and reputation. Somewhere below, Aldren is waiting. Esc opens Settings.",

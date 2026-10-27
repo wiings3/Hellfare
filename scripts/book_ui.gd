@@ -173,7 +173,10 @@ func _update_header() -> void:
 	_heard_gold = game.gold
 	money_label.text = _money(game.gold)
 	worth_label.text = "Worth  " + _money(game.wealth())
-	missions_label.text = "%d / %d" % [game.missions.size(), game.expedition_slots]
+	missions_label.text = "%d / %d" % [game.crews_out(), game.expedition_slots]
+	var below: int = game.missions.size() - game.crews_out()
+	var caption := stage.get_node("Header/Field/Row/Text/JobsCaption") as Label
+	caption.text = "Crews out" if below <= 0 else "Crews out  ·  %s below" % _plural(below, "hero")
 
 func _live_tick() -> void:
 	_update_header()
@@ -962,6 +965,7 @@ func _draw_employees() -> void:
 	state_label.theme_type_variation = status[1]
 	for pair in [["Overview", "overview"], ["Gear", "gear"]]:
 		var tab := right.get_node(c + "View/" + str(pair[0])) as Button
+		tab.set_meta("tut", "dossier:" + str(pair[1]))
 		tab.set_pressed_no_signal(dossier_view == str(pair[1]))
 		tab.pressed.connect(func() -> void:
 			dossier_view = str(pair[1])
@@ -1102,7 +1106,9 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 		selected_slot = "main_hand"
 	var grid := right.get_node(g + "Slots") as GridContainer
 	for slot in Gear.SLOTS:
-		grid.add_child(_gear_slot_button(slot, Gear.in_slot(owner, slot), slot == selected_slot, _choose_slot.bind(slot)))
+		var slot_btn := _gear_slot_button(slot, Gear.in_slot(owner, slot), slot == selected_slot, _choose_slot.bind(slot))
+		slot_btn.set_meta("tut", "slot:" + slot)
+		grid.add_child(slot_btn)
 	var picked: Dictionary = Gear.in_slot(owner, selected_slot)
 	var base := g + "Picked/Row/"
 	(right.get_node(base + "Info/Name") as Label).text = "%s: %s" % [Gear.SLOT_NAMES[selected_slot], _equipment_name(picked) if not picked.is_empty() else "empty"]
@@ -1189,6 +1195,7 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 			equip.disabled = not available
 			equip.tooltip_text = "Equip on %s. The tool in their hands sets their job." % str(owner.get("name", "")) if available else "They're out."
 			equip.pressed.connect(_equip.bind(selected_merc, str(item.get("uid", ""))))
+			equip.set_meta("tut", "equip:" + key)
 	(right.get_node(g + "Fits") as Control).visible = fits.get_child_count() > 0
 	(right.get_node(g + "FitsEmpty") as Control).visible = fits.get_child_count() == 0
 	(right.get_node(g + "Workshop") as Button).pressed.connect(func() -> void:
@@ -1338,6 +1345,7 @@ func _draw_workshop_chapter() -> void:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
 		btn.set_pressed_no_signal(workshop_tab == str(tab[1]) or (str(tab[1]) == "craft" and not workshop_tab in ["shop", "store"]))
 		btn.pressed.connect(_set_workshop_tab.bind(str(tab[1])))
+		btn.set_meta("tut", "wtab:" + str(tab[1]))
 	(tabs.get_node("Tabs/StoreTab") as Button).tooltip_text = "Everything the guild owns: goods, gear (spare and worn), food and potions."
 
 func _set_workshop_tab(tab: String) -> void:
@@ -1451,6 +1459,7 @@ func _draw_workshop_shop() -> void:
 		var card := _item_row(prints, _recipe_icon(key), str(d["name"]), Gear.summary(key) if game.makeable(key) else "Needs goods from sites you can't reach yet", key)
 		card.tooltip_text = "Recipe: %s" % _cost_line(d.get("recipe", {}) if d.get("recipe") is Dictionary else {})
 		_row_button(card, "Primary", "Learn  ·  %s" % _money(price), _buy_blueprint.bind(key), game.gold < price)
+		(card.get_node("Row/Primary") as Control).set_meta("tut", "learn:" + key)
 	var empty_note := right.get_node(c + "Empty")
 	empty_note.visible = prints.get_child_count() == 0
 	if craft_filter != "all" and not game.blueprint_shop().is_empty():
@@ -1767,6 +1776,7 @@ func _draw_workshop() -> void:
 			var line: String = Gear.summary(key) if missing.is_empty() else ("Missing " + _cost_line(missing) if game.makeable(key) else "Needs goods from sites not open yet")
 			var card := _list_card(list, _recipe_icon(key), str(Catalog.item(key)["name"]), line, "", "×%d" % can if can > 0 else "",
 				key == selected_recipe, _choose_recipe.bind(key))
+			card.set_meta("tut", "recipe:" + key)
 			card.custom_minimum_size.y = 30
 			if can > 0:
 				(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = &"LabelGood"
@@ -1832,6 +1842,7 @@ func _draw_workshop() -> void:
 		craft.text = "Craft %s" % str(d["name"])
 		craft.disabled = not missing.is_empty()
 		craft.pressed.connect(_craft.bind(selected_recipe))
+		craft.set_meta("tut", "craft:" + selected_recipe)
 		reason.text = "" if missing.is_empty() else "Missing " + _cost_line(missing) + "."
 	else:
 		var price: int = int(d.get("blueprint_price", 0))
@@ -2565,7 +2576,7 @@ func _bind_site_info(right: Control, site: Dictionary) -> void:
 	# Trip facts follow the chosen orders (Long Shift is six times as long, and so on).
 	var order: Dictionary = TradeSites.order_for(site, tactic)
 	(right.get_node(c + "Facts") as Label).text = "Trip %s  ·  supplies %s  ·  %d xp each" % [
-		_duration(int(round(float(site["duration"]) * float(order["duration"])))),
+		_duration(int(round(TradeSites.trip_seconds(site, order)))),
 		_money(int(round(float(site.get("supplies", 0)) * float(order.get("cost", 1.0))))),
 		int(round(float(site.get("xp", 0)) * float(order["xp"])))]
 
@@ -4033,9 +4044,7 @@ func _tutorial_guide(id: String) -> Dictionary:
 				return {"do": "Click %s to take them in." % str(h["name"]).get_slice(" ", 0), "tag": "hero_pick"}
 			return {"do": "Press Lead them in.", "tag": "lead"}
 		"gear":
-			if page != "workshop":
-				return {"do": "Click the Workshop bookmark on the left.", "bookmark": "workshop"}
-			return {"do": "Make a weapon, helm, shield or armour piece, then equip it on your hero (Mercenaries, Heroes, Gear)."}
+			return _gear_guide()
 		"sell":
 			if int(game.resources.get("timber", 0)) <= 0:
 				return {"do": "There's no ashwood left to sell. Press Keep it for now."}
@@ -4049,6 +4058,86 @@ func _tutorial_guide(id: String) -> Dictionary:
 				return {"do": "Press Sell 10 to sell some.", "tag": "sell10:timber"}
 			return {"do": "Press Sell 1 to sell one.", "tag": "sell1:timber"}
 	return {}
+
+## Arming the hero, one click at a time: equip a piece the guild already has, or make one it
+## has the goods for, or learn a blueprint it could make, or fetch the goods it's missing.
+func _gear_guide() -> Dictionary:
+	if game.heroes.is_empty():
+		return {}
+	var hero: Dictionary = game.heroes[0]
+	var first: String = str(hero["name"]).get_slice(" ", 0)
+	# 1. A spare piece that would add to the hero's gear score.
+	var spare: Dictionary = {}
+	for item in game.equipment_inventory:
+		var key: String = str(item.get("key", ""))
+		if not Heroes.hero_only(key):
+			continue
+		var worn: Dictionary = Gear.in_slot(hero, Gear.slot_of(key))
+		if int(Catalog.item(key).get("kit", 0)) > (int(Catalog.item(str(worn.get("key", ""))).get("kit", 0)) if not worn.is_empty() else 0):
+			spare = item
+			break
+	if not spare.is_empty():
+		var key: String = str(spare["key"])
+		if page != "roster":
+			return {"do": "You've made %s. Click the Mercenaries bookmark to put it on %s." % [str(Catalog.item(key)["name"]), first], "bookmark": "roster"}
+		if roster_tab != "heroes":
+			return {"do": "Click the Heroes tab.", "tag": "tab:heroes"}
+		if selected_merc != str(hero["id"]):
+			return {"do": "Click %s." % first, "tag": "hero:" + str(hero["id"])}
+		if dossier_view != "gear":
+			return {"do": "Click Gear.", "tag": "dossier:gear"}
+		if selected_slot != Gear.slot_of(key):
+			return {"do": "Click the %s slot." % str(Gear.SLOT_NAMES[Gear.slot_of(key)]).to_lower(), "tag": "slot:" + Gear.slot_of(key)}
+		return {"do": "Press Equip.", "tag": "equip:" + key}
+	# 2. Something the guild knows and has the goods for; 3. a blueprint it could use.
+	var ready: String = ""
+	var short: String = ""
+	for key in Catalog.items():
+		if not Heroes.hero_only(str(key)) or not game.knows(str(key)) or int(Catalog.item(key).get("kit", 0)) <= 0:
+			continue
+		if game.craft_missing(str(key)).is_empty():
+			ready = str(key)
+			break
+		if short == "" and game.makeable(str(key)):
+			short = str(key)
+	if ready != "":
+		if page != "workshop":
+			return {"do": "Click the Workshop bookmark on the left.", "bookmark": "workshop"}
+		if workshop_tab in ["shop", "store"]:
+			return {"do": "Click the Craft tab.", "tag": "wtab:craft"}
+		if selected_recipe != ready:
+			return {"do": "Click %s: you have what it takes." % str(Catalog.item(ready)["name"]), "tag": "recipe:" + ready}
+		return {"do": "Press Craft.", "tag": "craft:" + ready}
+	# A blueprint whose goods are already in the warehouse beats waiting on a crew.
+	var learn: String = ""
+	var learn_now: String = ""
+	for key in game.blueprint_shop():
+		if Heroes.hero_only(str(key)) and game.makeable(str(key)) and int(Catalog.item(key).get("kit", 0)) > 0 and game.gold >= int(Catalog.item(key).get("blueprint_price", 40)):
+			if learn == "":
+				learn = str(key)
+			if game.craft_missing(str(key)).is_empty():
+				learn_now = str(key)
+				break
+	if learn_now != "":
+		learn = learn_now
+	if learn != "" and (short == "" or learn_now != ""):
+		if page != "workshop":
+			return {"do": "Click the Workshop bookmark on the left.", "bookmark": "workshop"}
+		if workshop_tab != "shop":
+			return {"do": "Click the Shop tab: the quartermaster sells blueprints.", "tag": "wtab:shop"}
+		return {"do": "Learn %s." % str(Catalog.item(learn)["name"]), "tag": "learn:" + learn}
+	var want: String = short if short != "" else learn
+	if want == "":
+		return {"do": "Earn a little more gold, then learn a blueprint in the Workshop's Shop.", "bookmark": "workshop"}
+	var missing: Dictionary = game.craft_missing(want)
+	var where: Array[String] = []
+	for good in missing:
+		for src in _source_names(str(good)):
+			if not where.has(src):
+				where.append(src)
+	if where.is_empty():
+		return {"do": "%s needs %s. The merchants in the Market sell it." % [str(Catalog.item(want)["name"]), _cost_line(missing)], "bookmark": "market"}
+	return {"do": "%s needs %s. Send a crew to %s." % [str(Catalog.item(want)["name"]), _cost_line(missing), " or ".join(where.slice(0, 2))], "bookmark": "expeditions"}
 
 ## Fit the tutorial card to its text (after the text has wrapped, hence deferred).
 func _fit_tutorial_card(card: Control) -> void:

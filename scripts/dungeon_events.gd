@@ -23,9 +23,9 @@ const GOODS_SCALE := 3
 const XP_SCALE := 4
 
 ## Seconds between events on a floor (a floor lasts Dungeons.FLOOR_TIME), and on the walk out.
-const GAP := [90, 140]
-## The walk out lasts 80 s per floor: the first event comes early, the rest at the floor's pace.
-const WALK_GAP := [25, 45]
+const GAP := [60, 100]
+## The walk out lasts 50 s per floor: the first event comes early, the rest at the floor's pace.
+const WALK_GAP := [20, 35]
 ## Seconds the player has to choose before the crew decides by its orders.
 const EVENT_WAIT := 30
 

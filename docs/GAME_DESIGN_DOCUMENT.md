@@ -280,15 +280,21 @@ automated tests don't prove visual quality.
 
 Built on the `heroes` branch; `main` stays the playable game until it's proven.
 
-1. Heroes: records, slots, classes, gear only on heroes, upkeep, save migration.
-2. The turn engine (`scripts/crawl.gd`): initiative, actions, class skills, foes' turns; used by
-   the led crawl and by automatic runs and forecasts.
-3. The crawl screen, and "Lead them / Let them handle it" on the crypt planner.
-4. Guards retired from trade sites; site risks retuned.
-5. First-hour pacing: shorter tier-1 trips with wages, supplies and yields scaled to match;
-   unlock order; starting gold and prices retuned with `tools/econ_sim.gd`.
-6. The prologue and the betrayal.
-7. The new tutorial following §7.
+1. **Done.** Heroes: records, slots, classes, gear only on heroes, upkeep, save migration.
+2. **Done.** The turn engine (`scripts/crawl.gd`): initiative, actions, class skills, foes' turns;
+   used by the led crawl and by automatic runs and forecasts.
+3. **Done.** The crawl screen, and "Lead them / Let them handle it" on the crypt planner.
+4. **Done.** Guards retired from trade sites; site risks retuned.
+5. **Partly done.** First-hour pacing: trips are shorter (tier 1 90 s, tier 2 4 min, tier 3 7,
+   tier 4 10, tier 5 15) with per-trip wages, supplies and hauls unchanged. Decided while building:
+   active play earns more per hour (the point of the hour), but long orders count trips at the old
+   pace and deeper sites' per-trip risk was cut to match, so idle income and risk per hour are
+   what they were (`tools/econ_sim.gd`: idle and evening players about the same at 48 h; the first
+   1,000 G in under an hour instead of one to seven). **Still to do:** trips lengthening as more crews run at once (rule 2), the unlock order (quiet
+   pages until they're needed) and a look at fixed prices (charters, hero slots) once real
+   players have tried the faster hour.
+6. **Done.** The prologue and the betrayal.
+7. **Done.** The new tutorial following §7, including the gear step's learn → craft → equip.
 8. Tests for each, a recorded first-hour playthrough, then a cold playtest with 3–5 people.
 
 **Success test for this update:** someone who has never seen the game plays for 30–45 minutes

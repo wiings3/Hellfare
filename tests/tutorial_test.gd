@@ -193,6 +193,43 @@ func _run() -> void:
 	check(not card.visible, "Skip hides the card")
 	ui._crawl_view().close()
 	await process_frame
+	# Arming the hero: learn, craft, then equip, one click at a time.
+	var gm = ui.game
+	gm.tutorial = Tutorial._baseline(gm, "gear", false)
+	gm.gold = 500
+	gm.resources["iron"] = 4
+	gm.resources["rabbit_hide"] = 2
+	ui._turn_to("workshop")
+	await _settle(ui)
+	check(card.visible and (card.get_node(body + "Title") as Label).text == "Arm your hero", "the gear step shows")
+	ui._set_workshop_tab("shop")
+	await _settle(ui)
+	var learn_key: String = ""
+	for k in gm.blueprint_shop():
+		if _points_at(ui, pointer, "learn:" + str(k)):
+			learn_key = str(k)
+	check(learn_key != "", "in the Shop it points at a blueprint to learn (%s)" % do_text.text)
+	if learn_key != "":
+		ui._buy_blueprint(learn_key)
+		await _settle(ui)
+		ui._set_workshop_tab("craft")
+		await _settle(ui)
+		check(_points_at(ui, pointer, "recipe:" + learn_key) or _points_at(ui, pointer, "craft:" + learn_key), "then at the recipe (%s)" % do_text.text)
+		ui._choose_recipe(learn_key)
+		await _settle(ui)
+		check(_points_at(ui, pointer, "craft:" + learn_key), "then at Craft (%s)" % do_text.text)
+		ui._craft(learn_key)
+		await _settle(ui)
+		check(do_text.text.contains("Mercenaries"), "then off to put it on (%s)" % do_text.text)
+		ui._turn_to("roster")
+		ui._set_roster_tab("heroes")
+		ui.selected_merc = str(gm.heroes[0]["id"])
+		ui.dossier_view = "gear"
+		ui.selected_slot = Gear.slot_of(learn_key)
+		ui._refresh()
+		await _settle(ui)
+		check(_points_at(ui, pointer, "equip:" + learn_key), "and at Equip (%s)" % do_text.text)
+	Tutorial.skip(gm)
 	# Settings > Replay tutorial brings it back as a tour: the prologue first, nothing founded.
 	var pm = ui.find_child("PauseMenu", true, false)
 	(pm.get_node("Cover/Plate/Margin/Content/Settings/ReplayTutorial") as Button).pressed.emit()

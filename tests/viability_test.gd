@@ -17,8 +17,10 @@ func _initialize() -> void:
 		check(not site.is_empty(), "site exists: " + site_id)
 		var night: Dictionary = TradeSites.order_for(site, "Overnight")
 		var day: Dictionary = TradeSites.order_for(site, "Full Day")
-		check(is_equal_approx(float(site["duration"]) * float(night["duration"]), 8.0 * 3600.0), "Overnight lasts 8 hours at " + site_id)
-		check(is_equal_approx(float(site["duration"]) * float(day["duration"]), 20.0 * 3600.0), "Full Day lasts 20 hours at " + site_id)
+		check(is_equal_approx(TradeSites.trip_seconds(site, night), 8.0 * 3600.0), "Overnight lasts 8 hours at " + site_id)
+		check(is_equal_approx(TradeSites.trip_seconds(site, day), 20.0 * 3600.0), "Full Day lasts 20 hours at " + site_id)
+		# A long order counts its trips at the old pace, so short trips don't make it pay more.
+		check(is_equal_approx(float(night["duration"]), 8.0 * 3600.0 / TradeSites.long_order_trip(site)), "Overnight counts trips at the long-order pace at " + site_id)
 		check(float(night["yield"]) / float(night["duration"]) < float(TradeSites.orders("Long Shift")["yield"]) / 6.0, "Overnight pays less per hour than Long Shift")
 	# A new company can afford an Overnight trip with one woodcutter, and it pays.
 	var g := MoneyMercsState.new()

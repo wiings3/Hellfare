@@ -9,9 +9,10 @@ class_name Dungeons
 ## Calder Keep is tier 1: monsters only, three floors, the third a boss.
 
 ## How long a floor takes, and the walk back out through each floor already cleared. A full run
-## (three floors, two check-ins, the walk out) takes 20 minutes.
-const FLOOR_TIME := 240
-const WALK_TIME := 80
+## left to itself (three floors, two check-ins, the walk out) takes about 13 minutes; a run the
+## player leads takes as long as they take.
+const FLOOR_TIME := 150
+const WALK_TIME := 50
 ## The check-in between floors: how long the crew waits for the player before following orders.
 const CHECKIN := 120
 ## A fight that hasn't ended after this many rounds ends with the crew backing out.

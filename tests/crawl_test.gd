@@ -196,9 +196,15 @@ func _run() -> void:
 			g.complete_due(int(mm["finish"]) + 99999)
 
 	# --- Handing a led run back to its orders ------------------------------------------
-	g.heroes[0]["health"] = 100
+	# The Webbed Halls run above was left to the hero, who can die there: start again if so.
+	if g.merc_by_id(one[0]).is_empty():
+		if g.heroes.is_empty():
+			g.found_hero("knight", "Second Knight")
+		one = [str(g.heroes[0]["id"])]
+	g.merc_by_id(one[0])["health"] = 100
 	GameClock.fixed = now + 200000
-	check(g.dungeon_dispatch("calder_keep", one, 1, "half", "safe", true).begins_with("The crew went"), "led again")
+	var again: String = g.dungeon_dispatch("calder_keep", one, 1, "half", "safe", true)
+	check(again.begins_with("The crew went"), "led again (%s)" % again)
 	g.lead_fight()
 	g.lead_act("strike")
 	check(g.lead_release().contains("orders"), "let them handle it")
