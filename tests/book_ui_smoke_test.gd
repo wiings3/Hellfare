@@ -130,7 +130,11 @@ func _verify() -> void:
 	view._set_roster_tab("recruits")
 	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/personnel_recruits_left.tscn"), "recruit page")
 	view._hire("garrick")
-	view._hire("oswin")
+	var second: String = ""
+	for c in view.game.recruitment_board():
+		if Mercs.best_trade(c) != "logging" and second == "" and str(c["id"]) != "garrick":
+			second = str(c["id"])
+	view._hire(second)
 	check(view.game.crew.size() == 2, "hired two")
 	view._outfit("garrick")
 	check(view.page == "roster" and view.dossier_view == "gear", "outfitting opens the Gear page")
@@ -147,14 +151,14 @@ func _verify() -> void:
 	view._buy_equipment("hand_axe")
 	view._nav_to("roster")
 	view._set_roster_tab("employed")
-	view._focus_person("oswin")
+	view._focus_person(second)
 	view.dossier_view = "gear"
 	view.selected_slot = "main_hand"
 	view._refresh()
 	var fits: VBoxContainer = view.right_leaf.get_child(0).get_node("Margin/Content/Gear/Fits/Items")
 	check(fits.get_child_count() >= 1, "the storeroom axe fits the main hand")
 	(fits.get_child(fits.get_child_count() - 1).get_node("Row/Primary") as Button).pressed.emit()
-	check(str(Gear.in_slot(view.game.merc_by_id("oswin"), "main_hand").get("key", "")) == "hand_axe", "equipped from the Gear page")
+	check(str(Gear.in_slot(view.game.merc_by_id(second), "main_hand").get("key", "")) == "hand_axe", "equipped from the Gear page")
 	view.dossier_view = "overview"
 	view._refresh()
 	var roster_list: VBoxContainer = view.left_leaf.get_child(0).get_node("Margin/Content/List/Items")

@@ -14,16 +14,17 @@ func _kit(g: MoneyMercsState, id: String, keys: Array, combat: int) -> void:
 	for k in keys:
 		m["equipment"][Gear.slot_of(k)] = g.make_item(k, "common")
 
+## Heroes for a run, one per kit: [[item keys], combat level]. A dagger makes a rogue.
 func _crew(g: MoneyMercsState, kits: Array) -> Array[String]:
 	var ids: Array[String] = []
-	for c in g.recruitment_board():
-		if ids.size() >= kits.size():
-			break
-		if g.hire(str(c["id"])).begins_with("Hired") or g.merc_by_id(str(c["id"])).size() > 0:
-			if not g.merc_by_id(str(c["id"])).is_empty() and not ids.has(str(c["id"])):
-				ids.append(str(c["id"]))
-	for i in range(ids.size()):
-		_kit(g, ids[i], kits[i][0], kits[i][1])
+	g.hero_slots = Heroes.MAX_SLOTS
+	for i in range(kits.size()):
+		var keys: Array = kits[i][0]
+		var hero_class: String = "rogue" if str(keys[0]).ends_with("_dagger") else "knight"
+		var h: Dictionary = Heroes.make("hero_t%d" % i, "Hero %d" % (i + 1), hero_class)
+		g.heroes.append(h)
+		ids.append(str(h["id"]))
+		_kit(g, str(h["id"]), keys, int(kits[i][1]))
 	return ids
 
 func _initialize() -> void:
@@ -52,13 +53,15 @@ func _initialize() -> void:
 	var ids: Array[String] = _crew(g, [[["steel_sword", "chainmail", "iron_helm"], 9], [["iron_dagger", "leather", "leather_cap", "leather_boots"], 7], [["birch_shortbow", "leather", "leather_cap"], 4]])
 	check(ids.size() == 3, "three mercenaries hired (%d)" % ids.size())
 	# Kit gating.
-	var green: Dictionary = g.merc_by_id(ids[2])
-	var bow: Dictionary = green["equipment"]["main_hand"]
-	green["equipment"]["main_hand"] = {}
-	check(g.dungeon_fit("calder_keep", green).begins_with("Gear score"), "low gear score is turned away")
-	check(not g.dungeon_dispatch("calder_keep", ids, 2, "half").begins_with("The crew went"), "dispatch refuses low kit")
-	green["equipment"]["main_hand"] = bow
-	check(g.dungeon_fit("calder_keep", green) == "", "kit 8 gets in (%d)" % Gear.kit_rating(green))
+	# Only heroes go in, and not badly hurt.
+	check(g.dungeon_fit("calder_keep", {"id": "w", "name": "Worker"}).begins_with("Only heroes"), "mercenaries don't go into the crypts")
+	var hurt: Dictionary = g.merc_by_id(ids[2])
+	hurt["health"] = 20
+	check(g.dungeon_fit("calder_keep", hurt) == "Too hurt", "a badly hurt hero stays home")
+	check(not g.dungeon_dispatch("calder_keep", ids, 2, "half").begins_with("The crew went"), "dispatch refuses a hurt hero")
+	hurt["health"] = 100
+	check(g.dungeon_fit("calder_keep", hurt) == "", "a rested hero goes")
+	var worker_slots_before: int = g.crews_out()
 	var plan: Dictionary = g.dungeon_forecast("calder_keep", ids, 2, "half")
 	check((plan["odds"] as Array).size() == 3 and float(plan["odds"][0]) > 0.8, "forecast gives floor odds")
 	check(int(plan["cost"]) >= 30 and str(plan["blocked"]) == "", "forecast cost includes supplies")
@@ -68,6 +71,7 @@ func _initialize() -> void:
 	check(g.gold == gold0 - int(plan["cost"]), "paid wages and supplies")
 	var m: Dictionary = g.missions[0]
 	check(str(m["stage"]) == "floor" and int(m["floor_i"]) == 0, "starts on floor 1")
+	check(g.crews_out() == worker_slots_before and g.hero_runs_out() == 1, "a hero run doesn't take an expedition slot")
 	check(g.complete_due(now + 60) == 0 and str(m["stage"]) == "floor", "nothing happens before the floor is done")
 	# Floor 1 resolves; the crew waits at the stairs.
 	g.complete_due(now + Dungeons.FLOOR_TIME + 1)

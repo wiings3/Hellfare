@@ -47,7 +47,7 @@ func _initialize() -> void:
 			var board: Array[Dictionary] = Mercs.generate_board(epoch, tier)
 			check(board.size() == 8, "eight applicants")
 			for i in range(4):
-				var want: String = Mercs.ENTRY_TRADES[i] if i < 3 else Mercs.ROTATING_TRADES[posmod(epoch, 4)]
+				var want: String = Mercs.ENTRY_TRADES[i] if i < 3 else Mercs.ROTATING_TRADES[posmod(epoch, Mercs.ROTATING_TRADES.size())]
 				check(Mercs.best_trade(board[i]) == want and Mercs.best_level(board[i]) <= 3, "green applicant %d at tier %d (%s, wanted %s)" % [i, tier, Mercs.best_trade(board[i]), want])
 			for c in board:
 				best_seen = maxi(best_seen, Mercs.best_level(c))
@@ -65,7 +65,9 @@ func _initialize() -> void:
 	var ids: Array = []
 	for c in g.recruitment_board():
 		ids.append(str(c["id"]))
-	check(ids.has("garrick") and ids.has("oswin") and not ids.has("bram"), "named recruits gated by reputation")
+	check(ids.has("garrick") and not ids.has("bram"), "named recruits gated by reputation")
+	for c in g.recruitment_board():
+		check(Mercs.best_trade(c) != "combat", "nobody applies as a guard (%s)" % str(c["name"]))
 	check(g.hire("bram").contains("not found"), "can't sign Bram while Unknown")
 
 	# Hiring: a recruit brings the basic tool for their best trade, and the tool sets the job.

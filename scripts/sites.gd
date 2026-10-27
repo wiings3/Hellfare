@@ -25,6 +25,9 @@ class_name TradeSites
 const LEVEL_YIELD_BONUS := 0.03
 const GUARD_PROTECTION := 0.25
 const MAX_GUARD_PROTECTION := 0.6
+## Guards are retired (fighting is for heroes): every crew now meets a site's threat with this
+## much taken off its injury and death chances — about what a sensibly guarded crew had.
+const BASE_PROTECTION := 0.4
 
 ## yield, risk, duration and xp multiply the site's numbers; cost multiplies wages and
 ## supplies. Long Shift is one long trip for players who check in now and then: six times

@@ -29,11 +29,11 @@ func _run() -> void:
 	g.tutorial = {"step": "done"}
 	g.gold = 5000
 	var ids: Array[String] = []
-	for c in g.recruitment_board():
-		if ids.size() < 2:
-			g.hire(str(c["id"]))
-			if not g.merc_by_id(str(c["id"])).is_empty():
-				ids.append(str(c["id"]))
+	g.hero_slots = 2
+	for i in range(2):
+		var h: Dictionary = Heroes.make("hero_e%d" % i, "Hero %d" % i, "knight")
+		g.heroes.append(h)
+		ids.append(str(h["id"]))
 	kit(g, ids[0], ["steel_sword", "chainmail", "iron_helm"], 9)
 	kit(g, ids[1], ["steel_sword", "chainmail"], 8)
 	check(g.dungeon_dispatch("calder_keep", ids, 3, "half", "bold").begins_with("The crew went"), "a crew goes into the Fallen Keep")

@@ -7,11 +7,12 @@ extends RefCounted
 
 const V05 = preload("res://scripts/v05_rules.gd")
 
-## Trades a recruit can be good at today (more join as their expeditions open).
-const RECRUIT_TRADES := ["logging", "mining", "combat", "foraging", "fishing", "hunting", "farming"]
+## Trades a recruit can be good at today. Fighting is for heroes (heroes.gd), so nobody
+## applies as a guard any more.
+const RECRUIT_TRADES := ["logging", "mining", "foraging", "fishing", "hunting", "farming"]
 ## Always on the board: a green hand for each of these, plus one for a rotating newer trade.
-const ENTRY_TRADES := ["logging", "mining", "combat"]
-const ROTATING_TRADES := ["foraging", "fishing", "hunting", "farming"]
+const ENTRY_TRADES := ["logging", "mining", "hunting"]
+const ROTATING_TRADES := ["foraging", "fishing", "farming"]
 const JOB_NAMES := {"logging": "Woodcutter", "mining": "Miner", "combat": "Guard", "foraging": "Forager",
 	"fishing": "Angler", "hunting": "Hunter", "farming": "Farmhand", "": "Labourer"}
 ## Basic tool a new recruit brings for their best trade.

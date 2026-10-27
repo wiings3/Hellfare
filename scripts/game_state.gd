@@ -134,7 +134,7 @@ func harlow_dispatch(ids: Array[String], approach: String) -> String:
 		return "Unrecognized standing orders."
 	if ids.is_empty() or ids.size() > 3:
 		return "Choose between one and three workers."
-	if missions.size() >= expedition_slots:
+	if crews_out() >= expedition_slots:
 		return "No expedition slots are free."
 	var seen: Dictionary = {}
 	for id in ids:
@@ -426,8 +426,9 @@ func _effort(merc: Dictionary, trade: String) -> float:
 
 ## Whoever holds a weapon stands guard, except a hunter on a hunt: their bow is their tool,
 ## so they work the hunt and don't also shield the crew.
-func _stands_guard(merc: Dictionary, trade: String) -> bool:
-	return Mercs.job(merc) == "combat" and not (trade == "hunting" and Gear.hunts(merc))
+func _stands_guard(_merc: Dictionary, _trade: String) -> bool:
+	# Guards are retired: crews meet a site's threat themselves (TradeSites.BASE_PROTECTION).
+	return false
 
 ## Bone meal spread on the fields: +15% on a farming trip (one is used per trip).
 const BONE_MEAL_BONUS := 1.15
@@ -513,7 +514,7 @@ func site_forecast(site_id: String, ids: Array[String], approach: String) -> Dic
 		var rare: Dictionary = site.get(rare_key, {})
 		if not rare.is_empty() and not workers.is_empty():
 			value += _rare_chance(rare, order, workers) * float(rare["count"]) * float(sell_price(str(rare["good"])))
-	var protect: float = TradeSites.protection(guards, best_combat)
+	var protect: float = TradeSites.BASE_PROTECTION
 	var injury: float = minf(TradeSites.MAX_INJURY, float(site.get("injury", 0.0)) * float(order["risk"]) * (1.0 - protect))
 	var death: float = minf(TradeSites.MAX_DEATH, float(site.get("death", 0.0)) * float(order["risk"]) * (1.0 - protect))
 	# What the crew's armour and supplies make of it, on average (each worker's own gear counts).
@@ -539,10 +540,12 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 		return "Unrecognized standing orders."
 	if ids.is_empty() or ids.size() > 3:
 		return "Choose between one and three workers."
-	if missions.size() >= expedition_slots:
+	if crews_out() >= expedition_slots:
 		return "No expedition slots are free."
 	for id in ids:
 		var merc: Dictionary = merc_by_id(id)
+		if Heroes.is_hero(merc):
+			return "Heroes don't do trade work; they go into the crypts."
 		if merc.is_empty() or not is_available(merc):
 			return "A chosen Hellfarer is unavailable."
 		if int(merc.get("health", 100)) < 25:
@@ -750,15 +753,18 @@ const DUNGEON_MIN_HEALTH := 40
 const DUNGEON_GEAR_STAYS := 0.7
 
 ## Why each picked mercenary can or can't go: {id: reason or ""}.
-func dungeon_fit(dungeon_id: String, merc: Dictionary) -> String:
-	var d: Dictionary = Dungeons.by_id(dungeon_id)
+func dungeon_fit(_dungeon_id: String, merc: Dictionary) -> String:
+	if not Heroes.is_hero(merc):
+		return "Only heroes go into the crypts"
 	if not is_available(merc):
 		return "Away"
 	if int(merc.get("health", 100)) < DUNGEON_MIN_HEALTH:
 		return "Too hurt"
-	if Gear.kit_rating(merc) < int(d.get("min_kit", 0)):
-		return "Gear score %d of %d" % [Gear.kit_rating(merc), int(d.get("min_kit", 0))]
 	return ""
+
+## A hero's fighting numbers, or a mercenary's (crypt runs from before heroes).
+func crypt_fighter(merc: Dictionary) -> Dictionary:
+	return Heroes.fighter(merc) if Heroes.is_hero(merc) else Dungeons.fighter(merc)
 
 ## What the planner shows: per-floor odds, death chance, haul, cost and time under the orders.
 func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_back: String) -> Dictionary:
@@ -771,10 +777,9 @@ func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		var merc: Dictionary = merc_by_id(id)
 		if merc.is_empty():
 			continue
-		fighters.append(Dungeons.fighter(merc))
-		var t: Dictionary = terms(merc)
-		wages += int(t["wage"])
-		share += float(t["cut"])
+		fighters.append(crypt_fighter(merc))
+		wages += Heroes.wage(merc) if Heroes.is_hero(merc) else int(terms(merc)["wage"])
+		share += 0.0 if Heroes.is_hero(merc) else float(terms(merc)["cut"])
 		var why: String = dungeon_fit(dungeon_id, merc)
 		if why != "" and blocked == "":
 			blocked = "%s: %s" % [str(merc["name"]), why.to_lower()]
@@ -793,16 +798,16 @@ func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		"floors": f["floors"], "cost": int(d.get("supplies", 0)) + wages, "duration": time, "share": share,
 		"blocked": blocked, "fighters": fighters, "depth": depth}
 
-func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe") -> String:
+func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe", led: bool = false) -> String:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
 	if d.is_empty():
 		return "That crypt isn't open."
 	if not Dungeons.TURN_BACK.has(turn_back):
 		return "Unrecognized orders."
 	if ids.is_empty() or ids.size() > int(d.get("crew", 3)):
-		return "Choose between one and %d Hellfarers." % int(d.get("crew", 3))
-	if missions.size() >= expedition_slots:
-		return "No expedition slots are free."
+		return "Choose between one and %d heroes." % int(d.get("crew", 3))
+	if led and not lead_run().is_empty():
+		return "You're already leading a run."
 	for id in ids:
 		var merc: Dictionary = merc_by_id(id)
 		if merc.is_empty():
@@ -829,7 +834,7 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 	for id in ids:
 		merc_by_id(id)["mission_id"] = key
 	var mission: Dictionary = {
-		"id": key, "region": "dungeon", "dungeon": dungeon_id, "trade": "combat", "ids": ids.duplicate(),
+		"id": key, "region": "dungeon", "dungeon": dungeon_id, "trade": "combat", "ids": ids.duplicate(), "heroes": true, "led": led,
 		"depth": int(plan["depth"]), "turn_back": turn_back, "tactic": "Deep Push", "cost": int(plan["cost"]),
 		"share": float(plan["share"]), "seed": randi(), "started": now,
 		"stage": "floor", "floor_i": 0, "floor_end": now + Dungeons.FLOOR_TIME, "await_until": 0,
@@ -837,8 +842,12 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		"overrode": -1, "risk": "bold" if risk == "bold" else "safe", "ev": [], "ev_log": [], "event_gear": [],
 		"buff": {}, "weaken": 0, "ally": false, "bonus_xp": 0,
 	}
-	mission["finish"] = _dungeon_projection(mission)
-	_schedule_events(mission, "floor", now, now + Dungeons.FLOOR_TIME)
+	if led:
+		mission["stage"] = "led"
+		mission["finish"] = now + 86400
+	else:
+		mission["finish"] = _dungeon_projection(mission)
+		_schedule_events(mission, "floor", now, now + Dungeons.FLOOR_TIME)
 	missions.append(mission)
 	_roll_fallen(mission, dungeon_id)
 	save_game()
@@ -879,7 +888,7 @@ func _run_crew(m: Dictionary) -> Array:
 		var merc: Dictionary = merc_by_id(str(id))
 		if merc.is_empty() or (m.get("dead", []) as Array).has(str(id)):
 			continue
-		var f: Dictionary = Dungeons.fighter(merc)
+		var f: Dictionary = crypt_fighter(merc)
 		f["hp"] = float((m["hp"] as Dictionary).get(str(id), f["hp"]))
 		f["heal"] = int((m["heal"] as Dictionary).get(str(id), 0))
 		f["lucky"] = bool((m["lucky"] as Dictionary).get(str(id), false))
@@ -902,7 +911,7 @@ func dungeon_tick(now: int = -1) -> bool:
 		now = GameClock.now()
 	var changed: bool = false
 	for m in missions:
-		if str(m.get("region", "")) != "dungeon":
+		if str(m.get("region", "")) != "dungeon" or str(m.get("stage", "")) in ["led", "led_between"]:
 			continue
 		var guard: int = 0
 		while guard < 400:
@@ -1128,37 +1137,51 @@ func _apply_event(m: Dictionary, ev: Dictionary, choice: int, t: int, auto: bool
 
 ## Resolve the fight on the current floor at floor_end.
 func _dungeon_floor(m: Dictionary) -> void:
+	var setup: Dictionary = _floor_setup(m)
+	var r: Dictionary = Dungeons.fight(setup["crew"], setup["foes"], setup["rng"], float(Dungeons.RETREAT_AT.get(str(m["turn_back"]), 0.0)))
+	_floor_settle(m, setup, r, int(m["floor_end"]))
+
+## Who fights on the current floor and what they face. What happened on the floor shapes the
+## fight: blessings and curses, sleeping or singed monsters, a stranger fighting beside the crew.
+func _floor_setup(m: Dictionary) -> Dictionary:
 	var d: Dictionary = Dungeons.by_id(str(m["dungeon"]))
-	var floors: Array = d["floors"]
 	var i: int = int(m["floor_i"])
-	var floor: Dictionary = floors[i]
-	var t: int = int(m["floor_end"])
+	var floor: Dictionary = (d["floors"] as Array)[i]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = int(m["seed"]) + 7919 * (i + 1)
 	var crew_now: Array = _run_crew(m)
-	# What happened on the floor shapes the fight: blessings and curses, sleeping or singed
-	# monsters, a stranger fighting beside the crew.
 	var buff: Dictionary = m.get("buff", {})
 	for c in crew_now:
 		c["damage"] = float(c["damage"]) * (1.0 + float(buff.get("damage", 0.0)) / 100.0)
 		c["armour"] = float(c["armour"]) + float(buff.get("armour", 0.0))
 	var foes: Dictionary = floor.duplicate()
 	foes["hp"] = float(floor["hp"]) * (1.0 - float(m.get("weaken", 0)) / 100.0)
-	var ally: Dictionary = {}
-	if bool(m.get("ally", false)):
-		ally = {"id": "ally", "name": "The stranger", "porter": false, "hp": 70.0, "max_hp": 70.0, "damage": 10.0 + 4.0 * float(d.get("tier", 1)),
+	var ally: bool = bool(m.get("ally", false))
+	if ally:
+		crew_now.append({"id": "ally", "name": "The stranger", "porter": false, "hp": 70.0, "max_hp": 70.0, "damage": 10.0 + 4.0 * float(d.get("tier", 1)),
 			"speed": 1.0, "crit": 0.05, "crit_damage": 1.5, "pen": 0.0, "first": 0.0, "armour": 10.0 * float(d.get("tier", 1)), "dodge": 0.0,
-			"parry": 0.0, "block": 0.0, "lucky": false, "heal": 0}
-		crew_now.append(ally)
+			"parry": 0.0, "block": 0.0, "lucky": false, "heal": 0})
 	m["buff"] = {}
 	m["weaken"] = 0
 	m["ally"] = false
-	var r: Dictionary = Dungeons.fight(crew_now, foes, rng, float(Dungeons.RETREAT_AT.get(str(m["turn_back"]), 0.0)))
-	if not ally.is_empty():
-		crew_now.erase(ally)
-		(r["dead"] as Array).erase("ally")
-		if float(ally["hp"]) > 0.0:
-			(r["lines"] as Array).append("The stranger fought with you and walked away.")
+	return {"crew": crew_now, "foes": foes, "floor": floor, "i": i, "rng": rng, "ally": ally}
+
+## After a floor's fight (led or not): health, the dead, what was dropped, the floor's loot,
+## and what the run does next.
+func _floor_settle(m: Dictionary, setup: Dictionary, r: Dictionary, t: int) -> void:
+	var d: Dictionary = Dungeons.by_id(str(m["dungeon"]))
+	var floors: Array = d["floors"]
+	var i: int = int(setup["i"])
+	var floor: Dictionary = setup["floor"]
+	var rng: RandomNumberGenerator = setup["rng"]
+	var led: bool = bool(m.get("led", false))
+	var crew_now: Array = setup["crew"]
+	for c in crew_now.duplicate():
+		if str(c.get("id", "")) == "ally":
+			crew_now.erase(c)
+			(r["dead"] as Array).erase("ally")
+			if float(c["hp"]) > 0.0:
+				(r["lines"] as Array).append("The stranger fought with you and walked away.")
 	_store_run_crew(m, crew_now)
 	for id in r["potions"]:
 		(m["drank"] as Array).append(str(id))
@@ -1166,7 +1189,8 @@ func _dungeon_floor(m: Dictionary) -> void:
 	for id in r["dead"]:
 		if not dead.has(str(id)):
 			dead.append(str(id))
-	var entry: Dictionary = {"floor": i, "name": str(floor["name"]), "result": str(r["result"]), "lines": r["lines"], "dead": r["dead"], "time": t}
+	var entry: Dictionary = {"floor": i, "name": str(floor["name"]), "result": str(r["result"]), "lines": r["lines"], "dead": r["dead"], "time": t,
+		"led": led, "stats": r.get("stats", {})}
 	var carry: Dictionary = m["carry"]
 	var dropped: Dictionary = m["dropped"]
 	if str(r["result"]) == "wiped":
@@ -1181,6 +1205,7 @@ func _dungeon_floor(m: Dictionary) -> void:
 		if not lost.is_empty():
 			entry["lines"].append("The crew dropped half of what it carried to get out.")
 	(m["log"] as Array).append(entry)
+	m.erase("fight")
 	if str(r["result"]) == "wiped":
 		m["stage"] = "out"
 		m["finish"] = t
@@ -1188,7 +1213,7 @@ func _dungeon_floor(m: Dictionary) -> void:
 		(m["event_gear"] as Array).clear()
 		return
 	if str(r["result"]) != "cleared":
-		_start_walk(m, t)
+		_leave_run(m, t)
 		return
 	var alive: Array = crew_now.filter(func(c): return float(c["hp"]) > 0.0)
 	Dungeons.patch_up(alive)
@@ -1206,13 +1231,114 @@ func _dungeon_floor(m: Dictionary) -> void:
 			gained.append("%d %s" % [n, "coin" if good == "coin" else str(RESOURCE_NAMES.get(good, good)).to_lower()])
 	if not gained.is_empty():
 		entry["lines"].append("Picked up %s." % ", ".join(gained))
+	entry["picked"] = carry.duplicate()
+	for good in before:
+		entry["picked"][good] = int(entry["picked"].get(good, 0)) - int(before[good])
 	if i + 1 >= floors.size():
-		_start_walk(m, t)
+		_leave_run(m, t)
 		return
 	m["ev"] = []
+	if led:
+		m["stage"] = "led_between"
+		return
 	m["stage"] = "await"
 	m["await_until"] = t + Dungeons.CHECKIN
 	m["finish"] = _dungeon_projection(m)
+
+## Out of the crypt: a run under orders walks out through the floors it cleared; a run the
+## player leads comes straight out.
+func _leave_run(m: Dictionary, t: int) -> void:
+	if bool(m.get("led", false)):
+		m["stage"] = "out"
+		m["finish"] = t
+		m["ev"] = []
+		return
+	_start_walk(m, t)
+
+# --- Leading a run (the crawl screen) ----------------------------------------------------
+
+## The run the player is leading now, or {}.
+func lead_run() -> Dictionary:
+	for m in missions:
+		if bool(m.get("led", false)) and str(m.get("stage", "")) in ["led", "led_between"]:
+			return m
+	return {}
+
+## The fight on the current floor of a led run, started if it hasn't been (Crawl state).
+func lead_fight() -> Dictionary:
+	var m: Dictionary = lead_run()
+	if m.is_empty() or str(m["stage"]) != "led":
+		return {}
+	if not m.has("fight"):
+		var setup: Dictionary = _floor_setup(m)
+		var rng: RandomNumberGenerator = setup["rng"]
+		m["fight"] = Crawl.start(setup["crew"], setup["foes"], rng.randi(), true)
+		m["fight_ally"] = bool(setup["ally"])
+	return m["fight"]
+
+## The player's choice on a hero's turn. Returns the events it caused (for the crawl screen).
+func lead_act(action: String, target: int = -1) -> Array:
+	var m: Dictionary = lead_run()
+	var st: Dictionary = lead_fight()
+	if st.is_empty():
+		return []
+	var events: Array = Crawl.act(st, action, target)
+	if Crawl.done(st):
+		_lead_floor_done(m, st)
+	save_game()
+	return events
+
+func _lead_floor_done(m: Dictionary, st: Dictionary) -> void:
+	var i: int = int(m["floor_i"])
+	var floor: Dictionary = (Dungeons.by_id(str(m["dungeon"]))["floors"] as Array)[i]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(m["seed"]) + 7919 * (i + 1) + 1
+	var setup: Dictionary = {"crew": st["party"], "foes": floor, "floor": floor, "i": i, "rng": rng, "ally": bool(m.get("fight_ally", false))}
+	_floor_settle(m, setup, Dungeons.outcome(st), GameClock.now())
+
+## Between floors of a led run: go down another floor, or take what you carry out.
+func lead_choose(push: bool) -> String:
+	var m: Dictionary = lead_run()
+	if m.is_empty() or str(m["stage"]) != "led_between":
+		return "Nobody is waiting at the stairs."
+	var floors: int = (Dungeons.by_id(str(m["dungeon"]))["floors"] as Array).size()
+	if push and int(m["floor_i"]) + 1 < floors:
+		m["floor_i"] = int(m["floor_i"]) + 1
+		m["depth"] = maxi(int(m["depth"]), int(m["floor_i"]) + 1)
+		m["stage"] = "led"
+		save_game()
+		return "Down to %s." % str((Dungeons.by_id(str(m["dungeon"]))["floors"] as Array)[int(m["floor_i"])]["name"])
+	_leave_run(m, GameClock.now())
+	complete_due()
+	return "The heroes come back up."
+
+## Stop leading: the heroes carry on under their standing orders from here (a fight under way
+## is played out by their rules). Also what happens to a led run when the game closes.
+func lead_release(m: Dictionary = {}) -> String:
+	if m.is_empty():
+		m = lead_run()
+	if m.is_empty():
+		return "You aren't leading a run."
+	var now: int = GameClock.now()
+	m["led"] = false
+	if str(m["stage"]) == "led":
+		if m.has("fight"):
+			var st: Dictionary = m["fight"]
+			st["led"] = false
+			st["auto_potion"] = true
+			Crawl.run_auto(st, float(Dungeons.RETREAT_AT.get(str(m["turn_back"]), 0.0)))
+			_lead_floor_done(m, st)
+		else:
+			m["stage"] = "floor"
+			m["floor_end"] = now + Dungeons.FLOOR_TIME
+			_schedule_events(m, "floor", now, int(m["floor_end"]))
+			m["finish"] = _dungeon_projection(m)
+	elif str(m["stage"]) == "led_between":
+		m["stage"] = "await"
+		m["await_until"] = now + Dungeons.CHECKIN
+		m["finish"] = _dungeon_projection(m)
+	save_game()
+	return "The heroes carry on under their orders."
 
 ## Worth of what the crew carries now, at merchant prices.
 func dungeon_carry_value(carry: Dictionary) -> int:
@@ -1263,13 +1389,15 @@ func _dungeon_finish(m: Dictionary) -> void:
 			retired_ids.append(str(id))
 			var memorial: Array = harlow.get("fallen", [])
 			memorial.push_front({"name": str(merc["name"]), "equipment": (merc.get("equipment", {}) as Dictionary).duplicate(true),
-				"region": str(d["name"]), "time": t})
+				"region": str(d["name"]), "time": t, "hero": Heroes.is_hero(merc)})
 			harlow["fallen"] = memorial
 			crew.erase(merc)
+			heroes.erase(merc)
 			continue
 		survivors.append(merc)
 		merc["mission_id"] = ""
-		merc["health"] = clampi(int(round(float((m["hp"] as Dictionary).get(str(id), 100.0)))), 1, 100)
+		var hp_left: float = float((m["hp"] as Dictionary).get(str(id), 100.0))
+		merc["health"] = maxi(1, Heroes.health_from(merc, hp_left)) if Heroes.is_hero(merc) else clampi(int(round(hp_left)), 1, 100)
 		if (m.get("drank", []) as Array).has(str(id)):
 			merc["equipment"]["potion"] = {}
 		var xp: int = 0

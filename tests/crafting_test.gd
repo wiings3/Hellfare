@@ -64,7 +64,7 @@ func _initialize() -> void:
 	check(Gear.value(fine) > int(Catalog.item("iron_war_axe")["value"]), "finer rolls are worth more")
 	g.equipment_inventory.clear()
 
-	# Ten slots. Tools set the job; a weapon makes a guard; two-handers take both hands.
+	# Ten slots. Tools set the job; weapons and armour are for heroes; two-handers take both hands.
 	var miner: String = ""
 	for c in g.recruitment_board():
 		if Mercs.best_trade(c) == "mining" and miner == "":
@@ -73,29 +73,34 @@ func _initialize() -> void:
 	var m: Dictionary = g.merc_by_id(miner)
 	check((m["equipment"] as Dictionary).size() == 10 and Gear.job(m) == "mining", "ten slots, pickaxe in hand")
 	g.equipment_inventory.append(g.make_item("steel_kite_shield", "common"))
-	check(g.equip_item(miner, str(g.equipment_inventory.back()["uid"])).contains("equipped"), "shield in the off hand")
+	check(g.equip_item(miner, str(g.equipment_inventory.back()["uid"])).contains("Only heroes"), "a worker can't take a shield")
+	g.equipment_inventory.clear()
+	g.found_hero("knight", "Test Knight")
+	var hid: String = str(g.heroes[0]["id"])
+	var h: Dictionary = g.heroes[0]
+	g.equipment_inventory.append(g.make_item("steel_kite_shield", "common"))
+	check(g.equip_item(hid, str(g.equipment_inventory.back()["uid"])).contains("equipped"), "shield in the off hand")
 	g.equipment_inventory.append(g.make_item("iron_greatsword", "common"))
-	check(g.equip_item(miner, str(g.equipment_inventory.back()["uid"])).contains("equipped"), "a greatsword")
-	check(Gear.job(m) == "combat" and Gear.in_slot(m, "off_hand").is_empty(), "two hands: the shield goes back to the storeroom")
-	check(Mercs.guard_level(m) == Mercs.level(m, "combat") + 2, "a tier-1 weapon guards two levels higher")
+	check(g.equip_item(hid, str(g.equipment_inventory.back()["uid"])).contains("equipped"), "a greatsword")
+	check(Gear.job(h) == "combat" and Gear.in_slot(h, "off_hand").is_empty(), "two hands: the shield goes back to the storeroom")
 	var shield_uid: String = ""
 	for item in g.equipment_inventory:
 		if str(item["key"]) == "steel_kite_shield":
 			shield_uid = str(item["uid"])
-	check(g.equip_item(miner, shield_uid).contains("both hands"), "no shield with a two-hander")
+	check(g.equip_item(hid, shield_uid).contains("both hands"), "no shield with a two-hander")
 	for item in g.equipment_inventory.duplicate():
-		if str(item["key"]) == "basic_pick":
-			g.equip_item(miner, str(item["uid"]))
-	check(Gear.job(m) == "mining", "back to the pickaxe")
-	g.equip_item(miner, shield_uid)
+		if str(item["key"]) == "rusted_sword":
+			g.equip_item(hid, str(item["uid"]))
+	check(Gear.job(m) == "mining" and str(Gear.in_slot(h, "main_hand").get("key", "")) == "rusted_sword", "back to the sword")
+	g.equip_item(hid, shield_uid)
 
-	# Armour lowers injury and death; kit rating adds up tier x slot weight.
-	var bare: float = Gear.injury_mult(m)
+	# Armour (a hero's) lowers injury and death; kit rating adds up tier x slot weight.
+	var bare: float = Gear.injury_mult(h)
 	for key in ["steel_helm", "steel_cuirass", "steel_gauntlets", "steel_greaves"]:
 		g.equipment_inventory.append(g.make_item(key, "common"))
-		g.equip_item(miner, str(g.equipment_inventory.back()["uid"]))
-	check(Gear.armour(m) > 40 and Gear.injury_mult(m) < bare * 0.8 and Gear.death_mult(m) < 0.75, "plate protects (%.0f armour)" % Gear.armour(m))
-	check(Gear.kit_rating(m) == 1 * 4 + 2 * 2 + 2 * (1 + 3 + 1 + 1), "kit rating (%d)" % Gear.kit_rating(m))
+		g.equip_item(hid, str(g.equipment_inventory.back()["uid"]))
+	check(Gear.armour(h) > 40 and Gear.injury_mult(h) < bare * 0.8 and Gear.death_mult(h) < 0.75, "plate protects (%.0f armour)" % Gear.armour(h))
+	check(Gear.kit_rating(h) == 1 * 4 + 2 * 2 + 2 * (1 + 3 + 1 + 1), "kit rating (%d)" % Gear.kit_rating(h))
 
 	# Every trip wears gear; long orders three times as much; worn-out tools work at half effect.
 	var pick: Dictionary = Gear.in_slot(m, "main_hand")
@@ -105,7 +110,6 @@ func _initialize() -> void:
 	g.missions[0]["death"] = 0.0
 	g.complete_due(now + 3600)
 	check(Gear.durability(Gear.in_slot(m, "main_hand")) == before - 1, "a trip wears 1")
-	check(Gear.durability(Gear.in_slot(m, "body")) == Gear.max_durability(Gear.in_slot(m, "body")) - 1, "armour wears too")
 	g.gold = 100000
 	check(g.site_dispatch("harlow", ids, "Overnight").begins_with("The crew set out"), "a long trip")
 	g.missions[0]["death"] = 0.0

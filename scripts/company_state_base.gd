@@ -173,9 +173,7 @@ const BASE_PRICE := {
 ## Named mercenaries who turn up on the board once a company is reputable enough for them.
 const RECRUITS := [
 	{"id": "garrick", "name": "Garrick", "focus": "mining", "level": 4, "traits": ["steady_hands"], "hire": 70, "wage": 9, "share": 0.09},
-	{"id": "oswin", "name": "Oswin", "focus": "combat", "level": 5, "traits": ["tough"], "hire": 185, "wage": 12, "share": 0.10},
 	{"id": "bram", "name": "Bram", "focus": "mining", "level": 18, "traits": ["strong_back"], "hire": 1900, "wage": 17, "share": 0.13},
-	{"id": "serah", "name": "Serah", "focus": "combat", "level": 28, "traits": ["brawler", "lucky"], "hire": 4200, "wage": 23, "share": 0.15}
 ]
 const REGIONS := [
 	{"id": "lowlands", "name": "The Mossward Lowlands", "tagline": "Short supply runs through old logging roads.", "focus": "Guard", "threat": 21, "time": 75, "supplies": 12, "rep": 0,
@@ -206,6 +204,11 @@ var reputation: int = 0
 var expedition_slots: int = 1
 var resources: Dictionary = {}
 var crew: Array[Dictionary] = []
+## The guild's heroes (see heroes.gd): they wear weapons and armour and go into the crypts.
+## Stored like mercenaries, with "hero": true. Hero slots are separate from expedition slots.
+var heroes: Array[Dictionary] = []
+var hero_slots: int = 1
+var next_hero_id: int = 1
 var missions: Array[Dictionary] = []
 var reports: Array[Dictionary] = []
 var next_mission_id: int = 1
@@ -280,6 +283,15 @@ func load_game() -> void:
 		Gear.ensure(merc)
 		TradeSkills.ensure(merc)
 		Mercs.migrate(merc)
+	for h in state.get("heroes", []):
+		if typeof(h) == TYPE_DICTIONARY:
+			Gear.ensure(h)
+			TradeSkills.ensure(h)
+			heroes.append(h)
+	hero_slots = clampi(int(state.get("hero_slots", 1)), 1, Heroes.MAX_SLOTS)
+	next_hero_id = maxi(1, int(state.get("next_hero_id", heroes.size() + 1)))
+	if not state.has("heroes"):
+		_migrate_to_heroes()
 	market.load_dict(state.get("market", {}))
 	hall.load_dict(state.get("hall", {}))
 	fallen.load_dict(state.get("fallen", {}))
@@ -306,6 +318,7 @@ func save_game() -> void:
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt, "blueprints": blueprints, "upgrades": upgrades,
 		"relief_count": relief_count, "retired_ids": retired_ids, "tutorial": tutorial,
+		"heroes": heroes, "hero_slots": hero_slots, "next_hero_id": next_hero_id,
 		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict(), "auction": auction.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
@@ -339,6 +352,9 @@ func merc_by_id(id: String) -> Dictionary:
 	for merc in crew:
 		if merc["id"] == id:
 			return merc
+	for h in heroes:
+		if h["id"] == id:
+			return h
 	return {}
 
 func is_available(merc: Dictionary) -> bool:
@@ -521,6 +537,8 @@ func improve_gear(id: String) -> String:
 ## Mercenaries resting in town recover REST_PER_HOUR health an hour for free; treatment
 ## heals them at once for TREAT_PER_POINT gold per missing point (TREAT_MIN at least).
 const REST_PER_HOUR := 20
+## Heroes are tended between crypt runs: they recover this many times faster.
+const HERO_REST_MULT := 6.0
 const TREAT_PER_POINT := 0.6
 const TREAT_MIN := 5
 
@@ -537,8 +555,8 @@ static func rest_eta(merc: Dictionary) -> int:
 func rest(now: int = -1) -> void:
 	if now < 0:
 		now = GameClock.now()
-	for merc in crew:
-		var per_point: float = 3600.0 / (float(REST_PER_HOUR) * Mercs.rest_mult(merc))
+	for merc in crew + heroes:
+		var per_point: float = 3600.0 / (float(REST_PER_HOUR) * Mercs.rest_mult(merc) * (HERO_REST_MULT if Heroes.is_hero(merc) else 1.0))
 		if not is_available(merc) or int(merc.get("health", 100)) >= 100:
 			merc.erase("rest_t")
 			continue
@@ -641,6 +659,143 @@ func expand_operations() -> String:
 		return "Maximum expedition capacity reached."
 	return build_upgrade(next_charter())
 
+# --- Heroes (rules in heroes.gd) ---------------------------------------------------------
+
+## Crews out on trade work (expedition slots). Hero crypt runs don't count.
+func crews_out() -> int:
+	var n: int = 0
+	for m in missions:
+		if not bool(m.get("heroes", false)):
+			n += 1
+	return n
+
+## Hero crypt runs under way.
+func hero_runs_out() -> int:
+	var n: int = 0
+	for m in missions:
+		if bool(m.get("heroes", false)):
+			n += 1
+	return n
+
+func free_heroes() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for h in heroes:
+		if is_available(h):
+			out.append(h)
+	return out
+
+## What the next hero slot costs (0 when every slot is open).
+func hero_slot_price() -> int:
+	if hero_slots >= Heroes.MAX_SLOTS:
+		return 0
+	return int(Heroes.SLOT_COSTS[hero_slots])
+
+func buy_hero_slot() -> String:
+	var price: int = hero_slot_price()
+	if price <= 0:
+		return "Every hero slot is open."
+	if gold < price:
+		return "A hero slot costs %d gold." % price
+	gold -= price
+	hero_slots += 1
+	save_game()
+	return "A new hero slot: the guild can keep %d heroes." % hero_slots
+
+## Heroes for hire now: one of each class, new faces every half hour.
+func hero_board() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var epoch: int = int(GameClock.now() / 1800.0)
+	for i in range(Heroes.CLASS_ORDER.size()):
+		var c: String = str(Heroes.CLASS_ORDER[i])
+		var rng := RandomNumberGenerator.new()
+		rng.seed = epoch * 31 + i * 7 + 5
+		var id: String = "herocand_%d_%d" % [epoch, i]
+		if retired_ids.has(id) or not merc_by_id(id).is_empty():
+			continue
+		var h: Dictionary = Heroes.make(id, Names.pick(rng), c)
+		h["hire"] = Heroes.HIRE_COST
+		out.append(h)
+	return out
+
+## Take on a hero from the board (needs a free hero slot).
+func hire_hero(id: String) -> String:
+	if heroes.size() >= hero_slots:
+		return "Every hero slot is taken. Buy another slot first."
+	for cand in hero_board():
+		if str(cand["id"]) != id:
+			continue
+		if gold < int(cand["hire"]):
+			return "Hiring %s costs %d gold." % [str(cand["name"]), int(cand["hire"])]
+		gold -= int(cand["hire"])
+		return _add_hero(cand)
+	return "That hero isn't for hire any more."
+
+## The guild's first hero after the fall: chosen by class, free, with a starter weapon.
+func found_hero(hero_class: String, hero_name: String = "") -> String:
+	if not heroes.is_empty():
+		return "The guild already has a hero."
+	var rng := RandomNumberGenerator.new()
+	rng.seed = GameClock.now()
+	var h: Dictionary = Heroes.make("hero_%d" % next_hero_id, hero_name if hero_name != "" else Names.pick(rng), hero_class)
+	return _add_hero(h)
+
+func _add_hero(cand: Dictionary) -> String:
+	var h: Dictionary = cand.duplicate(true)
+	h.erase("hire")
+	if not str(h["id"]).begins_with("hero_"):
+		h["id"] = "hero_%d" % next_hero_id
+	next_hero_id += 1
+	var starter: String = str(Heroes.STARTER.get(Heroes.cls(h), ""))
+	if Gear.exists(starter) and (Gear.in_slot(h, "main_hand") as Dictionary).is_empty():
+		h["equipment"]["main_hand"] = make_item(starter, "common")
+	h["mission_id"] = ""
+	h["hired_at"] = GameClock.now()
+	heroes.append(h)
+	save_game()
+	return "%s the %s joins the guild." % [str(h["name"]), Heroes.class_name_of(h)]
+
+## Guilds from before heroes: their best-armed fighter becomes their first hero (a dagger makes
+## a rogue, anything else a knight), and weapons and armour on everyone else go to the
+## warehouse. Mercenaries in a crypt run keep theirs until they're back.
+func _migrate_to_heroes() -> void:
+	var best: Dictionary = {}
+	var best_score: int = -1
+	for merc in crew:
+		if not is_available(merc) or Gear.job(merc) != "combat":
+			continue
+		var score: int = Gear.kit_rating(merc) * 10 + TradeSkills.level_of(merc, "combat")
+		if score > best_score:
+			best_score = score
+			best = merc
+	if not best.is_empty():
+		var weapon: String = str(Gear.in_slot(best, "main_hand").get("key", ""))
+		crew.erase(best)
+		best["hero"] = true
+		best["class"] = "rogue" if weapon.ends_with("_dagger") else "knight"
+		best["wage"] = Heroes.wage(best)
+		best["share"] = 0.0
+		var old_id: String = str(best["id"])
+		best["id"] = "hero_%d" % next_hero_id
+		next_hero_id += 1
+		retired_ids.append(old_id)
+		heroes.append(best)
+	for merc in crew:
+		if str(merc.get("mission_id", "")) != "" and _in_crypt(str(merc["mission_id"])):
+			continue
+		var worn: Dictionary = merc.get("equipment", {})
+		for slot in worn.keys():
+			var item: Dictionary = worn[slot]
+			if item.is_empty() or not Heroes.hero_only(str(item.get("key", ""))):
+				continue
+			equipment_inventory.append(item)
+			worn[slot] = {}
+
+func _in_crypt(mission_id: String) -> bool:
+	for m in missions:
+		if str(m.get("id", "")) == mission_id:
+			return str(m.get("region", "")) == "dungeon"
+	return false
+
 func merc_power(merc: Dictionary, region: Dictionary) -> int:
 	var power: int = int(merc.get("skill", 10)) + int(merc.get("gear", 0)) * 8
 	power += int(merc.get("xp", 0)) / 3
@@ -680,7 +835,7 @@ func dispatch(region_id: String, ids: Array[String], tactic: String) -> String:
 		return "Unknown expedition."
 	if reputation < int(region["rep"]):
 		return "This region requires %d reputation." % int(region["rep"])
-	if missions.size() >= expedition_slots:
+	if crews_out() >= expedition_slots:
 		return "All expedition slots are occupied."
 	if ids.is_empty() or ids.size() > 3:
 		return "Choose one to three available Hellfarers."
@@ -779,7 +934,7 @@ func can_accept_guild_work() -> bool:
 func start_guild_work(worker_id: String = "") -> String:
 	if not can_accept_guild_work():
 		return "Warden work is only for guilds below 120 G cash and 250 G total net worth."
-	if missions.size() >= expedition_slots:
+	if crews_out() >= expedition_slots:
 		return "All operation slots are occupied."
 	var worker: Dictionary = {}
 	if not worker_id.is_empty():
@@ -1142,6 +1297,8 @@ func equip_item(merc_id: String, uid: String) -> String:
 	var key: String = str(item.get("key", ""))
 	if not V05.validate_role(key, merc) or Gear.consumable(key):
 		return "That can't be worn."
+	if Heroes.hero_only(key) and not Heroes.is_hero(merc):
+		return "Only heroes wear weapons and armour. %s can carry tools, a hunting weapon, a trinket or a pack." % str(merc["name"])
 	Gear.ensure(merc)
 	var slot: String = Gear.slot_of(key)
 	var worn: Dictionary = merc["equipment"]
@@ -1491,6 +1648,9 @@ func reset_company() -> void:
 	expedition_slots = 1
 	next_mission_id = 1
 	crew.clear()
+	heroes.clear()
+	hero_slots = 1
+	next_hero_id = 1
 	missions.clear()
 	reports.clear()
 	harlow.clear()

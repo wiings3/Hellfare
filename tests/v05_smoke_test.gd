@@ -7,6 +7,22 @@ func _initialize() -> void:
 		return
 	call_deferred("_test")
 
+## A guard as a save from before heroes holds one (nobody is hired as a guard any more).
+func _old_guard(g: MoneyMercsState, id: String) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	var m: Dictionary = Mercs.make_person(rng, id, "combat", 5, 0, true)
+	m["name"] = "Oswin"
+	for key in ["kit", "kind", "price", "hire", "min_tier"]:
+		m.erase(key)
+	m["equipment"] = Gear.empty_equipment()
+	m["equipment"]["main_hand"] = g.make_item("rusted_sword", "common")
+	m["health"] = 100
+	m["mission_id"] = ""
+	m["contract"] = "Balanced"
+	m["gear"] = 0
+	g.crew.append(m)
+
 func _test() -> void:
 	var g := MoneyMercsState.new()
 	# The public state still uses the same API; Harlow mechanics now live in
@@ -16,17 +32,19 @@ func _test() -> void:
 	g.reset_company()
 	assert(g.recruitment_board().size() >= 6)
 	var affordable_miner: bool = false
-	var affordable_guard: bool = false
+	var affordable_hunter: bool = false
 	for candidate in g.recruitment_board():
-		# Entry-level applicants for every trade are always there and affordable.
+		# Entry-level applicants for the first trades are always there and affordable;
+		# nobody applies as a guard (fighting is for heroes).
+		assert(Mercs.best_trade(candidate) != "combat")
 		if Mercs.best_trade(candidate) == "mining" and int(candidate["hire"]) < 150:
 			affordable_miner = true
-		if Mercs.best_trade(candidate) == "combat" and int(candidate["hire"]) < 150:
-			affordable_guard = true
-	assert(affordable_miner and affordable_guard)
+		if Mercs.best_trade(candidate) == "hunting" and int(candidate["hire"]) < 150:
+			affordable_hunter = true
+	assert(affordable_miner and affordable_hunter)
 	g.gold = 1000
 	assert(g.hire("garrick").contains("joined"))
-	assert(g.hire("oswin").contains("joined"))
+	_old_guard(g, "oswin")
 	assert(g.buy_equipment("reinforced_pick").contains("Purchased"))
 	assert(g.buy_equipment("leather").contains("Purchased"))
 	assert(g.equipment_inventory.size() == 2)
@@ -38,7 +56,8 @@ func _test() -> void:
 	assert(str(g.merc_by_id("garrick")["equipment"]["main_hand"]["uid"]) == tool_uid)
 	assert(g.equip_item("oswin", tool_uid).contains("not found"))
 	var armor_uid: String = str(g.equipment_inventory[0]["uid"])
-	assert(g.equip_item("garrick", armor_uid).contains("equipped"))
+	# Only heroes wear armour now.
+	assert(g.equip_item("garrick", armor_uid).contains("Only heroes"))
 	assert(g.owned_equipment_value() == 105 + 38 + 30 + 28)
 	var without: Array[String] = ["garrick"]
 	var with_guard: Array[String] = ["garrick", "oswin"]
@@ -63,10 +82,10 @@ func _test() -> void:
 	assert(not g.retired_ids.is_empty())
 	assert(g._available_candidate("garrick").is_empty())
 	assert(not g.hire("garrick").contains("joined"))
-	assert(g.owned_equipment_value() == 30 + 28)  # Oswin's sword and the spare pickaxe
-	assert(g.equipment_inventory.size() == 1)
+	assert(g.owned_equipment_value() == 30 + 28 + 38)  # Oswin's sword, the spare pickaxe, the leather
+	assert(g.equipment_inventory.size() == 2)
 	assert(g.reports[0]["casualties"].size() == 1)
-	assert(g.reports[0]["lost_items"].size() == 2)
+	assert(g.reports[0]["lost_items"].size() == 1)
 	assert((g.reports[0]["loot"] as Dictionary).is_empty())
 	assert(g.reports[0]["events"].size() > 0)
 	# Returning with a partial haul must work, even when the objective fails.
@@ -109,7 +128,7 @@ func _test() -> void:
 	for merc in restored.crew:
 		if str(merc["id"]).begins_with("candidate_%d_" % int(GameClock.now() / 1800.0)):
 			roles[Mercs.best_trade(merc)] = true
-	assert(roles.has("logging") and roles.has("mining") and roles.has("combat"))
+	assert(roles.has("logging") and roles.has("mining") and roles.has("hunting"))
 	restored.harlow["fallen"] = memorial.slice(0, memorial.size() - (Names.MALE.size() + Names.FEMALE.size()) * Names.LAST.size())
 	assert(restored.next_item_id >= 3)
 	assert(restored.merc_by_id(next_miner).size() > 0)
@@ -143,7 +162,7 @@ func _test() -> void:
 	# A disastrous first expedition must not strand a solo, broke miner.
 	restored.reset_company()
 	assert(restored.hire("garrick").contains("joined"))
-	assert(restored.hire("oswin").contains("joined"))
+	_old_guard(restored, "oswin")
 	var starter_party: Array[String] = ["garrick", "oswin"]
 	assert(restored.harlow_dispatch(starter_party, "Balanced").begins_with("Harlow expedition funded"))
 	restored.missions[0]["chance"] = 0.0
@@ -154,7 +173,7 @@ func _test() -> void:
 	restored.gold = 0  # Extreme starting setback with no emergency advance.
 	var replacement_guard: Dictionary = {}
 	for applicant in restored.recruitment_board():
-		if Mercs.best_trade(applicant) == "combat" and (replacement_guard.is_empty() or int(applicant["hire"]) < int(replacement_guard["hire"])):
+		if str(applicant["id"]).begins_with("candidate_") and (replacement_guard.is_empty() or int(applicant["hire"]) < int(replacement_guard["hire"])):
 			replacement_guard = applicant
 	assert(not replacement_guard.is_empty())
 	var saved_xp: int = int(restored.merc_by_id("garrick").get("xp", 0))

@@ -72,6 +72,13 @@ jobs:
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/tutorial.log; then exit 1; fi
           grep -F 'Tutorial checks passed.' /tmp/tutorial.log
 
+      - name: Heroes and the crypt crawl (engine, led runs, slots, migration)
+        run: |
+          set -o pipefail
+          timeout 90s godot --headless --path . --script res://tests/crawl_test.gd 2>&1 | tee /tmp/crawl.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/crawl.log; then exit 1; fi
+          grep -F 'Crawl checks passed.' /tmp/crawl.log
+
       - name: Crypt event card (shows, answers, fits its result)
         run: |
           set -o pipefail

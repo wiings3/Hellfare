@@ -32,11 +32,11 @@ const DUNGEONS := {
 		"tagline": "A keep the Maw swallowed when it opened. Rats in the cellars, spiders in the halls, and something in armour on the top floor, still on guard.",
 		"art": "res://assets/ui/art/dungeon_calder_keep.png",
 		"floors": [
-			{"name": "The Cellars", "foe": "Giant rats", "count": 5, "hp": 18, "damage": 10, "speed": 1.2, "armour": 2,
+			{"name": "The Cellars", "foe": "Giant rats", "one": "Giant rat", "kind": "rat", "count": 4, "hp": 12, "damage": 5, "speed": 1.0, "armour": 0,
 			 "coin": [22, 41], "loot": {"bone": [1, 3]}},
-			{"name": "Webbed Halls", "foe": "Cave spiders", "count": 3, "hp": 50, "damage": 16, "speed": 1.1, "armour": 10,
+			{"name": "Webbed Halls", "foe": "Cave spiders", "one": "Cave spider", "kind": "spider", "count": 2, "hp": 40, "damage": 12, "speed": 1.0, "armour": 6,
 			 "coin": [43, 77], "loot": {"spider_silk": [1, 3], "bone": [0, 2]}},
-			{"name": "The Bone Knight", "foe": "The Bone Knight", "count": 1, "hp": 340, "damage": 18, "speed": 0.9, "armour": 32, "boss": true,
+			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "bone_knight", "count": 1, "hp": 180, "damage": 15, "speed": 0.9, "armour": 22, "boss": true,
 			 "coin": [156, 252], "loot": {"bone": [3, 5]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
 		],
 	},
@@ -75,125 +75,29 @@ static func fighter(merc: Dictionary) -> Dictionary:
 		"lucky": Mercs.has_trait(merc, "lucky"), "heal": int(Gear.buffs(merc, "potion").get("heal", 0)),
 	}
 
-## One floor's fight. `crew` is an array of fighter() dictionaries whose "hp" is changed in
-## place. Returns {"result": "cleared" | "fled" | "wiped", "dead": [ids], "lines": [text],
-## "potions": [ids that drank one], "lucky": [ids saved by luck]}.
+## One floor's fight, played out by the turn engine (crawl.gd) with every hero choosing by
+## its rules. `crew` is an array of fighter dictionaries whose "hp" is changed in place.
+## Returns {"result": "cleared" | "fled" | "wiped", "dead": [ids], "lines": [text],
+## "potions": [ids that drank one], "lucky": [ids saved by luck], "rounds", "stats", "log"}.
 static func fight(crew: Array, floor: Dictionary, rng: RandomNumberGenerator, retreat_below: float = 0.0) -> Dictionary:
-	var foes: Array = []
-	for i in range(int(floor["count"])):
-		foes.append({"hp": float(floor["hp"]), "acc": 0.0})
+	var st: Dictionary = Crawl.start(crew, floor, rng.randi())
+	Crawl.run_auto(st, retreat_below)
+	return outcome(st)
+
+## The result of a finished fight (led or not), in the shape the run keeps.
+static func outcome(st: Dictionary) -> Dictionary:
 	var dead: Array[String] = []
 	var drank: Array[String] = []
 	var saved: Array[String] = []
-	var crits: Dictionary = {}
-	var hits_taken: Dictionary = {}
-	var rounds: int = 0
-	for c in crew:
-		c["acc"] = 0.0
-		# A first strike: one free blow before the fight starts.
-		if not bool(c["porter"]) and rng.randf() < float(c["first"]):
-			c["acc"] = 1.0
-	var result: String = "fled"
-	while rounds < MAX_ROUNDS:
-		rounds += 1
-		# The crew strikes.
-		for c in crew:
-			if float(c["hp"]) <= 0.0 or bool(c["porter"]):
-				continue
-			c["acc"] = float(c["acc"]) + float(c["speed"])
-			while float(c["acc"]) >= 1.0:
-				c["acc"] = float(c["acc"]) - 1.0
-				var alive: Array = foes.filter(func(f): return float(f["hp"]) > 0.0)
-				if alive.is_empty():
-					break
-				var target: Dictionary = alive[0]
-				var hit: float = float(c["damage"]) * rng.randf_range(0.85, 1.15)
-				if rng.randf() < float(c["crit"]):
-					hit *= float(c["crit_damage"])
-					crits[c["name"]] = int(crits.get(c["name"], 0)) + 1
-				hit *= ARMOUR_K / (ARMOUR_K + float(floor["armour"]) * (1.0 - float(c["pen"])))
-				target["hp"] = float(target["hp"]) - hit
-		if foes.all(func(f): return float(f["hp"]) <= 0.0):
-			result = "cleared"
-			break
-		# The monsters strike back.
-		for f in foes:
-			if float(f["hp"]) <= 0.0:
-				continue
-			f["acc"] = float(f["acc"]) + float(floor["speed"])
-			while float(f["acc"]) >= 1.0:
-				f["acc"] = float(f["acc"]) - 1.0
-				var targets: Array = crew.filter(func(c): return float(c["hp"]) > 0.0)
-				if targets.is_empty():
-					break
-				var victim: Dictionary = _pick_target(targets, rng)
-				if rng.randf() < float(victim["dodge"]) or rng.randf() < float(victim["parry"]):
-					continue
-				var blow: float = float(floor["damage"]) * rng.randf_range(0.8, 1.2)
-				if rng.randf() < float(victim["block"]):
-					blow *= 0.5
-				blow *= ARMOUR_K / (ARMOUR_K + float(victim["armour"]))
-				if bool(victim["porter"]):
-					blow *= 1.3
-				victim["hp"] = float(victim["hp"]) - blow
-				hits_taken[victim["name"]] = int(hits_taken.get(victim["name"], 0)) + 1
-				# A healing draught is drunk when badly hurt.
-				if float(victim["hp"]) > 0.0 and float(victim["hp"]) < 35.0 and int(victim["heal"]) > 0:
-					victim["hp"] = float(victim["hp"]) + float(victim["heal"])
-					victim["heal"] = 0
-					drank.append(str(victim["id"]))
-				if float(victim["hp"]) <= 0.0:
-					if bool(victim["lucky"]) and rng.randf() < 1.0 / 3.0:
-						victim["hp"] = 5.0
-						victim["lucky"] = false
-						saved.append(str(victim["id"]))
-					else:
-						dead.append(str(victim["id"]))
-		if crew.all(func(c): return float(c["hp"]) <= 0.0):
-			result = "wiped"
-			break
-		# A crew under orders to mind its health backs out of a fight it's losing.
-		if retreat_below > 0.0 and crew.any(func(c): return float(c["hp"]) > 0.0 and float(c["hp"]) < retreat_below):
-			result = "fled"
-			break
-	return {"result": result, "dead": dead, "potions": drank, "lucky": saved, "rounds": rounds,
-		"lines": _story(floor, result, rounds, crew, dead, crits, hits_taken)}
-
-## Monsters go for fighters; porters at the back are reached less often.
-static func _pick_target(targets: Array, rng: RandomNumberGenerator) -> Dictionary:
-	var total: float = 0.0
-	for t in targets:
-		total += 0.6 if bool(t["porter"]) else 1.0
-	var roll: float = rng.randf() * total
-	for t in targets:
-		roll -= 0.6 if bool(t["porter"]) else 1.0
-		if roll <= 0.0:
-			return t
-	return targets.back()
-
-## A short account of a floor's fight, for the report.
-static func _story(floor: Dictionary, result: String, rounds: int, crew: Array, dead: Array, crits: Dictionary, hits: Dictionary) -> Array[String]:
-	var lines: Array[String] = []
-	var foe: String = str(floor["foe"])
-	match result:
-		"cleared":
-			lines.append("%s %s in %d rounds." % ["Beat" if bool(floor.get("boss", false)) else "Cleared the", foe if bool(floor.get("boss", false)) else foe.to_lower(), rounds])
-		"fled":
-			lines.append("%s held. The crew backed out after %d rounds." % [foe, rounds])
-		"wiped":
-			lines.append("%s killed the whole crew." % foe)
-	var best: String = ""
-	for who in crits:
-		if best == "" or int(crits[who]) > int(crits[best]):
-			best = str(who)
-	if best != "":
-		lines.append("%s landed %s." % [best, "a critical blow" if int(crits[best]) == 1 else "%d critical blows" % int(crits[best])])
-	for c in crew:
-		if dead.has(str(c["id"])):
-			lines.append("%s fell." % str(c["name"]))
-		elif int(hits.get(c["name"], 0)) >= 3:
-			lines.append("%s took %d hits." % [str(c["name"]), int(hits[c["name"]])])
-	return lines
+	for c in st["party"]:
+		if float(c["hp"]) <= 0.0:
+			dead.append(str(c["id"]))
+		if bool(c.get("drank", false)):
+			drank.append(str(c["id"]))
+		if bool(c.get("saved", false)):
+			saved.append(str(c["id"]))
+	return {"result": str(st["result"]), "dead": dead, "potions": drank, "lucky": saved, "rounds": int(st["round"]),
+		"lines": Crawl.recap(st), "stats": st["stats"]}
 
 ## Between floors the living bind their wounds.
 static func patch_up(crew: Array) -> void:
