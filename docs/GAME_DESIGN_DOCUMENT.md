@@ -1,400 +1,326 @@
-# MONEY MERCS — Living Game Design Document
+# HELLFARE — Living Game Design Document
 
-**Version:** 1.5 · **Date:** October 18, 2026 · **Engine:** Godot 4.5.1  
-**Genre:** 2D, UI-first dark-fantasy mercenary management and economic simulation  
-**Repository:** https://github.com/wiings3/Money-Mercs
+**Version:** 2.0 · **Date:** October 27, 2026 · **Engine:** Godot 4.5.1
+**Genre:** 2D dark-fantasy guild management with hands-on crypt crawls, and a gold economy
+**Repository:** https://github.com/wiings3/Hellfare
 
-> **Build a fortune. Let someone else risk their life.**
+> **Build a fortune. Let someone else go down for it — or go down yourself.**
 
-**One-sentence pitch:** Build a mercenary company, scout rotating dangerous locations, send specialized workers to collect valuable resources, and participate in a living market where other companies need the gear you produce—and a skilled trader can become fabulously rich without ever dispatching a team.
+**One-sentence pitch:** You run a guild of Hellfarers from Last Lantern, the last town before the
+Maw: crews go down into hell for timber, ore and stranger things while you trade what they bring
+up, and your heroes fight through the crypts below — on their own, or with you leading them.
 
 ### How to read this document
 
-- **DECIDED:** A direction we've explicitly agreed belongs in the intended game.
-- **PLANNED / VALIDATE:** A discussed feature or approach that requires prototyping before becoming a fixed implementation.
-- **OPEN:** Details such as exact timing, percentages, names, or scope that are not yet settled.
-- **IMPLEMENTED v0.2:** A feature present in today's playable prototype; it may be temporary scaffolding rather than the intended final mechanic.
+- **DECIDED:** agreed direction for the game.
+- **BUILDING:** decided and being implemented in the current update (v0.33, "Heroes").
+- **VALIDATE:** decided in principle; needs a playtest before it's fixed.
+- **OPEN:** not settled.
+- **PARKED:** an earlier idea we are not pursuing now (kept so it isn't lost).
 
-**Important:** Illustrative numbers, region names, scout timings, and item prices are **not final balance commitments**.
+Numbers in this document are starting points for tuning, not commitments.
+
+Version 1.x of this document described Money Mercs (scouts, Harlow rotations, a trading-post
+feed). What still holds is carried over below; what doesn't is in §12 (Parked).
 
 ---
 
-## 1. Game identity and design pillars
+## 1. What we learned (October 2026) and what changed
 
-**DECIDED — UI/UX is a primary gameplay system, not a finishing step.** Because virtually every meaningful action happens through an interface, visual clarity, interaction quality, readable item comparisons, tactile trade feedback, and the presentation of risk and rewards are core to whether the game is fun. We will design and validate UI alongside every major mechanic, not postpone serious polish until the final milestone.
+The game had many working, connected systems — crafting, gear, wear and repair, a moving market,
+an auction house, crypts, permadeath, offline crews — and a **poor first hour**:
 
-**DECIDED — Money Mercs is NOT an ARPG.** We are building a resource and fantasy-economy management game, not controllable dungeon combat. Adventures take place through mercenary planning, scouting, real-time expeditions, and reports. The game must stay realistic for a solo developer working in Godot.
+1. **The opening was a waiting game.** A new player hired one woodcutter, sent them on a
+   five-minute trip, and had nothing to do until they came back. Then they did it again. The deep
+   systems sat hours away behind that loop.
+2. **Gear stats meant nothing to the player.** Weapons roll crit, damage, penetration, speed; the
+   crypt fight used them, but the player never saw a hit. At trade sites a guard's weapon didn't
+   count at all — protection came only from how many guards were sent. Nobody could tell why a
+   +10% crit sword should cost more than a +5% one.
+3. **Depending on other players for the economy is the riskiest bet.** A player-run market needs
+   a population a new indie game rarely has at launch.
 
-The central objective is **accumulating wealth, measured in gold**. A brand-new player should not be able to install the game and become wealthy or fully powerful in two hours. Becoming rich should require sustained grinding, clever decisions, risk management, economic knowledge, and long-term investment.
+**DECIDED answers:**
 
-Two core inspirations shape the design:
+1. **Heroes** you can lead yourself through the crypts, in a turn-based side-on crawl, while your
+   crews work. The wait becomes the time you spend below.
+2. **Only heroes wear weapons and armour**, and you watch them fight, so every stat is visible
+   in play and in every report. Classes make different stats matter to different heroes.
+3. **NPC merchants stay as the floor of the economy**; real players are layered on top later
+   (§9).
+4. **A prologue** that shows the late game and gives the player a reason to start from nothing.
+5. **A first hour designed minute by minute** (§7): short early trips, systems that open as
+   answers to problems, and a hook for tomorrow.
 
-- **Path of Exile 2:** extremely rare and genuinely useful discoveries deliver jackpot moments and long-term aspirational loot, **without** adopting a multi-currency economy. Money Mercs' primary and universal denomination remains gold.
-- **Dark and Darker's physical gold storage:** coins, filled money bags and chests make an abstract number feel like a growing hoard that actually consumes storage space.
-- **Dark and Darker's ORIGINAL player Trading Post:** live classified advertisements, inspectable items, bargaining, mispriced equipment, and profitable flipping can be a complete game for someone who enjoys economics more than dungeons.
+The guardrail from 1.x still holds, revised: **Hellfare is not an action game.** The hands-on
+crawl is turn-based, uses the same rules as the automatic one, and is small enough for one
+developer.
 
-The game has three overlapping player identities, **not exclusive classes**:
+---
 
-| Playstyle | Main pleasure | Economic contribution |
+## 2. Pillars — DECIDED
+
+1. **Run a guild, not a character.** You hire, equip, send and trade. Even when you lead a hero
+   below, you are the guild's master leading its champion.
+2. **Two loops at once.** Crews earn on the trade sites in real time (also while the game is
+   closed). Heroes clear crypts — led by you, or alone by their orders. Both are always possible
+   at the same time.
+3. **Every number shows itself.** If a stat exists, the player sees it change an outcome: on the
+   crawl screen, in a forecast, or in a report.
+4. **Loss is real.** Mercenaries and heroes die permanently. Their gear stays below (some of it
+   for others to find) or is ruined. Nothing is replaced for free.
+5. **Gold is the measure.** Everything is priced in gold; rare things are goods, not currencies.
+6. **The interface is part of the game.** The book UI is the game's face; clarity and feel are
+   requirements, not polish.
+
+---
+
+## 3. The world and the story — DECIDED
+
+**Last Lantern** is the last town before **the Maw**, a wound in the earth that opened onto hell.
+Below are five layers, each with its own light: **the Ashen Verge** (ember), **the Weeping Fens**
+(blood red), **the Brimstone Reach** (fire), **the Frozen Lament** (frost) and **the Abyss**
+(violet black). At the bottom, on the Throne Below, is **Death**.
+
+**The prologue (BUILDING).** The game opens on the guild at its height: famous, rich, deep in the
+Brimstone Reach. Its champion, **Ser Aldren Vane**, the Lantern's Blade, is the strongest hero in
+the town's history, and the player leads him through one fight with great gear — big crits,
+armour shrugging off blows. At the end of it Aldren kneels to something in the dark and
+**betrays the guild**: he takes its seal, its strongroom and its charters down with him and
+becomes **Death's First Blade**. The player wakes in Last Lantern with an empty hall and a few
+coins.
+
+**The long goal.** Aldren waits as one of the final bosses in the last crypt, the one before
+Death himself. Rumours of him (his crew, his crest on things found below, rival crews working
+for him) run through the game.
+
+**OPEN:** whether the townsfolk's name for Death is "the Ashen King" (the name used in earlier
+writing); Aldren's final name; the name the player gives their new guild.
+
+---
+
+## 4. Heroes — BUILDING
+
+- **A hero is not a mercenary.** Heroes have their own page, their own slots and their own
+  records. They fight; they don't gather.
+- **Only heroes wear weapons and armour.** Workers wear tools (and take food and potions). This
+  is what gives combat gear its value: you see it work.
+- **Classes.** Two to start:
+
+  | Class | Plays like | Wants |
+  |---|---|---|
+  | **Knight** | Holds the line; more health; Guard is stronger; **Shield Bash** stuns | armour, block, health |
+  | **Rogue** | Strikes first and hard; **Backstab** is a heavy blow with doubled crit chance | crit, crit damage, dodge, armour piercing |
+
+  Any hero can wear any piece, but each class gets more from its stats (a knight's block and
+  armour count for more; a rogue's crit and dodge do). So the same sword is worth more to one
+  hero than another, and many different swords have buyers. More classes later (OPEN: a
+  priest/healer, a brute).
+- **Hero slots work like the Warden's charters.** One to start; more are bought as the guild
+  grows. A crypt says how many heroes it is built for: the Fallen Keep is for one; deeper crypts
+  want two or three, and fights that ask for a mix of classes, not just more health.
+- **Hero slots are separate from expedition slots.** A crew can be out while a hero is in a
+  crypt. A hero never takes an expedition slot.
+- **Heroes level up** in Combat by clearing floors, and their gear wears like everyone else's.
+- **When a hero dies,** their kit stays in that crypt (the fallen-gear system already does this),
+  and a later run may recover it. The hero is gone.
+- **Heroes cost upkeep** (a wage per crypt run), so an idle hero is worth putting to work —
+  including on automatic runs while you're away.
+
+**Save migration (BUILDING).** Guilds from before this update keep everything. Their best-armed
+fighter becomes their first hero (class from their weapon: dagger → Rogue, anything else →
+Knight). Weapons and armour on other mercenaries go to the warehouse. Crypt runs already under way
+finish under the old rules.
+
+---
+
+## 5. Crypts and the crawl — BUILDING
+
+**The view is side-on.** Your heroes stand on the left, the monsters on the right, like a party
+line. The crypt is a sequence of floors; each floor is one fight (the boss floor is the boss).
+
+**Turns.** Everyone acts in order of speed (attack speed, with a little luck). On a hero's turn:
+
+- **Strike** — a normal attack on the chosen foe: damage, crit, armour piercing.
+- **Guard** — brace: take much less damage until your next turn (knights more so).
+- **Class skill** — Knight: *Shield Bash* (a lighter hit that stuns the foe for a turn);
+  Rogue: *Backstab* (a heavy hit with doubled crit chance). Each has a cooldown.
+- **Potion** — drink a healing draught if the hero carries one.
+- **Retreat** — leave the crypt now with what you carry.
+
+Every hit shows its number. Crits, dodges, parries, blocks and stuns are called out. The fight
+log reads like the report.
+
+**Between floors:** the floor's coin and goods are picked up, the heroes bind their wounds, and
+you choose to **push on** or **take it out**. The existing event cards (a chest with blood around
+it, a stranger offering dice) still happen between fights.
+
+**Leading or not.** When you send heroes into a crypt you choose:
+
+- **Lead them** — the crawl opens and you play it. A led run takes as long as you play it.
+- **Let them handle it** — the run goes on in real time under standing orders (how deep, when to
+  turn back, safe or bold choices), exactly as crypt runs work today, and finishes while you're
+  away.
+
+**The same rules either way.** The automatic run uses the same turn engine, with the hero choosing
+actions by simple rules (guard when hurt, potion below a third, skill when ready, strike the
+weakest foe). So a stat behaves the same led or not, and the forecast is honest.
+
+**Leading is better, but never required:** you choose which floors to risk, you can use skills
+well, and (VALIDATE) the first clear of each floor gives a little more when you lead it. Auto
+remains reliable and safe-ish.
+
+**Reports show the fight:** per floor, the hits, crits, the biggest blow given and taken, damage
+turned by armour, potions drunk, who fell.
+
+**If the game closes mid-crawl,** the run continues automatically from where it was.
+
+---
+
+## 6. Crews and trade sites — DECIDED (guards change: BUILDING)
+
+Unchanged in spirit: crews of up to three workers go to a site for a trade (logging, mining,
+foraging, fishing, hunting, farming), paid a wage and a share, under standing orders (Cautious,
+Balanced, Deep Push, Long Shift, Overnight, Full Day). They come back with goods, experience, worn
+tools, injuries, sometimes rare finds and blueprints; sometimes they don't come back.
+
+**Guards are retired from trade sites.** A site's threat is met by the crew's orders, their
+health, their traits, food and potions. Site injury and death chances are retuned so a sensible
+crew faces roughly what a guarded crew faced before. (OPEN: a hero escorting a dangerous trip
+instead of going to a crypt.)
+
+**Expedition slots** (Warden's charters) stay as they are: the number of crews out at once.
+
+---
+
+## 7. The first hour — BUILDING
+
+**Rules:**
+
+1. **Never just one timer.** At least two things are in motion and there is one thing to do by
+   hand.
+2. **Trips get longer as you run more at once.** Tier-1 trips take about a minute and a half;
+   tier-2 about four minutes; deeper sites longer; long orders hours.
+3. **Every return brings a decision:** sell or keep, craft or save, push on or turn back.
+4. **Each system opens as the answer to a problem.** The game creates a need, then hands the tool.
+5. **The hour ends with a hook for tomorrow:** crews out overnight, a goal for the hero, an enemy,
+   and a next unlock in view.
+
+**The hour, as planned:**
+
+| Time | What happens | What opens |
 |---|---|---|
-| **Contractor** | Hire, prepare, risk and develop mercenary teams | Generates ore, valuables, and dropped gear |
-| **Craftsman** | Acquire materials and produce useful specialized gear | Consumes materials and provides equipment |
-| **Merchant** | Spot undervalued items, negotiate, flip, speculate | Connects buyers and sellers; provides liquidity |
+| 0:00–0:05 | **Prologue:** Aldren in great gear, one led fight in the Brimstone Reach, the betrayal | — |
+| 0:05–0:12 | **Rock bottom.** Empty hall, a few coins. Choose your first hero's class. Hire a woodcutter, send them to Cinderwood (~90 s). Lead the hero into the Fallen Keep's Cellars while they work. The crew comes back; sell the ashwood | Mercenaries, Expeditions, Heroes, Market |
+| 0:12–0:25 | **The rusty sword is the problem.** The cellars drop scrap; a better sword needs a handle (ashwood) and copper (the Gatepit). Hire a miner. Two crews and a hero. Equip the new sword, go back down, watch the crits | Workshop, second worker |
+| 0:25–0:40 | **The second wall.** The Webbed Halls' spiders hit hard; armour needs hides — the Hollow Fields open. Prices move; sell or keep starts to matter. First crypt choice card. First injury | Hunting, Warehouse |
+| 0:40–0:55 | **The Bone Knight.** Maybe a loss, maybe a narrow win in gear you made. First rare find and blueprint. On the knight: a sign of Aldren's crew in the Drowned Abbey | Auction House, a goal |
+| 0:55–1:00 | **The hook.** Overnight orders suggested; what will be ready tomorrow; the next charter and hero slot in view | Long orders, Ledger |
 
-**DECIDED:** A player who rarely or never sends an expedition must still be able to become wealthy through trading. Those who love expedition management must also have an entire satisfying playstyle.
-
-**Design guardrails:** no effortless idle riches, no random meaningless currencies, no replacing gold with an elite currency as the primary pricing standard, no universal price label that gives away every bargain, no action-game scope explosion, no online economy dependent on thousands of active users.
-
----
-
-## 2. The two simultaneous gameplay loops
-
-### Active company management — DECIDED
-
-An active session should contain meaningful decisions: hire personnel, negotiate contracts, compare equipment, plan teams, assess scouting information, choose retreat orders, sell and buy resources, craft, invest in infrastructure, appraise unusual item rolls, browse advertisements, negotiate deals and flip bargains.
-
-**The player's own knowledge** should matter. Recognizing that an odd combination of item properties is exceptionally valuable to a mining company is a form of progression.
-
-### Offline expeditions — DECIDED
-
-Players **explicitly fund and send** expeditions. Missions continue to run against real time after the game closes and obey their preselected standing orders. They settle exactly once and produce reports on return. Offline play does **not** generate unlimited resources without assignments, funds or supplies, and staying online is not required to hit a retreat button.
-
-**PLANNED:** Several concurrent teams, production queues, and a balanced cadence of short and long operations. **OPEN:** how much active play should outperform passive collection without turning the game into compulsory micromanagement.
+The tutorial card follows this, pointing at the next click throughout (as it does now). Systems
+not yet needed are present but quiet (the bookmark is there, the page says what opens it), so
+nothing is hidden behind menus the player can't find.
 
 ---
 
-## 3. Rotating expedition locations
+## 8. Gear, crafting and the market — DECIDED
 
-**DECIDED:** Each region has a permanent thematic identity, but the specific resources, amounts, threats, hazards and possible loot **rotate**. Harlow Mines remains a mine; it could contain mostly copper one rotation, iron and silver another, or an uncommon crystal seam another. Appropriate goblins, wolves, spiders or dangerous underground monsters may appear in changing combinations.
-
-**DECIDED:** Resources are **finite during a rotation**. If a location has six known copper veins and your crew extracts three, those veins are depleted for that company's current rotation. Additional unknown deposits may exist.
-
-**DECIDED:** Reports belong to particular rotations and become stale when conditions change; a new rotation can require new scouting. Already-dispatched expeditions keep a snapshot of the conditions in which they began.
-
-**PLANNED:** Shared timed world rotations with **per-company finite deposits** at first, so the earliest players online cannot empty every public mine for everyone else.
-
-**OPEN:** duration and specifics. A **4–6-hour rotation** was floated, not locked. Regional resource weights, rarity, public versus private sites, exact expedition size, and reset behavior need testing.
-
-### Illustrative Harlow Mines rotation
-
-| Rotation | Possible findings | Example threats |
-|---|---|---|
-| A | 6+ copper veins | Sleeping Dire Wolf |
-| B | Iron and limited silver veins | Goblin raiders |
-| C | Abundant copper | Cave spiders |
-| D | Iron and a rare crystal seam | Cave Troll |
-
-These are examples of themed variation, not finalized generated tables.
+- **Gold** is the money. **Goods** (ashwood, copper, spider silk, relics…) are priced in gold.
+- **Gear** is crafted from goods and blueprints, found below, or bought. It **wears** with use
+  (half as good until repaired) and is **lost** when its wearer dies.
+- **Combat gear belongs to heroes**; **tools** to workers. Each tool or weapon rolls stats.
+- **Visibility is the rule:** every stat on a piece must show up somewhere the player watches
+  (the crawl, the forecast, the report). If it can't, it shouldn't exist.
+- **Sinks:** wear and repair, death, supplies, wages and shares, crafting consumption,
+  merchants paying less after heavy selling, auction fees.
+- **The Market** (NPC merchants, moving prices) and the **Auction House** (listings and buy
+  orders filled over time) are the trade surfaces today.
 
 ---
 
-## 4. Scouting as an independent system
+## 9. The economy with other players — DECIDED direction, later
 
-**DECIDED:** Scouts are **not mercenaries**. They are permanent company assets that **cannot die**, do **not harvest resources**, and **always return with some useful intelligence**. They are upgradeable for **faster return times** and **better/more information**.
+**The economy must work without other players, and get better with them.**
 
-**DECIDED:** You do not initially know a rotation's exact deposit count and dangers. You can send a scout—or skip scouting and deliberately accept more uncertainty.
-
-**Canonical example:**
-
-> **Harlow Mines — Scouting Report**  
-> At least **6 copper ore veins** observed.  
-> **Sleeping Dire Wolf** seen near the eastern tunnel.  
-> Additional passages remain unexplored.
-
-**At least six** is not an omniscient promise that only six exist. Better scouts may find additional veins, hazards, enemy counts, approximate threat level, or rare-find clues. The scout must always return with something.
-
-**PLANNED / VALIDATE:** Basic scout return in roughly **60 seconds**, upgrades to shorter times (e.g. 40, then 25 seconds) and richer intelligence. **OPEN:** exact levels, costs, concurrency, whether intel can be traded.
-
-Scouting should create a distinct decision: *Is additional information worth delaying this deployment?*
-
----
-
-## 5. Mercenary specializations & party composition
-
-**DECIDED:** Mercenaries are **functional specialists**, not equivalent blobs of combat power.
-
-**Miners** determine how much ore a team can extract. **Guards** protect against combat and reduce the risks faced by miners. Initially, prove the game with just these roles; other mercenary professions should exist only if they introduce additional genuine decisions.
-
-**Core Harlow Mines trade-off (illustrative, not universal odds):**
-
-| Crew | Potential copper extraction | Example full-success estimate |
-|---|---:|---:|
-| **2 miners, 1 guard** | Up to 6 veins | 60% |
-| **1 miner, 2 guards** | Up to 3 veins | 90% |
-
-A bigger mining party can return more ore, but exposes expensive people and equipment. More guards increase safety at the cost of work capacity. Neither strategy should be universally correct.
-
-**DECIDED:** Individual mercenaries can develop experience, wear equipment, become injured, and require treatment. Gear and skills have real effects on their ability to gather, protect and survive.
-
-**PLANNED / VALIDATE:** Wage + negotiated loot-share contracts. Different workers may value guaranteed salary differently from a high percentage of recovered value; veterans may demand better compensation. Keep the mechanic economically meaningful instead of making negotiation a repetitive click minigame.
-
-**OPEN:** exact contract terms, how to settle commissions on indivisible rare items, and how to avoid negative cash/debt trapping a small company. The v0.2 accounting rule is not automatically the final design.
+- **NPC merchants stay** as a floor that always buys and sells.
+- **Players are added on top** later: player listings compete with NPCs. With few players the
+  NPCs carry the market; with many, players take it over by themselves.
+- **NPCs follow player prices, with a spread:** they sell a little above the going player price
+  and buy a little below it. A player's listing is always the better deal; the NPC is the
+  always-there fallback.
+- **NPC prices can't be steered:**
+  1. They follow **completed sales**, never listings.
+  2. They use a **slow, robust average** (the middle of many sales across many different traders
+     over about a day, extremes thrown out).
+  3. They **blend with a base value by volume** (thinly traded goods lean on the base value).
+  4. They are **capped** (e.g. within ½× to 2× base, a few percent of movement a day).
+  5. NPCs have **limited appetite** (they already pay less after heavy selling and recover over
+     a day).
+- **An online economy needs a server.** Gold, items, trip timers and market orders must live on
+  a server, not in local saves, with accounts and anti-cheat. That is a separate project after
+  the single-player game proves itself. Ship single-player first.
 
 ---
 
-## 6. Expeditions, standing orders & permanent death
+## 10. Interface — DECIDED
 
-### Permanent loss — DECIDED
+The game is a book: six bookmarks (Company, Expeditions, Mercenaries, Workshop, Market, Ledger),
+two pages each, pixel-art at a 960×540 base. **BUILDING:** a **Heroes** section (hero records,
+classes, gear, slots) and the **crawl screen** (side-on, party left, foes right, actions under the
+party, a running log). The header shows crews and heroes out separately ("Crews 1/1 · Heroes
+1/1").
 
-**Mercenaries absolutely can die, permanently.** If an under-skilled mercenary enters a dungeon beyond their capabilities, death should be a real possibility. A dead mercenary's **equipped gear is permanently lost**, as is that person's future experience and usefulness. There is **no automatic replacement** or guaranteed gear recovery.
-
-Preparation must meaningfully affect the risk. Well-prepared high-level mercenaries should not routinely die in trivial encounters due to arbitrary hidden rolls. If a player dispatches someone woefully unprepared, they should be allowed to make that mistake **with an understandable warning**.
-
-### Separate success, survival and capacity — DECIDED
-
-An expedition is **not** a simple success/failure coin flip. Separately calculate:
-
-- How much work the party can perform (miners, tools, time, deposits).
-- Threat encounters, ability to retreat, and whether the objective is completed.
-- Each mercenary's survival, injury or death.
-- Which resources were actually extracted and carried home.
-- Gold found, commission/wages/supplies spent, damaged or lost gear, and net result.
-
-A team can **win the objective but lose money** because it lost a veteran and expensive equipment. A failed objective may still see survivors return with a partial haul.
-
-### Standing orders — DECIDED IN PRINCIPLE
-
-A set of clear orders governs teams **online and offline**:
-
-| Example policy | Strategy |
-|---|---|
-| **Preserve the crew** | Withdraw quickly, sacrifice potential yield to protect people |
-| **Balanced** | Attempt the job but avoid escalating danger |
-| **Whatever it takes** | Push for more resources, accept far higher loss risk |
-
-The three names and effect sizes are provisional; distinct loot, casualty and retreat consequences are the real requirement.
-
-**PLANNED:** A company memorial recording the names, service histories and locations where workers died. **OPEN:** exact death odds, individual encounter modeling, salvage as an extremely rare exception, and full economic balance.
-
-### Reports — DECIDED
-
-After each dispatch, report: rotation, discovered resources and enemies, vein depletion, objective outcome, every crew member's survival/injury/death, equipment lost, gross haul, actual **liquid gold**, wages, commissions, treatment/repair, and **net economic result**. Avoid conflating cash with stash-appraised value.
-
-**Recovery rule:** never create an irreversible financial softlock. Inexpensive workers, lower-risk work and basic recovery options must always exist.
+Standards from 1.x stand: information at the point of decision, scannable state, feel matters,
+consistency across pages, no clipped or dead controls, and visual checks at real window sizes —
+automated tests don't prove visual quality.
 
 ---
 
-## 7. Gold, physical wealth, rarity, itemization & crafting
+## 11. Build plan for v0.33 "Heroes"
 
-### Gold is the economy's primary measure — DECIDED (revised v1.1)
+Built on the `heroes` branch; `main` stays the playable game until it's proven.
 
-**Gold is the primary, universal money of Money Mercs.** Hire mercenaries with gold, pay expedition expenses in gold, negotiate prices in gold, and measure company fortunes in gold. We are **not** designing a Path of Exile-style alternative high-tier currency standard. We want to look at a treasury or ledger and immediately understand how rich someone is.
+1. Heroes: records, slots, classes, gear only on heroes, upkeep, save migration.
+2. The turn engine (`scripts/crawl.gd`): initiative, actions, class skills, foes' turns; used by
+   the led crawl and by automatic runs and forecasts.
+3. The crawl screen, and "Lead them / Let them handle it" on the crypt planner.
+4. Guards retired from trade sites; site risks retuned.
+5. First-hour pacing: shorter tier-1 trips with wages, supplies and yields scaled to match;
+   unlock order; starting gold and prices retuned with `tools/econ_sim.gd`.
+6. The prologue and the betrayal.
+7. The new tutorial following §7.
+8. Tests for each, a recorded first-hour playthrough, then a cold playtest with 3–5 people.
 
-**Very rare equipment, relics, and crafting materials still exist** and can be obscenely valuable, but they are **goods priced in gold**, not an obligatory alternative denomination. Their excitement comes from scarce supply and real use. The prototype's **Sovereign Orb** is a placeholder rare crafting ingredient; its current “top-tier currency” label is superseded by this decision, and we may rename or repurpose it during itemization work.
-
-A player can be asset-rich but short on spendable gold: an extraordinary sword worth an estimated 30,000 gold is not the same thing as actually having 30,000 gold to pay wages. Keep this distinction visible.
-
-### Gold physically occupies storage — DECIDED
-
-**Gold is a tangible item resource, not merely a weightless on-screen number.** Coins are grouped into stacks, money bags and eventually chests, with **finite storage space**. The fantasy is opening your treasury and seeing money bags pile up, as in Dark and Darker. Wealth growth should have a visual and logistical footprint.
-
-The core intended experience:
-
-- Starting companies have a small stash and limited space for gold, equipment and materials.
-- Gold accumulates in **physical stacks/bags** occupying inventory or treasury slots; a larger bag may hold more coins per slot.
-- **Money bags and treasury chests** are valuable infrastructure upgrades, not just decorative icons. Storage-efficient containers become meaningful expenditures.
-- Players can open the treasury, inspect actual stored cash, move/organize money bags, and visually appreciate growing wealth.
-- Trading, wages and other payouts consume **actual available gold** and must not duplicate it; the UI displays gold totals as a convenience **derived from the real stored stacks/containers**.
-- UI should separately show **spendable gold**, **estimated value of other assets**, **total estimated net worth**, and **vault capacity/usage**. Net worth is a gold-denominated estimate rather than guaranteed liquidation proceeds.
-
-**Critical usability principle:** physical gold should feel satisfying to manage, **not** force a tedious coin-by-coin process. Automatically stack incoming coins and make ordinary payments convenient; reserve intentional packing, expansion, inventory organization and large-value transport for meaningful decisions.
-
-**PLANNED / VALIDATE:** Multiple sizes of coin stack, bags and storage chests; treasury upgrade paths; a clear money-bag/chest visualization; potential trading or transportation consequences of bulky sums.
-
-**OPEN:** exact stack capacities, bag/chest sizes, whether bags can be bought or crafted, if money and equipment share all storage, how the player handles overflow, and whether remote trade settlement uses a secure treasury/escrow system. Rewards must never be silently deleted just because storage is full; consider a claim queue or arrivals depot while testing. The player should not be able to bypass storage through an unrestricted invisible wallet.
-
-### Rare loot, itemization and crafting
-
-The overriding loot rule is unchanged: rare gear should still create jackpot moments, and rare consumables should still be demanded by players. **All normal trade prices are denominated in gold.**
-
-**DECIDED:** Equipment matters because of the work it enables. Different buyers value different stat combinations. A mining specialist might prize a tool with ore yield, mining speed, rare-find chance and expedition-duration bonuses; a ruins company may value it far less. This imperfect price discovery makes underpriced items possible.
-
-**PLANNED:** Collect raw materials, craft and modify equipment, and consume useful currencies/materials through upgrades and production. High-value items should require real investment and have reasons to disappear from circulation (at minimum, mercenary death).
-
-**OPEN:** equipment slots, exact affix pools, rarity tiers, crafting outcomes, durability outside death, identification and high-end currency names.
-
-**No premature power spike:** Day-one resources and early drops should not let anyone leap straight to endgame. Working capital and risk should matter across many sessions.
+**Success test for this update:** someone who has never seen the game plays for 30–45 minutes
+without being told anything, and says they'd play another hour.
 
 ---
 
-## 8. The original-style Trading Post
+## 12. Parked (from Money Mercs, v1.x)
 
-**DECIDED DIRECTION:** Market play is a centerpiece, inspired particularly by the **original pre-redesign Dark and Darker Trading Post**, not just a faceless instant-buy auction board.
-
-Experience goals:
-
-1. Observe a live scroll/feed of offers (potentially categorized channels).
-2. Inspect a seller's individual gear and all meaningful modifiers.
-3. Recognize a valuable combination or an underpriced listing.
-4. Initiate a direct offer or bargain with the seller.
-5. Exchange **physically owned gold** and items with explicit, secure confirmation; the UI can draw payment from the treasury without tedious manual coin dragging.
-6. Resell, supply the correct buyer, or keep the item for company use.
-
-A trader can make a fortune without personally going on expeditions. **Large flips are especially important** to the desired feeling, while repeated smaller trades remain a viable approach.
-
-**DECIDED:** Negotiated prices and asking prices use **gold**. Do not show a perfect authoritative valuation on every listing. Appraisal knowledge is the skill: someone's low ask can be a great opportunity because the true buyer value depends on use cases and demand.
-
-**PLANNED / VALIDATE:** Trade channels, linking items in messages, offers, fees, basic sorting/filtering, saved searches, market trends and price research. Avoid automation, perfect price estimates or instant execution tools that remove human price discovery.
-
-**Safety and fairness when multiplayer arrives:** trade locks and atomic confirmation, no item-switch trickery, anti-duplication rules, anti-bot controls and meaningful access for newer participants.
+- **Scouts and rotating deposits** (Harlow rotations, scout reports). Sites are fixed places now.
+- **Physical gold** (coin stacks, bags and chests in a limited treasury).
+- **A Dark-and-Darker-style trading-post feed** with haggling. (A haggle prototype exists in
+  code.)
+- **Simulated rival companies** as named NPC firms. (Rival crews may return as part of Aldren's
+  story.)
 
 ---
 
-## 9. Why the economy exists: production, consumption & item sinks
+## 13. Open questions
 
-The merchant fantasy only works if *other participants are generating items and actually need them*.
-
-**DECIDED:** Contractors generate supply by taking risks, craftsmen consume resources to produce useful gear, and both purchase equipment to improve their operations. Mercenary death removes equipment from circulation and creates **replacement demand**. The market is not just a group of people passing the same item around forever.
-
-An illustrative trade journey:
-
-- A mining tool is discovered by a ruin-focused contractor.
-- They need cash to finance wages, so they list it below its likely value.
-- A knowledgeable merchant buys it and later resells it for more.
-- A mining-focused buyer pays for it because it raises expected mine productivity.
-- It eventually leaves circulation through equipment loss, sustaining demand for replacements.
-
-**PLANNED / VALIDATE:** More sinks through crafting consumption, upgrades, wear and supply costs if needed. Avoid inflation, mass saturation and a small set of merchants permanently controlling all opportunities.
-
----
-
-## 10. Simulated companies & asynchronous multiplayer
-
-### The chicken-and-egg problem — DECIDED
-
-A functioning player-driven economy normally requires a large population performing expeditions, crafting, buying and using gear. We cannot assume this game launches with that population.
-
-**DECIDED DIRECTION:** Simulate a believable market using **identifiable NPC companies** from the start. They are not bots masquerading as real users. Give them funds, inventory, specializations, expedition activity, equipment needs, production costs, and urgent reasons to buy/sell.
-
-| NPC company type | Main economic role | Why a deal could appear |
-|---|---|---|
-| Mining company | Sells ore, buys tools and guards | Needs operating cash now |
-| Ruin expedition company | Finds artifacts and miscellaneous gear | Doesn't recognize mining-tool demand |
-| Forge | Consumes ore and rare materials; produces gear | Needs to clear inventory to buy inputs |
-| High-risk delving company | Finds uncommon loot, burns expensive gear | Sells surplus after costly losses |
-
-**PLANNED:** The NPC market should produce imperfect pricing and bargaining opportunities without providing an endlessly repeatable guaranteed exploit. Demand, supply and item destruction should follow from these companies' simulated actions.
-
-**PLANNED:** Eventually connect real players in an **asynchronous shared trading economy**; their market actions and equipment consumption shape demand. Possible later indirect competition: public contracts, bids, prestige, rankings and specialist business strategies. These optional competitive systems are **not locked**.
-
-**Technical constraint:** Shared item ownership, trade settlement, expedition results, clocks, currency and rotation snapshots must be **server-authoritative**. The existing Godot local saves are only for prototyping.
-
----
-
-## 11. User experience & visual direction
-
-**DECIDED:** A 2D UI-first dark-fantasy contractor-management presentation. The player's decision process should be simple to understand even when the underlying economy becomes deep.
-
-Core intended areas:
-
-1. **The Office** — treasury, cash flow, recent outcomes, teams waiting for instructions.
-2. **Regional board** — rotations, scouted intel, unknown hazards, finite deposits and availability.
-3. **Scout desk** — scout upgrades, send scout, compare reports and rotation freshness.
-4. **Mercenaries** — recruit, equip, treat, negotiate, assign, memorialize losses.
-5. **Expedition planner** — miner capacity versus guard protection, cost, timing, distinct success and survival estimates, standing orders, gear at risk.
-6. **Trading Post / Vault / Treasury** — inspect unique equipment and modifiers; trade-feed, haggle and settle in gold; store physical coin stacks, money bags, chests and other inventory in limited space; show spendable gold versus estimated net worth.
-7. **Journal** — after-action reports, casualties, economic results, and history.
-
-### UI excellence is a product requirement — DECIDED
-
-The interface should aim for an exceptional, cohesive experience from the first interactive build. No one can guarantee a universally "perfect" interface in advance; the standard is to **keep iterating based on real use until both appearance and usability are excellent**. A feature is not finished if it works internally but feels clumsy to operate.
-
-**Experience principles:**
-
-1. **Information at the point of decision:** Scouting reports show confirmed findings and uncertainty; expedition planning shows mining capacity, guard coverage, expected yield, survival risk, gold at risk and consequences together. No hunting across unrelated screens.
-2. **Immediate visual comprehension:** Make status, rarity, risk, profit, loss, affordances and resource capacity scannable at a glance. Layer advanced details behind deliberate inspection, not walls of explanatory copy.
-3. **Feel matters:** A rare item discovery, a winning flip, an arriving money bag, a returning scout and a fatality should have different, high-quality interaction feedback (visual state changes, animation, appropriate sound and clear reports). Tactile feedback should be restrained, not distracting.
-4. **The market is a first-class interface:** Fast linked-item inspection, side-by-side modifier comparisons, readable live advertisements, negotiation and secure confirmation should be satisfying for someone who spends hours trading.
-5. **A real treasury:** Distinctive coins, bags, chests, stash arrangement and capacity visualization make gold feel physically owned. Keep routine payment automatic; avoid tedious manual micromanagement.
-6. **Professional visual system:** Consistent typography, spacing, color semantics, iconography, item art, layouts, hover/focus/disabled states, transitions and tooltips. A strong dark-fantasy aesthetic must never compromise legibility.
-7. **Accessible and robust:** No clipped menus, tiny click targets, unreadable text, ambiguous color-only status or accidental destructive actions. Test different supported window sizes and scales, and keyboard/mouse workflows.
-8. **Consistency across screens:** Keep navigation, back paths, notifications, selection state and money figures trustworthy. Changing tabs should not silently discard plans or obscure critical context.
-
-**Development standard for each gameplay slice:** First define the player's goals and the information needed; sketch/wireframe the interaction; establish the visual states; build the interface *with* the mechanic; test real tasks in Godot at target sizes; revise until it feels good. Treat visual and usability review as a requirement for acceptance, not an optional art pass. Do not do endless speculative redesigns detached from actual playtesting.
-
-**Quality gates for the initial Harlow Mines interface:**
-
-- A first-time player can locate the scout action, recognize a current versus stale report, and understand what information is unknown.
-- The 2-miner/1-guard versus 1-miner/2-guard tradeoff is legible **without opening several screens**; percentages are clearly labeled (objective success is not mercenary survival).
-- The player knows the exact upfront gold cost, equipment exposed to loss, remaining deposit capacity, order selection and dispatch confirmation.
-- Returning reports distinguish collected resources, casualties, lost items, remaining veins, cash flow and appraised net results.
-- Loading, empty, busy, unaffordable, locked, expired and error states are deliberately designed; no dead buttons, broken scroll, clipping or layout collisions.
-- Screens are visually inspected at the intended desktop window size and at a smaller supported size. Automated headless tests alone do not prove visual quality.
-
-**IMPLEMENTED v0.4:** The initial generic dashboard and Harlow v0.3 layout were superseded by the **Guild Ledger** native-Godot interface. It uses full-width horizontal guild navigation, an illustrated Harlow mine dossier, parchment scouting notices, visual personnel cards, a fixed dispatch warrant, and themed Company, Mercenary, Exchange and Chronicle screens. The Harlow screen is rendered and visually checked in a virtual graphical Godot display and its screenshot is stored in `docs/ui_harlow_preview.png`. This is a substantially stronger art-direction baseline—not a claim of final perfection. Keep improving it through real playtests.
-
----
-
-## 12. The defining vertical slice: Harlow Mines
-
-**Goal:** demonstrate why this is a *management game*, not a disguised timer game.
-
-1. A new rotation changes Harlow's actual ore veins and encounter risk.
-2. The player sends a safe scout, which returns with *at least* six copper veins and a dangerous Dire Wolf sighting.
-3. The player compares **2 miners + 1 guard** versus **1 miner + 2 guards**.
-4. The first can extract more but has a sample **60%** full-success chance. The second works fewer veins but has a sample **90%** chance.
-5. The player accounts for wages, expensive gear, probability of individual death, and expected net proceeds.
-6. They set standing orders and dispatch. No manual intervention is required while offline.
-7. The report states who lived, who died, what equipment was lost, how much was mined, how much remains, and whether the operation was actually profitable.
-8. Recovered copper/gear may be sold, crafted into useful equipment, or hoarded for future operations.
-
-**Caution:** 60/90 percent, six/three veins, and 60-second scout timings are **illustrative scenario numbers**, not final mechanical constants.
-
-**Milestone passes if:** more miners versus more guards is a situationally difficult, financially grounded decision with real casualties and limited resources—not a solved rule every player uses every time.
-
----
-
-## 13. Roadmap (priority, not release deadlines)
-
-| Milestone | Features | Proof of success |
-|---|---|---|
-| **A0. Harlow UI foundation** | Visual direction, component styles and interaction prototype for scout reports, expedition planning, crew selection, loss warnings and results | Information is beautiful, legible and immediately actionable; tested in a real Godot window |
-| **A1. Harlow vertical slice** | Implement rotations, finite ore, upgradeable scouts, miners, guards, dangerous encounters, permadeath, gear loss and offline reports through that interface | Interesting crew composition, comprehensible risk decisions and excellent interaction flow |
-| **B. Real item economy + tangible gold** | Unique equipment, modifiers, crafting and sinks; coin stacks, money bags, treasury slots and gold-only pricing | Valuable goods have buyers and wealth feels physical, measurable and limited by storage |
-| **C. Simulated trading world** | NPC firms with budgets and inventory, production/consumption, bargaining feed and profitable flipping | Market-only play is fun with one human player |
-| **D. Online shared market** | Server-authoritative items and transactions, real players, safe P2P settlement | Economy functions at small and large populations |
-| **E. Depth & longevity** | More regions, firms, roles, gold/resource sinks and specialized contracts; continued UI refinement | Days/weeks of meaningful earned progression without sacrificing presentation quality |
-
-**UI/UX quality is a cross-cutting requirement for every milestone above, not a phase reserved for the end.** Keep the build small enough for one developer. Expanding content before validating the earlier loop is explicitly **not** the plan.
-
----
-
-## V0.5.1 economic safety net — DECIDED
-
-The first poor expedition may kill a guard, destroy gear and yield insufficient ore. This must remain meaningful, but players should never be required to gamble their last miner just to recover a minimum operational crew.
-
-**Guild Work Orders** provide deterministic, low-paid, risk-free income. Any available mercenary can perform routine contract labor (18 gold / 150 seconds). If every worker is dead, the guild owner can complete office paperwork (9 gold / 180 seconds). Work uses the ordinary asynchronous operation slot, carries through saves and offline completion, requires no supplies, and provides no meaningful rare loot. Only companies below both 120 gold spendable cash and 250 gold appraised net worth can initiate new recovery jobs. These thresholds and payments are initial balance values for playtesting, not permanent design absolutes.
-
-**Guardrails:** A death remains permanent, equipment is still lost, and crews still need replacement. No arbitrary invincibility, free replacement or automatic windfall. A company cannot turn low-risk office jobs into its primary path to riches. A zero-crew, zero-cash company can still rebuild regardless of depleted guild credit. Profitable guarded mining must meaningfully out-earn this baseline.
-
-## 14. Current implementation versus intended systems
-
-**Already implemented in v0.5:** The Guild Ledger UI, rotating Harlow Mines, safe three-tier scouts, finite ore, specialized miners and guards, individual success/death forecasts, staged encounters, partial returns, permanent casualties, real tool and armor items, and equipment loss. Mercenaries can be outfitted from a six-item armory; the hiring board generates replacement miners and guards over time, while original named recruits and older save data remain supported. Dispatch reports include simulated events, lost gear and recovered equipment. Guild advances support financially stranded companies. Legacy expeditions in the three older regions still use their simpler v0.2 rules.
-
-**NOT yet built / still immature:** full-scale multi-region rotation, destination-specific gathering tactics, randomized modifiers and rich itemization, physical gold stacks/bags/chests, a limited-capacity treasury, crafting as a true economy, simulated economic competitors, original-style trading, any real player marketplace, and final UI polish. The V0.5 equipment catalog is deliberately only six items; the risk/profit model needs real playtesting. Harlow's **first** scouting, finite-mining, composition, and casualty implementation is playable but requires rigorous balancing and UX refinement.
-
-**The v0.5 prototype still uses a numeric, effectively weightless gold balance and labels a Sovereign Orb as currency; those are legacy implementations, not the intended design.** Treat existing prototype timers, market prices, resources, and fixed success calculations as **scaffolding**, not established balance rules.
-
----
-
-## 15. Decisions still open
-
-1. **Scouting:** permanent single scout versus multiple scouts; upgrade cap, exact time, information clarity and reporting UI.
-2. **Rotations:** exact schedule, shared versus instanced scarcity, deposit regeneration, public contracts.
-3. **Expeditions:** precise capacity and encounter formula, partial success, individual death rates, injury, retreats, loot protection.
-4. **Contracts:** fair wage/share negotiation and commissions on very rare indivisible finds.
-5. **Items:** equipment slots, prefixes/suffixes, crafting breadth, modifier synergies, identification, durability and any recovery.
-6. **Economy:** gold sinks and money supply, drop rates, consumptive demand, item sinks, market fees, valuations and trading UX; **gold remains the primary money**.
-7. **NPC firms:** budgets, business objectives, urgency, imperfect knowledge, liquidity and anti-exploit design.
-8. **Online:** back-end provider, trade/chat rules, bot protections and population scaling.
-9. **Active versus offline:** sufficient on-demand decisions without mandatory login cadence.
-10. **Gold storage:** stack/bag/chest capacities, upgrades, overflow handling, whether shared stash space is used, and how to keep high-volume market trades convenient and safe.
-11. **Scope:** exact number of regions, professions, recipes and firms for first public release.
+1. Death's name in town, Aldren's final name, the player's guild name.
+2. Hero slot prices and how many heroes each crypt wants; when the second slot appears.
+3. How much better a led run should be than an automatic one.
+4. More classes, and whether heroes can change class.
+5. A hero escorting a dangerous trade trip instead of a crypt run.
+6. The demo's end: where it stops and what it asks of the player.
+7. Online: back end, accounts, anti-cheat, and the population at which shared trading turns on.
 
 ### Final product test
 
-> **Can one person love running expeditions, another love crafting useful equipment, and a third become incredibly wealthy by spotting an underpriced item—because all three are operating inside the same believable economy?**
+> **Can someone who loves running crews, someone who loves leading heroes below, and someone who
+> loves the market all find an hour that makes them want a hundred more — in the same guild?**
 
-**That is Money Mercs — with every hard-earned fortune counted in gold and visible in a real, space-limited treasury.**
-
-*This is a living design reference. Commit and update it as the game changes; do not promote example numbers to final decisions without playtesting.*
+*This is a living document. Update it when the game changes; don't promote example numbers to
+final decisions without playtesting.*
