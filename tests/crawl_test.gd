@@ -177,6 +177,18 @@ func _run() -> void:
 	check(int(g.heroes[0]["health"]) < 100 and str(g.heroes[0]["mission_id"]) == "", "the hero is home, hurt")
 	var worn_body: Dictionary = Gear.in_slot(g.heroes[0], "body")
 	check(Gear.durability(worn_body) < Gear.max_durability(worn_body), "a crypt run wears the hero's armour")
+	# Heroes' gear repairs like anyone's, and armour without a handle doesn't need wood.
+	g.gold += 1000
+	var fixed: String = g.repair(str(worn_body["uid"]))
+	check(fixed.begins_with("Repaired") and Gear.durability(Gear.in_slot(g.heroes[0], "body")) == Gear.max_durability(worn_body),
+		"a hero's armour can be repaired (%s)" % fixed)
+	var gloves: Dictionary = g.make_item("leather_gloves", "common")
+	gloves["dur"] = 0
+	var glove_cost: Dictionary = g.repair_cost(gloves)
+	check(not glove_cost.has("timber") and not glove_cost.is_empty(), "leather gloves repair with leather, not ashwood (%s)" % str(glove_cost))
+	var sword: Dictionary = g.make_item("rusted_sword", "common")
+	sword["dur"] = 0
+	check(g.repair_cost(sword).has("timber"), "a sword still needs wood for its handle")
 	check(g.crypt_starts("calder_keep") == 2, "clearing the Cellars makes their stairs known")
 	check(m["log"][0].get("first_clear", false), "the first clear is marked")
 	var hp_after: int = int(g.heroes[0]["health"])

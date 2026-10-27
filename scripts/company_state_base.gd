@@ -1238,7 +1238,7 @@ func owned_equipment_value() -> int:
 	var amount: int = 0
 	for item in equipment_inventory:
 		amount += Gear.value(item)
-	for merc in crew:
+	for merc in crew + heroes:
 		for item in Gear.worn(merc):
 			amount += Gear.value(item)
 	return amount
@@ -1505,7 +1505,7 @@ func find_item(uid: String) -> Array:
 	for item in equipment_inventory:
 		if str(item.get("uid", "")) == uid:
 			return [item, {}]
-	for merc in crew:
+	for merc in crew + heroes:
 		for item in Gear.worn(merc):
 			if str(item.get("uid", "")) == uid:
 				return [item, merc]
@@ -1566,7 +1566,7 @@ func needs_repair() -> Array:
 	for item in equipment_inventory:
 		if not repair_cost(item).is_empty():
 			out.append(item)
-	for merc in crew:
+	for merc in crew + heroes:
 		if is_available(merc):
 			for item in Gear.worn(merc):
 				if not repair_cost(item).is_empty():

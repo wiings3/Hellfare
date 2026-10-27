@@ -309,9 +309,18 @@ static func repair_cost(item: Dictionary, stocked: Array) -> Dictionary:
 			cost[part] = int(cost.get(part, 0)) + n
 		else:
 			cost["gold"] = int(cost.get("gold", 0)) + int(ceil(float(n) * Catalog.value_of(str(part)) * 1.25))
+	# A piece with a handle always takes at least one new handle's worth of wood; anything else
+	# takes at least one unit of its main material, so a repair is never free.
 	var handle: String = str(HANDLE.get(clampi(int(d.get("tier", 1)), 1, 5), "timber"))
-	if stocked.has(handle):
+	if recipe.has(handle) and stocked.has(handle):
 		cost[handle] = maxi(1, int(cost.get(handle, 0)))
+	elif cost.is_empty() or (cost.size() == 1 and cost.has("gold")):
+		var main: String = ""
+		for part in recipe:
+			if stocked.has(part) and (main == "" or int(recipe[part]) > int(recipe[main])):
+				main = str(part)
+		if main != "":
+			cost[main] = 1
 	return cost
 
 # --- Text -----------------------------------------------------------------------------------

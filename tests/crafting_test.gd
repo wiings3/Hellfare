@@ -135,9 +135,9 @@ func _initialize() -> void:
 	var found: Dictionary = g.make_item("knights_blade")
 	found["dur"] = 50
 	check(str(found["rarity"]) == "found" and g.repair_cost(found).has("gold") and g.repair_cost(found).size() == 1, "found-only pieces are repaired for gold")
-	var oak_cost: Dictionary = g.make_item("steel_buckler", "common")
+	var oak_cost: Dictionary = g.make_item("steel_sword", "common")
 	oak_cost["dur"] = 0
-	check(g.repair_cost(oak_cost).has("oak"), "tier-2 gear is repaired with oak")
+	check(g.repair_cost(oak_cost).has("oak"), "a tier-2 blade is repaired with oak for its handle")
 
 	# Potions and food. A healing draught is drunk when hurt; food is eaten on the way.
 	g.resources["healing_draught"] = 1
