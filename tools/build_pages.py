@@ -971,7 +971,7 @@ def crawl_fighter():
         "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0})
     label(s, "HP", "100 / 100", "DeskCaption", {"horizontal_alignment": 1})
     label(s, "Status", "", "DeskCaption", {"horizontal_alignment": 1, "modulate": Raw("Color(1, 0.75, 0.45, 1)")})
-    s.node("Sprite", "TextureRect", {"custom_minimum_size": (96, 96), "size_flags_horizontal": 4, "mouse_filter": 2,
+    s.node("Sprite", "TextureRect", {"custom_minimum_size": (48, 48), "size_flags_horizontal": 4, "mouse_filter": 2,
         "expand_mode": 1, "stretch_mode": 5, "script": Res("res://scripts/ui/crawl_sprite.gd", "Script")})
     s.save(R + "crawl_fighter.tscn")
 
@@ -1074,7 +1074,7 @@ def prologue_view():
         s.node(o + "/Margin", "MarginContainer", {"theme_override_constants/margin_left": 10, "theme_override_constants/margin_top": 8,
             "theme_override_constants/margin_right": 10, "theme_override_constants/margin_bottom": 10})
         s.node(o + "/Margin/Body", "VBoxContainer", {"theme_override_constants/separation": 5})
-        s.node(o + "/Margin/Body/Sprite", "TextureRect", {"custom_minimum_size": (96, 112), "size_flags_horizontal": 4, "expand_mode": 1,
+        s.node(o + "/Margin/Body/Sprite", "TextureRect", {"custom_minimum_size": (48, 48), "size_flags_horizontal": 4, "expand_mode": 1,
             "stretch_mode": 5, "texture": Res("res://assets/ui/crawl/%s.png" % cls.lower())})
         label(s, o + "/Margin/Body/Name", cls, "LabelTitle", {"horizontal_alignment": 1})
         label(s, o + "/Margin/Body/Blurb", "", None, {"autowrap_mode": 3, "custom_minimum_size": (228, 0)})

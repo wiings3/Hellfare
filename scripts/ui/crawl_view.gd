@@ -12,9 +12,9 @@ signal closed
 const FIGHTER := preload("res://scenes/journal/rows/crawl_fighter.tscn")
 const CrawlSprite := preload("res://scripts/ui/crawl_sprite.gd")
 ## Book pixels per sprite pixel (the book is drawn at twice its size on a 1080p screen, so
-## fighters show at 12x and bosses at 16x).
-const SCALE := 6.0
-const BOSS_SCALE := 8.0
+## fighters show at 6x and bosses at 8x).
+const SCALE := 3.0
+const BOSS_SCALE := 4.0
 ## How long each kind of event holds the screen (seconds).
 const BEAT := {"hit": 0.32, "crit": 0.45, "struck": 0.32, "heavy": 0.5, "dodge": 0.26, "parry": 0.26, "kill": 0.35, "death": 0.6,
 	"stun": 0.2, "guard": 0.22, "potion": 0.3, "wind": 0.55, "lucky": 0.4, "stunned": 0.2, "round": 0.0, "end": 0.15}

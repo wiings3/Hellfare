@@ -141,7 +141,7 @@ theme_override_constants/separation = 5
 
 [node name="Sprite" type="TextureRect" parent="Choice/Options/Knight/Margin/Body"]
 layout_mode = 2
-custom_minimum_size = Vector2(96, 112)
+custom_minimum_size = Vector2(48, 48)
 size_flags_horizontal = 4
 expand_mode = 1
 stretch_mode = 5
@@ -195,7 +195,7 @@ theme_override_constants/separation = 5
 
 [node name="Sprite" type="TextureRect" parent="Choice/Options/Rogue/Margin/Body"]
 layout_mode = 2
-custom_minimum_size = Vector2(96, 112)
+custom_minimum_size = Vector2(48, 48)
 size_flags_horizontal = 4
 expand_mode = 1
 stretch_mode = 5
