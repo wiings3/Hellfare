@@ -351,6 +351,8 @@ static func summary(key: String) -> String:
 		_:
 			for s in d.get("stats", {}):
 				parts.append("+%d%% %s" % [int(d["stats"][s]), str(STAT_TEXT.get(s, s))])
+	if str(d.get("category", "")) == "food":
+		parts.push_front("a crypt ration")
 	if parts.is_empty():
 		return "T%d  ·  %s" % [int(d.get("tier", 1)), str(d.get("note", "Crafting material"))]
 	return "T%d  ·  %s" % [int(d.get("tier", 1)), ", ".join(parts)]

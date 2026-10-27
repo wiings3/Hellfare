@@ -72,8 +72,12 @@ Running crypts and buying everything made crews pointless. Now the two loops nee
   stock is shallow (buying raises the price fast), and they only stock first-layer goods. Oak,
   silver, silk, steel and everything deeper comes home with crews or from other players, and
   the quartermaster sells no tier-2 arms. Repairs that need an unstocked material wait for a crew.
-- **Heroes eat a ration a floor**: perch, game meat, berries, cabbage and the like from the
-  warehouse, cheapest first; any shortfall is bought from the merchants at their price.
+- **Heroes eat a ration a floor**: one cooked meal from the warehouse (Grilled Ash Perch, Hunter's
+  Jerky, or any food the Workshop makes). A new guild (and every existing save, once) gets six
+  Grilled Ash Perch, enough for a couple of runs; after that the guild cooks its own, and both
+  plain recipes are known from the start. Merchants don't sell cooked food, so no meals means no
+  run. The crypt planner, the crypt card, the Guild page's "Needs you" list (below three meals),
+  the item descriptions and the tutorial all say so.
 - **The hero opens the way**: tier-2 and deeper sites (not the farm) open once the Fallen Keep
   is cleared to the Bone Knight, on top of their skill level.
 - **Heroes rest half as fast**, so a hard floor takes them out for a while and the crews keep

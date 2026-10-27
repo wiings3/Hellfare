@@ -507,6 +507,15 @@ func _needs() -> Array:
 	if game.crew.is_empty():
 		out.append({"icon": ROLE_ICONS["Woodcutter"], "title": "Hire your first Hellfarer",
 			"details": "A woodcutter at Cinderwood pays from the first trip", "action": "Recruit", "call": _open_recruitment})
+	# Heroes eat a cooked meal a floor: say so before the larder is empty.
+	var meals: int = game.rations_held()
+	if not game.heroes.is_empty() and meals < 3:
+		out.append({"icon": _item_icon("grilled_perch"), "title": "Rations: %s left" % _plural(meals, "meal") if meals > 0 else "No rations left: heroes can't go below",
+			"details": "Each hero eats one cooked meal a floor. Cook Grilled Ash Perch (2 ash perch, 1 ashwood) in the Workshop",
+			"action": "Cook", "call": func() -> void:
+				workshop_tab = "craft"
+				selected_recipe = "grilled_perch"
+				_turn_to("workshop")})
 	# Crews waiting at a crypt's stairs for orders.
 	for m in game.dungeon_checkins():
 		var dname: String = str(Dungeons.by_id(str(m["dungeon"])).get("name", "The crypt"))
@@ -2512,7 +2521,8 @@ func _draw_dungeon_list(right: Control) -> void:
 		var floors: Array = d["floors"]
 		(card.get_node("Body/Top/Info/Name") as Label).text = str(d["name"])
 		(card.get_node("Body/Top/Info/Details") as Label).text = "Layer %d  ·  %d floors, the last a boss  ·  built for %s" % [int(d.get("layer", d["tier"])), floors.size(), _plural(int(d.get("heroes", 1)), "hero")]
-		(card.get_node("Body/Facts") as Label).text = "%s  ·  a ration a floor for each hero" % ", ".join(floors.map(func(f): return str(f["foe"])))
+		(card.get_node("Body/Facts") as Label).text = "%s  ·  rations: %d meals" % [", ".join(floors.map(func(f): return str(f["foe"]))), game.rations_held()]
+		(card.get_node("Body/Facts") as Label).tooltip_text = "Each hero eats one cooked meal a floor. Cook meals in the Workshop."
 		var value := card.get_node("Body/Top/Value") as Label
 		var run: Dictionary = _run_in(str(id))
 		if not run.is_empty():
@@ -3011,10 +3021,9 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	if not empty and int(rations.get("need", 0)) > 0:
 		var packed: Array[String] = []
 		for good in rations["take"]:
-			packed.append("%d %s" % [int(rations["take"][good]), _resource_name(str(good)).to_lower()])
-		ration_text = "Rations: %d (one a floor for each hero)%s%s." % [int(rations["need"]), (" from the warehouse: " + ", ".join(packed)) if not packed.is_empty() else "",
-			("; %d bought from the merchants for %s" % [int(rations["short"]), _money(int(rations["gold"]))]) if int(rations["short"]) > 0 else ""]
-	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages and rations cost %s.%s" % [_money(int(plan["cost"])), ("\n" + ration_text) if ration_text != "" else ""]
+			packed.append("%d %s" % [int(rations["take"][good]), _resource_name(str(good))])
+		ration_text = "Packs %s of your %d (one a floor for each hero)%s." % [_plural(int(rations["need"]), "ration"), int(rations["have"]), (": " + ", ".join(packed)) if not packed.is_empty() else ""]
+	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages cost %s." % _money(int(plan["cost"]))
 	var enter := right.get_node(c + "Go/Enter") as Button
 	var lead := right.get_node(c + "Go/Lead") as Button
 	lead.set_meta("tut", "lead")
@@ -3026,11 +3035,11 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		why = "Choose your heroes on the left."
 	elif str(plan["blocked"]) != "":
 		why = str(plan["blocked"])
+	elif int(rations.get("short", 0)) > 0:
+		why = game.rations_note(rations)
 	elif game.gold < int(plan["cost"]):
-		why = "Not enough gold: wages and rations cost %s." % _money(int(plan["cost"]))
-	var note: String = ""
-	if why == "" and not empty and int(rations.get("short", 0)) > 0:
-		note = "%d of the rations will be bought from the merchants (%s): fishers, hunters and farmers bring food up for less." % [int(rations["short"]), _money(int(rations["gold"]))]
+		why = "Not enough gold: wages cost %s." % _money(int(plan["cost"]))
+	var note: String = ration_text if why == "" else ""
 	var price: String = _money(int(plan["cost"]) if not empty else int(d["supplies"]))
 	lead.text = "Lead them in  ·  %s" % price
 	enter.text = "Let them handle it"

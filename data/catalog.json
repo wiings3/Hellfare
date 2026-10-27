@@ -5880,11 +5880,10 @@
 	"timber": 1
    },
    "blueprint": [
-    "quartermaster"
+    "starter"
    ],
    "note": "Eaten on the next trip.",
-   "value": 22,
-   "blueprint_price": 40
+   "value": 22
   },
   "rabbit_stew": {
    "name": "Ashhare Stew",
@@ -5961,11 +5960,10 @@
 	"timber": 1
    },
    "blueprint": [
-    "quartermaster"
+    "starter"
    ],
    "note": "Eaten on the next trip.",
-   "value": 25,
-   "blueprint_price": 40
+   "value": 25
   },
   "smoked_trout": {
    "name": "Smoked Styx Trout",

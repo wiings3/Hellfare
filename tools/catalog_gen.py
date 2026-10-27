@@ -33,7 +33,8 @@ LEVEL = {1: 0, 2: 8, 3: 18, 4: 30, 5: 45}
 # ---------------------------------------------------------------- expeditions and other sources
 # id: (name, kind, trade, tier, status, extra)
 ## Blueprints every company knows from the start.
-STARTER_BLUEPRINTS = ["leather", "leather_cap", "leather_gloves", "leather_boots"]
+## Known from day one: the leather set, and two plain meals a crypt run can be fed on.
+STARTER_BLUEPRINTS = ["leather", "leather_cap", "leather_gloves", "leather_boots", "grilled_perch", "hunters_jerky"]
 
 SOURCES = {
     # Logging

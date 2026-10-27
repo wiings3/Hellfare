@@ -189,6 +189,8 @@ const CONTRACTS := ["Balanced", "Guaranteed Wage", "Profit Share"]
 var equipment_inventory: Array[Dictionary] = []
 ## Blueprints the company owns (catalog item keys). Intermediates are known to everyone.
 var blueprints: Array[String] = []
+## Whether this guild has had its starting meals (Dungeons.STARTING_RATIONS).
+var rations_given: bool = false
 ## Company buildings (catalog upgrade ids), e.g. the field plots that open the Tilled Acres.
 var upgrades: Array[String] = []
 var next_item_id: int = 1
@@ -235,18 +237,23 @@ func _init() -> void:
 func load_game() -> void:
 	if persist:
 		GameSettings.carry_over(SAVE_PATH)
+	# A new guild (no save, or one that can't be read) starts with its meals.
 	if not persist or not FileAccess.file_exists(SAVE_PATH):
+		_grant_starting_rations()
 		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
 	if file == null:
+		_grant_starting_rations()
 		return
 	var data: Variant = JSON.parse_string(file.get_as_text())
 	if typeof(data) != TYPE_DICTIONARY:
 		last_notice = "Save file unreadable. Started a new guild."
+		_grant_starting_rations()
 		return
 	var state: Dictionary = data
 	if int(state.get("version", 0)) != 1:
 		last_notice = "Save version not recognized. Started a new guild."
+		_grant_starting_rations()
 		return
 	gold = int(state.get("gold", 350))
 	reputation = int(state.get("reputation", 0))
@@ -298,6 +305,9 @@ func load_game() -> void:
 	if state.get("crypt_cleared") is Dictionary:
 		for k in state["crypt_cleared"]:
 			crypt_cleared[str(k)] = int(state["crypt_cleared"][k])
+	rations_given = bool(state.get("rations_given", false))
+	if not rations_given:
+		_grant_starting_rations()
 	market.load_dict(state.get("market", {}))
 	hall.load_dict(state.get("hall", {}))
 	fallen.load_dict(state.get("fallen", {}))
@@ -325,6 +335,7 @@ func save_game() -> void:
 		"next_item_id": next_item_id, "relief_debt": relief_debt, "blueprints": blueprints, "upgrades": upgrades,
 		"relief_count": relief_count, "retired_ids": retired_ids, "tutorial": tutorial,
 		"heroes": heroes, "hero_slots": hero_slots, "next_hero_id": next_hero_id, "crypt_cleared": crypt_cleared,
+		"rations_given": rations_given,
 		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict(), "auction": auction.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
@@ -1694,7 +1705,16 @@ func reset_company() -> void:
 	auction = AuctionHouse.new()
 	for item in RESOURCE_ORDER:
 		resources[item] = 0
+	rations_given = false
+	_grant_starting_rations()
 	save_game()
+
+## A guild starts with a few cooked meals (Dungeons.STARTING_RATIONS): enough for a couple of
+## crypt runs before it has to cook its own. Older saves get them once too.
+func _grant_starting_rations() -> void:
+	for good in Dungeons.STARTING_RATIONS:
+		resources[good] = int(resources.get(good, 0)) + int(Dungeons.STARTING_RATIONS[good])
+	rations_given = true
 
 
 # Called from generic expedition completion; implemented by MoneyMercsState.

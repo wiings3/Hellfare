@@ -18,7 +18,7 @@ const STEPS := [
 	 "text": "Send your woodcutter to Cinderwood, just inside the Maw. A trip takes about a minute and a half, and crews keep working while the game is closed.",
 	 "point": "expeditions"},
 	{"id": "crypt", "title": "Lead your hero into the Fallen Keep",
-	 "text": "While the crew works, take your hero down. The Fallen Keep is a crypt just past the Maw: clear the Cellars, then take what you carry out. Crews and heroes go out at the same time.",
+	 "text": "While the crew works, take your hero down. The Fallen Keep is a crypt just past the Maw: clear the Cellars, then take what you carry out. Your hero eats one cooked meal (a ration) per floor: the guild starts with six. When they run out, cook more in the Workshop from what your crews bring up.",
 	 "point": "expeditions"},
 	{"id": "sell", "title": "Sell the haul",
 	 "text": "Everything the guild owns is in the Warehouse (Workshop, third tab). Sell some ashwood to the merchants, or keep it to craft with.",

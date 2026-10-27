@@ -214,6 +214,7 @@ func _run() -> void:
 			g.found_hero("knight", "Second Knight")
 		one = [str(g.heroes[0]["id"])]
 	g.merc_by_id(one[0])["health"] = 100
+	g.resources["grilled_perch"] = int(g.resources.get("grilled_perch", 0)) + 6
 	GameClock.fixed = now + 200000
 	var again: String = g.dungeon_dispatch("calder_keep", one, 1, "half", "safe", true)
 	check(again.begins_with("The crew went"), "led again (%s)" % again)
@@ -262,12 +263,20 @@ func _run() -> void:
 	kg.trade("iron", true, 20)
 	check(kg.buy_price("iron") > iron_before, "buying makes a good dearer (%d -> %d)" % [iron_before, kg.buy_price("iron")])
 	check(not MercsV05.SHOP.has("steel_sword") and not MercsV05.SHOP.has("chainmail"), "the quartermaster sells no tier-2 arms")
-	kg.resources["perch"] = 2
+	check(int(kg.resources.get("grilled_perch", 0)) == 6 and kg.rations_held() == 6, "a new guild starts with six cooked meals")
+	check(kg.knows("grilled_perch") and kg.knows("hunters_jerky"), "and knows how to cook two plain ones")
+	check(not kg.merchants_sell("grilled_perch"), "merchants don't sell cooked meals")
 	var rations: Dictionary = kg.crypt_rations(1, 3)
-	check(int(rations["need"]) == 3 and int(rations["take"].get("perch", 0)) == 2 and int(rations["short"]) == 1 and int(rations["gold"]) > 0, "rations come from the warehouse first (%s)" % str(rations))
-	var gold_was: int = kg.gold
+	check(int(rations["need"]) == 3 and int(rations["take"].get("grilled_perch", 0)) == 3 and int(rations["short"]) == 0, "a three-floor run packs three meals (%s)" % str(rations))
 	check(kg.dungeon_dispatch("calder_keep", kid, 1, "half", "safe", false).begins_with("The crew went"), "a run with rations packed")
-	check(int(kg.resources.get("perch", 0)) == 1 and kg.gold < gold_was, "a fl eats one ration")
+	check(kg.rations_held() == 5, "a floor eats one meal")
+	GameClock.fixed = now + 500000
+	kg.complete_due(now + 500000)
+	kg.resources["grilled_perch"] = 0
+	if not kg.heroes.is_empty():
+		kg.heroes[0]["health"] = 100
+		var hungry: String = kg.dungeon_dispatch("calder_keep", [str(kg.heroes[0]["id"])] as Array[String], 1, "half", "safe", false)
+		check(hungry.begins_with("Not enough rations") and hungry.contains("Cook"), "no meals, no run, and it says how to cook them (%s)" % hungry)
 	for fl in Dungeons.DUNGEONS["calder_keep"]["floors"]:
 		check(int(fl["coin"][1]) <= 80, "%s pays more in loot than coin" % str(fl["name"]))
 	var oakwood: Dictionary = TradeSites.by_id("old_oakwood")

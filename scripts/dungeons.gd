@@ -31,12 +31,11 @@ const RETREAT_AT := {"half": 15.0, "death": 0.0, "never": 0.0}
 ## only a little in coin: the gold is in selling or crafting it, so the crews that make the
 ## crafting work still matter.
 ##
-## Each hero eats one ration a floor: food the crews bring up (perch, game meat, berries,
-## cabbage...). Rations come from the warehouse, cheapest first; any shortfall is bought from
-## the merchants at their price.
-const RATIONS := ["perch", "berries", "cabbage", "wheat", "potato", "game_meat", "mushrooms", "barley", "trout", "eel",
-	"boar_meat", "venison", "cod", "crab"]
-const RATION_FALLBACK := "perch"
+## Each hero eats one ration a floor: a cooked meal from the warehouse (Grilled Ash Perch,
+## Hunter's Jerky, any food the Workshop makes), plainest first. No meals, no run: merchants
+## don't sell cooked food, so the guild cooks what its crews bring up. A new guild starts with
+## STARTING_RATIONS meals, enough for a couple of runs.
+const STARTING_RATIONS := {"grilled_perch": 6}
 
 const DUNGEONS := {
 	"calder_keep": {
