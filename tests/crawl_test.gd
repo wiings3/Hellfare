@@ -82,10 +82,11 @@ func _run() -> void:
 		guard += 1
 		Crawl.act(s2, "strike")
 	check(str(s1["result"]) == str(s2["result"]) and int(s1["round"]) == int(s2["round"]), "a fight saved mid-way plays on the same")
-	# Guard: against the Bone Knight's heavy blow, a guarding knight takes much less.
+	# Guard: against the Bone Knight's heavy blow, a guarding knight takes much less per blow.
 	var took: Array = []
 	for guarding in [false, true]:
 		var total: float = 0.0
+		var blows: int = 0
 		for seed_value in range(40):
 			var b: Dictionary = Crawl.start([Heroes.fighter(hero(g, "knight", ["steel_sword", "chainmail"]))], boss, seed_value, true)
 			var safety: int = 0
@@ -97,8 +98,9 @@ func _run() -> void:
 				for e in (b["log"] as Array).slice(log_n):
 					if str(e["kind"]) == "heavy":
 						total += float(e["amount"])
-		took.append(total)
-	check(float(took[1]) < float(took[0]) * 0.6, "guarding against the heavy blow halves what it does (%d vs %d)" % [int(took[1]), int(took[0])])
+						blows += 1
+		took.append(total / maxf(1.0, float(blows)))
+	check(float(took[1]) < float(took[0]) * 0.6, "guarding against the heavy blow takes most of it off (%.1f vs %.1f a blow)" % [float(took[1]), float(took[0])])
 	# Skills: a bash stuns; a backstab crits more often than a strike.
 	var bash: Dictionary = Crawl.start([Heroes.fighter(hero(g, "knight", ["rusted_sword"]))], keep["floors"][1], 5, true)
 	var bev: Array = Crawl.act(bash, "skill", 0)
@@ -175,9 +177,23 @@ func _run() -> void:
 	check(int(g.heroes[0]["health"]) < 100 and str(g.heroes[0]["mission_id"]) == "", "the hero is home, hurt")
 	var worn_body: Dictionary = Gear.in_slot(g.heroes[0], "body")
 	check(Gear.durability(worn_body) < Gear.max_durability(worn_body), "a crypt run wears the hero's armour")
+	check(g.crypt_starts("calder_keep") == 2, "clearing the Cellars makes their stairs known")
+	check(m["log"][0].get("first_clear", false), "the first clear is marked")
 	var hp_after: int = int(g.heroes[0]["health"])
 	g.complete_due(now + 99999 + 600)
 	check(int(g.heroes[0]["health"]) > hp_after, "heroes recover between runs")
+
+	# --- Starting at known stairs --------------------------------------------------------
+	g.heroes[0]["health"] = 100
+	GameClock.fixed = now + 150000
+	check(g.dungeon_dispatch("calder_keep", one, 2, "half", "safe", true, 1).begins_with("The crew went"), "a run can start at known stairs")
+	check(int(g.lead_run()["floor_i"]) == 1 and (g.lead_fight()["foes"] as Array).size() == 2, "it starts in the Webbed Halls")
+	g.lead_release()
+	g.complete_due(now + 199000)
+	check(g.dungeon_dispatch("calder_keep", one, 3, "half", "safe", false, 2).begins_with("The crew went") or g.crypt_starts("calder_keep") < 3, "the boss's stairs only once the halls are cleared")
+	for mm in g.missions.duplicate():
+		if bool(mm.get("heroes", false)):
+			g.complete_due(int(mm["finish"]) + 99999)
 
 	# --- Handing a led run back to its orders ------------------------------------------
 	g.heroes[0]["health"] = 100

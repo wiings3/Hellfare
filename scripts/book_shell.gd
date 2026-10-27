@@ -53,6 +53,7 @@ var dungeon_filter: String = "all"
 var dungeon_depth: int = 2
 var dungeon_turn_back: String = "half"
 var dungeon_risk: String = "safe"
+var dungeon_start: int = 0
 ## Mercenaries: the roster filter and the dossier view; the Workshop chapter's tab.
 var roster_filter: String = "all"
 var recruit_filter: String = "all"

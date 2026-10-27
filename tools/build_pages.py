@@ -691,6 +691,12 @@ def dungeon_pages():
         label(s, f + "/Body/Foe", "Foes", "LabelCaption", {"text_overrun_behavior": 3})
         label(s, f + "/Body/Odds", "-", "LabelGood")
     label(s, C + "/Crew", "No heroes chosen yet.", "LabelMuted", {"autowrap_mode": 3})
+    start = s.sub("start", "ButtonGroup", {})
+    s.node(C + "/Start", "HBoxContainer", {"theme_override_constants/separation": 3})
+    label(s, C + "/Start/Caption", "Start at", "LabelCaption", {"custom_minimum_size": (52, 0)})
+    for i, (name, text) in enumerate([("S1", "Floor 1"), ("S2", "Floor 2"), ("S3", "The boss")]):
+        button(s, C + "/Start/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": start,
+            "tooltip_text": "Every floor you clear stays open: later runs can start at its stairs."})
     label(s, C + "/OrdersCaption", "Standing orders  ·  when they go without you", "LabelCaption")
     s.node(C + "/Depth", "HBoxContainer", {"theme_override_constants/separation": 3})
     label(s, C + "/Depth/Caption", "As deep as", "LabelCaption", {"custom_minimum_size": (52, 0)})

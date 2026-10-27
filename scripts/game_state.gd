@@ -767,7 +767,12 @@ func crypt_fighter(merc: Dictionary) -> Dictionary:
 	return Heroes.fighter(merc) if Heroes.is_hero(merc) else Dungeons.fighter(merc)
 
 ## What the planner shows: per-floor odds, death chance, haul, cost and time under the orders.
-func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_back: String) -> Dictionary:
+## The floors a run can start at: the first, and the stairs of each floor already cleared.
+func crypt_starts(dungeon_id: String) -> int:
+	var floors: int = (Dungeons.by_id(dungeon_id).get("floors", []) as Array).size()
+	return clampi(int(crypt_cleared.get(dungeon_id, -1)) + 2, 1, floors)
+
+func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, start: int = 0) -> Dictionary:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
 	var fighters: Array = []
 	var wages: int = 0
@@ -786,19 +791,21 @@ func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_b
 	if not fighters.is_empty():
 		share /= float(fighters.size())
 	var floors: int = (d.get("floors", []) as Array).size()
-	depth = clampi(depth, 1, floors)
+	start = clampi(start, 0, crypt_starts(dungeon_id) - 1)
+	depth = clampi(maxi(depth, start + 1), 1, floors)
 	var f: Dictionary = {"odds": [], "death": 0.0, "haul": 0.0, "floors": 0.0}
 	if not fighters.is_empty():
-		f = Dungeons.forecast(fighters, d, depth, turn_back, func(g): return sell_price(str(g)), 120)
+		f = Dungeons.forecast(fighters, d, depth, turn_back, func(g): return sell_price(str(g)), 120, start)
 	var fights: int = fighters.filter(func(c): return not bool(c["porter"])).size()
 	if blocked == "" and fights == 0 and not fighters.is_empty():
 		blocked = "Someone has to hold a weapon."
-	var time: int = depth * Dungeons.FLOOR_TIME + (depth - 1) * Dungeons.CHECKIN + depth * Dungeons.WALK_TIME
+	var n: int = depth - start
+	var time: int = n * Dungeons.FLOOR_TIME + (n - 1) * Dungeons.CHECKIN + depth * Dungeons.WALK_TIME
 	return {"dungeon": dungeon_id, "odds": f["odds"], "death": f["death"], "haul": int(round(float(f["haul"]) * (1.0 - share))),
 		"floors": f["floors"], "cost": int(d.get("supplies", 0)) + wages, "duration": time, "share": share,
-		"blocked": blocked, "fighters": fighters, "depth": depth}
+		"blocked": blocked, "fighters": fighters, "depth": depth, "start": start}
 
-func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe", led: bool = false) -> String:
+func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe", led: bool = false, start: int = 0) -> String:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
 	if d.is_empty():
 		return "That crypt isn't open."
@@ -815,7 +822,7 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		var why: String = dungeon_fit(dungeon_id, merc)
 		if why != "":
 			return "%s can't go: %s." % [str(merc["name"]), why.to_lower()]
-	var plan: Dictionary = dungeon_forecast(dungeon_id, ids, depth, turn_back)
+	var plan: Dictionary = dungeon_forecast(dungeon_id, ids, depth, turn_back, start)
 	if str(plan["blocked"]) != "":
 		return str(plan["blocked"])
 	if gold < int(plan["cost"]):
@@ -837,7 +844,7 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		"id": key, "region": "dungeon", "dungeon": dungeon_id, "trade": "combat", "ids": ids.duplicate(), "heroes": true, "led": led,
 		"depth": int(plan["depth"]), "turn_back": turn_back, "tactic": "Deep Push", "cost": int(plan["cost"]),
 		"share": float(plan["share"]), "seed": randi(), "started": now,
-		"stage": "floor", "floor_i": 0, "floor_end": now + Dungeons.FLOOR_TIME, "await_until": 0,
+		"stage": "floor", "floor_i": int(plan["start"]), "start_floor": int(plan["start"]), "floor_end": now + Dungeons.FLOOR_TIME, "await_until": 0,
 		"hp": hp, "heal": heal, "lucky": lucky, "drank": [], "carry": {}, "dropped": {}, "log": [], "dead": [],
 		"overrode": -1, "risk": "bold" if risk == "bold" else "safe", "ev": [], "ev_log": [], "event_gear": [],
 		"buff": {}, "weaken": 0, "ally": false, "bonus_xp": 0,
@@ -1215,6 +1222,11 @@ func _floor_settle(m: Dictionary, setup: Dictionary, r: Dictionary, t: int) -> v
 	if str(r["result"]) != "cleared":
 		_leave_run(m, t)
 		return
+	if i > int(crypt_cleared.get(str(m["dungeon"]), -1)):
+		crypt_cleared[str(m["dungeon"])] = i
+		entry["first_clear"] = true
+		if i + 1 < floors.size():
+			entry["lines"].append("The stairs down are known now: later runs can start here.")
 	var alive: Array = crew_now.filter(func(c): return float(c["hp"]) > 0.0)
 	Dungeons.patch_up(alive)
 	_store_run_crew(m, alive)

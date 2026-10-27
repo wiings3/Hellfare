@@ -2908,8 +2908,21 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	(right.get_node(c + "Site/Art") as TextureRect).texture = load(str(d.get("art", ""))) as Texture2D
 	(right.get_node(c + "Site") as Control).tooltip_text = str(d.get("tagline", ""))
 	(right.get_node(c + "Site/Badge/Text") as Label).text = "Layer %d  ·  built for %s" % [int(d.get("layer", d["tier"])), _plural(built_for, "hero")]
-	var plan: Dictionary = game.dungeon_forecast(id, ids, dungeon_depth, dungeon_turn_back)
+	var starts: int = game.crypt_starts(id)
+	dungeon_start = clampi(dungeon_start, 0, starts - 1)
+	var plan: Dictionary = game.dungeon_forecast(id, ids, dungeon_depth, dungeon_turn_back, dungeon_start)
 	var floors: Array = d["floors"]
+	for i in range(3):
+		var sb := right.get_node(c + "Start/S%d" % (i + 1)) as Button
+		sb.visible = i < floors.size()
+		sb.disabled = i >= starts
+		sb.set_pressed_no_signal(dungeon_start == i)
+		sb.tooltip_text = "Every floor you clear stays open: later runs can start at its stairs." if i < starts else "Clear %s first to find these stairs." % str(floors[maxi(0, i - 1)]["name"])
+		sb.pressed.connect(func() -> void:
+			dungeon_start = i
+			dungeon_depth = maxi(dungeon_depth, i + 1)
+			_refresh())
+	(right.get_node(c + "Start") as Control).visible = starts > 1
 	for i in range(3):
 		var box := right.get_node(c + "Floors/F%d" % i) as Control
 		box.visible = i < floors.size()
@@ -2933,7 +2946,7 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 			var p: float = float(plan["odds"][i]) if i < (plan["odds"] as Array).size() else 0.0
 			odds.text = "%d%%" % int(round(p * 100.0))
 			odds.theme_type_variation = &"LabelGood" if p >= 0.85 else (&"" if p >= 0.5 else &"LabelAccent")
-		box.modulate = Color(1, 1, 1, 1.0 if i < dungeon_depth else 0.55)
+		box.modulate = Color(1, 1, 1, 1.0 if i < dungeon_depth and i >= dungeon_start else 0.55)
 	var names: Array[String] = []
 	for mid in ids:
 		names.append(str(game.merc_by_id(mid).get("name", "?")))
@@ -3006,7 +3019,7 @@ func _back_to_dungeons() -> void:
 	_turn_to("expeditions")
 
 func _enter_dungeon(led: bool = false) -> void:
-	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk, led)
+	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk, led, dungeon_start)
 	if result.begins_with("The crew went"):
 		Sound.play("send_down")
 		Sound.music_cue("mus_crypt")

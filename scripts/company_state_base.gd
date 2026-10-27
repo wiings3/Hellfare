@@ -209,6 +209,9 @@ var crew: Array[Dictionary] = []
 var heroes: Array[Dictionary] = []
 var hero_slots: int = 1
 var next_hero_id: int = 1
+## The deepest floor of each crypt the guild has cleared (index): its stairs stay known, and
+## later runs can start there.
+var crypt_cleared: Dictionary = {}
 var missions: Array[Dictionary] = []
 var reports: Array[Dictionary] = []
 var next_mission_id: int = 1
@@ -292,6 +295,9 @@ func load_game() -> void:
 	next_hero_id = maxi(1, int(state.get("next_hero_id", heroes.size() + 1)))
 	if not state.has("heroes"):
 		_migrate_to_heroes()
+	if state.get("crypt_cleared") is Dictionary:
+		for k in state["crypt_cleared"]:
+			crypt_cleared[str(k)] = int(state["crypt_cleared"][k])
 	market.load_dict(state.get("market", {}))
 	hall.load_dict(state.get("hall", {}))
 	fallen.load_dict(state.get("fallen", {}))
@@ -318,7 +324,7 @@ func save_game() -> void:
 		"harlow": harlow, "equipment_inventory": equipment_inventory,
 		"next_item_id": next_item_id, "relief_debt": relief_debt, "blueprints": blueprints, "upgrades": upgrades,
 		"relief_count": relief_count, "retired_ids": retired_ids, "tutorial": tutorial,
-		"heroes": heroes, "hero_slots": hero_slots, "next_hero_id": next_hero_id,
+		"heroes": heroes, "hero_slots": hero_slots, "next_hero_id": next_hero_id, "crypt_cleared": crypt_cleared,
 		"market": market.to_dict(), "hall": hall.to_dict(), "fallen": fallen.to_dict(), "auction": auction.to_dict()
 	}
 	file.store_string(JSON.stringify(data, "\t"))
@@ -1651,6 +1657,7 @@ func reset_company() -> void:
 	heroes.clear()
 	hero_slots = 1
 	next_hero_id = 1
+	crypt_cleared.clear()
 	missions.clear()
 	reports.clear()
 	harlow.clear()

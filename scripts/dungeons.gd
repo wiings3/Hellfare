@@ -19,7 +19,7 @@ const MAX_ROUNDS := 14
 ## Damage reduction from armour: hits are scaled by ARMOUR_K / (ARMOUR_K + armour).
 const ARMOUR_K := 50.0
 ## Health the crew gets back binding wounds on the stairs between floors.
-const PATCH_UP := 10.0
+const PATCH_UP := 20.0
 ## Each Combat level adds this much to a fighter's damage.
 const LEVEL_DAMAGE := 0.05
 ## Orders for turning back, and the health at which each makes a crew back out of a fight.
@@ -36,7 +36,7 @@ const DUNGEONS := {
 			 "coin": [22, 41], "loot": {"bone": [1, 3]}},
 			{"name": "Webbed Halls", "foe": "Cave spiders", "one": "Cave spider", "kind": "spider", "backdrop": "res://assets/ui/art/crawl_halls.png", "count": 2, "hp": 40, "damage": 12, "speed": 1.0, "armour": 6,
 			 "coin": [43, 77], "loot": {"spider_silk": [1, 3], "bone": [0, 2]}},
-			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "bone_knight", "backdrop": "res://assets/ui/art/crawl_throne.png", "count": 1, "hp": 180, "damage": 15, "speed": 0.9, "armour": 22, "boss": true,
+			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "bone_knight", "backdrop": "res://assets/ui/art/crawl_throne.png", "count": 1, "hp": 150, "damage": 13, "speed": 0.9, "armour": 12, "boss": true,
 			 "coin": [156, 252], "loot": {"bone": [3, 5]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
 		],
 	},
@@ -115,7 +115,7 @@ static func copies(fighters: Array) -> Array:
 ## Monte Carlo forecast for a crew: per-floor chance to clear (going all the way, from the
 ## health they'd have), and, under the given orders, the chance someone dies, the average
 ## floors cleared and the average carried haul (coin plus goods at `price`).
-static func forecast(fighters: Array, dungeon: Dictionary, depth: int, turn_back: String, price: Callable, trials: int = 120) -> Dictionary:
+static func forecast(fighters: Array, dungeon: Dictionary, depth: int, turn_back: String, price: Callable, trials: int = 120, start: int = 0) -> Dictionary:
 	var floors: Array = dungeon["floors"]
 	var reached: Array = []
 	var cleared: Array = []
@@ -126,7 +126,7 @@ static func forecast(fighters: Array, dungeon: Dictionary, depth: int, turn_back
 	rng.seed = 4242
 	for t in range(trials):
 		var crew: Array = copies(fighters)
-		for i in range(floors.size()):
+		for i in range(start, floors.size()):
 			if crew.all(func(c): return float(c["hp"]) <= 0.0):
 				break
 			reached[i] += 1
@@ -142,7 +142,7 @@ static func forecast(fighters: Array, dungeon: Dictionary, depth: int, turn_back
 	var haul: float = 0.0
 	var floors_done: float = 0.0
 	for t in range(trials):
-		var run: Dictionary = simulate(fighters, dungeon, depth, turn_back, rng)
+		var run: Dictionary = simulate(fighters, dungeon, depth, turn_back, rng, start)
 		if not (run["dead"] as Array).is_empty():
 			deaths += 1
 		floors_done += float(run["cleared"])
@@ -154,13 +154,13 @@ static func forecast(fighters: Array, dungeon: Dictionary, depth: int, turn_back
 	return {"odds": odds, "death": float(deaths) / float(trials), "haul": haul / float(trials), "floors": floors_done / float(trials)}
 
 ## One whole run under standing orders, with no player in the loop.
-static func simulate(fighters: Array, dungeon: Dictionary, depth: int, turn_back: String, rng: RandomNumberGenerator) -> Dictionary:
+static func simulate(fighters: Array, dungeon: Dictionary, depth: int, turn_back: String, rng: RandomNumberGenerator, start: int = 0) -> Dictionary:
 	var crew: Array = copies(fighters)
 	var carry: Dictionary = {}
 	var dead: Array = []
-	var done: int = 0
+	var done: int = start
 	var floors: Array = dungeon["floors"]
-	for i in range(floors.size()):
+	for i in range(start, floors.size()):
 		var alive: Array = crew.filter(func(c): return float(c["hp"]) > 0.0)
 		var r: Dictionary = fight(alive, floors[i], rng, float(RETREAT_AT.get(turn_back, 0.0)))
 		dead.append_array(r["dead"])

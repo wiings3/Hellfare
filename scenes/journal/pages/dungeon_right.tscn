@@ -1,10 +1,12 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/journal/widgets/stat_tile.tscn" id="1_stat_tile"]
 
 [sub_resource type="ButtonGroup" id="depth"]
 
 [sub_resource type="ButtonGroup" id="back"]
+
+[sub_resource type="ButtonGroup" id="start"]
 
 [sub_resource type="ButtonGroup" id="risk"]
 
@@ -155,6 +157,46 @@ layout_mode = 2
 theme_type_variation = &"LabelMuted"
 text = "No heroes chosen yet."
 autowrap_mode = 3
+
+[node name="Start" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Margin/Content/Start"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Start at"
+custom_minimum_size = Vector2(52, 0)
+
+[node name="S1" type="Button" parent="Margin/Content/Start"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Floor 1"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("start")
+tooltip_text = "Every floor you clear stays open: later runs can start at its stairs."
+
+[node name="S2" type="Button" parent="Margin/Content/Start"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "Floor 2"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("start")
+tooltip_text = "Every floor you clear stays open: later runs can start at its stairs."
+
+[node name="S3" type="Button" parent="Margin/Content/Start"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"ToggleButton"
+text = "The boss"
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("start")
+tooltip_text = "Every floor you clear stays open: later runs can start at its stairs."
 
 [node name="OrdersCaption" type="Label" parent="Margin/Content"]
 layout_mode = 2
