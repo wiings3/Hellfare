@@ -575,6 +575,9 @@ func _verify() -> void:
 	check(view.game.charter_block().begins_with("Needs Known"), "charter II waits on reputation")
 	check((view.left_leaf.get_child(0).get_node("Margin/Content/Slots/Expand") as Button).disabled, "sign button waits too")
 	view.game.reputation = 500
+	# Charter II takes oak and steel, which merchants don't sell: a crew brings them home.
+	view.game.resources["oak"] = 40
+	view.game.resources["steel_ingot"] = 10
 	check(view.game.build_upgrade("charter_3").begins_with("Charters are signed in order"), "charters go in order")
 	check(view.game.expand_operations().contains("signed") and view.game.expedition_slots == 3, "charter II opens a third slot")
 	# The Auction House: browse and buy, post a listing, see it under Yours.

@@ -18,6 +18,8 @@ class_name TradeSites
 ##   tool         optional: how much of a tool's bonus counts per trip (default 1)
 ##   needs        optional: a company upgrade that must be built first (farm buildings)
 ##   tier         the site's tier; blueprints of that tier can turn up there
+##   crypt        optional: a crypt that must be cleared to its last floor before crews can
+##                go this deep (the hero opens the way; see MoneyMercsState.site_crypt_block)
 ## Harlow Mines (the Gatepit) was the first mining expedition (the MVP). It is now an ordinary tier-1
 ## site; its old scouting and rotating-deposit rules in game_state.gd only finish trips
 ## and saves made before the change.
@@ -58,7 +60,7 @@ const SITES := [
 		"art": "res://assets/ui/art/forest_copse.png",
 	},
 	{
-		"id": "old_oakwood", "name": "Weepingwood", "trade": "logging", "tier": 2, "level": 8,
+		"id": "old_oakwood", "name": "Weepingwood", "trade": "logging", "tier": 2, "level": 8, "crypt": "calder_keep",
 		"tagline": "Black trees that weep sap like blood. Weepwood for better handles, and hounds.",
 		"duration": 240, "supplies": 20,
 		"yields": {"oak": [3, 4]},
@@ -80,7 +82,7 @@ const SITES := [
 		"art": "res://assets/ui/art/harlow_site.png",
 	},
 	{
-		"id": "deepdelve", "name": "The Sulphur Deeps", "trade": "mining", "tier": 2, "level": 8,
+		"id": "deepdelve", "name": "The Sulphur Deeps", "trade": "mining", "tier": 2, "level": 8, "crypt": "calder_keep",
 		"tagline": "Yellow-lit galleries under the Fens. Iron and silver, and things that crawl.",
 		"duration": 240, "supplies": 22,
 		"yields": {"iron": [1, 2], "copper": [0, 1]},
@@ -101,7 +103,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_mossward_meadows.png",
 	},
 	{
-		"id": "fenmire", "name": "The Bloodfen", "trade": "foraging", "tier": 2, "level": 8,
+		"id": "fenmire", "name": "The Bloodfen", "trade": "foraging", "tier": 2, "level": 8, "crypt": "calder_keep",
 		"tagline": "A red marsh of bloodcaps and gravecaps. Mind the bog adders.",
 		"duration": 240, "supplies": 20,
 		"yields": {"bloodcap": [1, 2], "mushrooms": [1, 2]},
@@ -111,7 +113,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_fenmire.png",
 	},
 	{
-		"id": "sunreach", "name": "Ember Slopes", "trade": "foraging", "tier": 3, "level": 18,
+		"id": "sunreach", "name": "Ember Slopes", "trade": "foraging", "tier": 3, "level": 18, "crypt": "calder_keep",
 		"tagline": "Burning slopes where nightshade and emberbloom grow between the vents.",
 		"duration": 420, "supplies": 50,
 		"yields": {"nightshade": [1, 3], "sunpetal": [1, 3]},
@@ -120,7 +122,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_sunreach.png",
 	},
 	{
-		"id": "frostvale", "name": "Lament's Edge", "trade": "foraging", "tier": 4, "level": 30,
+		"id": "frostvale", "name": "Lament's Edge", "trade": "foraging", "tier": 4, "level": 30, "crypt": "calder_keep",
 		"tagline": "The rim of the frozen layer, where lament lilies flower in ice that holds the screaming.",
 		"duration": 600, "supplies": 110,
 		"yields": {"frostbloom": [2, 4]},
@@ -139,7 +141,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_millbrook_pond.png",
 	},
 	{
-		"id": "silverrun", "name": "The Styx Shallows", "trade": "fishing", "tier": 2, "level": 8,
+		"id": "silverrun", "name": "The Styx Shallows", "trade": "fishing", "tier": 2, "level": 8, "crypt": "calder_keep",
 		"tagline": "The shallow end of a black river, full of styx trout and bone eels.",
 		"duration": 240, "supplies": 20,
 		"yields": {"trout": [2, 3]},
@@ -149,7 +151,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_silverrun.png",
 	},
 	{
-		"id": "glasswater", "name": "The Lake of Glass", "trade": "fishing", "tier": 3, "level": 18,
+		"id": "glasswater", "name": "The Lake of Glass", "trade": "fishing", "tier": 3, "level": 18, "crypt": "calder_keep",
 		"tagline": "A lake so still it looks like glass. Great pike below, and tear pearls in the shallows.",
 		"duration": 420, "supplies": 50,
 		"yields": {"pike": [2, 4]},
@@ -159,7 +161,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_glasswater.png",
 	},
 	{
-		"id": "greywater_coast", "name": "The Shore of Tears", "trade": "fishing", "tier": 4, "level": 30,
+		"id": "greywater_coast", "name": "The Shore of Tears", "trade": "fishing", "tier": 4, "level": 30, "crypt": "calder_keep",
 		"tagline": "A cold shore that weeps salt: weeping cod, shore crab and storms.",
 		"duration": 600, "supplies": 110,
 		"yields": {"cod": [2, 4]},
@@ -170,7 +172,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_greywater_coast.png",
 	},
 	{
-		"id": "drowned_deep", "name": "The Drowned Deep", "trade": "fishing", "tier": 5, "level": 45,
+		"id": "drowned_deep", "name": "The Drowned Deep", "trade": "fishing", "tier": 5, "level": 45, "crypt": "calder_keep",
 		"tagline": "Black water at the bottom of everything. Abyssal eels and voidpearls, for the brave.",
 		"duration": 900, "supplies": 250,
 		"yields": {"abyssal_eel": [2, 4]},
@@ -190,7 +192,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_hollow_fields.png",
 	},
 	{
-		"id": "greyfang_hills", "name": "Houndfang Hills", "trade": "hunting", "tier": 2, "level": 8,
+		"id": "greyfang_hills", "name": "Houndfang Hills", "trade": "hunting", "tier": 2, "level": 8, "crypt": "calder_keep",
 		"tagline": "Red hills where hellboar root and hounds follow the herds.",
 		"duration": 240, "supplies": 22,
 		"yields": {"boar_meat": [1, 2], "wolf_pelt": [0, 2]},
@@ -200,7 +202,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_greyfang_hills.png",
 	},
 	{
-		"id": "elkmoor", "name": "Gorehorn Moor", "trade": "hunting", "tier": 3, "level": 18,
+		"id": "elkmoor", "name": "Gorehorn Moor", "trade": "hunting", "tier": 3, "level": 18, "crypt": "calder_keep",
 		"tagline": "A burning moor where gorehorns run. Their horns fetch a price.",
 		"duration": 420, "supplies": 50,
 		"yields": {"venison": [1, 3], "elk_hide": [1, 2]},
@@ -210,7 +212,7 @@ const SITES := [
 		"art": "res://assets/ui/art/site_elkmoor.png",
 	},
 	{
-		"id": "bleakridge", "name": "Bleakridge", "trade": "hunting", "tier": 4, "level": 30,
+		"id": "bleakridge", "name": "Bleakridge", "trade": "hunting", "tier": 4, "level": 30, "crypt": "calder_keep",
 		"tagline": "A frozen ridge where the pitbears den.",
 		"duration": 600, "supplies": 110,
 		"yields": {"bear_meat": [1, 2], "direbear_pelt": [1, 2]},

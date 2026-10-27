@@ -27,18 +27,29 @@ const LEVEL_DAMAGE := 0.05
 const TURN_BACK := {"half": "Anyone below half", "death": "Someone dies", "never": "Never"}
 const RETREAT_AT := {"half": 15.0, "death": 0.0, "never": 0.0}
 
+## A crypt pays mostly in what it holds (bone, silk, relics, blueprints, gear of the fallen), and
+## only a little in coin: the gold is in selling or crafting it, so the crews that make the
+## crafting work still matter.
+##
+## Each hero eats one ration a floor: food the crews bring up (perch, game meat, berries,
+## cabbage...). Rations come from the warehouse, cheapest first; any shortfall is bought from
+## the merchants at their price.
+const RATIONS := ["perch", "berries", "cabbage", "wheat", "potato", "game_meat", "mushrooms", "barley", "trout", "eel",
+	"boar_meat", "venison", "cod", "crab"]
+const RATION_FALLBACK := "perch"
+
 const DUNGEONS := {
 	"calder_keep": {
-		"id": "calder_keep", "name": "The Fallen Keep", "tier": 1, "layer": 1, "min_kit": 8, "supplies": 10, "crew": 3, "heroes": 1,
+		"id": "calder_keep", "name": "The Fallen Keep", "tier": 1, "layer": 1, "min_kit": 8, "supplies": 0, "crew": 3, "heroes": 1,
 		"tagline": "A keep the Maw swallowed when it opened. The dead in the cellars, spiders in the halls, and something in armour on the top floor, still on guard.",
 		"art": "res://assets/ui/art/dungeon_calder_keep.png",
 		"floors": [
 			{"name": "The Cellars", "foe": "Skeletons", "one": "Skeleton", "kind": "skeleton", "backdrop": "res://assets/ui/art/crawl/cellars.png", "count": 4, "hp": 12, "damage": 5, "speed": 1.0, "armour": 0,
-			 "coin": [22, 41], "loot": {"bone": [1, 3]}},
+			 "coin": [6, 12], "loot": {"bone": [2, 4]}},
 			{"name": "Webbed Halls", "foe": "Cave spiders", "one": "Cave spider", "kind": "spider", "backdrop": "res://assets/ui/art/crawl/halls.png", "count": 2, "hp": 40, "damage": 12, "speed": 1.0, "armour": 6,
-			 "coin": [43, 77], "loot": {"spider_silk": [1, 3], "bone": [0, 2]}},
+			 "coin": [12, 22], "loot": {"spider_silk": [2, 4], "bone": [1, 3]}},
 			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "death_knight", "backdrop": "res://assets/ui/art/crawl/throne.png", "count": 1, "hp": 150, "damage": 13, "speed": 0.9, "armour": 12, "boss": true,
-			 "coin": [156, 252], "loot": {"bone": [3, 5]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
+			 "coin": [45, 75], "loot": {"bone": [4, 7], "spider_silk": [1, 3]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
 		],
 	},
 }

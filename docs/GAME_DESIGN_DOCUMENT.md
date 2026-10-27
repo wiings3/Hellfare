@@ -223,6 +223,18 @@ nothing is hidden behind menus the player can't find.
 
 ---
 
+## 7b. Crews feed the hero — DECIDED (after the first playtest)
+
+Playtest finding: heroes ran crypts, crypts paid gold, gold bought anything, so expeditions
+stopped mattering. The fix ties the two loops together:
+
+- Crypts pay mostly in loot (bone, silk, relics, blueprints, fallen gear), little coin.
+- Merchants sell at ~2x fair value with shallow stock, and only first-layer goods; deeper
+  materials come from crews (or players). No tier-2 arms from the quartermaster.
+- Heroes eat one ration per floor (crew-caught or -grown food); shortfalls are bought dear.
+- Clearing a crypt opens the next layer's sites to crews (the Fallen Keep opens tier 2+).
+- Heroes recover at 3x worker speed (was 6x).
+
 ## 8. Gear, crafting and the market — DECIDED
 
 - **Gold** is the money. **Goods** (ashwood, copper, spider silk, relics…) are priced in gold.

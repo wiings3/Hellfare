@@ -543,8 +543,9 @@ func improve_gear(id: String) -> String:
 ## Mercenaries resting in town recover REST_PER_HOUR health an hour for free; treatment
 ## heals them at once for TREAT_PER_POINT gold per missing point (TREAT_MIN at least).
 const REST_PER_HOUR := 20
-## Heroes are tended between crypt runs: they recover this many times faster.
-const HERO_REST_MULT := 6.0
+## Heroes are tended between crypt runs: they recover this many times faster than workers
+## (a hard floor takes them out for a while; the crews keep earning meanwhile).
+const HERO_REST_MULT := 3.0
 const TREAT_PER_POINT := 0.6
 const TREAT_MIN := 5
 
@@ -1042,10 +1043,14 @@ func _finish(mission: Dictionary) -> void:
 func price(item: String) -> int:
 	return market.reference_price(item)
 
-## Merchants sell raw goods and plain crafting materials (ingots, linen, flour), not food
-## or potions: those come from cooks and brewers.
+## Merchants sell the common goods of the first layer and plain tier-1 crafting materials
+## (linen, flour), not food or potions (cooks and brewers make those) and nothing from
+## deeper down: oak, silver, silk, steel and the rest come home with crews, or from players.
 func merchants_sell(item: String) -> bool:
-	return item != "relic" and item != "sovereign" and str(RESOURCE_KIND.get(item, "raw")) != "food" and not Catalog.item(item).get("category", "") == "potion"
+	if item == "relic" or item == "sovereign" or str(RESOURCE_KIND.get(item, "raw")) == "food" or Catalog.item(item).get("category", "") == "potion":
+		return false
+	var tier: int = int(Catalog.material(item).get("tier", Catalog.item(item).get("tier", 1)))
+	return tier <= 1
 
 ## What an NPC merchant pays per unit when the company sells `quantity`.
 func sell_price(item: String, quantity: int = 1) -> int:
@@ -1525,8 +1530,19 @@ func repair_gold(cost: Dictionary) -> int:
 			total += buy_price(str(part), short) * short
 	return total
 
+## Why a repair can't be done from the warehouse and the merchants ("" if it can): a missing
+## material the merchants don't stock has to come home with a crew first.
+func repair_blocker(cost: Dictionary) -> String:
+	for part in cost:
+		if part == "gold":
+			continue
+		var short: int = int(cost[part]) - int(resources.get(str(part), 0))
+		if short > 0 and not merchants_sell(str(part)):
+			return "Needs %d %s, and merchants don't sell it: bring some home first." % [short, str(RESOURCE_NAMES.get(part, part)).to_lower()]
+	return ""
+
 ## Repair a piece to full. Materials come from the warehouse; anything missing is bought from
-## the merchants.
+## the merchants if they stock it.
 func repair(uid: String) -> String:
 	var found: Array = find_item(uid)
 	var item: Dictionary = found[0]
@@ -1538,6 +1554,9 @@ func repair(uid: String) -> String:
 	var cost: Dictionary = repair_cost(item)
 	if cost.is_empty():
 		return "%s doesn't need repairs." % Gear.full_name(item)
+	var blocker: String = repair_blocker(cost)
+	if blocker != "":
+		return blocker
 	var spend: int = repair_gold(cost)
 	if gold < spend:
 		return "Repairs need %d gold for parts and materials." % spend

@@ -555,6 +555,8 @@ func site_dispatch(site_id: String, ids: Array[String], approach: String) -> Str
 		return "Build the %s first." % str(Catalog.data()["upgrades"][str(plan["needs"])]["name"])
 	if not bool(plan["meets_level"]):
 		return "%s needs a crew member with %s level %d." % [str(site["name"]), TradeSkills.NAMES.get(str(site["trade"]), "trade"), int(site["level"])]
+	if site_crypt_block(site) != "":
+		return site_crypt_block(site)
 	if gold < int(plan["cost"]):
 		return "Insufficient gold for wages and supplies."
 	gold -= int(plan["cost"])
@@ -772,6 +774,35 @@ func crypt_starts(dungeon_id: String) -> int:
 	var floors: int = (Dungeons.by_id(dungeon_id).get("floors", []) as Array).size()
 	return clampi(int(crypt_cleared.get(dungeon_id, -1)) + 2, 1, floors)
 
+## Rations for a crypt run: one per hero per floor, from the warehouse cheapest first.
+## {"take": {good: n}, "short": n still needed, "gold": what the merchants want for the
+## shortfall, "need": n in all}.
+func crypt_rations(heroes_n: int, floors_n: int) -> Dictionary:
+	var need: int = maxi(0, heroes_n * floors_n)
+	var left: int = need
+	var take: Dictionary = {}
+	var foods: Array = Dungeons.RATIONS.filter(func(g): return int(resources.get(str(g), 0)) > 0)
+	foods.sort_custom(func(a, b): return price(str(a)) < price(str(b)))
+	for good in foods:
+		if left <= 0:
+			break
+		var n: int = mini(left, int(resources.get(str(good), 0)))
+		take[str(good)] = n
+		left -= n
+	var gold_short: int = buy_price(Dungeons.RATION_FALLBACK, left) * left if left > 0 else 0
+	return {"take": take, "short": left, "gold": gold_short, "need": need}
+
+## Deeper sites open once the crypt that guards them is cleared to its last floor (the
+## site's "crypt"). "" when the way is open.
+func site_crypt_block(site: Dictionary) -> String:
+	var dungeon_id: String = str(site.get("crypt", ""))
+	if dungeon_id == "" or not Dungeons.DUNGEONS.has(dungeon_id):
+		return ""
+	var d: Dictionary = Dungeons.DUNGEONS[dungeon_id]
+	if int(crypt_cleared.get(dungeon_id, -1)) >= (d["floors"] as Array).size() - 1:
+		return ""
+	return "Clear %s first: %s guards the way down." % [str(d["name"]), str((d["floors"] as Array).back()["foe"])]
+
 func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, start: int = 0) -> Dictionary:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
 	var fighters: Array = []
@@ -801,9 +832,10 @@ func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		blocked = "Someone has to hold a weapon."
 	var n: int = depth - start
 	var time: int = n * Dungeons.FLOOR_TIME + (n - 1) * Dungeons.CHECKIN + depth * Dungeons.WALK_TIME
+	var rations: Dictionary = crypt_rations(fighters.size(), n)
 	return {"dungeon": dungeon_id, "odds": f["odds"], "death": f["death"], "haul": int(round(float(f["haul"]) * (1.0 - share))),
-		"floors": f["floors"], "cost": int(d.get("supplies", 0)) + wages, "duration": time, "share": share,
-		"blocked": blocked, "fighters": fighters, "depth": depth, "start": start}
+		"floors": f["floors"], "cost": int(d.get("supplies", 0)) + wages + int(rations["gold"]), "duration": time, "share": share,
+		"blocked": blocked, "fighters": fighters, "depth": depth, "start": start, "rations": rations}
 
 func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe", led: bool = false, start: int = 0) -> String:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
@@ -826,8 +858,13 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 	if str(plan["blocked"]) != "":
 		return str(plan["blocked"])
 	if gold < int(plan["cost"]):
-		return "Insufficient gold for wages and supplies."
+		return "Insufficient gold for wages and rations."
 	gold -= int(plan["cost"])
+	var rations: Dictionary = plan["rations"]
+	for good in rations["take"]:
+		resources[good] = int(resources.get(str(good), 0)) - int(rations["take"][good])
+	if int(rations["short"]) > 0:
+		market.record_npc_trade(Dungeons.RATION_FALLBACK, -int(rations["short"]))
 	var now := GameClock.now()
 	var key := "job_%d" % next_mission_id
 	next_mission_id += 1

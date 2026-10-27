@@ -27,7 +27,7 @@ const STEPS := [
 	 "text": "A rusty blade won't get through the Webbed Halls. The quartermaster in the Workshop sells blueprints: a helm, a shield, a better blade. Iron comes from the Gatepit (hire a miner), hides from the Hollow Fields (a hunter). Make a piece and put it on your hero.",
 	 "button": "Later", "point": "workshop"},
 	{"id": "next", "title": "Your guild is running",
-	 "text": "Clear the Webbed Halls and their stairs stay open: the Bone Knight waits above them. Long orders keep crews working overnight. More heroes and more crews come with gold and reputation. Somewhere below, Aldren is waiting. Esc opens Settings.",
+	 "text": "Clear the Webbed Halls and their stairs stay open: the Bone Knight waits above them. Beat him and the deeper sites open to your crews. Heroes eat a ration a floor, so keep a fisher or hunter working. Long orders keep crews working overnight. More heroes and more crews come with gold and reputation. Somewhere below, Aldren is waiting. Esc opens Settings.",
 	 "button": "Done", "point": ""},
 ]
 ## The bookmark each page lives under (index in the book's chapter tabs).

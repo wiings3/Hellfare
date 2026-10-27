@@ -322,7 +322,8 @@ func _draw_region_map() -> void:
 		var trade: String = str(site["trade"])
 		var best: int = int(_best_in(trade)["level"])
 		var built: bool = game.has_upgrade(str(site.get("needs", "")))
-		var locked: bool = best < int(site["level"]) or not built
+		var crypt_block: String = game.site_crypt_block(site)
+		var locked: bool = best < int(site["level"]) or not built or crypt_block != ""
 		var out: int = 0
 		for mission in game.missions:
 			if RegionMap.road_for(mission) == id:
@@ -333,6 +334,8 @@ func _draw_region_map() -> void:
 			status = "Needs %s level %d (yours: %d)." % [TradeSkills.NAMES.get(trade, trade), int(site["level"]), best]
 		elif not built:
 			status = "Needs building first (Ledger, guild upgrades)."
+		elif crypt_block != "":
+			status = crypt_block
 		elif out > 0:
 			status = "%s working here." % _plural(out, "crew")
 		else:
@@ -391,7 +394,7 @@ func _map_site_open(site_id: String) -> bool:
 	var site: Dictionary = TradeSites.by_id(site_id)
 	if site.is_empty():
 		return false
-	return int(_best_in(str(site["trade"]))["level"]) >= int(site["level"]) and game.has_upgrade(str(site.get("needs", "")))
+	return int(_best_in(str(site["trade"]))["level"]) >= int(site["level"]) and game.has_upgrade(str(site.get("needs", ""))) and game.site_crypt_block(site) == ""
 
 ## Grave markers on the map: how much fallen gear this company could find at each site.
 ## A marker shows only where there's something to find.
@@ -1132,8 +1135,9 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 	if repair.visible:
 		var spend: int = game.repair_gold(cost)
 		repair.text = "Repair" + ("  ·  %s" % _money(spend) if spend > 0 else "")
-		repair.disabled = not available or game.gold < spend
-		repair.tooltip_text = "Uses %s. Anything not in the warehouse is bought from the merchants." % _cost_line(cost)
+		var blocker: String = game.repair_blocker(cost)
+		repair.disabled = not available or game.gold < spend or blocker != ""
+		repair.tooltip_text = blocker if blocker != "" else "Uses %s. Anything not in the warehouse is bought from the merchants." % _cost_line(cost)
 		repair.pressed.connect(_repair.bind(str(picked["uid"])))
 	var bonus := right.get_node(g + "Foot/Bonus") as Label
 	var job: String = Gear.job(owner)
@@ -1999,7 +2003,7 @@ func _draw_exchange() -> void:
 		sell.set_meta("tut", "sell%d:%s" % [n, key])
 		var buy := right.get_node(desk + "BuyRow/" + str(pair[0])) as Button
 		buy.disabled = not buyable or game.gold < game.buy_price(key, n) * n
-		buy.tooltip_text = "-%s (%s each)" % [_money(game.buy_price(key, n) * n), _money(game.buy_price(key, n))] if buyable else ("Merchants never sell these. Find them below." if key in ["relic", "sovereign"] else "Merchants don't stock food or potions: cook or brew them, or buy from players.")
+		buy.tooltip_text = "-%s (%s each)" % [_money(game.buy_price(key, n) * n), _money(game.buy_price(key, n))] if buyable else ("Merchants never sell these. Find them below." if key in ["relic", "sovereign"] else ("Merchants don't stock food or potions: cook or brew them, or buy from players." if str(MoneyMercsState.RESOURCE_KIND.get(key, "raw")) == "food" or str(Catalog.item(key).get("category", "")) == "potion" else "Merchants only stock first-layer goods. This comes home with a crew, or from other players."))
 		buy.pressed.connect(_trade.bind(key, true, n))
 	var sell_all := right.get_node(desk + "SellRow/All") as Button
 	sell_all.disabled = owned <= 0
@@ -2439,12 +2443,14 @@ func _draw_board() -> void:
 	workers.sort_custom(func(a, b): return TradeSkills.xp_of(game.merc_by_id(a), selected_trade) > TradeSkills.xp_of(game.merc_by_id(b), selected_trade))
 	for site in TradeSites.for_trade(selected_trade):
 		var id: String = str(site["id"])
-		if level < int(site["level"]):
+		var crypt_block: String = game.site_crypt_block(site)
+		if level < int(site["level"]) or crypt_block != "":
 			var row := ROW_LOCKED.instantiate() as Button
 			locked_list.add_child(row)
 			(row.get_node("Body/Name") as Label).text = str(site["name"])
-			(row.get_node("Body/Need") as Label).text = "%s %d" % [TradeSkills.NAMES.get(selected_trade, selected_trade), int(site["level"])]
-			row.tooltip_text = "%s\nNeeds a Hellfarer with %s level %d (your best: %d)." % [str(site.get("tagline", "")), TradeSkills.NAMES.get(selected_trade, selected_trade), int(site["level"]), level]
+			var skill_short: bool = level < int(site["level"])
+			(row.get_node("Body/Need") as Label).text = "%s %d" % [TradeSkills.NAMES.get(selected_trade, selected_trade), int(site["level"])] if skill_short else "Clear %s" % str(Dungeons.DUNGEONS[str(site["crypt"])]["name"])
+			row.tooltip_text = "%s\n%s" % [str(site.get("tagline", "")), ("Needs a Hellfarer with %s level %d (your best: %d)." % [TradeSkills.NAMES.get(selected_trade, selected_trade), int(site["level"]), level]) + ("\n" + crypt_block if crypt_block != "" else "") if skill_short else crypt_block]
 			row.pressed.connect(_open_site.bind(id))
 			continue
 		var card := ROW_SITE.instantiate() as Button
@@ -2500,7 +2506,7 @@ func _draw_dungeon_list(right: Control) -> void:
 		var floors: Array = d["floors"]
 		(card.get_node("Body/Top/Info/Name") as Label).text = str(d["name"])
 		(card.get_node("Body/Top/Info/Details") as Label).text = "Layer %d  ·  %d floors, the last a boss  ·  built for %s" % [int(d.get("layer", d["tier"])), floors.size(), _plural(int(d.get("heroes", 1)), "hero")]
-		(card.get_node("Body/Facts") as Label).text = "%s  ·  supplies %s" % [", ".join(floors.map(func(f): return str(f["foe"]))), _money(int(d["supplies"]))]
+		(card.get_node("Body/Facts") as Label).text = "%s  ·  a ration a floor for each hero" % ", ".join(floors.map(func(f): return str(f["foe"])))
 		var value := card.get_node("Body/Top/Value") as Label
 		var run: Dictionary = _run_in(str(id))
 		if not run.is_empty():
@@ -2772,6 +2778,8 @@ func _bind_site_crew(left: Control, right: Control, site: Dictionary) -> void:
 		why = "Choose a crew from the list on the left."
 	elif not bool(forecast["meets_level"]):
 		why = "Needs a Hellfarer with %s level %d." % [TradeSkills.NAMES.get(trade, trade), needed]
+	elif game.site_crypt_block(site) != "":
+		why = game.site_crypt_block(site)
 	elif game.gold < int(forecast["cost"]):
 		why = "Not enough gold: wages and supplies cost %s." % _money(int(forecast["cost"]))
 	fund.text = "Crew is out" if busy else "%s  ·  %s" % ["Send them out" if trade == "farming" else "Send them down", _money(int(forecast["cost"]))]
@@ -2992,7 +3000,15 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	death_tile.value = "%d%%" % int(round(float(plan["death"]) * 100.0)) if not empty else "-"
 	death_tile.tone = "accent" if not empty and float(plan["death"]) >= 0.1 else "normal"
 	right.get_node(c + "Forecast/Time").value = "~%dm" % int(round(float(plan["duration"]) / 60.0))
-	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages and supplies cost %s." % _money(int(plan["cost"]))
+	var rations: Dictionary = plan.get("rations", {})
+	var ration_text: String = ""
+	if not empty and int(rations.get("need", 0)) > 0:
+		var packed: Array[String] = []
+		for good in rations["take"]:
+			packed.append("%d %s" % [int(rations["take"][good]), _resource_name(str(good)).to_lower()])
+		ration_text = "Rations: %d (one a floor for each hero)%s%s." % [int(rations["need"]), (" from the warehouse: " + ", ".join(packed)) if not packed.is_empty() else "",
+			("; %d bought from the merchants for %s" % [int(rations["short"]), _money(int(rations["gold"]))]) if int(rations["short"]) > 0 else ""]
+	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages and rations cost %s.%s" % [_money(int(plan["cost"])), ("\n" + ration_text) if ration_text != "" else ""]
 	var enter := right.get_node(c + "Go/Enter") as Button
 	var lead := right.get_node(c + "Go/Lead") as Button
 	lead.set_meta("tut", "lead")
@@ -3005,7 +3021,10 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	elif str(plan["blocked"]) != "":
 		why = str(plan["blocked"])
 	elif game.gold < int(plan["cost"]):
-		why = "Not enough gold: wages and supplies cost %s." % _money(int(plan["cost"]))
+		why = "Not enough gold: wages and rations cost %s." % _money(int(plan["cost"]))
+	var note: String = ""
+	if why == "" and not empty and int(rations.get("short", 0)) > 0:
+		note = "%d of the rations will be bought from the merchants (%s): fishers, hunters and farmers bring food up for less." % [int(rations["short"]), _money(int(rations["gold"]))]
 	var price: String = _money(int(plan["cost"]) if not empty else int(d["supplies"]))
 	lead.text = "Lead them in  ·  %s" % price
 	enter.text = "Let them handle it"
@@ -3013,8 +3032,8 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	lead.disabled = why != "" or not game.lead_run().is_empty()
 	enter.pressed.connect(_enter_dungeon.bind(false))
 	lead.pressed.connect(_enter_dungeon.bind(true))
-	reason.text = why
-	reason.visible = why != ""
+	reason.text = why if why != "" else note
+	reason.visible = reason.text != ""
 
 func _set_dungeon_filter(filter: String) -> void:
 	dungeon_filter = filter

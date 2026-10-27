@@ -5,7 +5,8 @@ class_name MarketModel
 ## Design (see the "Economy, Trades & the Trade Hall" doc):
 ## - Each good has a reference price: its base price, nudged by a slow six-hour drift
 ##   and by occasional demand events.
-## - NPC merchants buy from players at about 75% of reference and sell at about 130%.
+## - NPC merchants buy from players at about 75% of reference and sell at about 200%:
+##   buying is the expensive fallback, so a crew bringing it home beats paying for it.
 ##   Players trading with each other inside that gap both do better than the NPCs.
 ## - Selling to NPCs saturates them (their buy price falls); buying from them makes the
 ##   good scarce (their sell price rises). Saturation fades with an 8-hour half-life and
@@ -15,9 +16,13 @@ class_name MarketModel
 ## Everything here is plain data so it can later run on a server unchanged.
 
 const NPC_BUYS_AT := 0.75
-const NPC_SELLS_AT := 1.30
+const NPC_SELLS_AT := 2.0
 const HALF_LIFE_SECONDS := 28800.0
 const SATURATION_PULL := 0.5
+## Merchants' stock is shallow: buying makes a good scarce four times faster than selling
+## floods it, and can double its price.
+const SCARCITY_DEPTH := 0.25
+const SCARCITY_PULL := 1.0
 const DRIFT_PERIOD := 21600
 const EVENT_PERIOD := 43200
 const HISTORY_LIMIT := 48
@@ -128,8 +133,10 @@ func saturation_units(good: String, now: int = -1) -> float:
 func saturation_factor(good: String, extra_units: float = 0.0, now: int = -1) -> float:
 	var s: float = saturation_units(good, now) + extra_units
 	var depth: float = float(DEPTH.get(good, auto_depth(good)))
-	var pull: float = absf(s) / (absf(s) + depth) * SATURATION_PULL
-	return 1.0 - pull if s >= 0.0 else 1.0 + pull
+	if s >= 0.0:
+		return 1.0 - s / (s + depth) * SATURATION_PULL
+	depth *= SCARCITY_DEPTH
+	return 1.0 + absf(s) / (absf(s) + depth) * SCARCITY_PULL
 
 ## What an NPC merchant pays a player per unit (selling `quantity` lowers it as it goes).
 func npc_buy_price(good: String, quantity: int = 1, now: int = -1) -> int:

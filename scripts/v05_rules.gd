@@ -3,7 +3,8 @@ class_name MercsV05
 
 # Items live in data/catalog.json now (see Catalog and Gear). The quartermaster still sells
 # the starter pieces for every trade; everything else is crafted or found.
-const SHOP := ["hand_axe", "felling_axe", "basic_pick", "reinforced_pick", "rusted_sword", "steel_sword", "leather", "chainmail",
+## Combat gear stops at tier 1 here: better blades and armour are crafted from what crews bring up.
+const SHOP := ["hand_axe", "felling_axe", "basic_pick", "reinforced_pick", "rusted_sword", "leather",
 	"copper_sickle", "birch_rod", "birch_shortbow", "iron_hoe"]
 
 # Applicant names live in scripts/names.gd (Names).

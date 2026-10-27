@@ -62,6 +62,26 @@ The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DO
   the Cellars, root-choked rock for the Webbed Halls, a pillared throne hall for the Bone Knight,
   and a chained, burning cavern for the Ember Gate. Native 256×144, drawn at a whole multiple.
 
+### Crews feed the hero (v0.33, after the first playtest)
+
+Running crypts and buying everything made crews pointless. Now the two loops need each other:
+
+- **Crypts pay mostly in loot**: bone, spider silk, relics, blueprints and gear of the fallen,
+  with about a third of the old coin.
+- **Merchants are the expensive fallback**: they sell at about twice the fair price, their
+  stock is shallow (buying raises the price fast), and they only stock first-layer goods. Oak,
+  silver, silk, steel and everything deeper comes home with crews or from other players, and
+  the quartermaster sells no tier-2 arms. Repairs that need an unstocked material wait for a crew.
+- **Heroes eat a ration a floor**: perch, game meat, berries, cabbage and the like from the
+  warehouse, cheapest first; any shortfall is bought from the merchants at their price.
+- **The hero opens the way**: tier-2 and deeper sites (not the farm) open once the Fallen Keep
+  is cleared to the Bone Knight, on top of their skill level.
+- **Heroes rest half as fast**, so a hard floor takes them out for a while and the crews keep
+  earning meanwhile.
+
+In a simulated first hour, crews alone end ahead of crypts alone, and both together end
+ahead of either.
+
 ## V0.32 – The Descent, repainted
 
 The map on the Company page is repainted with the expedition banners' painter

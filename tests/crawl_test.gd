@@ -248,6 +248,38 @@ func _run() -> void:
 	check(old.crew.size() == 1 and Gear.in_slot(old.crew[0], "body").is_empty(), "armour on workers goes to the warehouse")
 	check(old.equipment_inventory.any(func(it): return str(it["key"]) == "chainmail"), "and is still the guild's")
 
+	# --- Crews feed the hero ---------------------------------------------------------------
+	var kg := MoneyMercsState.new()
+	kg.reset_company()
+	GameClock.fixed = now + 400000
+	kg.found_hero("knight", "Feeder")
+	var kid: Array[String] = [str(kg.heroes[0]["id"])]
+	check(kg.merchants_sell("timber") and kg.merchants_sell("iron") and not kg.merchants_sell("oak") and not kg.merchants_sell("spider_silk"),
+		"merchants stock first-layer goods only")
+	check(kg.buy_price("timber") >= kg.price("timber") * 2 - 1 and kg.buy_price("timber") >= kg.sell_price("timber") * 2, "buying costs well over what selling pays")
+	var iron_before: int = kg.buy_price("iron")
+	kg.gold = 5000
+	kg.trade("iron", true, 20)
+	check(kg.buy_price("iron") > iron_before, "buying makes a good dearer (%d -> %d)" % [iron_before, kg.buy_price("iron")])
+	check(not MercsV05.SHOP.has("steel_sword") and not MercsV05.SHOP.has("chainmail"), "the quartermaster sells no tier-2 arms")
+	kg.resources["perch"] = 2
+	var rations: Dictionary = kg.crypt_rations(1, 3)
+	check(int(rations["need"]) == 3 and int(rations["take"].get("perch", 0)) == 2 and int(rations["short"]) == 1 and int(rations["gold"]) > 0, "rations come from the warehouse first (%s)" % str(rations))
+	var gold_was: int = kg.gold
+	check(kg.dungeon_dispatch("calder_keep", kid, 1, "half", "safe", false).begins_with("The crew went"), "a run with rations packed")
+	check(int(kg.resources.get("perch", 0)) == 1 and kg.gold < gold_was, "a fl eats one ration")
+	for fl in Dungeons.DUNGEONS["calder_keep"]["floors"]:
+		check(int(fl["coin"][1]) <= 80, "%s pays more in loot than coin" % str(fl["name"]))
+	var oakwood: Dictionary = TradeSites.by_id("old_oakwood")
+	check(kg.site_crypt_block(oakwood) != "" and kg.site_crypt_block(TradeSites.by_id("mossward_copse")) == "", "deeper sites wait on the Fallen Keep")
+	kg.crypt_cleared["calder_keep"] = 2
+	check(kg.site_crypt_block(oakwood) == "", "clearing the Bone Knight opens them")
+	var fix: Dictionary = kg.make_item("steel_sword", "common")
+	fix["dur"] = 0
+	kg.equipment_inventory.append(fix)
+	kg.resources["oak"] = 0
+	check(kg.repair(str(fix["uid"])).contains("merchants don't sell"), "repairs needing oak wait for a crew")
+
 	GameClock.fixed = -1
 	if failures > 0:
 		push_error("%d crawl checks failed." % failures)

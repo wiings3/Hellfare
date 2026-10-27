@@ -191,7 +191,7 @@ func _initialize() -> void:
 
 	# In step with the live game: the quartermaster's stock exists at its old prices, and
 	# every warehouse good is a catalog material or craftable good with the same name and price.
-	var old_prices := {"hand_axe": 26, "felling_axe": 98, "basic_pick": 28, "reinforced_pick": 105, "rusted_sword": 30, "steel_sword": 125, "leather": 38, "chainmail": 138}
+	var old_prices := {"hand_axe": 26, "felling_axe": 98, "basic_pick": 28, "reinforced_pick": 105, "rusted_sword": 30, "leather": 38}
 	for key in MercsV05.SHOP:
 		check(items.has(key) and not bool(items[key].get("found_only", false)) and int(items[key]["tier"]) == 1 or old_prices.has(key), "shop sells tier-1 starter gear: " + key)
 	for key in old_prices:
