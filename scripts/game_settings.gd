@@ -15,16 +15,32 @@ static var volumes: Dictionary = VOLUME_DEFAULTS.duplicate()
 static var alerts_away: bool = true
 
 ## The game was called Money Mercs before Hellfare, and Godot keeps each game's files in a
-## folder named after it. Copies a file from the old folder the first time Hellfare looks for
-## it, so saves and settings carry over. Never overwrites a file that already exists.
+## folder named after it. The first time Hellfare runs, files are copied from the old folder so
+## saves and settings carry over. Only once: a marker file records that it happened, so deleting
+## your save later (to start a new guild) really starts a new guild.
 const OLD_NAME := "Money Mercs"
+const CARRIED := "user://carried_over"
 
 static func carry_over(path: String) -> void:
 	if FileAccess.file_exists(path):
 		return
+	# Hellfare has run here before (it has settings or the marker): nothing to carry.
+	if FileAccess.file_exists(CARRIED) or (path != PATH and FileAccess.file_exists(PATH) and not _carrying):
+		_mark_carried()
+		return
+	_carrying = true
 	var old: String = OS.get_user_data_dir().get_base_dir().path_join(OLD_NAME).path_join(path.trim_prefix("user://"))
 	if old != ProjectSettings.globalize_path(path) and FileAccess.file_exists(old):
 		DirAccess.copy_absolute(old, ProjectSettings.globalize_path(path))
+
+## Set while this run is still doing its first carry-over (settings, then the save).
+static var _carrying: bool = false
+
+static func _mark_carried() -> void:
+	if not FileAccess.file_exists(CARRIED):
+		var f := FileAccess.open(CARRIED, FileAccess.WRITE)
+		if f:
+			f.store_string("Files from the Money Mercs folder were carried over (or there were none).\n")
 
 static func load_settings() -> void:
 	carry_over(PATH)
