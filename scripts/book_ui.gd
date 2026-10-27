@@ -3016,13 +3016,19 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	death_tile.value = "%d%%" % int(round(float(plan["death"]) * 100.0)) if not empty else "-"
 	death_tile.tone = "accent" if not empty and float(plan["death"]) >= 0.1 else "normal"
 	right.get_node(c + "Forecast/Time").value = "~%dm" % int(round(float(plan["duration"]) / 60.0))
+	# Rations: what this run eats out of what the guild holds; the details are in the tooltip.
 	var rations: Dictionary = plan.get("rations", {})
-	var ration_text: String = ""
-	if not empty and int(rations.get("need", 0)) > 0:
-		var packed: Array[String] = []
-		for good in rations["take"]:
-			packed.append("%d %s" % [int(rations["take"][good]), _resource_name(str(good))])
-		ration_text = "Packs %s of your %d (one a floor for each hero)%s." % [_plural(int(rations["need"]), "ration"), int(rations["have"]), (": " + ", ".join(packed)) if not packed.is_empty() else ""]
+	var ration_tile := right.get_node(c + "Forecast/Rations")
+	var meals: int = game.rations_held()
+	var short: bool = not empty and int(rations.get("short", 0)) > 0
+	ration_tile.value = ("%d of %d" % [int(rations.get("need", 0)), meals]) if not empty else str(meals)
+	ration_tile.tone = "accent" if short or meals == 0 else "normal"
+	var packed: Array[String] = []
+	for good in rations.get("take", {}):
+		packed.append("%d %s" % [int(rations["take"][good]), _resource_name(str(good))])
+	ration_tile.tooltip_text = "Each hero eats one cooked meal a floor.\n%s\nYou hold %s.%s\nCook more in the Workshop: Grilled Ash Perch (2 ash perch, 1 ashwood) or Hunter's Jerky (2 game meat, 1 ashwood)." % [
+		("This run needs %s%s." % [_plural(int(rations.get("need", 0)), "meal"), (": " + ", ".join(packed)) if not packed.is_empty() else ""]) if not empty else "Choose heroes to see what the run needs.",
+		_plural(meals, "meal"), "\nNot enough for this run." if short else ""]
 	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages cost %s." % _money(int(plan["cost"]))
 	var enter := right.get_node(c + "Go/Enter") as Button
 	var lead := right.get_node(c + "Go/Lead") as Button
@@ -3035,11 +3041,10 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		why = "Choose your heroes on the left."
 	elif str(plan["blocked"]) != "":
 		why = str(plan["blocked"])
-	elif int(rations.get("short", 0)) > 0:
-		why = game.rations_note(rations)
+	elif short:
+		why = "Not enough rations. Cook meals in the Workshop."
 	elif game.gold < int(plan["cost"]):
 		why = "Not enough gold: wages cost %s." % _money(int(plan["cost"]))
-	var note: String = ration_text if why == "" else ""
 	var price: String = _money(int(plan["cost"]) if not empty else int(d["supplies"]))
 	lead.text = "Lead them in  ·  %s" % price
 	enter.text = "Let them handle it"
@@ -3047,8 +3052,8 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	lead.disabled = why != "" or not game.lead_run().is_empty()
 	enter.pressed.connect(_enter_dungeon.bind(false))
 	lead.pressed.connect(_enter_dungeon.bind(true))
-	reason.text = why if why != "" else note
-	reason.visible = reason.text != ""
+	reason.text = why
+	reason.visible = why != ""
 
 func _set_dungeon_filter(filter: String) -> void:
 	dungeon_filter = filter

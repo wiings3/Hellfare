@@ -339,6 +339,13 @@ caption = "Back in"
 value = "0"
 tooltip_text = "Time down and back under these orders, check-ins included."
 
+[node name="Rations" parent="Margin/Content/Forecast" instance=ExtResource("1_stat_tile")]
+layout_mode = 2
+size_flags_horizontal = 3
+caption = "Rations"
+value = "0"
+tooltip_text = "Each hero eats one cooked meal a floor. Cook meals in the Workshop."
+
 [node name="Rule" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"

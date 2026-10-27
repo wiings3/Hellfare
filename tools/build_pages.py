@@ -720,6 +720,7 @@ def dungeon_pages():
     tile(s, C + "/Forecast/Haul", "Haul out", extra={"tooltip_text": "Average coin and goods carried out under these orders, after the crew's share."})
     tile(s, C + "/Forecast/Death", "Someone dies", extra={"tooltip_text": "Chance at least one of the crew dies under these orders."})
     tile(s, C + "/Forecast/Time", "Back in", extra={"tooltip_text": "Time down and back under these orders, check-ins included."})
+    tile(s, C + "/Forecast/Rations", "Rations", extra={"tooltip_text": "Each hero eats one cooked meal a floor. Cook meals in the Workshop."})
     label(s, C + "/Rule", "A death makes the heroes drop half of what they carry. If they all fall, everything stays below.", "LabelCaption", {"autowrap_mode": 3})
     spacer(s, C + "/Spacer")
     s.node(C + "/Go", "HBoxContainer", {"theme_override_constants/separation": 4})
