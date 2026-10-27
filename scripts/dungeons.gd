@@ -47,7 +47,7 @@ const DUNGEONS := {
 			 "coin": [6, 12], "loot": {"bone": [2, 4]}},
 			{"name": "Webbed Halls", "foe": "Cave spiders", "one": "Cave spider", "kind": "spider", "backdrop": "res://assets/ui/art/crawl/halls.png", "count": 2, "hp": 40, "damage": 12, "speed": 1.0, "armour": 6,
 			 "coin": [12, 22], "loot": {"spider_silk": [2, 4], "bone": [1, 3]}},
-			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "death_knight", "backdrop": "res://assets/ui/art/crawl/throne.png", "count": 1, "hp": 150, "damage": 13, "speed": 0.9, "armour": 12, "boss": true,
+			{"name": "The Bone Knight", "foe": "The Bone Knight", "kind": "death_knight", "backdrop": "res://assets/ui/art/crawl/throne.png", "count": 1, "hp": 135, "damage": 13, "speed": 0.9, "armour": 12, "boss": true,
 			 "coin": [45, 75], "loot": {"bone": [4, 7], "spider_silk": [1, 3]}, "rare": {"good": "relic", "chance": 0.08}, "blueprint": 0.2},
 		],
 	},
@@ -84,7 +84,15 @@ static func fighter(merc: Dictionary) -> Dictionary:
 		"parry": minf(0.3, Gear.base(merc, "parry") + Gear.rolled(merc, "parry") / 100.0),
 		"block": minf(0.4, Gear.base(merc, "block") + Gear.rolled(merc, "block") / 100.0),
 		"lucky": Mercs.has_trait(merc, "lucky"), "heal": int(Gear.buffs(merc, "potion").get("heal", 0)),
+		# The loadout (crawl.gd): the weapon's family gives the moves, a shield changes Guard,
+		# a lantern in the off hand adds light.
+		"weapon": str(wd.get("kind", "")) if fights else "", "shield": _off_kind(merc, "shield"),
+		"lantern": int(Gear.def(str(Gear.in_slot(merc, "off_hand").get("key", ""))).get("tier", 0)) if _off_kind(merc, "lantern") != "" else 0,
 	}
+
+static func _off_kind(merc: Dictionary, category: String) -> String:
+	var key: String = str(Gear.in_slot(merc, "off_hand").get("key", ""))
+	return str(Gear.def(key).get("kind", "")) if key != "" and Gear.category(key) == category else ""
 
 ## One floor's fight, played out by the turn engine (crawl.gd) with every hero choosing by
 ## its rules. `crew` is an array of fighter dictionaries whose "hp" is changed in place.
@@ -108,7 +116,7 @@ static func outcome(st: Dictionary) -> Dictionary:
 		if bool(c.get("saved", false)):
 			saved.append(str(c["id"]))
 	return {"result": str(st["result"]), "dead": dead, "potions": drank, "lucky": saved, "rounds": int(st["round"]),
-		"lines": Crawl.recap(st), "stats": st["stats"]}
+		"lines": Crawl.recap(st), "stats": st["stats"], "light": int(st.get("light", 0)), "oil": int(st.get("oil", 0))}
 
 ## Between floors the living bind their wounds.
 static func patch_up(crew: Array) -> void:

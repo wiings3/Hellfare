@@ -236,6 +236,20 @@ stopped mattering. The fix ties the two loops together:
 - Clearing a crypt opens the next layer's sites to crews (the Fallen Keep opens tier 2+).
 - Heroes recover at 3x worker speed (was 6x).
 
+## 7c. Combat: Light and Loadout — DECIDED
+
+Turn-based stays (it suits orders given from above, automatic runs and offline play). What makes
+it Hellfare's own:
+
+- **Loadout:** a hero's moves come from their gear. Weapon family = a free attack + a special
+  (costs light); shield type changes Guard (Block, Parry); the potion slot gives a drink; the class
+  gives a skill. Crafting decides what a hero can do. More weapons and classes, more moves.
+- **Light:** the party's lantern is the fight's clock and currency, across the whole run. Rounds,
+  specials and skills burn it; lamp oil (crews' fish oil) and lanterns restore or extend it. In
+  the dark: hidden intents, harder blows, more monsters.
+- **Intents:** every monster shows its next move from a per-kind pattern; stuns cancel it, braces
+  shrug off webs, busy monsters are open to backstabs.
+
 ## 8. Gear, crafting and the market — DECIDED
 
 - **Gold** is the money. **Goods** (ashwood, copper, spider silk, relics…) are priced in gold.

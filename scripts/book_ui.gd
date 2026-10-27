@@ -3025,6 +3025,9 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	ration_tile.tooltip_text = "Each hero eats one cooked meal a floor.\n%s\nYou hold %s.%s\nCook more in the Workshop: Grilled Ash Perch (2 ash perch, 1 ashwood) or Hunter's Jerky (2 game meat, 1 ashwood)." % [
 		("This run needs %s%s." % [_plural(int(rations.get("need", 0)), "meal"), (": " + ", ".join(packed)) if not packed.is_empty() else ""]) if not empty else "Choose heroes to see what the run needs.",
 		_plural(meals, "meal"), "\nNot enough for this run." if short else ""]
+	if not empty:
+		ration_tile.tooltip_text += "\n\nLamp oil: %s packed from the warehouse's fish oil (each brings back %d light). The lantern holds %d." % [
+			_plural(int(plan.get("oil", 0)), "flask"), Crawl.OIL_LIGHT, int(plan.get("light", Crawl.LIGHT_BASE))]
 	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages cost %s." % _money(int(plan["cost"]))
 	var enter := right.get_node(c + "Go/Enter") as Button
 	var lead := right.get_node(c + "Go/Lead") as Button
@@ -4102,7 +4105,7 @@ func _tutorial_guide(id: String) -> Dictionary:
 					return {"do": "Press Back to the guild.", "tag": "crawl:close"}
 				if str(lr["stage"]) == "led_between":
 					return {"do": "Take what you carry out (or go down, if you're feeling brave).", "tag": "crawl:leave"}
-				return {"do": "Your turn: click a monster, then Strike. Use your skill when it's ready.", "tag": "crawl:strike"}
+				return {"do": "Your turn. Each monster shows its next move above its name. Click one, then attack: the first move is free, the others spend lantern light.", "tag": "crawl:strike"}
 			if game.heroes.is_empty():
 				return {"do": "Take on a hero in Mercenaries, Heroes.", "bookmark": "roster"}
 			var h: Dictionary = game.heroes[0]

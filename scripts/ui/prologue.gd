@@ -31,10 +31,12 @@ const GATE := {
 }
 const ALDREN := {"id": "aldren", "name": "Ser Aldren Vane", "cls": "knight", "sprite": "aldren", "hero": true, "porter": false,
 	"hp": 260.0, "max_hp": 260.0, "damage": 34.0, "speed": 1.0, "crit": 0.25, "crit_damage": 2.0, "pen": 0.3, "first": 0.0,
-	"armour": 70.0, "dodge": 0.0, "parry": 0.1, "block": 0.25, "lucky": false, "heal": 80, "stun": 0.1}
+	"armour": 70.0, "dodge": 0.0, "parry": 0.1, "block": 0.25, "lucky": false, "heal": 80, "stun": 0.1,
+	"weapon": "sword", "shield": "kite_shield", "lantern": 3}
 const MIRA := {"id": "mira", "name": "Mira Holt", "cls": "rogue", "sprite": "mira", "hero": true, "porter": false,
 	"hp": 150.0, "max_hp": 150.0, "damage": 20.0, "speed": 1.6, "crit": 0.4, "crit_damage": 2.2, "pen": 0.2, "first": 0.3,
-	"armour": 30.0, "dodge": 0.25, "parry": 0.0, "block": 0.0, "lucky": false, "heal": 60, "stun": 0.0}
+	"armour": 30.0, "dodge": 0.25, "parry": 0.0, "block": 0.0, "lucky": false, "heal": 60, "stun": 0.0,
+	"weapon": "dagger", "shield": "", "lantern": 0}
 
 var game
 var crawl: Control
@@ -181,16 +183,21 @@ func _fight() -> void:
 ## A line of advice for each turn of the prologue fight.
 func _coach(st: Dictionary, hero_i: int) -> String:
 	var h: Dictionary = st["party"][hero_i]
+	var first: String = str(h["name"]).get_slice(" ", 0)
 	var foes: Array = st["foes"]
-	if foes.any(func(f): return bool(f["winding"]) and float(f["hp"]) > 0.0):
-		return "The Gatekeeper is winding up a heavy blow. Press Guard: %s will take a fraction of it." % str(h["name"]).get_slice(" ", 0)
 	var round_n: int = int(st["round"])
 	if hero_i == 0 and round_n <= 1:
-		return "Ser Aldren's turn. Click a monster to choose it, then press Strike. His greatsword cuts through their armour."
+		return "Every monster shows what it will do next, above its head. Click one to choose it, then Strike: Aldren's sword costs no light."
+	for i in Crawl.alive_idx(foes):
+		var f: Dictionary = foes[i]
+		if str(f["intent"]) == "heavy" and hero_i == 0:
+			return "The Gatekeeper is about to swing a heavy blow. Shield Bash him (2 light): a stun cancels it. Or Block, and take it on the shield."
+		if str(f["intent"]) == "heavy" and hero_i == 1:
+			return "The Gatekeeper is winding up: he's busy. Mira's Backstab hits a busy monster far harder."
 	if hero_i == 1 and round_n <= 2:
-		return "Mira is a rogue. Press Backstab: a heavy blow with twice the chance to crit."
-	if hero_i == 0 and int(h.get("cd", 0)) <= 0 and round_n <= 4:
-		return "Aldren's Shield Bash stuns a monster for a turn. Use it on the Gatekeeper."
+		return "Mira carries a dagger: Stab is free; Open a Vein (1 light) makes them bleed for three rounds."
+	if int(st["light"]) <= 6 and round_n <= 8:
+		return "The lantern burns a point every round, and specials spend it too. In the dark they hit harder: keep some light."
 	return ""
 
 # --- Your first hero ----------------------------------------------------------------

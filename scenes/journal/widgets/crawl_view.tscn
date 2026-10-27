@@ -179,7 +179,13 @@ mouse_default_cursor_shape = 2
 text = "Strike"
 custom_minimum_size = Vector2(0, 26)
 size_flags_horizontal = 3
-tooltip_text = "Hit the chosen foe: your weapon's damage, crit and armour piercing."
+
+[node name="Special" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Special"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
 
 [node name="Skill" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
 layout_mode = 2
@@ -187,7 +193,6 @@ mouse_default_cursor_shape = 2
 text = "Skill"
 custom_minimum_size = Vector2(0, 26)
 size_flags_horizontal = 3
-tooltip_text = ""
 
 [node name="Guard" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
 layout_mode = 2
@@ -195,7 +200,6 @@ mouse_default_cursor_shape = 2
 text = "Guard"
 custom_minimum_size = Vector2(0, 26)
 size_flags_horizontal = 3
-tooltip_text = "Brace until your next turn: take much less from every blow."
 
 [node name="Potion" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
 layout_mode = 2
@@ -203,7 +207,13 @@ mouse_default_cursor_shape = 2
 text = "Potion"
 custom_minimum_size = Vector2(0, 26)
 size_flags_horizontal = 3
-tooltip_text = "Drink a healing draught, if you packed one."
+
+[node name="Oil" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Oil"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
 
 [node name="Retreat" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
 layout_mode = 2
@@ -211,7 +221,6 @@ mouse_default_cursor_shape = 2
 text = "Retreat"
 custom_minimum_size = Vector2(0, 26)
 size_flags_horizontal = 3
-tooltip_text = "Leave the crypt now with what you carry."
 
 [node name="Hint" type="Label" parent="Frame/Margin/Body/Turn/Left"]
 layout_mode = 2

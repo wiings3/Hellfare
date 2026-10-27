@@ -62,6 +62,25 @@ The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DO
   the Cellars, root-choked rock for the Webbed Halls, a pillared throne hall for the Bone Knight,
   and a chained, burning cavern for the Ember Gate. Native 256×144, drawn at a whole multiple.
 
+### Combat: Light and Loadout (v0.33)
+
+- **Gear is the moveset.** A weapon gives a free plain attack and a special: a sword's Riposte, a
+  dagger's Open a Vein (bleed), an axe's Sunder (armour), a mace's Crush (stun), a spear's Sweep
+  (two foes), a greatsword's Cleave (all), a bow's Aimed Shot (ignores shields), a crossbow's
+  Pinning Bolt. A kite or tower shield turns Guard into Block, a buckler into Parry (turn a blow
+  aside and strike back). The class adds its skill: the Knight's Shield Bash (a sure stun that
+  cancels what the monster was about to do), the Rogue's Backstab (huge on a busy monster). New
+  weapons and classes add moves (`MOVES`, `CLASS_SKILLS` in `scripts/crawl.gd`).
+- **The lantern.** The party's light burns a point every round, and specials (1) and skills (2)
+  spend it. It carries from floor to floor, steadies a little on the stairs, and a lantern in the
+  off hand holds more. Lamp oil (fish oil from the warehouse, two flasks a hero) brings it back:
+  Trim the Lantern. In the dark the monsters' next moves are hidden, they hit 30% harder, and
+  more crawl out.
+- **Readable monsters.** Every monster shows its next move: skeletons attack and raise shields,
+  spiders spit web (the hero loses a turn unless braced), the Bone Knight swings heavy blows and
+  calls the dead, imps and the Gatekeeper breathe fire. Heroes left to fight alone read the same
+  intents. Balance re-run with `tools/crawl_sim.gd`.
+
 ### Guild names, faces and safer saves (v0.33)
 
 - **Name your guild** on the choice screen at the end of the prologue (a suggestion is filled in;

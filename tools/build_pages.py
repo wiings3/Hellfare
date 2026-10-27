@@ -1017,12 +1017,9 @@ def crawl_view():
     s.node(B + "/Turn/Left", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 5})
     label(s, B + "/Turn/Left/Prompt", "Your turn.", "DeskLabel", {"autowrap_mode": 3})
     s.node(B + "/Turn/Left/Actions", "HBoxContainer", {"theme_override_constants/separation": 4})
-    for name, text, tip in [("Strike", "Strike", "Hit the chosen foe: your weapon's damage, crit and armour piercing."),
-                            ("Skill", "Skill", ""),
-                            ("Guard", "Guard", "Brace until your next turn: take much less from every blow."),
-                            ("Potion", "Potion", "Drink a healing draught, if you packed one."),
-                            ("Retreat", "Retreat", "Leave the crypt now with what you carry.")]:
-        button(s, B + "/Turn/Left/Actions/" + name, text, None, {"custom_minimum_size": (0, 26), "size_flags_horizontal": 3, "tooltip_text": tip})
+    # The moves come from the hero's gear (crawl.gd): the book fills in names, costs and tips.
+    for name in ["Strike", "Special", "Skill", "Guard", "Potion", "Oil", "Retreat"]:
+        button(s, B + "/Turn/Left/Actions/" + name, name, None, {"custom_minimum_size": (0, 26), "size_flags_horizontal": 3})
     label(s, B + "/Turn/Left/Hint", "Click a monster to choose who to hit.", "DeskCaption", {"autowrap_mode": 3})
     s.node(B + "/Turn/Log", "PanelContainer", {"custom_minimum_size": (330, 0), "theme_type_variation": Raw('&"InsetPanel"')})
     s.node(B + "/Turn/Log/Margin", "MarginContainer", {"theme_override_constants/margin_left": 6, "theme_override_constants/margin_top": 4,

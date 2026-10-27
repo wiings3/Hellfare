@@ -17,7 +17,8 @@ const SCALE := 3.0
 const BOSS_SCALE := 4.0
 ## How long each kind of event holds the screen (seconds).
 const BEAT := {"hit": 0.32, "crit": 0.45, "struck": 0.32, "heavy": 0.5, "dodge": 0.26, "parry": 0.26, "kill": 0.35, "death": 0.6,
-	"stun": 0.2, "guard": 0.22, "potion": 0.3, "wind": 0.55, "lucky": 0.4, "stunned": 0.2, "round": 0.0, "end": 0.15}
+	"stun": 0.2, "guard": 0.22, "potion": 0.3, "lucky": 0.4, "stunned": 0.2, "round": 0.0, "end": 0.15,
+	"web": 0.45, "fire": 0.5, "shield": 0.3, "summon": 0.45, "spawn": 0.45, "bleed": 0.2, "oil": 0.3, "dark": 0.8, "dim": 0.3, "bleeding": 0.1, "sundered": 0.15}
 
 var game
 var target: int = -1
@@ -45,7 +46,7 @@ var coach: Callable
 @onready var stairs: Control = $Frame/Margin/Body/Stairs
 
 func _ready() -> void:
-	for id in ["Strike", "Skill", "Guard", "Potion", "Retreat"]:
+	for id in ["Strike", "Special", "Skill", "Guard", "Potion", "Oil", "Retreat"]:
 		var b := get_node("Frame/Margin/Body/Turn/Left/Actions/" + id) as Button
 		b.set_meta("tut", "crawl:" + id.to_lower())
 		b.pressed.connect(_do.bind(id.to_lower()))
@@ -116,18 +117,18 @@ func _build_cards(st: Dictionary) -> void:
 		var card := FIGHTER.instantiate()
 		party_box.add_child(card)
 		card.name = "H%d" % i
-		_paint_card(card, party[i], true)
+		_paint_card(card, party[i], true, st, i)
 	var foes: Array = st.get("foes", [])
 	for i in range(foes.size()):
 		var card := FIGHTER.instantiate()
 		foes_box.add_child(card)
 		card.name = "F%d" % i
 		card.set_meta("tut", "crawl:foe%d" % i)
-		_paint_card(card, foes[i], false)
+		_paint_card(card, foes[i], false, st, i)
 		card.gui_input.connect(_on_foe_input.bind(i))
 		card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
-func _paint_card(card: Control, f: Dictionary, hero: bool) -> void:
+func _paint_card(card: Control, f: Dictionary, hero: bool, st: Dictionary = {}, index: int = -1) -> void:
 	(card.get_node("Name") as Label).text = str(f.get("name", "?"))
 	var top: float = maxf(1.0, float(f.get("max_hp", 100.0)))
 	var hp: float = maxf(0.0, float(f.get("hp", 0.0)))
@@ -137,15 +138,38 @@ func _paint_card(card: Control, f: Dictionary, hero: bool) -> void:
 	bar.theme_type_variation = &"GreenBar" if hp / top >= 0.5 else (&"GoldBar" if hp / top >= 0.25 else &"")
 	(card.get_node("HP") as Label).text = "%d / %d" % [int(ceil(hp)), int(top)]
 	var status: Array[String] = []
-	if bool(f.get("guard", false)):
-		status.append("Guarding")
+	var guard: String = str(f.get("guard", ""))
+	if hero and guard != "" and guard != "false":
+		status.append({"block": "Blocking", "parry": "Parrying", "riposte": "Riposte ready"}.get(guard, "Guarding"))
 	if int(f.get("stun", 0)) > 0:
-		status.append("Stunned")
-	if bool(f.get("winding", false)):
-		status.append("Winding up!")
-	if hero and int(f.get("cd", 0)) > 0:
-		status.append("Skill in %d" % int(f["cd"]))
+		status.append("Stunned" if not hero else "Webbed")
+	if not hero:
+		if bool(f.get("shield_up", false)):
+			status.append("Shield up")
+		if int(f.get("bleed", 0)) > 0:
+			status.append("Bleeding")
+		if bool(f.get("sundered", false)):
+			status.append("Sundered")
 	(card.get_node("Status") as Label).text = "  ".join(status)
+	# What a monster will do next, above its name (hidden in the dark).
+	var intent := card.get_node_or_null("Intent") as Label
+	if not hero and not st.is_empty() and index >= 0:
+		if intent == null:
+			intent = Label.new()
+			intent.name = "Intent"
+			intent.theme_type_variation = &"DeskCaption"
+			intent.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			intent.add_theme_color_override("font_color", Color(1, 0.62, 0.4))
+			intent.add_theme_color_override("font_outline_color", Color(0.08, 0.04, 0.03))
+			intent.add_theme_constant_override("outline_size", 3)
+			card.add_child(intent)
+			card.move_child(intent, 0)
+		var text: String = Crawl.intent_text(st, index)
+		intent.text = "Next: " + text if text != "" else ""
+		var danger: bool = str(f.get("intent", "")) in ["heavy", "web", "fire", "summon"] and not Crawl.dark(st)
+		intent.add_theme_color_override("font_color", Color(1, 0.42, 0.3) if danger else Color(0.95, 0.85, 0.65))
+		intent.tooltip_text = _intent_tip(str(f.get("intent", ""))) if not Crawl.dark(st) else "In the dark you can't see what it will do."
+		intent.mouse_filter = Control.MOUSE_FILTER_PASS
 	var key: String = str(f.get("sprite", f.get("cls", "knight") if hero else f.get("kind", "skeleton")))
 	key = str(card.get_meta("skin", key))
 	if not CrawlSprite.has(key):
@@ -158,6 +182,14 @@ func _paint_card(card: Control, f: Dictionary, hero: bool) -> void:
 	card.size_flags_vertical = Control.SIZE_SHRINK_END
 	card.modulate = Color(1, 1, 1, 1) if hp > 0.0 else Color(0.45, 0.4, 0.4, 0.55)
 	card.tooltip_text = _fighter_tip(f, hero)
+
+func _intent_tip(intent: String) -> String:
+	return {"attack": "A plain blow at the hero shown.",
+		"heavy": "A heavy blow at the hero shown. Guard or Block it, or stun it (Shield Bash, Crush, a Pinning Bolt) to cancel it.",
+		"shield": "It will raise its shield: hits do little until its next turn, except an Aimed Shot. A busy monster: Backstab it.",
+		"web": "It will web the hero shown: they lose their next turn. Stun it or kill it first.",
+		"fire": "Fire across the whole party. Stun it to cancel, or guard.",
+		"summon": "It will call another monster to its side. Stun it to cancel."}.get(intent, "")
 
 func _fighter_tip(f: Dictionary, hero: bool) -> String:
 	if hero:
@@ -178,14 +210,17 @@ func _card(code: String) -> Control:
 	return box.get_node_or_null(code.to_upper()) as Control
 
 func _refresh_cards(st: Dictionary) -> void:
+	if foes_box.get_child_count() != (st["foes"] as Array).size() and (st["foes"] as Array).size() > 0:
+		_build_cards(st)
 	for i in range((st["party"] as Array).size()):
 		var c := _card("h%d" % i)
 		if c:
-			_paint_card(c, st["party"][i], true)
+			_paint_card(c, st["party"][i], true, st, i)
 	for i in range((st["foes"] as Array).size()):
 		var c := _card("f%d" % i)
 		if c:
-			_paint_card(c, st["foes"][i], false)
+			_paint_card(c, st["foes"][i], false, st, i)
+	_paint_light(st)
 	_mark_target(st)
 
 func _on_foe_input(event: InputEvent, i: int) -> void:
@@ -209,7 +244,6 @@ func _mark_target(st: Dictionary) -> void:
 # --- Turns -----------------------------------------------------------------------------
 
 func _update_turn(st: Dictionary) -> void:
-	round_label.text = "Round %d" % int(st.get("round", 0))
 	_refresh_cards(st)
 	var hi: int = Crawl.turn_of(st)
 	var actions := get_node("Frame/Margin/Body/Turn/Left/Actions") as Control
@@ -219,23 +253,48 @@ func _update_turn(st: Dictionary) -> void:
 		prompt.text = ""
 		return
 	var h: Dictionary = st["party"][hi]
-	var c: Dictionary = Heroes.CLASSES.get(str(h.get("cls", "")), {})
+	var shown: Array[String] = []
 	for a in Crawl.actions(st, hi):
-		var b := actions.get_node(str(a["id"]).capitalize()) as Button
+		var id: String = str(a["id"])
+		var b := actions.get_node(id.capitalize()) as Button
+		shown.append(id.capitalize())
 		b.disabled = busy or not bool(a["ok"])
-		if str(a["id"]) == "skill":
-			b.text = str(a["label"]) if bool(a["ok"]) else "%s (%s)" % [str(a["label"]), str(a["why"]).to_lower()]
-			b.tooltip_text = "%s: %s Then it needs %d turns to ready again." % [str(c.get("skill_name", "Skill")), str(c.get("skill_text", "")), Crawl.SKILL_COOLDOWN]
-		elif str(a["id"]) == "potion":
-			b.text = "Potion" if bool(a["ok"]) else "Potion (%s)" % str(a["why"]).to_lower()
-	var foes: Array = st["foes"]
-	var winding: bool = foes.any(func(f): return bool(f["winding"]) and float(f["hp"]) > 0.0)
-	prompt.text = "%s's turn.%s" % [str(h["name"]), "  Something is winding up a heavy blow: Guard!" if winding else ""]
+		var cost: int = int(a.get("cost", 0))
+		b.text = str(a["label"]) + (("  ·  %d light" % cost) if cost > 0 else "")
+		if not bool(a["ok"]) and str(a["why"]) != "" and id in ["potion", "oil"]:
+			b.text = "%s (%s)" % [str(a["label"]), str(a["why"]).to_lower()]
+		b.tooltip_text = str(a.get("text", ""))
+		# Drink and Trim only show when they could ever be used this fight.
+		b.visible = not (id == "oil" and int(st.get("oil", 0)) <= 0) and not (id == "potion" and int(h.get("heal", 0)) <= 0 and not bool(h.get("drank", false)))
+		if id == "retreat":
+			b.visible = custom_fight.is_empty()
+	for b in actions.get_children():
+		if not shown.has(str(b.name)):
+			(b as Button).visible = false
+	var danger: String = ""
+	for i in Crawl.alive_idx(st["foes"]):
+		if not Crawl.dark(st) and str(st["foes"][i]["intent"]) == "heavy" and int(st["foes"][i]["intent_target"]) == hi:
+			danger = "  %s is about to land a heavy blow on them." % str(st["foes"][i]["name"])
+	prompt.text = "%s's turn.%s" % [str(h["name"]), danger if danger != "" else ("  It's dark: you can't see what's coming." if Crawl.dark(st) else "")]
 	if coach.is_valid():
 		var advice: String = str(coach.call(st, hi))
 		if advice != "":
 			prompt.text = advice
 	_set_hint()
+
+## The lantern: light left (and oil) by the round counter, and the arena dims as it burns down.
+func _paint_light(st: Dictionary) -> void:
+	if not st.has("light"):
+		round_label.text = "Round %d" % int(st.get("round", 0))
+		back.modulate = Color(1, 1, 1)
+		return
+	var light: int = int(st["light"])
+	var top: int = maxi(1, int(st.get("light_max", 1)))
+	round_label.text = "Round %d  ·  Light %d / %d%s" % [int(st.get("round", 0)), light, top, ("  ·  Oil %d" % int(st["oil"])) if int(st.get("oil", 0)) > 0 else ""]
+	round_label.tooltip_text = "The lantern burns a point every round; specials and skills spend more. In the dark you can't see what the monsters will do, they hit harder, and more crawl out. Lamp oil (fish oil) brings it back."
+	round_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	var f: float = 0.35 if light <= 0 else lerpf(0.55, 1.0, clampf(float(light) / float(top), 0.0, 1.0))
+	back.modulate = Color(f, f * 0.95, f * 0.9)
 
 func _set_hint() -> void:
 	var st: Dictionary = _fight()
@@ -328,17 +387,35 @@ func _play(events: Array, st: Dictionary) -> void:
 			"potion":
 				_float(src, "+%d" % int(e["amount"]), Color(0.55, 1.0, 0.55), false)
 				Sound.play("drink")
-			"wind":
-				callout.text = str(e["text"])
-				Sound.play("wind_up")
 			"lucky":
 				_float(src, "Lucky!", Color(1, 0.9, 0.5), true)
+			"web":
+				_lunge(src, -1)
+				_animate(src, "skill")
+				_float(dst, "Webbed", Color(0.85, 0.85, 0.95), false)
+				Sound.play("blocked")
+			"fire":
+				_animate(src, "skill")
+				_shake()
+				Sound.play("wind_up")
+			"shield":
+				_float(src, "Shield up", Color(0.75, 0.85, 1.0), false)
+				Sound.play("guard_up")
+			"summon", "spawn":
+				Sound.play("wind_up")
+			"bleed":
+				_flash(dst)
+				_float(dst, "%d" % int(e["amount"]), Color(0.9, 0.25, 0.25), false)
+			"oil":
+				_float(src, "+%d light" % int(e["amount"]), Color(1, 0.85, 0.45), false)
+				Sound.play("drink")
+			"dark", "dim":
+				callout.text = str(e["text"]) if kind == "dark" else ""
+				Sound.play("wind_up")
 		_refresh_cards(st)
 		if beat > 0.0:
 			await get_tree().create_timer(beat).timeout
-		if kind == "wind":
-			pass
-		elif kind in ["hit", "crit", "struck", "heavy"] and callout.text != "" and not (st["foes"] as Array).any(func(f): return bool(f["winding"])):
+		if kind in ["hit", "crit", "struck", "heavy"] and callout.text != "":
 			callout.text = ""
 	if Crawl.done(st):
 		match str(st["result"]):

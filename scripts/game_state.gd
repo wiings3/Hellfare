@@ -774,6 +774,9 @@ func crypt_starts(dungeon_id: String) -> int:
 	var floors: int = (Dungeons.by_id(dungeon_id).get("floors", []) as Array).size()
 	return clampi(int(crypt_cleared.get(dungeon_id, -1)) + 2, 1, floors)
 
+## On the stairs between floors the party catches its breath and the lantern steadies a little.
+const STAIRS_LIGHT := 2
+
 ## Cooked meals in the warehouse: every one is a ration.
 func rations_held() -> int:
 	var n: int = 0
@@ -843,9 +846,11 @@ func dungeon_forecast(dungeon_id: String, ids: Array[String], depth: int, turn_b
 	var n: int = depth - start
 	var time: int = n * Dungeons.FLOOR_TIME + (n - 1) * Dungeons.CHECKIN + depth * Dungeons.WALK_TIME
 	var rations: Dictionary = crypt_rations(fighters.size(), n)
+	# Lamp oil: fish oil from the warehouse, a couple of flasks for each hero.
+	var oil: int = mini(int(resources.get("fish_oil", 0)), Crawl.OIL_PER_HERO * fighters.size())
 	return {"dungeon": dungeon_id, "odds": f["odds"], "death": f["death"], "haul": int(round(float(f["haul"]) * (1.0 - share))),
 		"floors": f["floors"], "cost": int(d.get("supplies", 0)) + wages, "duration": time, "share": share,
-		"blocked": blocked, "fighters": fighters, "depth": depth, "start": start, "rations": rations}
+		"blocked": blocked, "fighters": fighters, "depth": depth, "start": start, "rations": rations, "oil": oil, "light": Crawl.light_max(fighters)}
 
 func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_back: String, risk: String = "safe", led: bool = false, start: int = 0) -> String:
 	var d: Dictionary = Dungeons.by_id(dungeon_id)
@@ -875,6 +880,7 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 	gold -= int(plan["cost"])
 	for good in rations["take"]:
 		resources[good] = int(resources.get(str(good), 0)) - int(rations["take"][good])
+	resources["fish_oil"] = int(resources.get("fish_oil", 0)) - int(plan["oil"])
 	var now := GameClock.now()
 	var key := "job_%d" % next_mission_id
 	next_mission_id += 1
@@ -894,7 +900,7 @@ func dungeon_dispatch(dungeon_id: String, ids: Array[String], depth: int, turn_b
 		"stage": "floor", "floor_i": int(plan["start"]), "start_floor": int(plan["start"]), "floor_end": now + Dungeons.FLOOR_TIME, "await_until": 0,
 		"hp": hp, "heal": heal, "lucky": lucky, "drank": [], "carry": {}, "dropped": {}, "log": [], "dead": [],
 		"overrode": -1, "risk": "bold" if risk == "bold" else "safe", "ev": [], "ev_log": [], "event_gear": [],
-		"buff": {}, "weaken": 0, "ally": false, "bonus_xp": 0,
+		"buff": {}, "weaken": 0, "ally": false, "bonus_xp": 0, "light": -1, "oil": int(plan["oil"]),
 	}
 	if led:
 		mission["stage"] = "led"
@@ -1210,6 +1216,10 @@ func _floor_setup(m: Dictionary) -> Dictionary:
 		c["armour"] = float(c["armour"]) + float(buff.get("armour", 0.0))
 	var foes: Dictionary = floor.duplicate()
 	foes["hp"] = float(floor["hp"]) * (1.0 - float(m.get("weaken", 0)) / 100.0)
+	# The lantern carries from floor to floor (full at the start of a run).
+	if int(m.get("light", -1)) >= 0:
+		foes["light"] = int(m["light"])
+	foes["oil"] = int(m.get("oil", 0))
 	var ally: bool = bool(m.get("ally", false))
 	if ally:
 		crew_now.append({"id": "ally", "name": "The stranger", "porter": false, "hp": 70.0, "max_hp": 70.0, "damage": 10.0 + 4.0 * float(d.get("tier", 1)),
@@ -1230,6 +1240,9 @@ func _floor_settle(m: Dictionary, setup: Dictionary, r: Dictionary, t: int) -> v
 	var rng: RandomNumberGenerator = setup["rng"]
 	var led: bool = bool(m.get("led", false))
 	var crew_now: Array = setup["crew"]
+	if r.has("light"):
+		m["light"] = int(r["light"]) + STAIRS_LIGHT
+		m["oil"] = int(r["oil"])
 	for c in crew_now.duplicate():
 		if str(c.get("id", "")) == "ally":
 			crew_now.erase(c)
