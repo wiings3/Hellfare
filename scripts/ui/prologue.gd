@@ -41,6 +41,8 @@ var crawl: Control
 var replay: bool = false
 var hero_class: String = ""
 var hero_name: String = ""
+## The new guild's name, from the box on the choice screen.
+var guild_name: String = ""
 var _won: bool = false
 var _skipped: bool = false
 var _names_rng := RandomNumberGenerator.new()
@@ -69,6 +71,8 @@ func _ready() -> void:
 		(get_node("Choice/Options/%s/Margin/Body/Skill" % cls) as Label).text = "%s: %s" % [str(c["skill_name"]), str(c["skill_text"])]
 		(get_node("Choice/Options/%s/Margin/Body/Wants" % cls) as Label).text = "Gets the most from %s." % str(c["wants"])
 	(get_node("Choice/NameRow/Another") as Button).pressed.connect(_reroll_name)
+	(get_node("Choice/GuildRow/Another") as Button).pressed.connect(_reroll_guild)
+	(get_node("Choice/GuildRow/Name") as LineEdit).text_changed.connect(func(_t: String) -> void: _check_guild())
 
 ## Leaving the tree mid-story (quitting from the prologue): let the waiting steps run out, so
 ## nothing is left suspended holding the guild.
@@ -197,6 +201,7 @@ func _show_choice() -> void:
 	choice.modulate.a = 0.0
 	_names_rng.seed = Time.get_ticks_usec()
 	_reroll_name()
+	_reroll_guild()
 	var tw := create_tween()
 	tw.tween_property(choice, "modulate:a", 1.0, 0.5)
 
@@ -204,7 +209,20 @@ func _reroll_name() -> void:
 	hero_name = Names.pick(_names_rng)
 	(get_node("Choice/NameRow/Name") as Label).text = hero_name
 
+func _reroll_guild() -> void:
+	(get_node("Choice/GuildRow/Name") as LineEdit).text = Names.guild(_names_rng)
+	_check_guild()
+
+## A guild needs a name before a hero can be chosen.
+func _check_guild() -> void:
+	var ok: bool = (get_node("Choice/GuildRow/Name") as LineEdit).text.strip_edges().length() >= 2
+	for cls in ["Knight", "Rogue"]:
+		var b := get_node("Choice/Options/%s/Margin/Body/Choose" % cls) as Button
+		b.disabled = not ok
+		b.tooltip_text = "" if ok else "Name your guild first."
+
 func _choose(cls: String) -> void:
+	guild_name = (get_node("Choice/GuildRow/Name") as LineEdit).text.strip_edges()
 	hero_class = cls
 	Sound.play("hire")
 	_finish()

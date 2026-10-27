@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bh1euj5tuv3i4"
-path="res://.godot/imported/scout_bust.png-9ad92f971790bd193c50d9c2ec34c218.ctex"
+uid="uid://nu6act1a3q3q"
+path="res://.godot/imported/peasant_1.png-9c37e470ef177d2dbabcd0300d5db648.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/portraits/scout_bust.png"
-dest_files=["res://.godot/imported/scout_bust.png-9ad92f971790bd193c50d9c2ec34c218.ctex"]
+source_file="res://assets/ui/portraits/has/peasant_1.png"
+dest_files=["res://.godot/imported/peasant_1.png-9c37e470ef177d2dbabcd0300d5db648.ctex"]
 
 [params]
 

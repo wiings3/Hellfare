@@ -34,6 +34,19 @@ FIGHTERS = {
     "devil": ("dark bastion", "devil", 0),
 }
 ROWS = {"idle": 0, "attack": 2, "hurt": 3, "death": 4}
+# Faces for the roster (32x32 icons): workers get one of these by their id; heroes by class.
+PORTRAITS = {
+    "peasant_0": ("castle", "peasant", 0), "peasant_1": ("castle", "peasant", 1),
+    "monk_0": ("castle", "monk", 0), "pikeman_0": ("castle", "pikeman", 0), "pikeman_1": ("castle", "pikeman", 1),
+    "archer_0": ("castle", "archer", 0), "archer_1": ("castle", "archer", 1),
+    "swordsman_0": ("castle", "swordsman", 0),
+    "dwarf_0": ("great elf", "dwarf", 0), "dwarf_1": ("great elf", "dwarf", 1),
+    "druid_0": ("great elf", "druid", 0), "druid_1": ("great elf", "druid", 1),
+    "hunter_0": ("great elf", "hunter", 0), "hunter_1": ("great elf", "hunter", 1),
+    "gremlin_0": ("wizards", "gremlin", 0), "gremlin_1": ("wizards", "gremlin", 1),
+    "shaman_0": ("stronghold", "shaman", 0), "shaman_1": ("stronghold", "shaman", 1),
+    "mage_1": ("wizards", "mage", 1),
+}
 
 
 def main(src):
@@ -46,6 +59,11 @@ def main(src):
         anims["skill"] = 5 if rows > 5 else 2
         for name, row in anims.items():
             sheet.crop((0, row * CELL, sheet.width, (row + 1) * CELL)).save(os.path.join(OUT, "%s_%s.png" % (key, name)))
+    faces = os.path.join(ROOT, "assets", "ui", "portraits", "has")
+    os.makedirs(faces, exist_ok=True)
+    for key, (faction, unit, variant) in PORTRAITS.items():
+        path = glob.glob(os.path.join(glob.escape(os.path.join(src, faction, unit)), "icon_*_%d_32x32.png" % variant))[0]
+        Image.open(path).convert("RGBA").save(os.path.join(faces, key + ".png"))
     for cls in ["knight", "rogue"]:
         frame = Image.open(os.path.join(OUT, "%s_idle.png" % cls)).crop((0, 0, CELL, CELL))
         box = frame.getbbox()

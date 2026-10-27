@@ -6,6 +6,7 @@ extends Control
 
 signal quit_requested
 signal replay_tutorial_requested
+signal rename_requested(new_name: String)
 
 const FRAMES := "res://assets/ui/book/close/"
 const FRAME_COUNT := 6
@@ -41,6 +42,8 @@ var _hidden: Dictionary = {}
 @onready var animation_toggle: Button = $Cover/Plate/Margin/Content/Settings/Animations/Toggle
 @onready var sound_button: Button = $Cover/Plate/Margin/Content/Settings/SoundButton
 @onready var replay_button: Button = $Cover/Plate/Margin/Content/Settings/ReplayTutorial
+@onready var guild_box: LineEdit = $Cover/Plate/Margin/Content/Settings/Guild/Name
+@onready var rename_button: Button = $Cover/Plate/Margin/Content/Settings/Guild/Rename
 @onready var sound_view: Control = $Cover/Plate/Margin/Content/Sound
 @onready var sound_back: Button = $Cover/Plate/Margin/Content/Sound/Back
 @onready var away_toggle: Button = $Cover/Plate/Margin/Content/Sound/Away/Toggle
@@ -64,12 +67,19 @@ func _ready() -> void:
 		resume()
 		replay_tutorial_requested.emit())
 	sound_back.pressed.connect(_show_sound.bind(false))
+	rename_button.pressed.connect(func() -> void: rename_requested.emit(guild_box.text))
+	guild_box.text_submitted.connect(func(t: String) -> void: rename_requested.emit(t))
 	away_toggle.toggled.connect(_set_alerts_away)
 	for group in GameSettings.VOLUME_DEFAULTS:
 		var row := sound_view.get_node(str(group))
 		var slider := row.get_node("Slider") as HSlider
 		slider.value_changed.connect(_slide_volume.bind(str(group)))
 		slider.drag_ended.connect(func(_changed: bool) -> void: _volume_set(str(group)))
+
+## The book tells the menu the guild's current name (Settings shows it to edit).
+func show_guild_name(n: String) -> void:
+	if guild_box and not guild_box.has_focus():
+		guild_box.text = n
 
 func is_open() -> bool:
 	return state != State.CLOSED

@@ -79,6 +79,13 @@ jobs:
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/crawl.log; then exit 1; fi
           grep -F 'Crawl checks passed.' /tmp/crawl.log
 
+      - name: Saves (write-then-swap, backup, damaged saves kept, guild name)
+        run: |
+          set -o pipefail
+          timeout 60s godot --headless --path . --script res://tests/save_test.gd 2>&1 | tee /tmp/save.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/save.log; then exit 1; fi
+          grep -F 'Save checks passed.' /tmp/save.log
+
       - name: Crypt event card (shows, answers, fits its result)
         run: |
           set -o pipefail

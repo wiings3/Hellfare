@@ -45,17 +45,11 @@ const ROW_EMPTY_EXPEDITION := preload("res://scenes/journal/rows/empty_expeditio
 const ROW_NEED := preload("res://scenes/journal/rows/need_row.tscn")
 const ITEM_SLOT := preload("res://scenes/journal/widgets/item_slot.tscn")
 
-const BUSTS := {
-	"Labourer": preload("res://assets/ui/portraits/scout_bust.png"),
-	"Woodcutter": preload("res://assets/ui/portraits/miner_bust.png"),
-	"Miner": preload("res://assets/ui/portraits/miner_bust.png"),
-	"Guard": preload("res://assets/ui/portraits/guard_bust.png"),
-	"Scout": preload("res://assets/ui/portraits/scout_bust.png"),
-	"Forager": preload("res://assets/ui/portraits/scout_bust.png"),
-	"Angler": preload("res://assets/ui/portraits/scout_bust.png"),
-	"Hunter": preload("res://assets/ui/portraits/scout_bust.png"),
-	"Farmhand": preload("res://assets/ui/portraits/miner_bust.png"),
-}
+## Faces (Heroic Asset Series portraits, assets/ui/portraits/has/): each worker keeps the one
+## their id picks; heroes wear their class's.
+const FACES := ["peasant_0", "peasant_1", "monk_0", "pikeman_0", "pikeman_1", "archer_1", "dwarf_0", "dwarf_1",
+	"druid_0", "druid_1", "hunter_0", "hunter_1", "gremlin_0", "gremlin_1", "shaman_0", "shaman_1", "mage_1"]
+const HERO_FACES := {"knight": "swordsman_0", "rogue": "archer_0"}
 const ROLE_ICONS := {
 	"Labourer": preload("res://assets/ui/icons/herbs.png"),
 	"Miner": preload("res://assets/ui/icons/pickaxe.png"),
@@ -127,7 +121,7 @@ func _refresh() -> void:
 	_clear(left_leaf)
 	_clear(right_leaf)
 	_restore_tab_art()
-	title_label.text = str(PAGE_TITLES.get(page, "The Guild"))
+	title_label.text = game.display_name() if page == "hq" else str(PAGE_TITLES.get(page, "The Guild"))
 	_set_ambience()
 	_update_tutorial.call_deferred()
 	if page == "harlow":
@@ -683,8 +677,14 @@ func _merc_status(merc: Dictionary) -> Array:
 		return ["Resting  ·  full in " + _duration(MoneyMercsState.rest_eta(merc)), &"LabelAccent"]
 	return ["Ready", &"LabelGood"]
 
-func _set_bust(rect: TextureRect, role: String) -> void:
-	rect.texture = BUSTS.get(role, BUSTS["Scout"])
+## A person's face: heroes by class, everyone else by their id (the same face every time).
+func _face_of(person: Dictionary) -> Texture2D:
+	var key: String = str(HERO_FACES.get(Heroes.cls(person), "swordsman_0")) if Heroes.is_hero(person) else str(FACES[posmod(str(person.get("id", person.get("name", ""))).hash(), FACES.size())])
+	return load("res://assets/ui/portraits/has/%s.png" % key) as Texture2D
+
+func _set_bust(rect: TextureRect, person: Dictionary) -> void:
+	rect.texture = _face_of(person)
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 
 # --- Item lookup ----------------------------------------------------------------
 # Click any item icon in the book: what it is, where it comes from and what it's for.
@@ -957,11 +957,7 @@ func _draw_employees() -> void:
 		return
 	var hero: bool = Heroes.is_hero(merc)
 	var role: String = Heroes.class_name_of(merc) if hero else Mercs.role_of(merc)
-	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, role)
-	if hero:
-		var bust := right.get_node(c + "Head/Portrait/Bust") as TextureRect
-		bust.texture = load("res://assets/ui/crawl/%s.png" % Heroes.cls(merc)) as Texture2D
-		bust.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, merc)
 	(right.get_node(c + "Head/Id/Name") as Label).text = str(merc.get("name", ""))
 	var origin: String = ""
 	if merc.has("background"):
@@ -1311,7 +1307,7 @@ func _draw_recruitment() -> void:
 		return
 	var role: String = Mercs.role_of(chosen)
 	var contract: bool = str(chosen.get("kind", "")) == "contract"
-	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, role)
+	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, chosen)
 	(right.get_node(c + "Head/Id/Name") as Label).text = str(chosen["name"])
 	(right.get_node(c + "Head/Id/Title") as Label).text = ("Contract from %s" % str(chosen.get("from", "a guild"))) if contract else Mercs.title(chosen)
 	(right.get_node(c + "Head/Id/Status/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
@@ -3897,8 +3893,12 @@ func _start_prologue() -> void:
 
 func _prologue_done(hero_class: String, hero_name: String) -> void:
 	_prologue_running = false
+	var prologue := stage.get_node_or_null("PrologueView")
+	if hero_class != "" and prologue != null and str(prologue.get("guild_name")) != "":
+		game.set_guild_name(str(prologue.get("guild_name")))
 	if hero_class != "" and game.heroes.is_empty():
 		_action(game.found_hero(hero_class, hero_name))
+	_sync_guild_name()
 	Tutorial.press(game)
 	game.save_game()
 	_tutorial_shown = ""
@@ -3906,6 +3906,17 @@ func _prologue_done(hero_class: String, hero_name: String) -> void:
 		_turn_to("hq")
 	else:
 		_refresh()
+
+## Settings: rename the guild.
+func _rename_guild(text: String) -> void:
+	_action(game.set_guild_name(text))
+	_sync_guild_name()
+	_refresh()
+
+## Keep the Settings box showing the guild's name.
+func _sync_guild_name() -> void:
+	if pause_menu != null and pause_menu.has_method("show_guild_name"):
+		pause_menu.show_guild_name(game.guild_name)
 
 func _tutorial_card() -> Control:
 	return stage.get_node_or_null("TutorialCard") as Control if is_instance_valid(stage) else null

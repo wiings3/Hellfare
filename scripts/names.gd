@@ -80,3 +80,14 @@ const LAST := [
 static func pick(rng: RandomNumberGenerator) -> String:
 	var firsts: Array = MALE if rng.randf() < 0.5 else FEMALE
 	return str(firsts[rng.randi_range(0, firsts.size() - 1)]) + " " + str(LAST[rng.randi_range(0, LAST.size() - 1)])
+
+## Guild names for the prologue's suggestion ("The Ashen Lanterns", "Cinder Oath").
+const GUILD_FIRST := ["Ashen", "Ember", "Cinder", "Iron", "Last", "Soot", "Red", "Hollow", "Lantern", "Brimstone",
+	"Pale", "Sable", "Crimson", "Smoke", "Gallows", "Candle", "Ironbound", "Lost", "Sworn"]
+const GUILD_SECOND := ["Lanterns", "Oath", "Company", "Wardens", "Hand", "Brotherhood", "Covenant", "Watch", "Delvers", "Torches",
+	"Guild", "Banner", "Vigil", "Pact", "Descent", "Keepers", "Kindred", "Coin"]
+
+static func guild(rng: RandomNumberGenerator) -> String:
+	var a: String = GUILD_FIRST[rng.randi_range(0, GUILD_FIRST.size() - 1)]
+	var b: String = GUILD_SECOND[rng.randi_range(0, GUILD_SECOND.size() - 1)]
+	return ("The %s %s" % [a, b]) if rng.randf() < 0.6 else "%s %s" % [a, b]

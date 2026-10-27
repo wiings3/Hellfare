@@ -62,6 +62,17 @@ The first hour, rebuilt around a hero you can play (design: `docs/GAME_DESIGN_DO
   the Cellars, root-choked rock for the Webbed Halls, a pillared throne hall for the Bone Knight,
   and a chained, burning cavern for the Ember Gate. Native 256×144, drawn at a whole multiple.
 
+### Guild names, faces and safer saves (v0.33)
+
+- **Name your guild** on the choice screen at the end of the prologue (a suggestion is filled in;
+  "Another name" rolls a new one). The name heads the Guild page and can be changed in Settings.
+- **Faces** on the roster come from the Heroic Creature Pack's portraits: each worker keeps the
+  same face, picked from their id; knights and rogues wear their class's.
+- **Saves are write-then-swap**: a new save is written beside the old one, read back, and only
+  then swapped in; the previous save is kept as a `.bak`. If the save can't be read, the backup is
+  loaded and the damaged file is kept aside as `.damaged-<time>`, never overwritten. `tests/save_test.gd`
+  checks all of it on its own save file.
+
 ### Crews feed the hero (v0.33, after the first playtest)
 
 Running crypts and buying everything made crews pointless. Now the two loops need each other:

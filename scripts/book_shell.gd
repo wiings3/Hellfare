@@ -107,6 +107,8 @@ func _build_shell() -> void:
 	else:
 		pause_menu.quit_requested.connect(_save_and_quit)
 		pause_menu.replay_tutorial_requested.connect(func() -> void: call("_replay_tutorial"))
+		pause_menu.rename_requested.connect(func(n: String) -> void: call("_rename_guild", n))
+		call_deferred("call", "_sync_guild_name")
 	tab_overlay = stage.get_node("PinnedBookTabs") as TextureRect
 	tab_icons_layer = stage.get_node("ChapterIcons") as Control
 	header_gold = money_label

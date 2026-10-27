@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcqepou1auhvm"
-path="res://.godot/imported/guard_bust.png-c55f5270fdfd4a3261e6614b8f7933e7.ctex"
+uid="uid://i4fvkplu7mul"
+path="res://.godot/imported/druid_0.png-71e440c99acaf32196353228e43a4c5f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/portraits/guard_bust.png"
-dest_files=["res://.godot/imported/guard_bust.png-c55f5270fdfd4a3261e6614b8f7933e7.ctex"]
+source_file="res://assets/ui/portraits/has/druid_0.png"
+dest_files=["res://.godot/imported/druid_0.png-71e440c99acaf32196353228e43a4c5f.ctex"]
 
 [params]
 

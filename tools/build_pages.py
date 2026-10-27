@@ -1082,6 +1082,11 @@ def prologue_view():
         label(s, o + "/Margin/Body/Skill", "", "LabelAccent", {"autowrap_mode": 3})
         label(s, o + "/Margin/Body/Wants", "", "LabelCaption", {"autowrap_mode": 3})
         button(s, o + "/Margin/Body/Choose", "Choose the " + cls.lower(), None, {"custom_minimum_size": (0, 26)})
+    s.node("Choice/GuildRow", "HBoxContainer", {"alignment": 1, "theme_override_constants/separation": 8})
+    label(s, "Choice/GuildRow/Caption", "Your new guild:", "DeskCaption", {"size_flags_vertical": 4})
+    s.node("Choice/GuildRow/Name", "LineEdit", {"custom_minimum_size": (200, 22), "max_length": 28, "placeholder_text": "Name your guild",
+        "tooltip_text": "What Last Lantern will call you. You can change it later in Settings."})
+    button(s, "Choice/GuildRow/Another", "Another name", "TextButton")
     s.node("Choice/NameRow", "HBoxContainer", {"alignment": 1, "theme_override_constants/separation": 8})
     label(s, "Choice/NameRow/Caption", "Their name:", "DeskCaption", {"size_flags_vertical": 4})
     label(s, "Choice/NameRow/Name", "Brannoc Ashby", "DeskLabel", {"size_flags_vertical": 4})

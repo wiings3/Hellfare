@@ -4,7 +4,7 @@ Hellfare is made by its developer with Claude.
 
 ## Art
 
-- **Crypt fighters** (heroes and monsters on the crawl screen): *Heroic Asset Series: Creature
+- **Crypt fighters and character portraits** (the crawl screen, and every face on the roster): *Heroic Asset Series: Creature
   Pack* by **Aleksandr Makarov** (iknowkingrabbit), https://iknowkingrabbit.itch.io/heroic-creature-pack.
   Used under the pack's license, which requires this credit in the game.
 - **Crawl backgrounds** (assets/ui/art/crawl/): *Hellwake* and *Underfire* by **Firepious**,

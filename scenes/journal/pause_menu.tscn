@@ -133,6 +133,24 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "On"
 
+[node name="Guild" type="HBoxContainer" parent="Cover/Plate/Margin/Content/Settings"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Name" type="LineEdit" parent="Cover/Plate/Margin/Content/Settings/Guild"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+size_flags_horizontal = 3
+tooltip_text = "Your guild's name"
+placeholder_text = "Guild name"
+max_length = 28
+
+[node name="Rename" type="Button" parent="Cover/Plate/Margin/Content/Settings/Guild"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+theme_type_variation = &"PaperButton"
+text = "Rename"
+
 [node name="ReplayTutorial" type="Button" parent="Cover/Plate/Margin/Content/Settings"]
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2

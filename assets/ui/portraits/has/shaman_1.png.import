@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://kad2ic2q7ao8"
-path="res://.godot/imported/miner.png-46420686b021a6bd851fc19eefbbdadf.ctex"
+uid="uid://bxq12x3jndgng"
+path="res://.godot/imported/shaman_1.png-5722730943829eef5d19a18ad3ec0ebb.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/portraits/miner.png"
-dest_files=["res://.godot/imported/miner.png-46420686b021a6bd851fc19eefbbdadf.ctex"]
+source_file="res://assets/ui/portraits/has/shaman_1.png"
+dest_files=["res://.godot/imported/shaman_1.png-5722730943829eef5d19a18ad3ec0ebb.ctex"]
 
 [params]
 

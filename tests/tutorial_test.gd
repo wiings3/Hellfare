@@ -230,8 +230,15 @@ func _run() -> void:
 		await _settle(ui)
 		check(_points_at(ui, pointer, "equip:" + learn_key), "and at Equip (%s)" % do_text.text)
 	Tutorial.skip(gm)
-	# Settings > Replay tutorial brings it back as a tour: the prologue first, nothing founded.
+	# The guild was named on the choice screen; Settings can rename it.
 	var pm = ui.find_child("PauseMenu", true, false)
+	check(ui.game.guild_name.length() >= 2 and (pm.get_node("Cover/Plate/Margin/Content/Settings/Guild/Name") as LineEdit).text == ui.game.guild_name,
+		"the guild has the name from the choice screen, and Settings shows it (%s)" % ui.game.guild_name)
+	(pm.get_node("Cover/Plate/Margin/Content/Settings/Guild/Name") as LineEdit).text = "Soot Covenant"
+	(pm.get_node("Cover/Plate/Margin/Content/Settings/Guild/Rename") as Button).pressed.emit()
+	await process_frame
+	check(ui.game.guild_name == "Soot Covenant", "Rename in Settings renames the guild")
+	# Settings > Replay tutorial brings it back as a tour: the prologue first, nothing founded.
 	(pm.get_node("Cover/Plate/Margin/Content/Settings/ReplayTutorial") as Button).pressed.emit()
 	await create_timer(0.4).timeout
 	ui._update_tutorial()

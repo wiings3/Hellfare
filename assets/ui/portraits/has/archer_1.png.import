@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://m74y6dl0jkye"
-path="res://.godot/imported/guard.png-76f7cc92ee9e26100e67c00c62152000.ctex"
+uid="uid://qqfljaen1uxy"
+path="res://.godot/imported/archer_1.png-0c5e93ff053e0de1241a2aeb893af321.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/portraits/guard.png"
-dest_files=["res://.godot/imported/guard.png-76f7cc92ee9e26100e67c00c62152000.ctex"]
+source_file="res://assets/ui/portraits/has/archer_1.png"
+dest_files=["res://.godot/imported/archer_1.png-0c5e93ff053e0de1241a2aeb893af321.ctex"]
 
 [params]
 
