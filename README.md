@@ -33,6 +33,25 @@ It replaces the Ledger's Warehouse tab and the Workshop's Storeroom.
   or pack food for a trip, sell or repair gear, open a wearer's Gear page.
 - Every old way in (the Guild page's Warehouse tile, the town on the map) opens it.
 
+## V0.31 – Names and new expedition art
+
+**Names.** Applicants now draw from 200 men's names, 200 women's names and 350 family names
+(`scripts/names.gd`), about 140,000 combinations instead of 240. A name is chosen when the person
+is made and saved with them, so people already in a save keep theirs.
+
+**Expedition banners.** All 23 site and crypt banners were repainted by `tools/paint_sites.py`
+(which replaces `paint_hell_sites.py` and `paint_trade_sites.py`). Each banner is built like a
+stage set: a sky with drifting smoke, silhouette layers that fade into the haze with distance, lit
+by the scene's lights (a rim on the edges that face them, a wash on what's near), then glowing
+things (embers, lava, windows, lanterns) that light their surroundings. Lakes and pools mirror
+the sky. Every scene has Hellfarers at work in it: woodcutters, miners, foragers, anglers,
+hunters, a crew on the road to the Fallen Keep. The farms above ground are dusk over Last Lantern,
+with the Maw's glow on the horizon. The painter reduces each picture to 48 colours with an ordered
+dither, and keeps what matters between y 20 and 105, clear of the badge in the bottom-right corner.
+
+    python3 tools/paint_sites.py                       # repaint every banner
+    python3 tools/paint_sites.py sheet.png weepingwood # one banner, plus a contact sheet
+
 ## V0.30 – First-launch tutorial
 
 A new guild gets a short tutorial: a card in the bottom right of the book walks through the first

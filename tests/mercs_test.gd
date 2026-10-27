@@ -22,6 +22,23 @@ func _initialize() -> void:
 	var g := MoneyMercsState.new()
 	g.reset_company()
 
+	# Names: 200 men's, 200 women's and 350 family names, no repeats, both kinds turning up.
+	check(Names.MALE.size() >= 200 and Names.FEMALE.size() >= 200 and Names.LAST.size() >= 350, "the name lists are full")
+	var seen: Dictionary = {}
+	for n in Names.MALE + Names.FEMALE + Names.LAST:
+		check(not seen.has(n) or n in Names.LAST, "%s is listed once as a first name" % n)
+		seen[n] = true
+	var name_rng := RandomNumberGenerator.new()
+	name_rng.seed = 7
+	var men := 0
+	var drawn: Dictionary = {}
+	for i in range(400):
+		var full: String = Names.pick(name_rng)
+		drawn[full] = true
+		if full.get_slice(" ", 0) in Names.MALE:
+			men += 1
+	check(men > 150 and men < 250 and drawn.size() > 390, "names mix men and women and rarely repeat (%d men, %d different)" % [men, drawn.size()])
+
 	# The board: three green applicants (one per trade) always there; nobody above the tier's cap.
 	for tier in range(Mercs.TIERS.size()):
 		var cap: int = int(Mercs.TIERS[tier]["cap"])

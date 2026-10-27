@@ -98,8 +98,8 @@ func _test() -> void:
 	# Regression: hundreds of deaths must never empty the recruitment board. Every name a
 	# generated contractor can have is on the memorial, and every trade must still be hireable.
 	var memorial: Array = restored.harlow.get("fallen", []).duplicate()
-	for first in MercsV05.FIRST_NAMES:
-		for last in MercsV05.LAST_NAMES:
+	for first in Names.MALE + Names.FEMALE:
+		for last in Names.LAST:
 			memorial.append({"name": "%s %s" % [first, last]})
 	restored.harlow["fallen"] = memorial
 	var roles: Dictionary = {}
@@ -110,7 +110,7 @@ func _test() -> void:
 		if str(merc["id"]).begins_with("candidate_%d_" % int(GameClock.now() / 1800.0)):
 			roles[Mercs.best_trade(merc)] = true
 	assert(roles.has("logging") and roles.has("mining") and roles.has("combat"))
-	restored.harlow["fallen"] = memorial.slice(0, memorial.size() - MercsV05.FIRST_NAMES.size() * MercsV05.LAST_NAMES.size())
+	restored.harlow["fallen"] = memorial.slice(0, memorial.size() - (Names.MALE.size() + Names.FEMALE.size()) * Names.LAST.size())
 	assert(restored.next_item_id >= 3)
 	assert(restored.merc_by_id(next_miner).size() > 0)
 	# Companies can sell owned gear without creating duplicates.

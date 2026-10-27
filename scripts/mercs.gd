@@ -266,7 +266,7 @@ static func base_share(best: int) -> float:
 # --- Applicants ------------------------------------------------------------------------
 
 static func _name(rng: RandomNumberGenerator) -> String:
-	return str(V05.FIRST_NAMES[rng.randi_range(0, V05.FIRST_NAMES.size() - 1)]) + " " + str(V05.LAST_NAMES[rng.randi_range(0, V05.LAST_NAMES.size() - 1)])
+	return Names.pick(rng)
 
 static func _skills(rng: RandomNumberGenerator, focus: String, best: int) -> Dictionary:
 	var skills: Dictionary = {}

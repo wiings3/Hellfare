@@ -6,15 +6,7 @@ class_name MercsV05
 const SHOP := ["hand_axe", "felling_axe", "basic_pick", "reinforced_pick", "rusted_sword", "steel_sword", "leather", "chainmail",
 	"copper_sickle", "birch_rod", "birch_shortbow", "iron_hoe"]
 
-const FIRST_NAMES := [
-	"Edric", "Nessa", "Tobin", "Cora", "Lukas", "Yara", "Fenna", "Rurik",
-	"Daria", "Merrin", "Alric", "Bryn", "Hale", "Perrin", "Vera", "Otto",
-	"Anja", "Torren", "Celia", "Bastian"
-]
-const LAST_NAMES := [
-	"Blackstone", "Moor", "Fell", "Ash", "Holt", "Voss", "Wick",
-	"Vale", "Fallow", "Dunn", "Marsh", "Rook"
-]
+# Applicant names live in scripts/names.gd (Names).
 
 # The recruit board lives in mercs.gd (Mercs.generate_board): applicants depend on reputation.
 
