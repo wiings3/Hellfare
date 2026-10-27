@@ -72,6 +72,13 @@ jobs:
           if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/tutorial.log; then exit 1; fi
           grep -F 'Tutorial checks passed.' /tmp/tutorial.log
 
+      - name: Crypt event card (shows, answers, fits its result)
+        run: |
+          set -o pipefail
+          timeout 60s godot --headless --path . --script res://tests/event_card_test.gd 2>&1 | tee /tmp/event_card.log
+          if grep -E 'SCRIPT ERROR|ERROR:|Assertion failed|Invalid call|Parse Error' /tmp/event_card.log; then exit 1; fi
+          grep -F 'Event card checks passed.' /tmp/event_card.log
+
       - name: Sound (name table, files, groups, clicks, ambience)
         run: |
           set -o pipefail

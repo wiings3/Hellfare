@@ -3622,6 +3622,7 @@ func _update_event_card() -> void:
 		btn.tooltip_text = {"bold": "The risky choice.", "safe": "The careful choice."}.get(tag, "")
 		_reconnect(btn, _answer_event.bind(str(m["id"]), int(p["index"]), i))
 	_fit_event_card(card)
+	_fit_event_card.call_deferred(card)
 
 func _answer_event(mission_id: String, index: int, choice: int) -> void:
 	var m: Dictionary = game.mission_by_id(mission_id)
@@ -3656,6 +3657,8 @@ func _answer_event(mission_id: String, index: int, choice: int) -> void:
 	card_result_until = Time.get_ticks_msec() + 4500
 	card_event = {}
 	_fit_event_card(card)
+	# The result wraps to the card's width only after layout: fit again then.
+	_fit_event_card.call_deferred(card)
 	if page == "dungeon":
 		_refresh()
 
@@ -3854,6 +3857,8 @@ func _fit_tutorial_card(card: Control) -> void:
 
 ## The card grows upward from the bottom-right corner to fit what's on it.
 func _fit_event_card(card: Control) -> void:
+	if not is_instance_valid(card):
+		return
 	var panel := card.get_node("Card") as Control
 	panel.offset_top = panel.offset_bottom - 40.0
 	panel.reset_size()
