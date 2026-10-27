@@ -1645,7 +1645,8 @@ func _draw_store_details(right: Control, chosen: Array) -> void:
 	if gear and not game.repair_cost(item).is_empty():
 		var cost: Dictionary = game.repair_cost(item)
 		var gold: int = game.repair_gold(cost)
-		actions.append(["Repair%s" % ("  ·  %s" % _money(gold) if gold > 0 else ""), _repair.bind(uid), game.gold < gold, "Uses %s." % _cost_line(cost)])
+		var blocker: String = game.repair_blocker(cost)
+		actions.append(["Repair%s" % ("  ·  %s" % _money(gold) if gold > 0 else ""), _repair.bind(uid), game.gold < gold or blocker != "", blocker if blocker != "" else "Uses %s." % _cost_line(cost)])
 	var buttons: Array = ["Primary", "Secondary", "Tertiary"]
 	for i in range(buttons.size()):
 		var b := right.get_node(c + "Actions/" + str(buttons[i])) as Button
@@ -1655,7 +1656,12 @@ func _draw_store_details(right: Control, chosen: Array) -> void:
 			b.text = str(a[0])
 			b.disabled = bool(a[2])
 			b.tooltip_text = str(a[3]) if bool(a[2]) or str(a[3]) != "" else ""
-			b.pressed.connect(a[1])
+		# The details page can be drawn more than once on the same buttons (choosing another
+		# piece redraws it): drop the old action first, or a click would run both.
+		for old in b.pressed.get_connections():
+			b.pressed.disconnect(old["callable"])
+		if i < actions.size():
+			b.pressed.connect(actions[i][1])
 	(right.get_node(c + "Reason") as Label).text = ""
 
 ## Where it is or where it comes from, in one line.

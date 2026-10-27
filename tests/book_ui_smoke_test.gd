@@ -529,6 +529,24 @@ func _verify() -> void:
 	wr = view.right_leaf.get_child(0)
 	check((wr.get_node("Margin/Content/Head/Id/Name") as Label).text.contains("War Axe"), "the Arms filter picks the axe")
 	check((wr.get_node("Margin/Content/Actions/Secondary") as Button).text.begins_with("Sell"), "spare gear can be sold from here")
+	# Choosing another piece redraws the same buttons: each must do only its own piece's action.
+	view.game.equipment_inventory.append(view.game.make_item("rusted_sword", "common"))
+	view._refresh()
+	wl = view.left_leaf.get_child(0)
+	wr = view.right_leaf.get_child(0)
+	var picks: Array[String] = []
+	for e in view._store_entries():
+		if str(e.get("kind", "")) == "spare":
+			picks.append(str(e["pick"]))
+	check(picks.size() >= 2, "two spare pieces to choose between (%s)" % str(picks))
+	for pick in picks + picks:
+		view._pick_store(pick, wl, wr)
+	for b in ["Primary", "Secondary", "Tertiary"]:
+		check((wr.get_node("Margin/Content/Actions/" + b) as Button).pressed.get_connections().size() <= 1, "%s holds one action after redraws" % b)
+	var spares_before: int = view.game.equipment_inventory.size()
+	(wr.get_node("Margin/Content/Actions/Secondary") as Button).pressed.emit()
+	await create_timer(0.2).timeout
+	check(view.game.equipment_inventory.size() == spares_before - 1, "Sell sells only the chosen piece (%d -> %d)" % [spares_before, view.game.equipment_inventory.size()])
 	view.store_filter = "all"
 	view.game.reset_company()
 	if failures > 0:
