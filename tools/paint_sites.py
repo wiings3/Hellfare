@@ -1456,6 +1456,211 @@ def glasshouse():
     return sc.done()
 
 
+# ---------------------------------------------------------------- crawl backdrops (interiors)
+def _vault(sc, d, x0, x1, top, spring, pillar_w=10):
+    """A stone arch between two pillars: pillars up to `spring`, a round arch up to `top`."""
+    d.rectangle([x0, spring, x0 + pillar_w, H], fill=255)
+    d.rectangle([x1 - pillar_w, spring, x1, H], fill=255)
+    d.pieslice([x0, top, x1, spring + (spring - top)], 180, 360, fill=255)
+
+
+def _stones(sc, mask, colour="#000000", amount=0.35, w=9, h=5):
+    """Mortar lines over a masked wall."""
+    em, d = sc.canvas()
+    for y in range(0, H, h):
+        off = (y // h) % 2 * (w // 2)
+        d.line([(0, y), (W, y)], fill=255)
+        for x in range(-off, W, w):
+            d.line([(x, y), (x, y + h)], fill=255)
+    m = sc.m(em) & mask
+    sc.img = np.where(m[..., None], sc.img * (1 - amount), sc.img)
+
+
+def _torch(sc, x, y, flame="#ffb040"):
+    im, d = sc.canvas()
+    d.rectangle([x - 1, y, x + 1, y + 9], fill=255)
+    d.polygon([(x - 3, y), (x + 3, y), (x + 2, y + 2), (x - 2, y + 2)], fill=255)
+    sc.layer(sc.m(im), "#2a1a12", 0.0, rim=0.4)
+    em, d = sc.canvas()
+    d.polygon([(x - 2, y - 1), (x, y - 7), (x + 2, y - 1)], fill=255)
+    sc.emissive(sc.m(em), flame, hot="#fff0b0", bloom=1.0, bloom_r=5)
+    sc.glow(x, y - 3, 30, flame, 0.35, squash=1.0)
+
+
+def crawl_cellars():
+    sc = Scene(701, haze="#3a2a22", ambient=0.3)
+    sc.sky([(0, "#0e0a09"), (126, "#1c1410")])
+    sc.light(60, 40, 120, "#ff9a40", 1.2)
+    sc.light(196, 42, 110, "#ff9a40", 1.0)
+    sc.prepare_light()
+    wall, d = sc.canvas()
+    d.rectangle([0, 0, W, H], fill=255)
+    wm = sc.m(wall)
+    sc.layer(wm, "#3a2c24", 0.0, rim=0.0, wash=0.9, texture=0.3, tex_scale=3)
+    _stones(sc, wm, amount=0.28)
+    # arched openings into the dark, each framed by a ring of dressed stone
+    for x0, x1 in [(-24, 66), (78, 168), (180, 270)]:
+        cx = (x0 + x1) / 2
+        r_out, r_in = (x1 - x0) / 2, (x1 - x0) / 2 - 8
+        ring, d = sc.canvas()
+        d.ellipse([cx - r_out, 56 - r_out, cx + r_out, 56 + r_out], fill=255)
+        d.rectangle([cx - r_out, 56, cx + r_out, 104], fill=255)
+        hole, d = sc.canvas()
+        d.ellipse([cx - r_in, 56 - r_in, cx + r_in, 56 + r_in], fill=255)
+        d.rectangle([cx - r_in, 56, cx + r_in, 104], fill=255)
+        sc.layer(sc.m(ring) & ~sc.m(hole), "#4e3c30", 0.0, rim=0.9, wash=1.0, texture=0.3, tex_scale=2)
+        sc.layer(sc.m(hole), "#0c0807", 0.0, rim=0.0, wash=0.3, texture=0.2)
+        em, d = sc.canvas()
+        for k in range(9):  # voussoirs
+            a = math.pi * (k / 8)
+            d.line([(cx + math.cos(a) * r_in, 56 - math.sin(a) * r_in), (cx + math.cos(a) * r_out, 56 - math.sin(a) * r_out)], fill=255)
+        m = sc.m(em) & sc.m(ring) & ~sc.m(hole)
+        sc.img = np.where(m[..., None], sc.img * 0.65, sc.img)
+    # barrels and sacks in the far arches, a broken crate near
+    im, d = sc.canvas()
+    for x in (106, 118, 130):
+        d.rounded_rectangle([x, 86, x + 10, 104], 3, fill=255)
+    d.ellipse([196, 92, 214, 104], fill=255)
+    d.ellipse([206, 94, 222, 104], fill=255)
+    sc.layer(sc.m(im), "#3a2618", 0.15, rim=0.8, wash=0.9, texture=0.3)
+    # the floor: flagstones, wet and dark at the front
+    im, d = sc.canvas()
+    d.rectangle([0, 104, W, H], fill=255)
+    fm = sc.m(im)
+    sc.layer(fm, "#2a201a", 0.0, rim=0.5, wash=0.8, texture=0.3, tex_scale=2)
+    em, d = sc.canvas()
+    for y in (108, 114, 121):
+        d.line([(0, y), (W, y)], fill=255)
+    for x in range(-40, W + 40, 22):
+        d.line([(x, 104), (x - 30, H)], fill=255)
+    sc.img = np.where((sc.m(em) & fm)[..., None], sc.img * 0.7, sc.img)
+    _torch(sc, 60, 44)
+    _torch(sc, 196, 46)
+    for _ in range(26):  # drips and dust
+        x, y = sc.rnd.randrange(W), sc.rnd.randrange(0, 100)
+        sc.img[y, x] = lerp(sc.img[y, x], rgb("#9a8a7a"), 0.5)
+    return sc.done(vignette=0.45)
+
+
+def crawl_halls():
+    sc = Scene(702, haze="#2a2a36", ambient=0.32)
+    sc.sky([(0, "#0a0a10"), (126, "#16141e")])
+    sc.light(123, 20, 160, "#9ab0d0", 0.9)
+    sc.prepare_light()
+    wall, d = sc.canvas()
+    d.rectangle([0, 0, W, H], fill=255)
+    wm = sc.m(wall)
+    sc.layer(wm, "#1c1a24", 0.0, rim=0.0, wash=0.6, texture=0.3, tex_scale=4)
+    _stones(sc, wm, amount=0.2, w=14, h=7)
+    # a shaft of cold light from a broken roof
+    sc.glow(123, 50, 60, "#7a90b0", 0.35, squash=2.4)
+    # tall pillars, near and far
+    for x, w, dep, col in [(30, 10, 0.35, "#4a4858"), (90, 10, 0.35, "#4a4858"), (150, 10, 0.35, "#4a4858"), (210, 10, 0.35, "#4a4858"),
+                           (2, 20, 0.0, "#3a3846"), (224, 22, 0.0, "#3a3846")]:
+        im, d = sc.canvas()
+        d.rectangle([x, 0, x + w, H], fill=255)
+        d.rectangle([x - 3, 96, x + w + 3, 104], fill=255)
+        sc.layer(sc.m(im), col, dep, rim=0.7, wash=0.8, texture=0.3, tex_scale=2)
+    # webs strung between the pillars
+    em, d = sc.canvas()
+    for x0, x1 in [(40, 90), (100, 150), (160, 210), (22, 30), (220, 224)]:
+        cx = (x0 + x1) / 2
+        for k in range(7):
+            a = k / 6
+            d.line([(cx, 18), (x0 + (x1 - x0) * a, 44 + 30 * abs(a - 0.5))], fill=255)
+        for r in (8, 15, 22, 29):
+            pts = [(cx + (x0 + (x1 - x0) * k / 6 - cx) * r / 30, 18 + (44 + 30 * abs(k / 6 - 0.5) - 18) * r / 30) for k in range(7)]
+            d.line(pts, fill=255)
+    sc.img = np.where(sc.m(em)[..., None], lerp(sc.img, rgb("#b8c0d0"), 0.35), sc.img)
+    # egg sacks
+    em, d = sc.canvas()
+    for x, y in [(66, 60), (184, 64), (128, 52)]:
+        d.ellipse([x - 4, y - 5, x + 4, y + 5], fill=255)
+    sc.layer(sc.m(em), "#c8c0b0", 0.0, rim=0.5, wash=0.5)
+    im, d = sc.canvas()
+    d.rectangle([0, 104, W, H], fill=255)
+    sc.layer(sc.m(im), "#1c1a22", 0.0, rim=0.5, wash=0.7, texture=0.3, tex_scale=2)
+    for _ in range(40):
+        x, y = sc.rnd.randrange(W), sc.rnd.randrange(0, 104)
+        sc.img[y, x] = lerp(sc.img[y, x], rgb("#a0a8b8"), 0.4)
+    return sc.done(vignette=0.45)
+
+
+def crawl_throne():
+    sc = Scene(703, haze="#3a1a14", ambient=0.28)
+    sc.sky([(0, "#100807"), (126, "#20100c")])
+    sc.light(123, 60, 120, "#ff7a2a", 1.2)
+    sc.light(40, 70, 70, "#ff8a3a", 0.9)
+    sc.light(206, 70, 70, "#ff8a3a", 0.9)
+    sc.prepare_light()
+    wall, d = sc.canvas()
+    d.rectangle([0, 0, W, H], fill=255)
+    wm = sc.m(wall)
+    sc.layer(wm, "#30201a", 0.0, rim=0.0, wash=0.8, texture=0.3, tex_scale=3)
+    _stones(sc, wm, amount=0.25, w=12, h=6)
+    # torn banners
+    for x in (70, 166):
+        im, d = sc.canvas()
+        d.polygon([(x, 8), (x + 16, 8), (x + 16, 52), (x + 11, 46), (x + 8, 56), (x + 4, 47), (x, 54)], fill=255)
+        sc.layer(sc.m(im), "#5a1a18", 0.1, rim=0.6, wash=0.9, texture=0.3)
+        em, d = sc.canvas()
+        d.ellipse([x + 5, 18, x + 11, 24], outline=255)
+        sc.emissive(sc.m(em), "#a07a3a")
+    # the throne on its dais, ember light behind it
+    sc.glow(123, 56, 46, "#ff6a20", 0.5, squash=1.2)
+    im, d = sc.canvas()
+    d.polygon([(100, 104), (106, 90), (140, 90), (146, 104)], fill=255)
+    d.rectangle([110, 50, 136, 90], fill=255)
+    d.polygon([(110, 50), (114, 38), (118, 50)], fill=255)
+    d.polygon([(128, 50), (132, 38), (136, 50)], fill=255)
+    sc.layer(sc.m(im), "#1a100c", 0.0, rim=1.2, wash=0.6, texture=0.25)
+    # braziers
+    for x in (40, 206):
+        im, d = sc.canvas()
+        d.polygon([(x - 8, 78), (x + 8, 78), (x + 4, 84), (x - 4, 84)], fill=255)
+        d.rectangle([x - 1, 84, x + 1, 104], fill=255)
+        d.polygon([(x - 6, 104), (x, 98), (x + 6, 104)], fill=255)
+        sc.layer(sc.m(im), "#2a1a12", 0.0, rim=1.0, wash=0.7)
+        em, d = sc.canvas()
+        d.polygon([(x - 6, 78), (x - 3, 66), (x, 72), (x + 2, 62), (x + 6, 78)], fill=255)
+        sc.emissive(sc.m(em), "#ff8a2a", hot="#ffe08a", bloom=1.0, bloom_r=6)
+    im, d = sc.canvas()
+    d.rectangle([0, 104, W, H], fill=255)
+    sc.layer(sc.m(im), "#24160f", 0.0, rim=0.5, wash=0.9, texture=0.3, tex_scale=2)
+    em, d = sc.canvas()
+    d.rectangle([60, 104, 186, 126], fill=255)  # a worn red carpet
+    sc.img = np.where(sc.m(em)[..., None], lerp(sc.img, rgb("#5a1a14"), 0.5), sc.img)
+    particles(sc, 30, "#ffb848", 10, 100, hot="#f06a20")
+    return sc.done(vignette=0.45)
+
+
+def crawl_ember_gate():
+    sc = Scene(704, haze="#b0501a")
+    sc.sky([(0, "#1a0806"), (40, "#4a1a0c"), (80, "#a8401a"), (100, "#f07a2a")], smoke="#2a0c08", smoke_amount=0.6)
+    sc.glow(123, 96, 140, "#ff9a3a", 0.6)
+    sc.light(123, 100, 200, "#ffa040", 1.3)
+    sc.prepare_light()
+    sc.layer(sc.ridge_mask(52, 10, 40, sharp=True), "#3a160c", 0.75, rim=0.4)
+    # the lava river behind
+    em, d = sc.canvas()
+    d.rectangle([0, 92, W, 104], fill=255)
+    sc.emissive(sc.m(em), "#f06a1a", hot="#ffd060", bloom=0.8, bloom_r=5)
+    for _ in range(30):
+        x = sc.rnd.randrange(W)
+        sc.img[sc.rnd.randint(93, 103), x:x + sc.rnd.randint(3, 10)] = rgb("#ffe08a")
+    # a black rock arch over the gate
+    im, d = sc.canvas()
+    sc.crag(d, [(0, 126), (0, 0), (70, 0), (58, 26), (52, 56), (56, 84), (50, 104)], rough=3)
+    sc.crag(d, [(246, 126), (246, 0), (176, 0), (188, 26), (194, 56), (190, 84), (196, 104)], rough=3)
+    sc.crag(d, [(60, 0), (186, 0), (176, 16), (150, 28), (123, 32), (96, 28), (70, 16)], rough=2)
+    sc.layer(sc.m(im), "#1a0a06", 0.0, rim=1.0, texture=0.3, tex_scale=3)
+    im, d = sc.canvas()
+    d.rectangle([0, 104, W, H], fill=255)
+    sc.layer(sc.m(im), "#1e0c08", 0.0, rim=1.0, wash=1.0, texture=0.3, tex_scale=2)
+    particles(sc, 60, "#ffb848", 4, 104, hot="#f06a20")
+    return sc.done()
+
+
 BANNERS = {
     "forest_copse": cinderwood, "harlow_site": gatepit, "site_mossward_meadows": ashmeadow,
     "site_millbrook_pond": cinder_pool, "site_hollow_fields": hollow_fields, "dungeon_calder_keep": fallen_keep,
@@ -1464,6 +1669,7 @@ BANNERS = {
     "site_sunreach": ember_slopes, "site_glasswater": lake_of_glass, "site_elkmoor": gorehorn_moor,
     "site_frostvale": laments_edge, "site_greywater_coast": shore_of_tears, "site_bleakridge": bleakridge,
     "site_drowned_deep": drowned_deep,
+    "crawl_cellars": crawl_cellars, "crawl_halls": crawl_halls, "crawl_throne": crawl_throne, "crawl_ember_gate": crawl_ember_gate,
     "site_home_fields": home_fields, "site_tilled_acres": tilled_acres, "site_beehives": beehives, "site_glasshouse": glasshouse,
 }
 

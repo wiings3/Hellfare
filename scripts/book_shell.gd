@@ -49,7 +49,7 @@ var selected_trade: String = "logging"
 var crew_filter: String = "trade"
 ## The dungeon open in its planner, the planner's filter and the standing orders being drawn up.
 var selected_dungeon: String = "calder_keep"
-var dungeon_filter: String = "fighters"
+var dungeon_filter: String = "all"
 var dungeon_depth: int = 2
 var dungeon_turn_back: String = "half"
 var dungeon_risk: String = "safe"

@@ -314,6 +314,91 @@
   "pitch": 0.05,
   "loop": false
  },
+ "hit": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/hit_1.ogg",
+   "res://assets/audio/interface/hit_2.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.08,
+  "loop": false
+ },
+ "crit": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/crit_1.ogg"
+  ],
+  "db": -2,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "struck": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/struck_1.ogg",
+   "res://assets/audio/interface/struck_2.ogg"
+  ],
+  "db": -5,
+  "pitch": 0.08,
+  "loop": false
+ },
+ "blocked": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/blocked_1.ogg",
+   "res://assets/audio/interface/blocked_2.ogg"
+  ],
+  "db": -7,
+  "pitch": 0.06,
+  "loop": false
+ },
+ "dodge": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/dodge_1.ogg",
+   "res://assets/audio/interface/dodge_2.ogg"
+  ],
+  "db": -6,
+  "pitch": 0.1,
+  "loop": false
+ },
+ "guard_up": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/guard_up_1.ogg"
+  ],
+  "db": -7,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "drink": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/drink_1.ogg"
+  ],
+  "db": -7,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "foe_down": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/foe_down_1.ogg"
+  ],
+  "db": -4,
+  "pitch": 0.05,
+  "loop": false
+ },
+ "wind_up": {
+  "group": "interface",
+  "files": [
+   "res://assets/audio/interface/wind_up_1.ogg"
+  ],
+  "db": -3,
+  "pitch": 0.0,
+  "loop": false
+ },
  "blueprint": {
   "group": "interface",
   "files": [

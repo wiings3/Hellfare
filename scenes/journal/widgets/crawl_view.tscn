@@ -1,0 +1,289 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/crawl_view.gd" id="1_crawl_view"]
+
+[node name="CrawlView" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_crawl_view")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.04, 0.02, 0.02, 0.88)
+
+[node name="Frame" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -392.0
+offset_top = -256.0
+offset_right = 392.0
+offset_bottom = 256.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_type_variation = &"DeskPanel"
+
+[node name="Margin" type="MarginContainer" parent="Frame"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Body" type="VBoxContainer" parent="Frame/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Head" type="HBoxContainer" parent="Frame/Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Frame/Margin/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"DeskTitle"
+text = "The Fallen Keep  ·  Floor 1 of 3  ·  The Cellars"
+size_flags_horizontal = 3
+
+[node name="Round" type="Label" parent="Frame/Margin/Body/Head"]
+layout_mode = 2
+theme_type_variation = &"DeskLabel"
+text = "Round 1"
+size_flags_vertical = 4
+
+[node name="Release" type="Button" parent="Frame/Margin/Body/Head"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Let them handle it"
+custom_minimum_size = Vector2(0, 22)
+tooltip_text = "Stop leading. The heroes play this fight and the rest of the run by their standing orders, and come back on their own."
+
+[node name="Arena" type="Control" parent="Frame/Margin/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(768, 300)
+size_flags_vertical = 3
+clip_contents = true
+mouse_filter = 2
+
+[node name="Back" type="TextureRect" parent="Frame/Margin/Body/Arena"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Floor" type="ColorRect" parent="Frame/Margin/Body/Arena"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -26.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.05, 0.03, 0.03, 0.55)
+
+[node name="Party" type="HBoxContainer" parent="Frame/Margin/Body/Arena"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 40.0
+offset_top = -230.0
+offset_right = 380.0
+offset_bottom = -12.0
+grow_vertical = 0
+theme_override_constants/separation = 6
+alignment = 0
+
+[node name="Foes" type="HBoxContainer" parent="Frame/Margin/Body/Arena"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -470.0
+offset_top = -230.0
+offset_right = -24.0
+offset_bottom = -12.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 2
+alignment = 2
+
+[node name="Floaters" type="Control" parent="Frame/Margin/Body/Arena"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Callout" type="Label" parent="Frame/Margin/Body/Arena"]
+theme_type_variation = &"DeskTitle"
+text = ""
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 12.0
+offset_bottom = 44.0
+grow_horizontal = 2
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.86, 0.58, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
+
+[node name="Turn" type="HBoxContainer" parent="Frame/Margin/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 112)
+theme_override_constants/separation = 8
+
+[node name="Left" type="VBoxContainer" parent="Frame/Margin/Body/Turn"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="Prompt" type="Label" parent="Frame/Margin/Body/Turn/Left"]
+layout_mode = 2
+theme_type_variation = &"DeskLabel"
+text = "Your turn."
+autowrap_mode = 3
+
+[node name="Actions" type="HBoxContainer" parent="Frame/Margin/Body/Turn/Left"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Strike" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Strike"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
+tooltip_text = "Hit the chosen foe: your weapon's damage, crit and armour piercing."
+
+[node name="Skill" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Skill"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
+tooltip_text = ""
+
+[node name="Guard" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Guard"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
+tooltip_text = "Brace until your next turn: take much less from every blow."
+
+[node name="Potion" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Potion"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
+tooltip_text = "Drink a healing draught, if you packed one."
+
+[node name="Retreat" type="Button" parent="Frame/Margin/Body/Turn/Left/Actions"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Retreat"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
+tooltip_text = "Leave the crypt now with what you carry."
+
+[node name="Hint" type="Label" parent="Frame/Margin/Body/Turn/Left"]
+layout_mode = 2
+theme_type_variation = &"DeskCaption"
+text = "Click a monster to choose who to hit."
+autowrap_mode = 3
+
+[node name="Log" type="PanelContainer" parent="Frame/Margin/Body/Turn"]
+layout_mode = 2
+custom_minimum_size = Vector2(330, 0)
+theme_type_variation = &"InsetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Frame/Margin/Body/Turn/Log"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="Text" type="RichTextLabel" parent="Frame/Margin/Body/Turn/Log/Margin"]
+layout_mode = 2
+bbcode_enabled = true
+scroll_following = true
+fit_content = false
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.239, 0.157, 0.141, 1)
+
+[node name="Stairs" type="PanelContainer" parent="Frame/Margin/Body"]
+layout_mode = 2
+visible = false
+custom_minimum_size = Vector2(0, 112)
+theme_type_variation = &"InsetPanel"
+
+[node name="Margin" type="MarginContainer" parent="Frame/Margin/Body/Stairs"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="Body" type="VBoxContainer" parent="Frame/Margin/Body/Stairs/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Title" type="Label" parent="Frame/Margin/Body/Stairs/Margin/Body"]
+layout_mode = 2
+theme_type_variation = &"LabelTitle"
+text = "The Cellars cleared"
+
+[node name="Text" type="Label" parent="Frame/Margin/Body/Stairs/Margin/Body"]
+layout_mode = 2
+text = ""
+autowrap_mode = 3
+
+[node name="Carry" type="HBoxContainer" parent="Frame/Margin/Body/Stairs/Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Buttons" type="HBoxContainer" parent="Frame/Margin/Body/Stairs/Margin/Body"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Push" type="Button" parent="Frame/Margin/Body/Stairs/Margin/Body/Buttons"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Go down"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
+
+[node name="Leave" type="Button" parent="Frame/Margin/Body/Stairs/Margin/Body/Buttons"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Take it out"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3

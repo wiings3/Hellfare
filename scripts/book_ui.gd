@@ -66,6 +66,8 @@ const ROLE_ICONS := {
 	"Angler": preload("res://assets/ui/icons/item_rod.png"),
 	"Hunter": preload("res://assets/ui/icons/item_bow.png"),
 	"Farmhand": preload("res://assets/ui/icons/item_hoe.png"),
+	"Knight": preload("res://assets/ui/icons/helmet.png"),
+	"Rogue": preload("res://assets/ui/icons/item_dagger.png"),
 }
 ## Trade skill rows, in the order pages list them.
 const SKILL_ORDER := ["logging", "mining", "foraging", "fishing", "hunting", "farming", "combat"]
@@ -113,6 +115,8 @@ var market_sampled_at: int = 0
 func _ready() -> void:
 	page = "hq"
 	super._ready()
+	# A run the player was leading when the game closed: back into it.
+	_open_crawl.call_deferred()
 
 func _refresh() -> void:
 	if not is_instance_valid(stage):
@@ -343,7 +347,7 @@ func _draw_region_map() -> void:
 		for mission in game.missions:
 			if RegionMap.road_for(mission) == str(crypt):
 				below += 1
-		keep.tooltip_text = "%s\nLayer %s  ·  a crypt\n%s" % [str(d["name"]), layer_names[int(d.get("layer", 1))], "A crew is inside." if below > 0 else "For fighters with gear score %d+." % int(d["min_kit"])]
+		keep.tooltip_text = "%s\nLayer %s  ·  a crypt\n%s" % [str(d["name"]), layer_names[int(d.get("layer", 1))], "Heroes are inside." if below > 0 else "For heroes: built for %s." % _plural(int(d.get("heroes", 1)), "hero")]
 		_bind_map_spot(keep, false)
 		keep.pressed.connect(_open_dungeon.bind(str(crypt)))
 	_bind_fallen(left)
@@ -843,12 +847,13 @@ func _draw_people() -> void:
 		"recruits": _draw_recruitment()
 		_: _draw_employees()
 	var tabs := _mount_page(PERSONNEL_TABS, left_leaf)
-	for tab in [["EmployeesTab", "employed"], ["RecruitmentTab", "recruits"]]:
+	for tab in [["EmployeesTab", "employed"], ["HeroesTab", "heroes"], ["RecruitmentTab", "recruits"]]:
 		var btn := tabs.get_node("Tabs/" + str(tab[0])) as Button
-		btn.set_pressed_no_signal(roster_tab == str(tab[1]) or (str(tab[1]) == "employed" and roster_tab != "recruits"))
+		btn.set_pressed_no_signal(roster_tab == str(tab[1]) or (str(tab[1]) == "employed" and not roster_tab in ["recruits", "heroes"]))
 		btn.pressed.connect(_set_roster_tab.bind(str(tab[1])))
 		btn.set_meta("tut", "tab:" + str(tab[1]))
 	(tabs.get_node("Tabs/EmployeesTab") as Button).text = "Roster  ·  %d" % game.crew.size()
+	(tabs.get_node("Tabs/HeroesTab") as Button).text = "Heroes  ·  %d" % game.heroes.size()
 	(tabs.get_node("Tabs/RecruitmentTab") as Button).text = "Recruit  ·  %d" % game.recruitment_board().size()
 
 func _focus_person(id: String) -> void:
@@ -867,8 +872,11 @@ func _draw_employees() -> void:
 	var left := _mount_page(PERSONNEL_EMPLOYEES_LEFT, left_leaf)
 	var right := _mount_page(PERSONNEL_EMPLOYEES_RIGHT, right_leaf)
 	var c := "Margin/Content/"
-	if (selected_merc.is_empty() or game.merc_by_id(selected_merc).is_empty()) and not game.crew.is_empty():
-		selected_merc = str(game.crew[0]["id"])
+	var heroes_tab: bool = roster_tab == "heroes"
+	var people: Array = game.heroes if heroes_tab else game.crew
+	var picked_ok: bool = not selected_merc.is_empty() and people.any(func(p): return str(p["id"]) == selected_merc)
+	if not picked_ok:
+		selected_merc = str(people[0]["id"]) if not people.is_empty() else ""
 	for pair in [["All", "all"], ["Ready", "ready"], ["Out", "out"], ["Hurt", "hurt"]]:
 		var tab := left.get_node(c + "Filter/" + str(pair[0])) as Button
 		tab.set_pressed_no_signal(roster_filter == str(pair[1]))
@@ -877,12 +885,12 @@ func _draw_employees() -> void:
 			_refresh())
 	var list := left.get_node(c + "List/Items") as VBoxContainer
 	var payroll: int = 0
-	for merc in game.crew:
-		payroll += int(game.terms(merc)["wage"])
+	for merc in people:
+		payroll += Heroes.wage(merc) if heroes_tab else int(game.terms(merc)["wage"])
 		if not _roster_shows(merc):
 			continue
 		var id: String = str(merc["id"])
-		var role: String = Mercs.role_of(merc)
+		var role: String = Heroes.class_name_of(merc) if heroes_tab else Mercs.role_of(merc)
 		var health: int = int(merc.get("health", 100))
 		var state: String = "Ready"
 		var tone: StringName = &"LabelGood"
@@ -896,17 +904,31 @@ func _draw_employees() -> void:
 		elif health < 60:
 			state = "Hurt  ·  %d%%" % health
 			tone = &"LabelAccent"
-		var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(merc["name"]), Mercs.title(merc), "", state,
+		var subtitle: String = Mercs.title(merc)
+		if heroes_tab:
+			var hf: Dictionary = Heroes.fighter(merc)
+			subtitle = "%s %d  ·  %d dmg  ·  armour %d" % [role, TradeSkills.level_of(merc, "combat"), int(round(float(hf["damage"]))), int(hf["armour"])]
+		var card := _list_card(list, ROLE_ICONS.get(role, ROLE_ICONS["Miner"]), str(merc["name"]), subtitle, "", state,
 			id == selected_merc, _focus_person.bind(id))
+		card.set_meta("tut", "hero:" + id if heroes_tab else "person:" + id)
 		(card.get_node("Body/Side/Value/Text") as Label).theme_type_variation = tone
 		card.tooltip_text = "Traits: %s\nHealth %d%%" % [Mercs.trait_names(merc), health]
-	var empty: bool = game.crew.is_empty()
-	(left.get_node(c + "Summary/Count") as Label).text = "%d hired  ·  %d ready" % [game.crew.size(), game.free_crew()]
+	if heroes_tab:
+		_hero_offers(list)
+	var empty: bool = people.is_empty() and not heroes_tab
+	if heroes_tab:
+		(left.get_node(c + "Summary/Count") as Label).text = "%d of %d hero %s" % [game.heroes.size(), game.hero_slots, "slot" if game.hero_slots == 1 else "slots"]
+	else:
+		(left.get_node(c + "Summary/Count") as Label).text = "%d hired  ·  %d ready" % [game.crew.size(), game.free_crew()]
 	var payroll_label := left.get_node(c + "Summary/Payroll") as Label
-	payroll_label.text = "Payroll %s  ·  idle %s/day" % [_money(payroll), _money(game.idle_upkeep_total())]
-	payroll_label.tooltip_text = "Payroll: what one trip with every Hellfarer would cost in wages.\nIdle: Hellfarers above still draw half their wage each day."
+	if heroes_tab:
+		payroll_label.text = "Wages %s a crypt run" % _money(payroll)
+		payroll_label.tooltip_text = "Heroes are paid for each crypt run, not for waiting."
+	else:
+		payroll_label.text = "Payroll %s  ·  idle %s/day" % [_money(payroll), _money(game.idle_upkeep_total())]
+		payroll_label.tooltip_text = "Payroll: what one trip with every Hellfarer would cost in wages.\nIdle: Hellfarers above still draw half their wage each day."
 	(left.get_node(c + "List") as Control).visible = not empty
-	(left.get_node(c + "Filter") as Control).visible = not empty
+	(left.get_node(c + "Filter") as Control).visible = not empty and not heroes_tab
 	(left.get_node(c + "Empty") as Control).visible = empty
 	var recruit := left.get_node(c + "Recruit") as Button
 	recruit.visible = empty
@@ -918,15 +940,20 @@ func _draw_employees() -> void:
 		(child as CanvasItem).visible = child.name == "Empty" if none else child.name != "Empty"
 	if none:
 		return
-	var role: String = Mercs.role_of(merc)
+	var hero: bool = Heroes.is_hero(merc)
+	var role: String = Heroes.class_name_of(merc) if hero else Mercs.role_of(merc)
 	_set_bust(right.get_node(c + "Head/Portrait/Bust") as TextureRect, role)
+	if hero:
+		var bust := right.get_node(c + "Head/Portrait/Bust") as TextureRect
+		bust.texture = load("res://assets/ui/crawl/%s.png" % Heroes.cls(merc)) as Texture2D
+		bust.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	(right.get_node(c + "Head/Id/Name") as Label).text = str(merc.get("name", ""))
 	var origin: String = ""
 	if merc.has("background"):
 		origin = "  ·  formerly a %s" % str(merc["background"]).to_lower()
 	elif merc.has("from"):
 		origin = "  ·  from %s" % str(merc["from"])
-	(right.get_node(c + "Head/Id/Title") as Label).text = Mercs.title(merc) + origin
+	(right.get_node(c + "Head/Id/Title") as Label).text = ("%s  ·  Combat %d" % [Heroes.class_name_of(merc), TradeSkills.level_of(merc, "combat")]) if hero else Mercs.title(merc) + origin
 	(right.get_node(c + "Head/Id/Status/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(role, ROLE_ICONS["Miner"])
 	(right.get_node(c + "Head/Id/Status/Role") as Label).text = role
 	var status: Array = _merc_status(merc)
@@ -948,6 +975,9 @@ func _draw_employees() -> void:
 
 func _bind_overview(right: Control, merc: Dictionary) -> void:
 	var o := "Margin/Content/Overview/"
+	if Heroes.is_hero(merc):
+		_bind_hero_overview(right, merc)
+		return
 	var terms: Dictionary = game.terms(merc)
 	right.get_node(o + "Stats/Skill").value = _money(Mercs.value(merc))
 	var wage_tile := right.get_node(o + "Stats/Wage")
@@ -993,6 +1023,76 @@ func _bind_overview(right: Control, merc: Dictionary) -> void:
 		"Another guild buys their contract for %s (half their value), with the gear they wear.\nHellfarers talk: each sale costs a little reputation." % _money(offer)
 	sell.pressed.connect(_sell_contract.bind(selected_merc))
 
+## A hero's overview: what they hit for and take, their class, health, skills and traits.
+func _bind_hero_overview(right: Control, h: Dictionary) -> void:
+	var o := "Margin/Content/Overview/"
+	var f: Dictionary = Heroes.fighter(h)
+	var tiles := [["Skill", "Damage", "%d" % int(round(float(f["damage"]))), "Each hit, before the foe's armour. Speed %.2f: %s." % [float(f["speed"]), "acts more than once in some rounds" if float(f["speed"]) > 1.05 else "one action a round"]],
+		["Wage", "Crit", "%d%%" % int(round(float(f["crit"]) * 100.0)), "Chance a hit is critical, for x%.1f damage." % float(f["crit_damage"])],
+		["Share", "Armour", "%d" % int(f["armour"]), "Blows are scaled by 50 / (50 + armour): %d armour takes %d%% off." % [int(f["armour"]), int(round(100.0 - 5000.0 / (50.0 + float(f["armour"]))))]],
+		["Kit", "Avoid", "%d%%" % int(round((float(f["dodge"]) + float(f["parry"])) * 100.0)), "Dodge %d%%, parry %d%%, and blocks %d%% of blows for half damage." % [int(round(float(f["dodge"]) * 100.0)), int(round(float(f["parry"]) * 100.0)), int(round(float(f["block"]) * 100.0))]]]
+	for t in tiles:
+		var tile := right.get_node(o + "Stats/" + str(t[0]))
+		tile.caption = str(t[1])
+		tile.value = str(t[2])
+		tile.tooltip_text = str(t[3])
+	var health: int = int(h.get("health", 100))
+	var bar := right.get_node(o + "Health/Bar") as ProgressBar
+	bar.value = health
+	bar.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
+	(right.get_node(o + "Health/Value") as Label).text = "%d / %d" % [int(ceil(float(f["hp"]))), int(f["max_hp"])]
+	var heal := right.get_node(o + "Health/Heal") as Button
+	heal.visible = health < 100
+	if heal.visible:
+		var cost: int = MoneyMercsState.treat_cost(h)
+		heal.text = "Treat  ·  %d G" % cost
+		heal.disabled = game.gold < cost or not game.is_available(h)
+		heal.tooltip_text = "Heroes are tended between runs and recover quickly: full in %s.\nTreat now to go back down sooner." % _duration(MoneyMercsState.rest_eta(h))
+		heal.pressed.connect(_heal.bind(selected_merc))
+	for trade in SKILL_ORDER:
+		var base := o + "Skills/" + str(TradeSkills.NAMES[trade]) + "/"
+		(right.get_node(base + "Top/Level") as Label).text = str(TradeSkills.level_of(h, trade))
+		(right.get_node(base + "Bar") as ProgressBar).value = TradeSkills.progress(h, trade) * 100.0
+		(right.get_node(base) as CanvasItem).visible = trade == "combat"
+		if trade == "combat":
+			(right.get_node(base + "Top/Name") as Label).theme_type_variation = &"LabelGood"
+	var traits := right.get_node(o + "Traits/List") as Label
+	var c: Dictionary = Heroes.class_def(h)
+	traits.text = "%s. %s: %s" % [str(c["blurb"]), str(c["skill_name"]), str(c["skill_text"])]
+	traits.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	traits.tooltip_text = "Gets the most from: %s." % str(c["wants"])
+	(right.get_node(o + "Contract") as CanvasItem).visible = false
+
+## On the Heroes tab: heroes for hire while a slot is free, and the next slot.
+func _hero_offers(list: VBoxContainer) -> void:
+	if game.heroes.size() < game.hero_slots:
+		for cand in game.hero_board():
+			var cls_name: String = Heroes.class_name_of(cand)
+			var hf: Dictionary = Heroes.fighter(cand)
+			var card := _list_card(list, ROLE_ICONS.get(cls_name, ROLE_ICONS["Guard"]), str(cand["name"]), "For hire  ·  %s, %d health" % [cls_name, int(hf["max_hp"])],
+				"", "Hire  ·  %s" % _money(int(cand["hire"])), false, _hire_hero.bind(str(cand["id"])))
+			card.set_meta("tut", "hire_hero:" + Heroes.cls(cand))
+			card.tooltip_text = "%s\n%s: %s\nComes with a %s." % [str(Heroes.class_def(cand)["blurb"]), str(Heroes.class_def(cand)["skill_name"]),
+				str(Heroes.class_def(cand)["skill_text"]), str(Catalog.item(str(Heroes.STARTER[Heroes.cls(cand)])).get("name", "weapon")).to_lower()]
+	var price: int = game.hero_slot_price()
+	if price > 0:
+		var slot := _list_card(list, ROLE_ICONS["Guard"], "Another hero slot", "Keep %d heroes. Deeper crypts want more than one." % (game.hero_slots + 1),
+			"", _money(price), false, _buy_hero_slot)
+		slot.tooltip_text = "Heroes don't take expedition slots: a crew and a hero can be out together."
+		slot.disabled = game.gold < price
+
+func _hire_hero(id: String) -> void:
+	var result: String = game.hire_hero(id)
+	if result.contains("joins"):
+		Sound.play("hire")
+	_action(result)
+
+func _buy_hero_slot() -> void:
+	var result: String = game.buy_hero_slot()
+	if result.begins_with("A new hero slot"):
+		Sound.play("sign_charter")
+	_action(result)
+
 ## The Gear view: ten slots, the chosen slot's piece, and what in the storeroom fits it.
 func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 	var g := "Margin/Content/Gear/"
@@ -1032,10 +1132,13 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 	var bonus := right.get_node(g + "Foot/Bonus") as Label
 	var job: String = Gear.job(owner)
 	var bits: Array[String] = ["Gear score %d" % Gear.kit_rating(owner), "Armour %d" % int(Gear.armour(owner))]
-	if job != "" and job != "combat":
+	if Heroes.is_hero(owner):
+		var hf: Dictionary = Heroes.fighter(owner)
+		bits = ["Hits for %d" % int(round(float(hf["damage"]))), "speed %.2f" % float(hf["speed"]), "crit %d%%" % int(round(float(hf["crit"]) * 100.0)), "armour %d" % int(hf["armour"])]
+	elif job != "" and job != "combat":
 		bits.append("%s +%d" % [TradeSkills.NAMES[job], int(Gear.tool_power(owner, job))])
 	elif job == "combat":
-		bits.append("Guards +%d" % Gear.weapon_levels(owner))
+		bits.append("Hunts" if Gear.hunts(owner) else "Weapon")
 	var haul: float = Gear.haul_mult(owner) - 1.0
 	if haul > 0.001:
 		bits.append("Haul +%d%%" % int(round(haul * 100.0)))
@@ -1069,6 +1172,9 @@ func _bind_gear_view(right: Control, owner: Dictionary) -> void:
 			var key: String = str(item.get("key", ""))
 			var slot_of: String = Gear.slot_of(key)
 			if slot_of != selected_slot:
+				continue
+			# Weapons and armour are for heroes: a worker's gear page doesn't offer them.
+			if Heroes.hero_only(key) and not Heroes.is_hero(owner):
 				continue
 			var card := ROW_ITEM_CARD.instantiate()
 			fits.add_child(card)
@@ -2379,7 +2485,7 @@ func _draw_dungeon_list(right: Control) -> void:
 		card.tooltip_text = str(d.get("tagline", ""))
 		var floors: Array = d["floors"]
 		(card.get_node("Body/Top/Info/Name") as Label).text = str(d["name"])
-		(card.get_node("Body/Top/Info/Details") as Label).text = "Layer %d  ·  %d floors, the last a boss  ·  gear score %d+" % [int(d.get("layer", d["tier"])), floors.size(), int(d["min_kit"])]
+		(card.get_node("Body/Top/Info/Details") as Label).text = "Layer %d  ·  %d floors, the last a boss  ·  built for %s" % [int(d.get("layer", d["tier"])), floors.size(), _plural(int(d.get("heroes", 1)), "hero")]
 		(card.get_node("Body/Facts") as Label).text = "%s  ·  supplies %s" % [", ".join(floors.map(func(f): return str(f["foe"]))), _money(int(d["supplies"]))]
 		var value := card.get_node("Body/Top/Value") as Label
 		var run: Dictionary = _run_in(str(id))
@@ -2735,76 +2841,73 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	var right := _mount_page(DUNGEON_RIGHT, right_leaf)
 	var c := "Margin/Content/"
 	var id: String = str(d["id"])
-	var min_kit: int = int(d["min_kit"])
 	var most: int = int(d.get("crew", 3))
+	var built_for: int = int(d.get("heroes", 1))
 	var ids: Array[String] = _selected_available()
-	# Left: who can go.
+	# Left: the guild's heroes.
 	for pair in [["Fighters", "fighters"], ["Porters", "porters"], ["All", "all"]]:
 		var tab := left.get_node(c + "Filter/" + str(pair[0])) as Button
 		tab.set_pressed_no_signal(dungeon_filter == str(pair[1]))
 		tab.pressed.connect(_set_dungeon_filter.bind(str(pair[1])))
-	(left.get_node(c + "Caption") as Label).text = "Up to %d. Each needs gear score %d. Porters carry more out but die easily." % [most, min_kit]
+	(left.get_node(c + "Caption") as Label).text = "Built for %s. Heroes go into the crypts; your crews keep working meanwhile." % _plural(built_for, "hero")
 	(left.get_node(c + "Footer/Back") as Button).pressed.connect(_back_to_dungeons)
-	var free: Array = game.available_guild_workers()
 	var shown: Array = []
-	for merc in free:
-		var fights: bool = Gear.job(merc) == "combat"
-		var keep: bool = ids.has(str(merc["id"]))
+	for h in game.heroes:
+		var keep: bool = ids.has(str(h["id"]))
 		match dungeon_filter:
-			"fighters": keep = keep or fights
-			"porters": keep = keep or not fights
+			"fighters": keep = keep or Heroes.cls(h) == "knight"
+			"porters": keep = keep or Heroes.cls(h) == "rogue"
 			_: keep = true
 		if keep:
-			shown.append(merc)
+			shown.append(h)
 	shown.sort_custom(func(a, b):
 		var aa: bool = ids.has(str(a["id"]))
 		var bb: bool = ids.has(str(b["id"]))
 		if aa != bb:
 			return aa
-		return Gear.kit_rating(a) * 100 + TradeSkills.level_of(a, "combat") > Gear.kit_rating(b) * 100 + TradeSkills.level_of(b, "combat"))
+		return int(a.get("health", 100)) > int(b.get("health", 100)))
 	var list := left.get_node(c + "Roster/Items") as VBoxContainer
-	for merc in shown:
-		var mid: String = str(merc["id"])
+	for h in shown:
+		var mid: String = str(h["id"])
 		var assigned: bool = ids.has(mid)
-		var health: int = int(merc.get("health", 100))
-		var f: Dictionary = Dungeons.fighter(merc)
-		var kit: int = Gear.kit_rating(merc)
+		var health: int = int(h.get("health", 100))
+		var f: Dictionary = Heroes.fighter(h)
 		var card := ROW_ROSTER_CARD.instantiate() as Button
 		list.add_child(card)
+		card.set_meta("tut", "hero_pick")
 		card.toggle_mode = true
 		card.button_pressed = assigned
-		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(Mercs.role_of(merc), ROLE_ICONS["Guard"])
-		(card.get_node("Body/Info/Name") as Label).text = str(merc.get("name", "?"))
-		var weapon: String = str(Catalog.item(str(Gear.in_slot(merc, "main_hand").get("key", ""))).get("name", "no weapon"))
-		(card.get_node("Body/Info/Details") as Label).text = "Combat %d  ·  gear %d  ·  %s" % [TradeSkills.level_of(merc, "combat"), kit, "%d dmg" % int(round(float(f["damage"]))) if not bool(f["porter"]) else "porter"]
-		card.tooltip_text = "%s\n%s: %s\nTraits: %s" % [Mercs.title(merc), weapon if not bool(f["porter"]) else "No weapon, comes as a porter", _fighter_line(f), Mercs.trait_names(merc)]
+		(card.get_node("Body/RoleIcon") as TextureRect).texture = ROLE_ICONS.get(Heroes.class_name_of(h), ROLE_ICONS["Guard"])
+		(card.get_node("Body/Info/Name") as Label).text = str(h.get("name", "?"))
+		(card.get_node("Body/Info/Details") as Label).text = "%s %d  ·  %d dmg  ·  armour %d" % [Heroes.class_name_of(h), TradeSkills.level_of(h, "combat"), int(round(float(f["damage"]))), int(f["armour"])]
+		var weapon: String = str(Catalog.item(str(Gear.in_slot(h, "main_hand").get("key", ""))).get("name", "bare hands"))
+		card.tooltip_text = "%s the %s\n%s: %s\nHealth %d of %d. %s" % [str(h["name"]), Heroes.class_name_of(h), weapon, _fighter_line(f),
+			int(ceil(float(f["hp"]))), int(f["max_hp"]), str(Heroes.class_def(h)["blurb"])]
 		(card.get_node("Body/Health/HealthText") as Label).text = "%d%%" % health
 		var hp := card.get_node("Body/Health/HealthBar") as ProgressBar
 		hp.value = health
 		hp.theme_type_variation = &"GreenBar" if health >= 60 else (&"GoldBar" if health >= 25 else &"")
 		var tag := card.get_node("Body/Tag") as Label
-		var why: String = game.dungeon_fit(id, merc)
+		var why: String = game.dungeon_fit(id, h)
 		if assigned:
-			tag.text = "In crew"
+			tag.text = "Going"
 		elif why != "":
 			tag.text = why
 			card.disabled = true
-			if why.begins_with("Gear score"):
-				card.tooltip_text += "\nNeeds better gear: gear score %d of %d. Outfit them in Mercenaries → Gear." % [kit, min_kit]
 		elif ids.size() >= most:
-			tag.text = "Crew full"
+			tag.text = "Full"
 			card.disabled = true
 		else:
 			tag.text = "+ Add"
 		card.pressed.connect(_toggle_crew.bind(not assigned, mid))
 	var no_crew := left.get_node(c + "NoCrew") as Control
 	no_crew.visible = list.get_child_count() == 0
-	if not free.is_empty() and no_crew.visible:
-		no_crew.text = "Nobody free with a weapon. Try Everyone, or arm someone in Mercenaries." if dungeon_filter == "fighters" else "Nobody free fits. Try Everyone."
+	if not game.heroes.is_empty() and no_crew.visible:
+		no_crew.text = "No hero of that class. Try All heroes."
 	# Right: the keep, its floors and the orders.
 	(right.get_node(c + "Site/Art") as TextureRect).texture = load(str(d.get("art", ""))) as Texture2D
 	(right.get_node(c + "Site") as Control).tooltip_text = str(d.get("tagline", ""))
-	(right.get_node(c + "Site/Badge/Text") as Label).text = "Layer %d  ·  gear score %d+" % [int(d.get("layer", d["tier"])), min_kit]
+	(right.get_node(c + "Site/Badge/Text") as Label).text = "Layer %d  ·  built for %s" % [int(d.get("layer", d["tier"])), _plural(built_for, "hero")]
 	var plan: Dictionary = game.dungeon_forecast(id, ids, dungeon_depth, dungeon_turn_back)
 	var floors: Array = d["floors"]
 	for i in range(3):
@@ -2836,10 +2939,10 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 		names.append(str(game.merc_by_id(mid).get("name", "?")))
 	var crew_label := right.get_node(c + "Crew") as Label
 	if names.is_empty():
-		crew_label.text = "No fighters chosen yet. Pick up to %d on the left." % most
+		crew_label.text = "No heroes chosen yet. Pick %s on the left." % ("your hero" if game.heroes.size() == 1 else "up to %d" % most)
 		crew_label.theme_type_variation = &"LabelMuted"
 	else:
-		crew_label.text = "Crew %d of %d: %s" % [names.size(), most, ", ".join(names)]
+		crew_label.text = "Going in: %s" % ", ".join(names)
 		crew_label.theme_type_variation = &"LabelGood"
 	for i in range(3):
 		var btn := right.get_node(c + "Depth/D%d" % (i + 1)) as Button
@@ -2863,20 +2966,26 @@ func _draw_dungeon_planner(d: Dictionary) -> void:
 	death_tile.tone = "accent" if not empty and float(plan["death"]) >= 0.1 else "normal"
 	right.get_node(c + "Forecast/Time").value = "~%dm" % int(round(float(plan["duration"]) / 60.0))
 	right.get_node(c + "Forecast/Haul").tooltip_text = "Average carried out under these orders, after the crew's share. Wages and supplies cost %s." % _money(int(plan["cost"]))
-	var enter := right.get_node(c + "Enter") as Button
+	var enter := right.get_node(c + "Go/Enter") as Button
+	var lead := right.get_node(c + "Go/Lead") as Button
+	lead.set_meta("tut", "lead")
 	var reason := right.get_node(c + "Reason") as Label
 	var why: String = ""
-	if game.missions.size() >= game.expedition_slots:
-		why = "All expedition slots are busy. Wait for a crew to return."
+	if game.heroes.is_empty():
+		why = "The guild has no hero. Take one on in Mercenaries, Heroes."
 	elif empty:
-		why = "Choose fighters from the list on the left."
+		why = "Choose your heroes on the left."
 	elif str(plan["blocked"]) != "":
 		why = str(plan["blocked"])
 	elif game.gold < int(plan["cost"]):
 		why = "Not enough gold: wages and supplies cost %s." % _money(int(plan["cost"]))
-	enter.text = "Enter %s  ·  %s" % [str(d["name"]), _money(int(plan["cost"]) if not empty else int(d["supplies"]))]
+	var price: String = _money(int(plan["cost"]) if not empty else int(d["supplies"]))
+	lead.text = "Lead them in  ·  %s" % price
+	enter.text = "Let them handle it"
 	enter.disabled = why != ""
-	enter.pressed.connect(_enter_dungeon)
+	lead.disabled = why != "" or not game.lead_run().is_empty()
+	enter.pressed.connect(_enter_dungeon.bind(false))
+	lead.pressed.connect(_enter_dungeon.bind(true))
 	reason.text = why
 	reason.visible = why != ""
 
@@ -2896,16 +3005,36 @@ func _back_to_dungeons() -> void:
 	selected_trade = "dungeon"
 	_turn_to("expeditions")
 
-func _enter_dungeon() -> void:
-	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk)
+func _enter_dungeon(led: bool = false) -> void:
+	var result: String = game.dungeon_dispatch(selected_dungeon, _selected_available(), dungeon_depth, dungeon_turn_back, dungeon_risk, led)
 	if result.begins_with("The crew went"):
 		Sound.play("send_down")
 		Sound.music_cue("mus_crypt")
-	if result.begins_with("The crew went"):
 		selected_crew.clear()
 		harlow_view.selected.clear()
 		dungeon_planning = false
+		if led:
+			_action("Your heroes go down into %s." % str(Dungeons.by_id(selected_dungeon).get("name", "the crypt")))
+			_open_crawl()
+			return
 	_action(result)
+
+## The crawl screen, for the run the player leads.
+func _crawl_view() -> Control:
+	return stage.get_node_or_null("CrawlView") as Control if is_instance_valid(stage) else null
+
+func _open_crawl() -> void:
+	var view := _crawl_view()
+	if view == null or game.lead_run().is_empty():
+		return
+	if not view.closed.is_connected(_crawl_closed):
+		view.closed.connect(_crawl_closed)
+	view.open(game)
+	_update_tutorial()
+
+func _crawl_closed() -> void:
+	game.complete_due()
+	_refresh()
 
 func _dungeon_answer(mission_id: String, push: bool) -> void:
 	Sound.play("choice_bold" if push else "retreat")

@@ -1,0 +1,52 @@
+[gd_scene load_steps=1 format=3]
+
+[node name="CrawlFighter" type="VBoxContainer"]
+custom_minimum_size = Vector2(110, 0)
+mouse_filter = 0
+alignment = 2
+theme_override_constants/separation = 1
+
+[node name="Mark" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"DeskCaption"
+text = "Target"
+horizontal_alignment = 1
+modulate = Color(1, 0.8, 0.4, 1)
+visible = false
+
+[node name="Name" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"DeskLabel"
+text = "Name"
+horizontal_alignment = 1
+clip_text = true
+custom_minimum_size = Vector2(110, 0)
+
+[node name="Bar" type="ProgressBar" parent="."]
+layout_mode = 2
+custom_minimum_size = Vector2(72, 6)
+size_flags_horizontal = 4
+show_percentage = false
+theme_type_variation = &"GreenBar"
+value = 100.0
+
+[node name="HP" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"DeskCaption"
+text = "100 / 100"
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"DeskCaption"
+text = ""
+horizontal_alignment = 1
+modulate = Color(1, 0.75, 0.45, 1)
+
+[node name="Sprite" type="TextureRect" parent="."]
+layout_mode = 2
+custom_minimum_size = Vector2(96, 112)
+size_flags_horizontal = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5

@@ -604,29 +604,35 @@ func _verify() -> void:
 	view._refresh()
 	check(view.left_leaf.get_child(0).get_node("Margin/Content/Listings/Items").get_child_count() == 1, "the listing shows under Yours")
 	view.game.reset_company()
-	# Calder Keep: the planner gates on kit, enters, and the run waits at the stairs for orders.
+	# The Fallen Keep: only heroes go in. The planner lists the guild's hero; "Let them handle
+	# it" sends them under orders (the run waits at the stairs); "Lead them in" opens the crawl.
 	view.game.reset_company()
 	view.game.gold = 5000
-	var fighter: Dictionary = view.game.recruitment_board()[0]
-	view._hire(str(fighter["id"]))
-	var fm: Dictionary = view.game.merc_by_id(str(fighter["id"]))
 	view._open_dungeon("calder_keep")
 	check(view.page == "dungeon" and view.left_leaf.get_child(0).scene_file_path.ends_with("/dungeon_left.tscn"), "dungeon planner opens")
+	check((view.left_leaf.get_child(0).get_node("Margin/Content/NoCrew") as Control).visible, "no hero yet: the planner says where to get one")
+	view.game.found_hero("knight", "Test Knight")
+	var hid: String = str(view.game.heroes[0]["id"])
+	for k in ["steel_sword", "chainmail", "iron_helm", "leather_boots"]:
+		view.game.heroes[0]["equipment"][Gear.slot_of(k)] = view.game.make_item(k, "common")
 	view._set_dungeon_filter("all")
 	var dcard := view.left_leaf.get_child(0).get_node("Margin/Content/Roster/Items").get_child(0) as Button
-	check(dcard.disabled and (dcard.get_node("Body/Tag") as Label).text.begins_with("Gear score"), "unarmed recruit is turned away on gear score")
-	for k in ["steel_sword", "chainmail", "iron_helm", "leather_boots"]:
-		fm["equipment"][Gear.slot_of(k)] = view.game.make_item(k, "common")
-	view._refresh()
-	view._toggle_crew(true, str(fighter["id"]))
-	var enter := view.right_leaf.get_child(0).get_node("Margin/Content/Enter") as Button
-	check(not enter.disabled, "an armed crew can enter (%s)" % (view.right_leaf.get_child(0).get_node("Margin/Content/Reason") as Label).text)
+	check(not dcard.disabled and (dcard.get_node("Body/Info/Details") as Label).text.begins_with("Knight"), "the hero is listed by class")
+	view._toggle_crew(true, hid)
+	var enter := view.right_leaf.get_child(0).get_node("Margin/Content/Go/Enter") as Button
+	var lead := view.right_leaf.get_child(0).get_node("Margin/Content/Go/Lead") as Button
+	check(not enter.disabled and not lead.disabled, "the hero can go in, led or not (%s)" % (view.right_leaf.get_child(0).get_node("Margin/Content/Reason") as Label).text)
 	check((view.right_leaf.get_child(0).get_node("Margin/Content/Floors/F0/Body/Odds") as Label).text.ends_with("%"), "floor odds shown")
-	enter.pressed.emit()
-	check(view.game.missions.size() == 1 and str(view.game.missions[0]["region"]) == "dungeon", "crew entered the keep")
-	check(view.left_leaf.get_child(0).scene_file_path.ends_with("/run_left.tscn"), "the run spread shows the crew inside")
+	lead.pressed.emit()
+	var crawl := view.stage.get_node("CrawlView") as Control
+	check(crawl.visible and not view.game.lead_run().is_empty(), "leading opens the crawl")
+	check((crawl.get_node("Frame/Margin/Body/Arena/Foes") as Control).get_child_count() == 4, "four rats in the Cellars")
+	(crawl.get_node("Frame/Margin/Body/Head/Release") as Button).pressed.emit()
+	await create_timer(0.2).timeout
+	check(not crawl.visible and view.game.lead_run().is_empty(), "letting them handle it closes the crawl")
+	check(view.game.missions.size() == 1 and not bool(view.game.missions[0]["led"]), "and the run carries on under orders")
 	var run: Dictionary = view.game.missions[0]
-	view.game.complete_due(int(run["floor_end"]) + 1)
+	view.game.complete_due(int(run.get("floor_end", run["finish"])) + 1)
 	view._refresh()
 	if str(run["stage"]) == "await":
 		var prompt := view.right_leaf.get_child(0).get_node("Margin/Content/Prompt") as Control
@@ -634,7 +640,11 @@ func _verify() -> void:
 		check(view._needs().any(func(n): return str(n["title"]).contains("waiting")), "Today lists the check-in")
 		(prompt.get_node("Body/Buttons/Out") as Button).pressed.emit()
 		check(str(run["stage"]) == "out", "taking it out sends the crew home")
-	view.game.complete_due(int(run["finish"]) + 1)
+	# Under orders it goes on through floors and the walk out; step time until it's back.
+	for step in range(12):
+		if view.game.missions.is_empty():
+			break
+		view.game.complete_due(int(view.game.missions[0]["finish"]) + 1)
 	check(view.game.missions.is_empty() and str(view.game.reports[0].get("dungeon", "")) == "calder_keep", "run reported")
 	view._refresh()
 	await create_timer(0.8).timeout

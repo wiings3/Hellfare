@@ -29,7 +29,7 @@ theme_override_constants/separation = 6
 
 [node name="Header" parent="Margin/Content" instance=ExtResource("1_section_header")]
 layout_mode = 2
-text = "Choose Fighters"
+text = "Choose Heroes"
 
 [node name="Filter" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
@@ -39,39 +39,39 @@ theme_override_constants/separation = 4
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
-text = "Fighters"
+text = "Knights"
 size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("filter")
 custom_minimum_size = Vector2(0, 18)
-tooltip_text = "Hellfarers holding a weapon. They fight on every floor."
+tooltip_text = "Knights: more health; armour and block count for more; Guard turns most of a blow."
 
 [node name="Porters" type="Button" parent="Margin/Content/Filter"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
-text = "Porters"
+text = "Rogues"
 size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("filter")
 custom_minimum_size = Vector2(0, 18)
-tooltip_text = "No weapon: they don't fight, carry half again as much out, and die easily."
+tooltip_text = "Rogues: fast; crit, dodge and armour piercing count for more."
 
 [node name="All" type="Button" parent="Margin/Content/Filter"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
 theme_type_variation = &"ToggleButton"
-text = "Everyone"
+text = "All heroes"
 size_flags_horizontal = 3
 toggle_mode = true
 button_group = SubResource("filter")
 custom_minimum_size = Vector2(0, 18)
-tooltip_text = "Everyone free, best gear first."
+tooltip_text = "Every hero, rested first."
 
 [node name="Caption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Up to 3. Each needs gear score 8."
+text = "Heroes go into the crypts; your crews keep working meanwhile."
 autowrap_mode = 3
 
 [node name="Roster" type="ScrollContainer" parent="Margin/Content"]
@@ -88,7 +88,7 @@ theme_override_constants/separation = 3
 [node name="NoCrew" parent="Margin/Content" instance=ExtResource("2_info_box")]
 layout_mode = 2
 visible = false
-text = "Nobody is free. Hire fighters in Mercenaries."
+text = "No heroes yet. Take one on in Mercenaries, Heroes."
 icon_kind = "plus"
 
 [node name="Footer" type="HBoxContainer" parent="Margin/Content"]

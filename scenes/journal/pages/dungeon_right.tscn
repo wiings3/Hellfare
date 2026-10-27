@@ -54,7 +54,7 @@ text = "Tier 1  ·  gear score 8+"
 [node name="FloorsCaption" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "Floors  ·  your crew's chance to clear"
+text = "Floors  ·  your heroes' chance to clear, by their own rules"
 
 [node name="Floors" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
@@ -153,8 +153,13 @@ text = "-"
 [node name="Crew" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelMuted"
-text = "No fighters chosen yet."
+text = "No heroes chosen yet."
 autowrap_mode = 3
+
+[node name="OrdersCaption" type="Label" parent="Margin/Content"]
+layout_mode = 2
+theme_type_variation = &"LabelCaption"
+text = "Standing orders  ·  when they go without you"
 
 [node name="Depth" type="HBoxContainer" parent="Margin/Content"]
 layout_mode = 2
@@ -295,7 +300,7 @@ tooltip_text = "Time down and back under these orders, check-ins included."
 [node name="Rule" type="Label" parent="Margin/Content"]
 layout_mode = 2
 theme_type_variation = &"LabelCaption"
-text = "A death makes the crew drop half of what it carries. A wiped crew loses everything."
+text = "A death makes the heroes drop half of what they carry. If they all fall, everything stays below."
 autowrap_mode = 3
 
 [node name="Spacer" type="Control" parent="Margin/Content"]
@@ -303,12 +308,26 @@ layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="Enter" type="Button" parent="Margin/Content"]
+[node name="Go" type="HBoxContainer" parent="Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Lead" type="Button" parent="Margin/Content/Go"]
 layout_mode = 2
 mouse_default_cursor_shape = 2
-text = "Enter"
+text = "Lead them in"
 custom_minimum_size = Vector2(0, 26)
-tooltip_text = "Deaths and lost gear are permanent."
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.4
+tooltip_text = "Go down with them: you choose every action in every fight, and when to come back up. Deaths and lost gear are permanent."
+
+[node name="Enter" type="Button" parent="Margin/Content/Go"]
+layout_mode = 2
+mouse_default_cursor_shape = 2
+text = "Let them handle it"
+custom_minimum_size = Vector2(0, 26)
+size_flags_horizontal = 3
+tooltip_text = "They go by the standing orders above and come back on their own, even while the game is closed."
 
 [node name="Reason" type="Label" parent="Margin/Content"]
 layout_mode = 2

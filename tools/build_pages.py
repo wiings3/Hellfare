@@ -87,7 +87,7 @@ def personnel_tabs():
     s = Scene("PersonnelTabs", "Control", {"layout_mode": 3, "anchors_preset": 0, "offset_right": 285.0, "offset_bottom": 34.0, "mouse_filter": 2})
     grp = s.sub("tabs", "ButtonGroup", {})
     s.node("Tabs", "HBoxContainer", {"layout_mode": 0, "offset_left": 14.0, "offset_top": 12.0, "offset_right": 271.0, "offset_bottom": 30.0, "theme_override_constants/separation": 4})
-    for name, text in [("EmployeesTab", "Roster"), ("RecruitmentTab", "Recruit")]:
+    for name, text in [("EmployeesTab", "Roster"), ("HeroesTab", "Heroes"), ("RecruitmentTab", "Recruit")]:
         button(s, "Tabs/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp})
     s.save(P + "personnel_tabs.tscn")
 
@@ -659,16 +659,16 @@ def dungeon_pages():
     (the crew's health and haul left; the floor track and the check-in right)."""
     s = page("DungeonLeft")
     grp = s.sub("filter", "ButtonGroup", {})
-    header(s, C + "/Header", "Choose Fighters")
+    header(s, C + "/Header", "Choose Heroes")
     s.node(C + "/Filter", "HBoxContainer", {"theme_override_constants/separation": 4})
-    for name, text, tip in [("Fighters", "Fighters", "Hellfarers holding a weapon. They fight on every floor."),
-                            ("Porters", "Porters", "No weapon: they don't fight, carry half again as much out, and die easily."),
-                            ("All", "Everyone", "Everyone free, best gear first.")]:
+    for name, text, tip in [("Fighters", "Knights", "Knights: more health; armour and block count for more; Guard turns most of a blow."),
+                            ("Porters", "Rogues", "Rogues: fast; crit, dodge and armour piercing count for more."),
+                            ("All", "All heroes", "Every hero, rested first.")]:
         button(s, C + "/Filter/" + name, text, "ToggleButton", {"size_flags_horizontal": 3, "toggle_mode": True, "button_group": grp,
                                                                "custom_minimum_size": (0, 18), "tooltip_text": tip})
-    label(s, C + "/Caption", "Up to 3. Each needs gear score 8.", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/Caption", "Heroes go into the crypts; your crews keep working meanwhile.", "LabelCaption", {"autowrap_mode": 3})
     scroll(s, C + "/Roster", 80)
-    s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "Nobody is free. Hire fighters in Mercenaries.", "icon_kind": "plus"})
+    s.inst(C + "/NoCrew", INFO, {"visible": False, "text": "No heroes yet. Take one on in Mercenaries, Heroes.", "icon_kind": "plus"})
     s.node(C + "/Footer", "HBoxContainer")
     button(s, C + "/Footer/Back", "<  All crypts", "TextButton")
     s.save(P + "dungeon_left.tscn")
@@ -680,7 +680,7 @@ def dungeon_pages():
     s.node(C + "/Site/Art", "TextureRect", {"mouse_filter": 2, "expand_mode": 1, "stretch_mode": 6})
     s.node(C + "/Site/Badge", "PanelContainer", {"size_flags_horizontal": 8, "size_flags_vertical": 8, "theme_type_variation": Raw('&"GoldPanel"')})
     label(s, C + "/Site/Badge/Text", "Tier 1  ·  gear score 8+")
-    label(s, C + "/FloorsCaption", "Floors  ·  your crew's chance to clear", "LabelCaption")
+    label(s, C + "/FloorsCaption", "Floors  ·  your heroes' chance to clear, by their own rules", "LabelCaption")
     s.node(C + "/Floors", "HBoxContainer", {"theme_override_constants/separation": 3})
     for i in range(3):
         f = C + "/Floors/F%d" % i
@@ -690,7 +690,8 @@ def dungeon_pages():
         label(s, f + "/Body/Name", "Floor", None, {"text_overrun_behavior": 3})
         label(s, f + "/Body/Foe", "Foes", "LabelCaption", {"text_overrun_behavior": 3})
         label(s, f + "/Body/Odds", "-", "LabelGood")
-    label(s, C + "/Crew", "No fighters chosen yet.", "LabelMuted", {"autowrap_mode": 3})
+    label(s, C + "/Crew", "No heroes chosen yet.", "LabelMuted", {"autowrap_mode": 3})
+    label(s, C + "/OrdersCaption", "Standing orders  ·  when they go without you", "LabelCaption")
     s.node(C + "/Depth", "HBoxContainer", {"theme_override_constants/separation": 3})
     label(s, C + "/Depth/Caption", "As deep as", "LabelCaption", {"custom_minimum_size": (52, 0)})
     for i, (name, text) in enumerate([("D1", "Floor 1"), ("D2", "Floor 2"), ("D3", "The boss")]):
@@ -713,9 +714,13 @@ def dungeon_pages():
     tile(s, C + "/Forecast/Haul", "Haul out", extra={"tooltip_text": "Average coin and goods carried out under these orders, after the crew's share."})
     tile(s, C + "/Forecast/Death", "Someone dies", extra={"tooltip_text": "Chance at least one of the crew dies under these orders."})
     tile(s, C + "/Forecast/Time", "Back in", extra={"tooltip_text": "Time down and back under these orders, check-ins included."})
-    label(s, C + "/Rule", "A death makes the crew drop half of what it carries. A wiped crew loses everything.", "LabelCaption", {"autowrap_mode": 3})
+    label(s, C + "/Rule", "A death makes the heroes drop half of what they carry. If they all fall, everything stays below.", "LabelCaption", {"autowrap_mode": 3})
     spacer(s, C + "/Spacer")
-    button(s, C + "/Enter", "Enter", None, {"custom_minimum_size": (0, 26), "tooltip_text": "Deaths and lost gear are permanent."})
+    s.node(C + "/Go", "HBoxContainer", {"theme_override_constants/separation": 4})
+    button(s, C + "/Go/Lead", "Lead them in", None, {"custom_minimum_size": (0, 26), "size_flags_horizontal": 3, "size_flags_stretch_ratio": 1.4,
+        "tooltip_text": "Go down with them: you choose every action in every fight, and when to come back up. Deaths and lost gear are permanent."})
+    button(s, C + "/Go/Enter", "Let them handle it", None, {"custom_minimum_size": (0, 26), "size_flags_horizontal": 3,
+        "tooltip_text": "They go by the standing orders above and come back on their own, even while the game is closed."})
     label(s, C + "/Reason", "", "LabelAccent", {"horizontal_alignment": 1, "autowrap_mode": 3})
     s.save(P + "dungeon_right.tscn")
 
@@ -948,6 +953,87 @@ def tutorial_card():
     label(s, B + "/Do/Text", "", "LabelAccent", {"size_flags_horizontal": 3, "autowrap_mode": 3})
     button(s, B + "/Next", "Show me", None, {"custom_minimum_size": (0, 22)})
     s.save("scenes/journal/widgets/tutorial_card.tscn")
+
+
+def crawl_fighter():
+    """One fighter on the crawl screen: name, health, status and the sprite (3x)."""
+    s = Scene("CrawlFighter", "VBoxContainer", {"custom_minimum_size": (110, 0), "mouse_filter": 0, "alignment": 2,
+        "theme_override_constants/separation": 1})
+    label(s, "Mark", "Target", "DeskCaption", {"horizontal_alignment": 1, "modulate": Raw("Color(1, 0.8, 0.4, 1)"), "visible": False})
+    label(s, "Name", "Name", "DeskLabel", {"horizontal_alignment": 1, "clip_text": True, "custom_minimum_size": (110, 0)})
+    s.node("Bar", "ProgressBar", {"custom_minimum_size": (72, 6), "size_flags_horizontal": 4, "show_percentage": False,
+        "theme_type_variation": Raw('&"GreenBar"'), "value": 100.0})
+    label(s, "HP", "100 / 100", "DeskCaption", {"horizontal_alignment": 1})
+    label(s, "Status", "", "DeskCaption", {"horizontal_alignment": 1, "modulate": Raw("Color(1, 0.75, 0.45, 1)")})
+    s.node("Sprite", "TextureRect", {"custom_minimum_size": (96, 112), "size_flags_horizontal": 4, "mouse_filter": 2,
+        "expand_mode": 1, "stretch_mode": 5})
+    s.save(R + "crawl_fighter.tscn")
+
+
+def crawl_view():
+    """The crypt crawl: heroes on the left, monsters on the right, the player's actions below."""
+    s = Scene("CrawlView", "Control", {"visible": False, "layout_mode": 3, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "script": Res("res://scripts/ui/crawl_view.gd")})
+    s.node("Dim", "ColorRect", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "grow_horizontal": 2,
+        "grow_vertical": 2, "color": Raw("Color(0.04, 0.02, 0.02, 0.88)")})
+    s.node("Frame", "PanelContainer", {"layout_mode": 1, "anchors_preset": 8, "anchor_left": 0.5, "anchor_top": 0.5, "anchor_right": 0.5,
+        "anchor_bottom": 0.5, "offset_left": -392.0, "offset_top": -256.0, "offset_right": 392.0, "offset_bottom": 256.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "theme_type_variation": Raw('&"DeskPanel"')})
+    s.node("Frame/Margin", "MarginContainer", {"theme_override_constants/margin_left": 8, "theme_override_constants/margin_top": 6,
+        "theme_override_constants/margin_right": 8, "theme_override_constants/margin_bottom": 8})
+    B = "Frame/Margin/Body"
+    s.node(B, "VBoxContainer", {"theme_override_constants/separation": 6})
+    s.node(B + "/Head", "HBoxContainer", {"theme_override_constants/separation": 8})
+    label(s, B + "/Head/Title", "The Fallen Keep  ·  Floor 1 of 3  ·  The Cellars", "DeskTitle", {"size_flags_horizontal": 3})
+    label(s, B + "/Head/Round", "Round 1", "DeskLabel", {"size_flags_vertical": 4})
+    button(s, B + "/Head/Release", "Let them handle it", None, {"custom_minimum_size": (0, 22), "tooltip_text":
+        "Stop leading. The heroes play this fight and the rest of the run by their standing orders, and come back on their own."})
+    s.node(B + "/Arena", "Control", {"custom_minimum_size": (768, 300), "size_flags_vertical": 3, "clip_contents": True, "mouse_filter": 2})
+    s.node(B + "/Arena/Back", "TextureRect", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2, "expand_mode": 1, "stretch_mode": 6})
+    s.node(B + "/Arena/Floor", "ColorRect", {"layout_mode": 1, "anchors_preset": 12, "anchor_top": 1.0, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "offset_top": -26.0, "grow_horizontal": 2, "grow_vertical": 0, "mouse_filter": 2, "color": Raw("Color(0.05, 0.03, 0.03, 0.55)")})
+    s.node(B + "/Arena/Party", "HBoxContainer", {"layout_mode": 1, "anchors_preset": 2, "anchor_top": 1.0, "anchor_bottom": 1.0,
+        "offset_left": 40.0, "offset_top": -230.0, "offset_right": 380.0, "offset_bottom": -12.0, "grow_vertical": 0,
+        "theme_override_constants/separation": 6, "alignment": 0})
+    s.node(B + "/Arena/Foes", "HBoxContainer", {"layout_mode": 1, "anchors_preset": 3, "anchor_left": 1.0, "anchor_top": 1.0,
+        "anchor_right": 1.0, "anchor_bottom": 1.0, "offset_left": -470.0, "offset_top": -230.0, "offset_right": -24.0, "offset_bottom": -12.0,
+        "grow_horizontal": 0, "grow_vertical": 0, "theme_override_constants/separation": 2, "alignment": 2})
+    s.node(B + "/Arena/Floaters", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0,
+        "grow_horizontal": 2, "grow_vertical": 2, "mouse_filter": 2})
+    label(s, B + "/Arena/Callout", "", "DeskTitle", {"layout_mode": 1, "anchors_preset": 10, "anchor_right": 1.0, "offset_top": 12.0,
+        "offset_bottom": 44.0, "grow_horizontal": 2, "horizontal_alignment": 1, "theme_override_colors/font_color": Raw("Color(1, 0.86, 0.58, 1)"),
+        "theme_override_colors/font_outline_color": Raw("Color(0.08, 0.04, 0.03, 1)"), "theme_override_constants/outline_size": 4,
+        "theme_override_font_sizes/font_size": 24})
+    # Below the arena: the hero's choices and the log; or the stairs between floors; or the end.
+    s.node(B + "/Turn", "HBoxContainer", {"custom_minimum_size": (0, 112), "theme_override_constants/separation": 8})
+    s.node(B + "/Turn/Left", "VBoxContainer", {"size_flags_horizontal": 3, "theme_override_constants/separation": 5})
+    label(s, B + "/Turn/Left/Prompt", "Your turn.", "DeskLabel", {"autowrap_mode": 3})
+    s.node(B + "/Turn/Left/Actions", "HBoxContainer", {"theme_override_constants/separation": 4})
+    for name, text, tip in [("Strike", "Strike", "Hit the chosen foe: your weapon's damage, crit and armour piercing."),
+                            ("Skill", "Skill", ""),
+                            ("Guard", "Guard", "Brace until your next turn: take much less from every blow."),
+                            ("Potion", "Potion", "Drink a healing draught, if you packed one."),
+                            ("Retreat", "Retreat", "Leave the crypt now with what you carry.")]:
+        button(s, B + "/Turn/Left/Actions/" + name, text, None, {"custom_minimum_size": (0, 26), "size_flags_horizontal": 3, "tooltip_text": tip})
+    label(s, B + "/Turn/Left/Hint", "Click a monster to choose who to hit.", "DeskCaption", {"autowrap_mode": 3})
+    s.node(B + "/Turn/Log", "PanelContainer", {"custom_minimum_size": (330, 0), "theme_type_variation": Raw('&"InsetPanel"')})
+    s.node(B + "/Turn/Log/Margin", "MarginContainer", {"theme_override_constants/margin_left": 6, "theme_override_constants/margin_top": 4,
+        "theme_override_constants/margin_right": 6, "theme_override_constants/margin_bottom": 4})
+    s.node(B + "/Turn/Log/Margin/Text", "RichTextLabel", {"bbcode_enabled": True, "scroll_following": True, "fit_content": False,
+        "size_flags_vertical": 3, "theme_override_colors/default_color": Raw("Color(0.239, 0.157, 0.141, 1)")})
+    s.node(B + "/Stairs", "PanelContainer", {"visible": False, "custom_minimum_size": (0, 112), "theme_type_variation": Raw('&"InsetPanel"')})
+    s.node(B + "/Stairs/Margin", "MarginContainer", {"theme_override_constants/margin_left": 10, "theme_override_constants/margin_top": 8,
+        "theme_override_constants/margin_right": 10, "theme_override_constants/margin_bottom": 8})
+    S2 = B + "/Stairs/Margin/Body"
+    s.node(S2, "VBoxContainer", {"theme_override_constants/separation": 5})
+    label(s, S2 + "/Title", "The Cellars cleared", "LabelTitle")
+    label(s, S2 + "/Text", "", None, {"autowrap_mode": 3})
+    s.node(S2 + "/Carry", "HBoxContainer", {"theme_override_constants/separation": 4})
+    s.node(S2 + "/Buttons", "HBoxContainer", {"theme_override_constants/separation": 6})
+    button(s, S2 + "/Buttons/Push", "Go down", None, {"custom_minimum_size": (0, 26), "size_flags_horizontal": 3})
+    button(s, S2 + "/Buttons/Leave", "Take it out", None, {"custom_minimum_size": (0, 26), "size_flags_horizontal": 3})
+    s.save("scenes/journal/widgets/crawl_view.tscn")
 
 
 def exchange_tabs():

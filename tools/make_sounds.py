@@ -245,6 +245,32 @@ def build(rpg, ui):
     add("retreat", "interface", [far(mix(*[(s, i * 0.17, 1.0 - i * 0.18) for i, s in enumerate(steps)]), 2500, 1.0, 0.35)],
         db=-5, source="Kenney RPG Audio (footstep00-03)")
     add("find_gear", "interface", [R("metalClick"), R("metalLatch")], db=-6, source="Kenney RPG Audio (metalClick, metalLatch)")
+    # ---- the crawl (led fights)
+    def cut(x, ms):
+        i = max(0, int(np.argmax(np.abs(x))) - int(0.003 * SR))
+        return fade(x[i: i + int(ms / 1000 * SR)], 0.001, 0.03)
+    thud = lowpass(R("dropLeather"), 900)
+    add("hit", "interface", [mix((cut(R("knifeSlice"), 220), 0, 1.0), (cut(thud, 160), 0.01, 0.5)),
+                             mix((cut(R("knifeSlice2"), 220), 0, 1.0), (cut(thud, 160), 0.01, 0.5))], db=-6, pitch=0.08,
+        source="Kenney RPG Audio (knifeSlice, knifeSlice2, dropLeather)")
+    add("crit", "interface", [mix((cut(R("chop"), 300), 0, 1.0), (cut(R("metalPot3"), 260), 0.02, 0.45), (cut(thud, 200), 0.0, 0.7))],
+        db=-2, pitch=0.05, source="Kenney RPG Audio (chop, metalPot3, dropLeather)")
+    add("struck", "interface", [mix((cut(thud, 220), 0, 1.0), (cut(R("cloth3"), 180), 0.0, 0.5)),
+                                mix((cut(lowpass(R("footstep05"), 1200), 200), 0, 1.0), (cut(R("cloth4"), 180), 0.0, 0.5))], db=-5, pitch=0.08,
+        source="Kenney RPG Audio (dropLeather, footstep05, cloth3-4)")
+    add("blocked", "interface", [cut(R("metalPot1"), 280), cut(R("metalPot2"), 280)], db=-7, pitch=0.06,
+        source="Kenney RPG Audio (metalPot1-2)")
+    add("dodge", "interface", [cut(highpass(R("cloth1"), 600), 200), cut(highpass(R("cloth2"), 600), 200)], db=-6, pitch=0.1,
+        source="Kenney RPG Audio (cloth1-2)")
+    add("guard_up", "interface", [mix((R("metalLatch"), 0, 0.9), (R("beltHandle1"), 0.05, 0.6))], db=-7,
+        source="Kenney RPG Audio (metalLatch, beltHandle1)")
+    add("drink", "interface", [mix((R("handleSmallLeather"), 0, 0.6), (reverb(bell(659, 0.6, 0.3, 0.6), 0.5, 0.2), 0.12, 0.5))], db=-7,
+        source="Kenney RPG Audio (handleSmallLeather) + synthesised chime")
+    add("foe_down", "interface", [far(mix((thud, 0, 1.0), (lowpass(R("footstep08"), 900), 0.06, 0.7)), 1500, 0.8, 0.3)], db=-4,
+        source="Kenney RPG Audio (dropLeather, footstep08)")
+    add("wind_up", "interface", [far(lowpass(R("creak2"), 1600), 1600, 1.0, 0.3)], db=-3, pitch=0.0,
+        source="Kenney RPG Audio (creak2)")
+
     add("blueprint", "interface", [R("bookOpen")], db=-6, source="Kenney RPG Audio (bookOpen)")
 
     # ---- ambience (synthesised loops)
