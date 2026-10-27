@@ -73,9 +73,15 @@ func _verify() -> void:
 	for site in TradeSites.SITES:
 		check(region_map._roads.has(RegionMap.road_for({"region": "site", "site": str(site["id"])})), "a road to " + str(site["id"]))
 	check(region_map.get_node("Crews").get_child_count() == 0, "no crews and nobody idle at the start")
-	check((map_page.get_node("Margin/Content/Map/Sites/old_oakwood") as Button).text.contains("Logging 8"), "locked site shows its requirement")
+	var locked_spot := map_page.get_node("Margin/Content/Map/Sites/old_oakwood") as Button
+	check(locked_spot.tooltip_text.contains("Logging level 8") and (locked_spot.get_node("Veil") as Control).visible, "a locked site is veiled and says what it needs")
+	var open_spot := map_page.get_node("Margin/Content/Map/Sites/mossward_copse") as Button
+	check(not (open_spot.get_node("Veil") as Control).visible and (open_spot.get_node("Name") as Label).text == "Cinderwood", "an open site is named and unveiled")
+	for site in TradeSites.SITES:
+		check(map_page.has_node("Margin/Content/Map/Sites/" + str(site["id"])), "every site has a place on the map: " + str(site["id"]))
 	var grave := map_page.get_node("Margin/Content/Map/Fallen/harlow") as Button
-	check(grave.text == str(view.game.fallen.share("harlow", view._now()).size()), "grave marker counts this company's share")
+	var share: int = view.game.fallen.share("harlow", view._now()).size()
+	check(grave.text == str(share) and grave.visible == (share > 0), "grave marker counts this company's share, and shows only when there is some")
 	var fallen_card := map_page.get_node("Margin/Content/Map/FallenCard") as Control
 	grave.mouse_entered.emit()
 	check(fallen_card.visible and (fallen_card.get_node("Margin/Body/Title") as Label).text.contains("Gatepit"), "hovering a grave opens the fallen gear card")

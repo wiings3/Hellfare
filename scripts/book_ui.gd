@@ -306,47 +306,33 @@ func _draw_region_map() -> void:
 		return text
 	map.show_company(game.missions, game.free_crew())
 	var sites := "Margin/Content/Map/Sites/"
+	var layer_names: Array = ["the surface", "1 · Ashen Verge", "2 · Weeping Fens", "3 · Brimstone Reach", "4 · Frozen Lament", "5 · The Abyss"]
 	for site in TradeSites.SITES:
 		var id: String = str(site["id"])
 		if not left.has_node(sites + id):
 			continue
-		var btn := left.get_node(sites + id) as Button
+		var spot := left.get_node(sites + id) as Button
 		var trade: String = str(site["trade"])
 		var best: int = int(_best_in(trade)["level"])
-		var locked: bool = best < int(site["level"])
+		var built: bool = game.has_upgrade(str(site.get("needs", "")))
+		var locked: bool = best < int(site["level"]) or not built
 		var out: int = 0
 		for mission in game.missions:
 			if RegionMap.road_for(mission) == id:
 				out += 1
-		btn.text = str(site["name"]).trim_prefix("The ") + ("  ·  %s %d" % [TradeSkills.NAMES.get(trade, trade), int(site["level"])] if locked else "")
-		btn.tooltip_text = "%s\n%s" % [str(site["name"]), "Needs %s level %d (yours: %d)." % [TradeSkills.NAMES.get(trade, trade), int(site["level"]), best] if locked else ("%d crew working here." % out if out > 0 else "Click to plan an expedition.")]
-		if locked:
-			btn.modulate = Color(1, 1, 1, 0.7)
-		btn.pressed.connect(_open_site.bind(id))
-	# Regions of the newer trades: one label each, opening the best site the company can work.
-	for trade in ["foraging", "fishing", "hunting", "farming"]:
-		if not left.has_node(sites + trade):
-			continue
-		var region := left.get_node(sites + trade) as Button
-		var best: int = int(_best_in(trade)["level"])
-		var open_sites: Array[String] = []
-		var target: String = ""
-		for site in TradeSites.for_trade(trade):
-			var ready: bool = best >= int(site["level"]) and game.has_upgrade(str(site.get("needs", "")))
-			open_sites.append("%s%s" % [str(site["name"]), "" if ready else "  (%s %d%s)" % [TradeSkills.NAMES[trade], int(site["level"]), ", needs building" if not game.has_upgrade(str(site.get("needs", ""))) else ""]])
-			if ready:
-				target = str(site["id"])
-		var out: int = 0
-		for mission in game.missions:
-			if RegionMap.road_for(mission) == trade:
-				out += 1
-		region.tooltip_text = "%s
-%s%s" % [TradeSkills.NAMES[trade], "
-".join(open_sites), ("
-%d crew working here." % out) if out > 0 else ""]
-		if target == "":
-			target = str(TradeSites.for_trade(trade)[0]["id"])
-		region.pressed.connect(_open_site.bind(target))
+		var where: String = "Above, in Last Lantern" if trade == "farming" else "Layer " + layer_names[int(site.get("tier", 1))]
+		var status: String
+		if best < int(site["level"]):
+			status = "Needs %s level %d (yours: %d)." % [TradeSkills.NAMES.get(trade, trade), int(site["level"]), best]
+		elif not built:
+			status = "Needs building first (Ledger, guild upgrades)."
+		elif out > 0:
+			status = "%s working here." % _plural(out, "crew")
+		else:
+			status = "Click to plan an expedition."
+		spot.tooltip_text = "%s\n%s  ·  %s %d+\n%s" % [str(site["name"]), where, TradeSkills.NAMES.get(trade, trade), int(site["level"]), status]
+		_bind_map_spot(spot, locked)
+		spot.pressed.connect(_open_site.bind(id))
 	# Crypts on the map open their planner.
 	for crypt in Dungeons.DUNGEONS:
 		if not left.has_node(sites + str(crypt)):
@@ -357,11 +343,13 @@ func _draw_region_map() -> void:
 		for mission in game.missions:
 			if RegionMap.road_for(mission) == str(crypt):
 				below += 1
-		keep.tooltip_text = "%s\n%s" % [str(d["name"]), "A crew is inside." if below > 0 else "A crypt: fighters with gear score %d+." % int(d["min_kit"])]
+		keep.tooltip_text = "%s\nLayer %s  ·  a crypt\n%s" % [str(d["name"]), layer_names[int(d.get("layer", 1))], "A crew is inside." if below > 0 else "For fighters with gear score %d+." % int(d["min_kit"])]
+		_bind_map_spot(keep, false)
 		keep.pressed.connect(_open_dungeon.bind(str(crypt)))
 	_bind_fallen(left)
 	var town := left.get_node(sites + "town") as Button
-	town.tooltip_text = "Last Lantern, home of the guild.\n%d resting above." % game.free_crew()
+	town.tooltip_text = "Last Lantern, home of the guild.\n%d resting above. Click for the warehouse." % game.free_crew()
+	_bind_map_spot(town, false)
 	town.pressed.connect(_turn_to.bind("warehouse"))
 	var status := left.get_node("Margin/Content/Status") as Label
 	var update := func() -> void:
@@ -379,14 +367,36 @@ func _draw_region_map() -> void:
 	update.call()
 	live_updaters.append(update)
 
+## A place on the map: veiled and dimmed while out of reach; its name lights up on hover.
+func _bind_map_spot(spot: Button, locked: bool) -> void:
+	var name_label := spot.get_node("Name") as Label
+	if spot.has_node("Veil"):
+		(spot.get_node("Veil") as Control).visible = locked
+	var rest := Color(0.62, 0.56, 0.52) if locked else Color(1, 1, 1)
+	name_label.modulate = rest
+	spot.mouse_entered.connect(func() -> void: name_label.modulate = Color(1.0, 0.82, 0.45))
+	spot.mouse_exited.connect(func() -> void: name_label.modulate = rest)
+
+## True if this company can send a crew to the site (or crypt) now.
+func _map_site_open(site_id: String) -> bool:
+	if Dungeons.DUNGEONS.has(site_id):
+		return true
+	var site: Dictionary = TradeSites.by_id(site_id)
+	if site.is_empty():
+		return false
+	return int(_best_in(str(site["trade"]))["level"]) >= int(site["level"]) and game.has_upgrade(str(site.get("needs", "")))
+
 ## Grave markers on the map: how much fallen gear this company could find at each site.
+## A marker shows only where there's something to find.
 func _bind_fallen(left: Control) -> void:
 	var map := "Margin/Content/Map/"
 	var card := left.get_node(map + "FallenCard") as Control
 	for marker in left.get_node(map + "Fallen").get_children():
 		var site_id: String = str(marker.name)
 		var badge := marker as Button
-		badge.text = str(game.fallen.share(site_id, _now()).size())
+		var count: int = game.fallen.share(site_id, _now()).size()
+		badge.text = str(count)
+		badge.visible = count > 0 and _map_site_open(site_id)
 		badge.mouse_entered.connect(_show_fallen.bind(card, site_id, badge))
 		badge.mouse_exited.connect(func() -> void: card.visible = false)
 		badge.pressed.connect(_open_site.bind(site_id))
@@ -395,7 +405,7 @@ func _show_fallen(card: Control, site_id: String, badge: Control) -> void:
 	var now: int = _now()
 	var share: Array[Dictionary] = game.fallen.share(site_id, now)
 	var body := "Margin/Body/"
-	var site_name: String = str(TradeSites.by_id(site_id).get("name", "the site"))
+	var site_name: String = str(TradeSites.by_id(site_id).get("name", Dungeons.DUNGEONS.get(site_id, {}).get("name", "the site")))
 	(card.get_node(body + "Title") as Label).text = "Left below at " + site_name
 	(card.get_node(body + "Summary") as Label).text = "%d pieces lie here. %d %s within your reach today." % [game.fallen.size(site_id, now), share.size(), "is" if share.size() == 1 else "are"]
 	var rows := card.get_node(body + "Rows") as VBoxContainer

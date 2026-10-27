@@ -1234,53 +1234,91 @@ def fallen_card():
     s.save("scenes/journal/widgets/fallen_card.tscn")
 
 
+## How wide each place's name is in the body font (px), for sizing its spot on the map.
+MAP_NAME_W = {
+    "Cinderwood": 41, "Weepingwood": 48, "Gatepit": 25, "Sulphur Deeps": 50, "Ashmeadow": 41, "Bloodfen": 31,
+    "Ember Slopes": 47, "Lament's Edge": 50, "Cinder Pool": 39, "Styx Shallows": 48, "Lake of Glass": 46,
+    "Shore of Tears": 53, "Drowned Deep": 50, "Hollow Fields": 43, "Houndfang Hills": 52, "Gorehorn Moor": 53,
+    "Bleakridge": 36, "Home Fields": 40, "Tilled Acres": 39, "Beehives": 31, "Glasshouse": 39, "Fallen Keep": 39,
+    "Last Lantern": 43,
+}
+MAP_NAMES = {
+    "mossward_copse": "Cinderwood", "old_oakwood": "Weepingwood", "harlow": "Gatepit", "deepdelve": "Sulphur Deeps",
+    "mossward_meadows": "Ashmeadow", "fenmire": "Bloodfen", "sunreach": "Ember Slopes", "frostvale": "Lament's Edge",
+    "millbrook_pond": "Cinder Pool", "silverrun": "Styx Shallows", "glasswater": "Lake of Glass",
+    "greywater_coast": "Shore of Tears", "drowned_deep": "Drowned Deep", "hollow_fields": "Hollow Fields",
+    "greyfang_hills": "Houndfang Hills", "elkmoor": "Gorehorn Moor", "bleakridge": "Bleakridge",
+    "home_fields": "Home Fields", "tilled_acres": "Tilled Acres", "beehives": "Beehives", "glasshouse": "Glasshouse",
+    "calder_keep": "Fallen Keep",
+}
+
+
 def company_map():
+    """The Descent: a painted cutaway (tools/paint_descent_map.py), with a clickable spot for every
+    site and crypt, layer badges, grave markers and the roads crews walk, all placed from
+    tools/map_roads.json so the art and the scene stay in step."""
     import json
-    roads = json.load(open("tools/map_roads.json"))
+    data = json.load(open("tools/map_roads.json"))
+    mw, mh = data["_size"]
     s = page("CompanyMapLeft")
+    for i, (name, type_, parent, props, inst) in enumerate(s.nodes):
+        if name == "Content" and parent == "Margin":
+            props["theme_override_constants/separation"] = 3
     header(s, C + "/Header", "The Descent")
     M = C + "/Map"
-    s.node(M, "Control", {"custom_minimum_size": (257, 280), "size_flags_horizontal": 4, "mouse_filter": 2,
+    s.node(M, "Control", {"custom_minimum_size": (mw, mh), "size_flags_horizontal": 4, "mouse_filter": 2,
         "script": Res("res://scripts/ui/region_map.gd")})
-    s.node(M + "/Ground", "TextureRect", {"layout_mode": 0, "offset_right": 257.0, "offset_bottom": 280.0, "mouse_filter": 2,
+    s.node(M + "/Ground", "TextureRect", {"layout_mode": 0, "offset_right": float(mw), "offset_bottom": float(mh), "mouse_filter": 2,
         "texture": Res("res://assets/ui/art/region_map.png"), "stretch_mode": 0})
-    # Roads the crews walk, from town to each site (hidden guides; edit the points to re-route).
+    # Roads the crews walk, from town to each site (hidden guides; repaint the map to re-route).
     s.node(M + "/Roads", "Node2D", {"visible": False})
-    chimneys = roads.pop("_chimneys", [])
-    for site, pts in roads.items():
+    for site, pts in data.items():
+        if site.startswith("_"):
+            continue
         flat = ", ".join("%s, %s" % (x, y) for x, y in pts)
         s.node(M + "/Roads/" + site, "Line2D", {"points": Raw("PackedVector2Array(%s)" % flat), "width": 1.0})
-    # Chimneys in town: smoke rises from each marker.
     s.node(M + "/Chimneys", "Node2D", {})
-    for i, (x, y) in enumerate(chimneys):
+    for i, (x, y) in enumerate(data["_chimneys"]):
         s.node(M + "/Chimneys/Chimney%d" % (i + 1), "Marker2D", {"position": (float(x), float(y)), "gizmo_extents": 3.0})
-    # The layers of hell with no open sites yet: names only, with a tooltip.
-    for name, text, x, y, w, tip in [
-            ("Layer1", "1 · Ashen Verge", 136, 66, 62, "The Ashen Verge: just past the Maw. Ash falls like snow."),
-            ("Layer2", "2 · Weeping Fens", 136, 148, 66, "The Weeping Fens: black water and trees that weep red sap."),
-            ("Layer3", "3 · Brimstone Reach", 88, 207, 82, "The Brimstone Reach: not yet surveyed. Burning slopes and glass lakes."),
-            ("Layer4", "4 · Frozen Lament", 92, 230, 74, "The Frozen Lament: not yet surveyed. Ice that holds the screaming."),
-            ("Layer5", "5 · The Abyss", 64, 262, 54, "The Abyss: not yet surveyed. The Throne Below is at the bottom.")]:
-        label(s, M + "/" + name, text, "MapLabel", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
-            "offset_right": float(x + w), "offset_bottom": float(y + 12), "horizontal_alignment": 1, "mouse_filter": 1,
-            "tooltip_text": tip, "theme_override_colors/font_color": Raw("Color(0.478, 0.345, 0.29, 1)")})
-    # Site names: click one to plan an expedition there. Keep in step with SPOTS in tools/paint_descent_map.py.
-    s.node(M + "/Sites", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
-    for site, text, x, y, w in [("mossward_copse", "Cinderwood", 16, 88, 56), ("old_oakwood", "Weepingwood", 22, 178, 60),
-                                ("harlow", "Gatepit", 194, 93, 50), ("town", "Last Lantern", 98, 10, 60),
-                                ("deepdelve", "Sulphur Deeps", 150, 183, 70),
-                                # The newer trades: one label per region, shared by its sites.
-                                ("foraging", "Ashmeadow", 72, 131, 48), ("fishing", "Cinder Pool", 190, 123, 56),
-                                ("hunting", "Hollow Fields", 8, 125, 62), ("farming", "Home Fields", 14, 32, 56),
-                                # The crypts.
-                                ("calder_keep", "Fallen Keep", 146, 127, 46)]:
-        button(s, M + "/Sites/" + site, text, "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
-            "offset_right": float(x + w), "offset_bottom": float(y + 13)})
-    # Grave markers: what the dead left below at each site, that this guild could find.
+    # Layer badges on the rock wall, with the layer's name and what lives there.
+    s.node(M + "/Layers", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
+    for layer in data["_layers"]:
+        x, y = float(max(3, layer["left"] - 13)), float(layer["y0"] + 1)
+        label(s, M + "/Layers/Layer%d" % layer["id"], str(layer["id"]), "MapLayer", {"layout_mode": 0,
+            "offset_left": x, "offset_top": y, "offset_right": x + 9.0, "offset_bottom": y + 12.0,
+            "horizontal_alignment": 1, "mouse_filter": 0, "tooltip_text": layer["tip"]})
+    # Every place: a spot over its little scene, its name under it, a veil while it's out of reach.
+    S = M + "/Sites"
+    s.node(S, "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
+    for site, spot in data["_spots"].items():
+        name = MAP_NAMES[site]
+        w = max(34, MAP_NAME_W[name] + 4)
+        x0, y0 = spot["x"] - w / 2.0, spot["y"] - 10.0
+        button(s, S + "/" + site, "", "MapSpot", {"layout_mode": 0, "offset_left": x0, "offset_top": y0,
+            "offset_right": x0 + w, "offset_bottom": y0 + 30.0})
+        s.node(S + "/" + site + "/Veil", "TextureRect", {"visible": False, "layout_mode": 0, "offset_left": w / 2.0 - 20.0, "offset_top": -1.0,
+            "offset_right": w / 2.0 + 20.0, "offset_bottom": 21.0, "mouse_filter": 2, "texture": Res("res://assets/ui/kit/map_veil.png"),
+            "stretch_mode": 0})
+        label(s, S + "/" + site + "/Name", name, "MapName", {"layout_mode": 0, "offset_left": 0.0, "offset_top": 17.0,
+            "offset_right": w, "offset_bottom": 29.0, "horizontal_alignment": 1, "mouse_filter": 2})
+    # The town: rest, and the warehouse.
+    button(s, S + "/town", "", "MapSpot", {"layout_mode": 0, "offset_left": 90.0, "offset_top": 2.0, "offset_right": 168.0, "offset_bottom": 46.0})
+    label(s, S + "/town/Name", "Last Lantern", "MapName", {"layout_mode": 0, "offset_left": -16.0, "offset_top": 10.0,
+        "offset_right": 30.0, "offset_bottom": 22.0, "horizontal_alignment": 1, "mouse_filter": 2})
+    # Crypts not open yet: painted in, named on hover.
+    s.node(M + "/Planned", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
+    for crypt, x, y, w, h, tip in [("sunken_abbey", 112, 120, 32, 24, "The Drowned Abbey\nA crypt not open yet. Rival crews have been seen going in."),
+                                   ("wyrms_hollow", 144, 274, 32, 30, "The Throne Below\nThe bottom of everything. Not open yet.")]:
+        s.node(M + "/Planned/" + crypt, "Control", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
+            "offset_right": float(x + w), "offset_bottom": float(y + h), "tooltip_text": tip})
+    # Grave markers: what the dead left below that this guild could find (shown when there is some).
     s.node(M + "/Fallen", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
-    for site, x, y in [("mossward_copse", 70, 74), ("old_oakwood", 78, 164), ("harlow", 174, 78), ("deepdelve", 230, 160)]:
-        button(s, M + "/Fallen/" + site, "0", "MapButton", {"layout_mode": 0, "offset_left": float(x), "offset_top": float(y),
-            "offset_right": float(x + 22), "offset_bottom": float(y + 12), "icon": Res("res://assets/ui/art/crew/grave.png")})
+    for site, spot in data["_spots"].items():
+        if spot["layer"] == 0:
+            continue
+        x, y = float(spot["x"] + 9), float(spot["y"] - 12)
+        button(s, M + "/Fallen/" + site, "0", "MapButton", {"layout_mode": 0, "offset_left": x, "offset_top": y,
+            "offset_right": x + 22.0, "offset_bottom": y + 12.0, "icon": Res("res://assets/ui/art/crew/grave.png")})
     # Crew figures are added here while expeditions run.
     s.node(M + "/Crews", "Control", {"layout_mode": 1, "anchors_preset": 15, "anchor_right": 1.0, "anchor_bottom": 1.0, "mouse_filter": 2})
     s.inst(M + "/FallenCard", "res://scenes/journal/widgets/fallen_card.tscn", {"layout_mode": 0, "offset_right": 172.0, "offset_bottom": 40.0})

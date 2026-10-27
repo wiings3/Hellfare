@@ -17,6 +17,18 @@ or to fight through its crypts toward the Ashen King. It was called Money Mercs 
 5. Crews come back up on their own, even while you're away. Sell the haul in **Market**, craft in
    **Workshop**, and read every trip in the **Ledger**. Deaths are permanent.
 
+## V0.32 – The Descent, repainted
+
+The map on the Company page is repainted with the expedition banners' painter
+(`tools/paint_descent_map.py`, built on `tools/paint_sites.py`): a lit cutaway under Last Lantern,
+the farms and town at dusk on the surface, the Maw under the lantern tower, and the five layers
+below as cavern ledges that narrow as they go down, each in its own light. Every site and crypt is
+a small painted scene with its name under it, and every site has its own road, so a crew walks
+to the exact place they were sent. Places out of reach are softly shaded and their tooltip says
+what they need; names light up on hover; grave markers show only where there's fallen gear to
+find. The painter writes `tools/map_roads.json` too, and the scene is rebuilt from it with
+`python3 tools/build_pages.py company_map`, so the art and the clickable spots never drift.
+
 ## V0.31 – The Warehouse
 
 Everything the guild owns is in one place: **Workshop → Warehouse** (the Workshop's third tab).

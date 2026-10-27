@@ -33,18 +33,22 @@ def lerp(a, b, t):
 
 
 class Scene:
-    def __init__(self, seed, haze, ambient=0.22):
+    def __init__(self, seed, haze, ambient=0.22, w=None, h=None):
+        self.w = w or W
+        self.h = h or H
         self.rnd = random.Random(seed)
         self.np = np.random.default_rng(seed)
-        self.img = np.zeros((H, W, 3))
+        self.img = np.zeros((self.h, self.w, 3))
         self.haze = rgb(haze) if isinstance(haze, str) else haze
         self.ambient = ambient
         self.lights = []          # (x, y, radius, colour, strength)
-        self.yy, self.xx = np.mgrid[0:H, 0:W].astype(float)
+        self.yy, self.xx = np.mgrid[0:self.h, 0:self.w].astype(float)
 
     # --- noise ------------------------------------------------------------------------
-    def noise(self, scale, octaves=4, w=W, h=H):
+    def noise(self, scale, octaves=4, w=None, h=None):
         """Fractal value noise in 0..1, features about `scale` px across."""
+        w = w or self.w
+        h = h or self.h
         out = np.zeros((h, w))
         amp, total = 1.0, 0.0
         for o in range(octaves):
@@ -59,7 +63,7 @@ class Scene:
         return out / total
 
     def noise1d(self, scale, octaves=4):
-        return self.noise(scale, octaves, W, 1)[0]
+        return self.noise(scale, octaves, self.w, 1)[0]
 
     # --- light ------------------------------------------------------------------------
     def light(self, x, y, r, colour, strength=1.0):
@@ -67,7 +71,7 @@ class Scene:
 
     def lightmap(self):
         """Colour of the light falling on every pixel (sum of the lights)."""
-        out = np.zeros((H, W, 3))
+        out = np.zeros((self.h, self.w, 3))
         for x, y, r, c, s in self.lights:
             d = np.sqrt((self.xx - x) ** 2 + ((self.yy - y) * 1.25) ** 2) / r
             out += c[None, None, :] * (s * np.clip(1 - d, 0, 1) ** 1.6)[..., None]
@@ -75,9 +79,9 @@ class Scene:
 
     def light_dir(self):
         """Per pixel, a unit vector pointing to the strongest light."""
-        best = np.zeros((H, W))
-        dx = np.zeros((H, W))
-        dy = np.full((H, W), -1.0)
+        best = np.zeros((self.h, self.w))
+        dx = np.zeros((self.h, self.w))
+        dy = np.full((self.h, self.w), -1.0)
         for x, y, r, c, s in self.lights:
             d = np.sqrt((self.xx - x) ** 2 + (self.yy - y) ** 2)
             v = s * np.clip(1 - d / r, 0, 1)
@@ -93,8 +97,8 @@ class Scene:
         """A vertical gradient through `stops` [(y, colour)], with drifting smoke."""
         ys = [s[0] for s in stops]
         cs = [rgb(s[1]) for s in stops]
-        col = np.zeros((H, 3))
-        for y in range(H):
+        col = np.zeros((self.h, 3))
+        for y in range(self.h):
             if y <= ys[0]:
                 col[y] = cs[0]
             elif y >= ys[-1]:
@@ -106,7 +110,7 @@ class Scene:
         self.img[:] = col[:, None, :]
         if smoke is not None:
             n = self.noise(smoke_scale, 5)
-            stretch = np.asarray(Image.fromarray((n * 255).astype(np.uint8)).resize((W * 3, H)).crop((0, 0, W, H)), float) / 255
+            stretch = np.asarray(Image.fromarray((n * 255).astype(np.uint8)).resize((self.w * 3, self.h)).crop((0, 0, self.w, self.h)), float) / 255
             m = np.clip((stretch - 0.45) * 2.4, 0, 1) * smoke_amount
             self.img = lerp(self.img, rgb(smoke)[None, None, :], m[..., None])
 
@@ -117,16 +121,16 @@ class Scene:
         self.img = self.img + rgb(colour)[None, None, :] * a[..., None]
 
     # --- masks ------------------------------------------------------------------------
-    @staticmethod
-    def canvas():
-        im = Image.new("L", (W, H), 0)
+    def canvas(self):
+        im = Image.new("L", (self.w, self.h), 0)
         return im, ImageDraw.Draw(im)
 
     @staticmethod
     def m(im):
         return np.asarray(im, dtype=float) / 255.0 > 0.5
 
-    def ridge_mask(self, top, amp, scale, sharp=False, bottom=H):
+    def ridge_mask(self, top, amp, scale, sharp=False, bottom=None):
+        bottom = self.h if bottom is None else bottom
         n = self.noise1d(scale, 5)
         if sharp:
             n = 1 - np.abs(n * 2 - 1)
@@ -139,6 +143,7 @@ class Scene:
         the light near it and rimmed on the edges that face the light."""
         if not mask.any():
             return
+        rim *= getattr(self, "rim_scale", 1.0)
         base = rgb(colour) if isinstance(colour, str) else colour
         lm = self._lm if hasattr(self, "_lm") else self.lightmap()
         tex = 1 + (self.noise(tex_scale, 3) - 0.5) * 2 * texture
@@ -147,7 +152,7 @@ class Scene:
         c = lerp(c, self.haze[None, None, :], depth * haze_k)
         if rim > 0:
             dx, dy = self._dir if hasattr(self, "_dir") else self.light_dir()
-            edge = np.zeros((H, W), bool)
+            edge = np.zeros((self.h, self.w), bool)
             for ox, oy in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]:
                 facing = (dx * ox + dy * oy) > 0.35
                 nb = np.roll(np.roll(mask, -oy, 0), -ox, 1)
@@ -174,7 +179,7 @@ class Scene:
 
     def fog(self, y, thick, colour, amount=0.5, scale=30):
         n = self.noise(scale, 4)
-        n = np.asarray(Image.fromarray((n * 255).astype(np.uint8)).resize((W * 2, H)).crop((W // 2, 0, W // 2 + W, H)), float) / 255
+        n = np.asarray(Image.fromarray((n * 255).astype(np.uint8)).resize((self.w * 2, self.h)).crop((self.w // 2, 0, self.w // 2 + self.w, self.h)), float) / 255
         band = np.exp(-((self.yy - y) / thick) ** 2)
         a = np.clip(band * (0.5 + n) * amount, 0, 1)
         self.img = lerp(self.img, rgb(colour)[None, None, :], a[..., None])
@@ -271,7 +276,8 @@ class Scene:
         return P(22, 12)  # eye
 
 
-    def reflect(self, y0, tint, amount=0.35, darken=0.62, ripple=1.6, y1=H):
+    def reflect(self, y0, tint, amount=0.35, darken=0.62, ripple=1.6, y1=None):
+        y1 = self.h if y1 is None else y1
         """Water from y0 down: the picture above, mirrored, broken by ripples and tinted."""
         src_img = self.img.copy()
         wob = self.noise(6, 2)
@@ -283,7 +289,7 @@ class Scene:
             self.img[y] = lerp(row, rgb(tint), amount * (0.4 + 0.6 * k))
         for _ in range(int((y1 - y0) * 1.4)):  # glints where the light lies on the water
             y = self.rnd.randrange(y0 + 1, y1)
-            x = self.rnd.randrange(W)
+            x = self.rnd.randrange(self.w)
             n = self.rnd.randint(2, 7)
             self.img[y, x:x + n] = lerp(self.img[y, x:x + n], self._lm[y, x:x + n] if hasattr(self, "_lm") else self.img[y, x:x + n], 0.7) * 1.15
 
@@ -373,21 +379,22 @@ class Scene:
                             y0 + (y1 - y0) * t + self.rnd.uniform(-rough, rough)))
         d.polygon(out, fill=255)
 
-    def rain(self, n, colour, slant=-1, length=3, y0=0, y1=H):
+    def rain(self, n, colour, slant=-1, length=3, y0=0, y1=None):
+        y1 = self.h if y1 is None else y1
         c = rgb(colour)
         for _ in range(n):
-            x, y = self.rnd.randrange(W), self.rnd.randrange(y0, y1)
+            x, y = self.rnd.randrange(self.w), self.rnd.randrange(y0, y1)
             for i in range(length):
                 xx, yy = x + slant * i // 2, y + i
-                if 0 <= xx < W and 0 <= yy < H:
+                if 0 <= xx < self.w and 0 <= yy < self.h:
                     self.img[yy, xx] = lerp(self.img[yy, xx], c, 0.55)
 
     def done(self, colours=48, dither=0.045, vignette=0.35, gamma=0.9):
         img = np.clip(self.img, 0, 1) ** gamma
         if vignette:
-            d = np.sqrt(((self.xx - W / 2) / (W / 2)) ** 2 + ((self.yy - H / 2) / (H / 2)) ** 2)
+            d = np.sqrt(((self.xx - self.w / 2) / (self.w / 2)) ** 2 + ((self.yy - self.h / 2) / (self.h / 2)) ** 2)
             img = img * (1 - vignette * np.clip(d - 0.55, 0, 1) ** 1.5)[..., None]
-        b = BAYER[(np.arange(H) % 4)[:, None], (np.arange(W) % 4)[None, :]]
+        b = BAYER[(np.arange(self.h) % 4)[:, None], (np.arange(self.w) % 4)[None, :]]
         img = np.clip(img + b[..., None] * dither, 0, 1)
         im = Image.fromarray((img * 255).astype(np.uint8), "RGB")
         im = im.quantize(colors=colours, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert("RGBA")
@@ -397,13 +404,13 @@ class Scene:
 def particles(sc, n, colour, y0=0, y1=H, size=1, hot=None):
     c = rgb(colour)
     for _ in range(n):
-        x, y = sc.rnd.randrange(W), sc.rnd.randrange(y0, y1)
+        x, y = sc.rnd.randrange(sc.w), sc.rnd.randrange(y0, min(y1, sc.h))
         sc.img[y, x] = c
         if hot is not None and sc.rnd.random() < 0.5:
             for ox, oy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                if 0 <= x + ox < W and 0 <= y + oy < H:
+                if 0 <= x + ox < sc.w and 0 <= y + oy < sc.h:
                     sc.img[y + oy, x + ox] = lerp(sc.img[y + oy, x + ox], rgb(hot), 0.45)
-        elif size > 1 and x + 1 < W:
+        elif size > 1 and x + 1 < sc.w:
             sc.img[y, x + 1] = lerp(sc.img[y, x + 1], c, 0.5)
 
 

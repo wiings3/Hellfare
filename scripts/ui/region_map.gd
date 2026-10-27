@@ -28,7 +28,7 @@ const SPACING := 6.0
 ## Most figures drawn for one crew, and for idle mercenaries in town.
 const MAX_PER_CREW := 3
 const MAX_IDLE := 4
-const TOWN := Vector2(128, 54)
+const TOWN := Vector2(128, 44)
 const TOWN_SPREAD := Vector2(26, 1)
 const IDLE_SPEED := 5.0
 
@@ -84,17 +84,13 @@ func show_company(missions: Array, free_mercs: int) -> void:
 		_idlers.append({"node": token, "pos": spot, "target": spot, "wait": _rng.randf_range(0.0, 3.0)})
 	_process(0.0)
 
-## Which road a mission's crew walks, or "" if they stay in town.
-## Sites with a road of their own; every other site walks its trade's road to the region.
-const OWN_ROADS := ["mossward_copse", "old_oakwood", "harlow", "deepdelve"]
-
+## Which road a mission's crew walks, or "" if they stay in town. Every site and crypt has a
+## road of its own, named by its id (tools/paint_descent_map.py draws them).
 static func road_for(mission: Dictionary) -> String:
 	match str(mission.get("region", "")):
 		"harlow": return "harlow"
 		"dungeon": return str(mission.get("dungeon", ""))
-		"site":
-			var site: String = str(mission.get("site", ""))
-			return site if OWN_ROADS.has(site) else str(TradeSites.by_id(site).get("trade", ""))
+		"site": return str(mission.get("site", ""))
 	return ""
 
 ## Where one crew member stands on the map at `progress` (0..1) of the trip, and what they do.

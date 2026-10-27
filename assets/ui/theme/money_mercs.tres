@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=66 format=3]
+[gd_resource type="Theme" load_steps=69 format=3]
 
 [ext_resource type="FontFile" path="res://assets/fonts/Jersey10-Regular.ttf" id="f_body"]
 [ext_resource type="FontFile" path="res://assets/fonts/Jersey15-Regular.ttf" id="f_title"]
@@ -356,6 +356,34 @@ content_margin_top = 1.0
 content_margin_right = 1.0
 content_margin_bottom = 1.0
 
+[sub_resource type="StyleBoxEmpty" id="map_empty"]
+
+[sub_resource type="StyleBoxFlat" id="map_spot_hover"]
+bg_color = Color(1, 0.862745, 0.6, 0.1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.839216, 0.627451, 0.243137, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="map_layer"]
+bg_color = Color(0.105882, 0.07451, 0.066667, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.623529, 0.454902, 0.223529, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+content_margin_left = 3.0
+content_margin_right = 3.0
+
 [resource]
 default_font = ExtResource("f_body")
 default_font_size = 10
@@ -506,6 +534,20 @@ MapLabel/base_type = &"Label"
 MapLabel/colors/font_color = Color(0.580392, 0.454902, 0.384314, 1)
 MapLabel/colors/font_outline_color = Color(0.909804, 0.835294, 0.741176, 1)
 MapLabel/constants/outline_size = 3
+MapLayer/base_type = &"Label"
+MapLayer/colors/font_color = Color(0.909804, 0.741176, 0.392157, 1)
+MapLayer/styles/normal = SubResource("map_layer")
+MapName/base_type = &"Label"
+MapName/colors/font_color = Color(0.94902, 0.890196, 0.807843, 1)
+MapName/colors/font_outline_color = Color(0.0784314, 0.0509804, 0.0470588, 1)
+MapName/constants/outline_size = 3
+MapSpot/base_type = &"Button"
+MapSpot/styles/disabled = SubResource("map_empty")
+MapSpot/styles/focus = SubResource("map_empty")
+MapSpot/styles/hover = SubResource("map_spot_hover")
+MapSpot/styles/hover_pressed = SubResource("map_spot_hover")
+MapSpot/styles/normal = SubResource("map_empty")
+MapSpot/styles/pressed = SubResource("map_spot_hover")
 ToastPanel/base_type = &"PanelContainer"
 ToastPanel/styles/panel = SubResource("toast")
 ToggleButton/base_type = &"Button"
